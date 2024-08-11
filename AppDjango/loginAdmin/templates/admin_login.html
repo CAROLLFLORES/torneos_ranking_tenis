@@ -1,0 +1,26 @@
+{% extends "layout.html" %}    
+
+{% block content %} 
+
+    <!-- Barra de Título -->
+    <div class="container-admin">
+        <div class="title-bar">
+            <h2>ADMINISTRACIÓN</h2>
+        </div>
+        <div>
+            <div class="login-box">
+                <input type="text" placeholder="Usuario" class="input-field">
+                <hr class="separator">
+                <input type="password" placeholder="Clave" class="input-field">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember" class="remember-me-label">Recordar</label>
+                </div>
+               <!-- template.html -->
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button">Aceptar</button>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

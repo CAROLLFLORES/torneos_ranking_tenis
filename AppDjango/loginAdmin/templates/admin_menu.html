@@ -1,0 +1,80 @@
+{% extends "layout.html" %}    
+
+{% block content %} 
+<div class="container-admin">
+    <!-- Deslizador -->
+    <div class="slider-container">
+        <!-- Primer recuadro: Jugadores -->
+        <div class="slide">
+            <div class="card">
+                <div class="login-box">
+                    <div class="title-wrapper">
+                        <h1 class="box-title">JUGADORES</h1>
+                    </div>
+                    <div class="title-bar">
+                        <h2>BUSCAR POR JUGADOR</h2>
+                    </div>
+                    <div class="search-container">
+                        <div class="search-wrapper">
+                            <input type="text" id="searchInput" placeholder="Buscar..." oninput="filterPlayers()">
+                            <i class="bi bi-search"></i>
+                            <ul id="suggestions" class="autocomplete-suggestions"></ul>
+                        </div>
+                        <hr class="separator">
+                    </div>
+                    <div class="title-bar">
+                        <h2>AGREGAR NUEVO JUGADOR</h2>
+                    </div>
+                    <a href="{% url 'admin_carga_jugador' %}">
+                        <button class="login-button">AGREGAR</button>
+                    </a>
+                    
+                </div>
+                <div class="login-box-secundario">
+                    <a href="*">
+                        <button class="login-button">LISTADO COMPLETO</button>
+                    </a>
+                    <a href="*">
+                        <button class="login-button">LISTADO x CATEGORIA</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segundo recuadro: Ranking -->
+        <div class="slide">
+            <div class="card">
+                <div class="login-box">
+                    <div class="title-wrapper">
+                        <h1 class="box-title">RANKING</h1>
+                    </div>
+                    <div class="title-bar">
+                        <h2>BUSCAR POR CATEGORIA</h2>
+                    </div>
+                    <div class="search-container">
+                        <div class="search-wrapper">
+                            <input type="text" id="searchTorneo" placeholder="Buscar...">
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <hr class="separator">
+                    </div>
+                    <div class="title-bar">
+                        <h2>AGREGAR NUEVO TORNEO</h2>
+                    </div>
+                    <a href="{% url 'admin_carga_jugador' %}">
+                        <button class="login-button">AGREGAR</button>
+                    </a>
+                                           
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones para navegar el deslizador -->
+    <button class="prev" onclick="slide(-1)">&#10094;</button>
+    <button class="next" onclick="slide(1)">&#10095;</button>
+</div>
+
+
+
+{% endblock %}

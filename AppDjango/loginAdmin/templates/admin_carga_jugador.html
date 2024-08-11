@@ -1,0 +1,34 @@
+{% extends "layout.html" %}    
+
+{% block content %} 
+<div class="title-bar">
+    <h2>ALTA JUGADOR</h2>
+</div>
+<div class="container-admin">
+    <div class="login-box">
+    <form id="form-nuevo-jugador">
+        <input type="text" id="nombre" name="nombre" placeholder="Nombre" required>
+        <input type="text" id="apellido" name="apellido" placeholder="Apellido" required>
+        <input type="number" id="dni" name="dni" placeholder="DNI" required>
+        <select id="sexo" name="sexo" required>
+            <option value="" disabled selected>Sexo</option>
+            <option value="M">Masculino</option>
+            <option value="F">Femenino</option>
+        </select>
+        <input type="text" id="toreno" name="toreno" placeholder="Toreno" required>
+        <select id="categoria" name="categoria" required>
+            <option value="" disabled selected>CATEGORIA</option>
+            <option value="1">1° Intermedia</option>
+            <option value="2">2 + 30</option>
+            <option value="3">3 + 30</option>
+            <option value="4">4 + 30</option>
+            <option value="5">5 + 30</option>
+            <option value="6">6 + 30</option>
+        </select>
+        <input type="file" id="foto" name="foto">
+        <button class="login-button" type="submit">ACEPTAR</button>
+    </form>
+</div>
+</div>
+</div>
+{% endblock %}
