@@ -1,0 +1,84 @@
+{% load static%}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% block title%}
+        <!--Titulo de cada pagina-->
+        {% endblock%}
+        !  Liga Tenis 2024
+        
+    </title>
+    <script src="{% static 'js/script.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static "css/styles.css" %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+</head>
+<body >
+    <style>
+        body {
+            margin: 0;
+            font-family: Roboto, sans-serif;
+            background-image: url("{% static 'imagenes/fondo_administracion.jpeg' %}");
+            background-size: cover;
+            background-position: center;
+            color: white;
+        }
+    </style>
+    <!-- Pantalla principal -->
+
+        <div >
+            <header>
+                <div class="menu-principal">
+                    <button class="icon-button" id="menu-toggle">≡</button> <!-- Botón de menú a la izquierda -->
+                    <div class="title-text">LIGA TENIS</div> 
+                    <h1>ADMINISTRADOR</h1><!-- Título en el centro -->
+                    <img src="{% static "imagenes/logo apur.png" %}" alt="APUR Logo" class="logo-menu"> <!-- Logo a la derecha -->
+                </div>
+                <div class="side-menu" id="side-menu">
+                    <div class="menu-header">
+                        <h2>LOBO</h2>
+                        <span class="close-btn" id="close-btn">&times;</span>
+                    </div>
+                    <ul>
+                        <li><a href="genero.html">RANKING</a></li>
+                        <li><a href="#">CATEGORIAS</a></li>
+                        <li><a href="#">JUGADORES</a></li>
+                        <li><a href="#">TIENDA</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="#" class="contact-link">Politicas de seguridad</a></li>
+                        <li><a href="#" class="contact-link">Notificar problemas</a></li>
+                        <li><a href="https://wa.me/+5493413006495" class="contact-link">CONTACTO</a></li>
+                    </ul>
+                </div>
+            </header >
+            
+
+        <div id="content">
+            {% block content%} 
+            <!--Aca va el codigo de cada pagina del template-->      
+            {% endblock %}
+        </div>
+
+
+        <footer>
+            <div class="footer-bar">
+                <a href="frontend.html" class="home-link">
+                    <button class="icon-button">
+                        <i class="bi bi-house-door-fill"></i><!-- Icono de home -->
+                    </button>
+                </a>
+                <button class="footer-button">SALIR</button>
+                <button class="icon-button" id="back-btn">
+                    <i class="bi bi-backspace-fill"></i>
+                </button>                
+            </div>
+        </footer>
+</body>
+</html>
