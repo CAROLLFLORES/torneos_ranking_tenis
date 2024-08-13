@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'loginAdmin',
-    
+    'jugador',
+    'ranking',
+    'torneo'
 ]
 
 MIDDLEWARE = [
