@@ -5,10 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
+        !Liga Tenis 2024
         {% block title%}
-        <!--Titulo de cada pagina-->
+        
         {% endblock%}
-        !  Liga Tenis 2024
+        
         
     </title>
     <script src="{% static 'js/script.js' %}" defer></script>
@@ -40,23 +41,23 @@
                     <h1>ADMINISTRADOR</h1><!-- Título en el centro -->
                     <img src="{% static "imagenes/logo apur.png" %}" alt="APUR Logo" class="logo-menu"> <!-- Logo a la derecha -->
                 </div>
-                <div class="side-menu" id="side-menu">
-                    <div class="menu-header">
-                        <h2>LOBO</h2>
-                        <span class="close-btn" id="close-btn">&times;</span>
-                    </div>
-                    <ul>
-                        <li><a href="genero.html">RANKING</a></li>
-                        <li><a href="#">CATEGORIAS</a></li>
-                        <li><a href="#">JUGADORES</a></li>
-                        <li><a href="#">TIENDA</a></li>
-                    </ul>
-                    <ul>
-                        <li><a href="#" class="contact-link">Politicas de seguridad</a></li>
-                        <li><a href="#" class="contact-link">Notificar problemas</a></li>
-                        <li><a href="https://wa.me/+5493413006495" class="contact-link">CONTACTO</a></li>
-                    </ul>
+            <div class="side-menu" id="side-menu">
+                <div class="menu-header">
+                    <h2>LOBO</h2>
+                    <span class="close-btn" id="close-btn">&times;</span>
                 </div>
+                <ul>
+                    <li><a href="genero.html">RANKING</a></li>
+                    <li><a href="#">CATEGORIAS</a></li>
+                    <li><a href="{% url 'admin_menu' %}">JUGADORES</a></li>
+                    <li><a href="#">TIENDA</a></li>
+                </ul>
+                <ul>
+                    <li><a href="#" class="contact-link">Politicas de seguridad</a></li>
+                    <li><a href="#" class="contact-link">Notificar problemas</a></li>
+                    <li><a href="https://wa.me/+5493413006495" class="contact-link">CONTACTO</a></li>
+                </ul>
+            </div>
             </header >
             
 

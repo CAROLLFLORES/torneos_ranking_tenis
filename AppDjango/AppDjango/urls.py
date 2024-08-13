@@ -26,5 +26,7 @@ urlpatterns = [
     path('login/', views.admin_login, name='login'),  # Ruta para la vista admin_login
     path('admin_menu/', views.admin_menu, name='admin_menu'),
     path('admin_carga_jugador/', views.admin_carga_jugador, name='admin_carga_jugador'),
+    path('admin_datos_jugador/', views.admin_datos_jugador, name='admin_datos_jugador'),
+    
 
 ]
