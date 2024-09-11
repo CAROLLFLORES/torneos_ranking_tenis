@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container-admin">
+    <h3>Administrador</h3>
+    <div class="text-section">
+        <hr class="separator-line"> <!-- Línea separadora -->
+        <p>LOGIN PARA USUARIO PERMITIDO</p>
+    </div>
+
+    <!-- Contenedor para los recuadros -->
+    <div class="recuadros-container">
+        <!-- Primer recuadro: Login -->
+        <div class="recuadro">
+            <div class="login-box">
+                <h3>USUARIO</h3>
+                <input type="text" placeholder="Usuario" class="input-field">
+                <hr class="separator">
+                <h3>CLAVE</h3>
+                <input type="password" placeholder="Clave" class="input-field">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember" class="remember-me-label">Recordar</label>
+                </div>
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button">Aceptar</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- Segundo recuadro: Ranking -->
+        <div class="recuadro">
+            <div class="login-box">
+                <div class="title-wrapper">
+                    <h1 class="box-title">RANKING</h1>
+                </div>
+                <div class="main-content">
+                    <div class="box-title">
+                        <h2>BUSCAR POR CATEGORIA</h2>
+                    </div>
+                    <div class="search-container">
+                        <div class="search-wrapper">
+                            <input type="text" id="searchTorneo" placeholder="Buscar...">
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <hr class="separator">
+                    </div>
+                    <div class="box-title">
+                        <h2>AGREGAR NUEVO TORNEO</h2>
+                    </div>
+                    <a href="{% url 'admin_carga_jugador' %}">
+                        <button class="login-button">AGREGAR</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -16,17 +16,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
+from django.urls import path, include
 #impotar app con mis vistas
-from loginAdmin import views 
+from loginAdmin import views as loginadmin_views
+from torneo import views as torneo_views
+
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.index, name='index'),  # Ruta para la vista index
-    path('login/', views.admin_login, name='login'),  # Ruta para la vista admin_login
-    path('admin_menu/', views.admin_menu, name='admin_menu'),
-    path('admin_carga_jugador/', views.admin_carga_jugador, name='admin_carga_jugador'),
-    path('admin_datos_jugador/', views.admin_datos_jugador, name='admin_datos_jugador'),
+    path('admin/', admin.site.urls),    
+    # URLs para la app 
+    path('login/', loginadmin_views.admin_login, name='login'),
+    path('admin_menu/', loginadmin_views.admin_menu, name='admin_menu'),
+    path('admin_carga_jugador/', loginadmin_views.admin_carga_jugador, name='admin_carga_jugador'),
+    path('admin_datos_jugador/', loginadmin_views.admin_datos_jugador, name='admin_datos_jugador'),
+    path('menu/', loginadmin_views.menu, name='menu'),
+    path('index/', torneo_views.index, name='index'),
     
 
 ]
+

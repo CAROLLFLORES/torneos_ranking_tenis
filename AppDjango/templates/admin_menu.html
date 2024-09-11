@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container-admin">
+    <h4>ADMINISTRADOR </h4>
+    <div class="text-section">
+        <hr class="separator-line"> <!-- Línea separadora -->
+    <h5>GESTIÓN TORNEOS DE TENIS</h5>
+    <div class="text-section">
+        <hr class="separator-line"> <!-- Línea separadora -->
+        <h2>OPCIONES</h2>
+    </div>
+
+    <!-- Contenedor para los recuadros -->
+    <div class="recuadros-container">
+        <!-- Primer recuadro: JUGADORES -->
+        <div class="recuadro">
+            <div class="login-box">
+                <div class="title-orange-box">
+                    <h1>JUGADORES</h1>
+                </div>
+                <h3>BUSCAR POR JUGADOR</h3>
+                <input type="text" placeholder="Buscar por Jugador" class="input-field">
+                <hr class="separator">
+                <h3>CARGAR NUEVO JUGADOR</h3>
+                <a href="{% url 'admin_carga_jugador' %}">
+                    <button class="login-button">Aceptar</button>
+                </a>
+                <hr class="separator">
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button-gris">Ver listado completo</button>
+                </a>
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button-gris">X categoria</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- Segundo recuadro: Ranking -->
+        <div class="recuadro">
+            <div class="login-box">
+                <div class="title-orange-box">
+                    <h1>RANKING</h1>
+                </div>
+                <h3>BUSCAR POR CATEGORIA</h3>
+                <input type="text" placeholder="Buscar Categorias" class="input-field">
+                <hr class="separator">
+                <h3>LISTADO COMPLETO</h3>
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button">Aceptar</button>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor para los recuadros 2 -->
+    <div class="recuadros-container">
+        <!-- Primer recuadro: CATEGORIA -->
+        <div class="recuadro">
+            <div class="login-box">
+                <div class="title-orange-box">
+                    <h1>CATEGORIA</h1>
+                </div>
+                <h3>BUSCAR POR CATEGORIA</h3>
+                <input type="text" placeholder="Buscar por categorias" class="input-field">
+                <hr class="separator">
+                <h3>LISTADO COMPLETO</h3>
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button">Aceptar</button>
+                </a>
+    
+            </div>
+        </div>
+
+        <!-- Segundo recuadro: PARTIDOS -->
+        <div class="recuadro">
+            <div class="login-box">
+                <div class="title-orange-box">
+                    <h1>PARTIDOS</h1>
+                </div>
+                <h3>POR JUGADOR</h3>
+                <input type="text" placeholder="Buscar por Jugador" class="input-field">
+                <hr class="separator">
+                <h3>POR CATEGORIA</h3>
+                <input type="text" placeholder="Buscar por Categoria" class="input-field">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

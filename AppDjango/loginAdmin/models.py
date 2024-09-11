@@ -11,4 +11,3 @@ class administrador(models.Model):
     id_usuario = models.ForeignKey(usuario,on_delete=models.CASCADE)
 
 
-
