@@ -7,8 +7,10 @@ def admin_login(request):
 def index(request):
     return HttpResponse("probando")
 
+# loginAdmin/views.py
 def admin_menu(request):
-    return render(request, "admin_menu.html")
+    return render(request, 'admin_menu.html')
+
 
 def admin_carga_jugador(request):
     return render(request, "admin_carga_jugador.html")
@@ -18,3 +20,4 @@ def admin_datos_jugador(request):
 
 def menu(request):
     return render(request, "menu.html")
+

@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container-admin">
+    <h4>ADMINISTRADOR</h4>
+    <div class="text-section">
+        <hr class="separator-line"> <!-- Línea separadora -->
+        <h2>LISTADO</h2>
+    </div>
+    <div class="text-section">
+        <hr class="separator-line"> <!-- Línea separadora -->
+        <h5>COMPLETO DE JUGADORES</h5>
+    </div>
+    <div class="form-container">
+        <!-- Rectángulo angosto a la izquierda -->
+        <div class="narrow-box">
+            <div class="title-orange-gris">
+                <h1>ALTA</h1>
+                <h3 class="negro chico">DE NUEVOS JUGADORES</h3>
+            </div>
+            <br><br>
+            <h3 class="negro">BUSCAR POR JUGADOR</h3>
+            <hr class="separator">
+            <input type="text" placeholder="Buscar por NOMBRE" class="input-field"><br>
+            <input type="text" placeholder="Buscar por APELLIDO" class="input-field">
+            <hr class="separator">
+
+            <!-- Contenedor para los botones -->
+            <div class="buttons-container">
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button-gris chico">IMPRIMIR</button>
+                </a>
+                <a href="{% url 'admin_menu' %}"> 
+                    <button class="login-button-gris chico">PDF</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- Login box a la derecha del rectángulo angosto -->
+        <div class="login-box grande">
+            <!-- Barra de filtros -->
+            <div class="barra-filtros">
+                <span class="filtros-texto">Filtros</span>
+                <div class="botones-filtros">
+                    <button class="login-button btn-filtro">Opción 1</button>
+                    <button class="login-button btn-filtro">Opción 2</button>
+                </div>
+            </div>
+            <!-- Barra de títulos -->
+            <div class="barra-titulos">
+                <div class="titulo-item">Nombre</div>
+                <div class="titulo-item">Apellido</div>
+                <div class="titulo-item">DNI</div>
+                <div class="titulo-item">Sexo</div>
+                <!-- Agrega más títulos según necesites -->
+            </div>
+            <!-- Lista de jugadores -->
+            <div class="player-list">
+                {% for jugador in jugadores %}
+                <div class="player-item">
+                    <span>{{ jugador.nombre }}</span>
+                    <span>{{ jugador.apellido }}</span>
+                    <span>{{ jugador.dni }}</span>
+                    <span>{{ jugador.sexo }}</span>
+                </div>
+                <hr class="player-separator">
+                {% empty %}
+                <p>No hay jugadores registrados.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -28,6 +28,8 @@ h3{
     font-style: LIGHT;
     font-weight: 100; 
     margin-bottom: -1px;
+    text-align: center;
+    align-items: center;
 }
 
 .negro{
@@ -657,3 +659,87 @@ header {
     font-weight: bold;
     margin-bottom: 10px;
 }
+
+/*separador listados*/
+.player-record {
+    padding: 10px;
+    border-bottom: 1px solid #ddd; /* Línea de separación entre registros */
+}
+
+.player-separator {
+    border: none; /* Elimina cualquier borde del separador */
+    height: 2px; /* Espesor del separador entre renglones */
+    background-color: #ddd; /* Color del separador */
+    margin: 0; /* Elimina el margen */
+}
+
+.player-list {
+    margin-top: 10px;
+}
+
+.player-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    padding-left: 10px
+}
+
+.player-item span {
+    padding-left: 10px; /* Espacio a la izquierda de los datos */
+    text-align: left; /* Alinea el texto a la izquierda dentro de cada celda */
+    border-bottom: 1px solid #ddd; /* Línea separadora entre filas de datos */
+    display: flex; /* Para alinear verticalmente */
+    align-items: center; /* Centra verticalmente el contenido dentro de cada celda */
+    margin-bottom: 0; /* Elimina el margen inferior */
+}
+
+/*litado jugadores*/
+.barra-titulos {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Ajusta según el número de columnas */
+    gap: 10px; /* Espacio entre columnas */
+    background-color: #fff;
+    border-top: 2px solid black; /* Línea arriba */
+    border-bottom: 2px solid black; /* Línea abajo */
+    padding: 10px;
+    text-align: left; /* Alinea el texto a la izquierda */
+}
+
+.barra-titulos span {
+    flex: 1;
+    text-align: center;
+}
+
+.login-box.grande {
+    position: relative;
+    width: 100%; /* O ajusta el ancho según sea necesario */
+    max-width: 800px; /* Ajusta según el diseño deseado */
+    margin: 0 auto; /* Centra el login-box en el contenedor padre */
+    padding: 20px;
+    background-color: #f9f9f9; /* Opcional: color de fondo del login-box */
+    border: 1px solid #ddd; /* Opcional: borde alrededor del login-box */
+}
+
+/* barra filtros*/
+
+.barra-filtros {
+    background-color: #808080; /* Color gris claro */
+    padding-right: 10px;
+    padding-top: -5px;
+    display: flex;
+    align-items: center; /* Centra verticalmente */
+    justify-content: space-between; /* Distribuye el espacio horizontalmente */
+    margin-bottom: 10px;
+}
+
+.barra-filtros span {
+    font-weight: bold;
+    flex: 1; /* Toma el espacio disponible */
+    text-align: center; /* Centra el texto */
+}
+
+.botones-filtros {
+    display: flex;
+    gap: 40px; /* Espacio entre botones */
+}
+

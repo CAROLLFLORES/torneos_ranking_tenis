@@ -5,11 +5,11 @@
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
         <hr class="separator-line"> <!-- Línea separadora -->
-        <h5>ALTA</h5>
+        <h2>ALTA</h2>
     </div>
     <div class="text-section">
         <hr class="separator-line"> <!-- Línea separadora -->
-        <h2>CARGA DE NUEVO JUGADOR</h2>
+        <h5>CARGA DE NUEVO JUGADOR</h5>
     </div>
     <div class="form-container">
         <!-- Rectángulo angosto a la izquierda -->
@@ -18,46 +18,78 @@
                 <h1>ALTA</h1>
                 <h3 class="negro chico">DE NUEVOS JUGADORES</h3>
             </div>
-            <hr class="separator">
+            <br><br>
             <h3 class="negro">BUSCAR POR JUGADOR</h3>
-                <input type="text" placeholder="Buscar por Jugador" class="input-field">
-                <hr class="separator">
+            <hr class="separator">
+            <input type="text" placeholder="Buscar por NOMBRE" class="input-field"><br>
+            <input type="text" placeholder="Buscar por APELLIDO" class="input-field">
+            <hr class="separator">
 
-                <!-- Contenedor para los botones -->
+            <!-- Contenedor para los botones -->
             <div class="buttons-container">
                 <a href="{% url 'admin_menu' %}">
                     <button class="login-button-gris chico">IMPRIMIR</button>
                 </a>
                 <a href="{% url 'admin_menu' %}">
-                    <button class="login-button-gris chico">PDF </button>
+                    <button class="login-button-gris chico">PDF</button>
                 </a>
             </div>
-                
         </div>
 
         <!-- Login box a la derecha del rectángulo angosto -->
         <div class="login-box">
-            <form id="form-nuevo-jugador">
-                <input type="text" id="nombre" name="nombre" placeholder="Nombre" required>
-                <input type="text" id="apellido" name="apellido" placeholder="Apellido" required>
-                <input type="number" id="dni" name="dni" placeholder="DNI" required>
-                <select id="sexo" name="sexo" required>
-                    <option value="" disabled selected>Sexo</option>
-                    <option value="masculino">Masculino</option>
-                    <option value="femenino">Femenino</option>
-                </select>
-                <input type="text" id="toreno" name="toreno" placeholder="Torneo" required>
-                <select id="categoria" name="categoria" required>
-                    <option value="" disabled selected>CATEGORIA</option>
-                    <option value="1">1° Intermedia</option>
-                    <option value="2">2 + 30</option>
-                    <option value="3">3 + 30</option>
-                    <option value="4">4 + 30</option>
-                    <option value="5">5 + 30</option>
-                    <option value="6">6 + 30</option>
-                </select>
-                <input type="file" id="foto" name="foto">
-                <button class="login-button" type="submit">ACEPTAR</button>
+            <form method="POST" action="{% url 'admin_carga_jugador' %}" id="form-nuevo-jugador">
+
+                <h2>DATOS</h2>
+                {% csrf_token %}
+                
+                <div>
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Nombre" required>
+                </div>
+                
+                <div>
+                    <label for="apellido">Apellido</label>
+                    <input type="text" id="apellido" name="apellido" placeholder="Apellido" required>
+                </div>
+                
+                <div>
+                    <label for="dni">DNI</label>
+                    <input type="number" id="dni" name="dni" placeholder="DNI" required>
+                </div>
+                
+                <div>
+                    <select id="sexo" name="sexo" required>
+                        <option value="" disabled selected>Seleccionar sexo</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="femenino">Femenino</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="torneo">Torneo</label>
+                    <input type="text" id="torneo" name="torneo" placeholder="Torneo" >
+                </div>
+                
+                <div>
+                    <label for="categoria">Categoría</label>
+                    <select id="categoria" name="categoria" >
+                        <option value="" disabled selected>Seleccionar categoría</option>
+                        <option value="1">1° Intermedia</option>
+                        <option value="2">2 + 30</option>
+                        <option value="3">3 + 30</option>
+                        <option value="4">4 + 30</option>
+                        <option value="5">5 + 30</option>
+                        <option value="6">6 + 30</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="foto">Foto</label>
+                    <input type="file" id="foto" name="foto">
+                </div>
+                
+                <button class="login-button" type="submit">SIGUIENTE</button>
             </form>
         </div>
     </div>
