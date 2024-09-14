@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- Barra de Título -->
+<div class="container-admin">
+    <h4>ADMINISTRADOR </h4>
+    <div class="text-section">
+        <hr class="separator-line"> <!-- Línea separadora -->
+        <p>LOGIN PARA USUARIO PERMITIDO</p>
+    </div>
+    <div>
+        <div class="login-box">
+            <h3>USUARIO </h3>
+            <input type="text" placeholder="Usuario" class="input-field">
+            <hr class="separator">
+            <h3>CLAVE </h3>
+            <input type="password" placeholder="Clave" class="input-field">
+            <div class="remember-me">
+                <input type="checkbox" id="remember">
+                <label for="remember" class="remember-me-label">Recordar</label>
+            </div>
+            <!-- template.html -->
+            <a href="{% url 'admin_menu' %}">
+                <button class="login-button">Aceptar</button>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
