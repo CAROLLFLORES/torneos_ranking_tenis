@@ -259,6 +259,8 @@ a {
     color: white;
 }
 
+
+
 /* Estilos para el Logo */
 .logo-menu {
     height: 40px;
@@ -659,8 +661,7 @@ header {
     font-weight: bold;
     margin-bottom: 10px;
 }
-
-/*separador listados*/
+/* Listado de jugadores */
 .player-record {
     padding: 10px;
     border-bottom: 1px solid #ddd; /* Línea de separación entre registros */
@@ -674,42 +675,47 @@ header {
 }
 
 .player-list {
-    margin-top: 10px;
+    display: flex;
+    flex-direction: column; /* Asegura que los jugadores se muestren uno debajo del otro */
+    gap: 5px; /* Espacio entre jugadores */
+    text-align: left; /* Alinear texto a la izquierda */
 }
 
 .player-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    padding-left: 10px
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; /* Define el ancho de las columnas */
+    gap: 20px; /* Espacio entre columnas */
+    align-items: center; /* Centra verticalmente */
+    text-align: left; /* Alinear texto a la izquierda */
 }
 
 .player-item span {
-    padding-left: 10px; /* Espacio a la izquierda de los datos */
+    padding: 5px 0; /* Espacio vertical en los datos */
     text-align: left; /* Alinea el texto a la izquierda dentro de cada celda */
-    border-bottom: 1px solid #ddd; /* Línea separadora entre filas de datos */
-    display: flex; /* Para alinear verticalmente */
-    align-items: center; /* Centra verticalmente el contenido dentro de cada celda */
-    margin-bottom: 0; /* Elimina el margen inferior */
+    margin: 0; /* Elimina márgenes adicionales */
 }
 
-/*litado jugadores*/
+.titulo-item {
+    text-align: left; /* Alinear los títulos a la izquierda */
+}
+
+/* Barra de títulos */
 .barra-titulos {
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; /* Define el ancho de las columnas */
+    gap: 20px; /* Espacio entre columnas */
+    text-align: left; /* Alinear texto a la izquierda */
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Ajusta según el número de columnas */
-    gap: 10px; /* Espacio entre columnas */
     background-color: #fff;
     border-top: 2px solid black; /* Línea arriba */
     border-bottom: 2px solid black; /* Línea abajo */
     padding: 10px;
-    text-align: left; /* Alinea el texto a la izquierda */
 }
 
 .barra-titulos span {
-    flex: 1;
-    text-align: center;
+    text-align: left; /* Alinear texto a la izquierda en la barra de títulos */
 }
 
+/* Login-box grande */
 .login-box.grande {
     position: relative;
     width: 100%; /* O ajusta el ancho según sea necesario */
@@ -720,8 +726,7 @@ header {
     border: 1px solid #ddd; /* Opcional: borde alrededor del login-box */
 }
 
-/* barra filtros*/
-
+/* Barra de filtros */
 .barra-filtros {
     background-color: #808080; /* Color gris claro */
     padding-right: 10px;
@@ -743,3 +748,23 @@ header {
     gap: 40px; /* Espacio entre botones */
 }
 
+/* Botón eliminar */
+.modificar-button {
+    color: #fff;
+    font-size: 20px; /* Tamaño del signo '-' */
+    background-color: #819e00;
+    text-decoration: none;
+    border-radius: 10px;
+    width: 40px; /* Tamaño del botón */
+    height: 20px; /* Tamaño del botón */
+    display: flex; /* Activamos Flexbox */
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    padding: 0; /* Sin padding extra */
+    border: none; /* Sin borde extra */
+    box-sizing: border-box; /* Aseguramos que el tamaño incluya bordes/padding */
+}
+
+.modificar-button:hover {
+    background-color: #055216;
+}

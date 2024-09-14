@@ -15,9 +15,6 @@ def admin_menu(request):
 def admin_carga_jugador(request):
     return render(request, "admin_carga_jugador.html")
 
-def admin_datos_jugador(request):
-    return render(request, "admin_datos_jugador.html")
-
 def menu(request):
     return render(request, "menu.html")
 
