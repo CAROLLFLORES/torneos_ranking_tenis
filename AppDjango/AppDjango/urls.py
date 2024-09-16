@@ -30,7 +30,7 @@ urlpatterns = [
     # URLs para la app 
     path('login/', loginadmin_views.admin_login, name='login'),
     path('admin_menu/', loginadmin_views.admin_menu, name='admin_menu'),    
-    path('admin_datos_jugador/', loginadmin_views.admin_datos_jugador, name='admin_datos_jugador'),
+     path('datos_jugador/<int:jugador_id>/', jugador_views.datos_jugador, name='datos_jugador'),
     path('menu/', loginadmin_views.menu, name='menu'),
     path('index/', torneo_views.index, name='index'),
     path('admin_carga_jugador/', jugador_views.CrearJugador, name='admin_carga_jugador'),  # Asegúrate de que el nombre coincida aquí
