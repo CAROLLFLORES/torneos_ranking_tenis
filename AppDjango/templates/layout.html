@@ -19,14 +19,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
 </head>
-<body class="fondo1">
+<body class="{% block body_class %}fondo-principal{% endblock %}">
     <header>
         <div class="menu-principal">
             <button class="hamburguesa" id="menu-toggle">≡</button> <!-- Botón de menú a la izquierda -->
             
             <ul class="nav-list">
                 <li class="nav-item">
-                    <a class="nav-link " href="#">PADRON</a>
+                    <a class="nav-link" href="#">PADRON</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">TORNEOS</a>
