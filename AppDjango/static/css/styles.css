@@ -19,8 +19,20 @@ html, body {
     padding: 0;
     height: 100%;
     overflow: hidden;
-    background-image: url("/static/imagenes/fondo1.jpeg");
     overflow-y: auto; 
+}
+
+/* Fondo para la página principal */
+.fondo-principal {
+    background-image: url("/static/imagenes/fondo1.jpeg");
+}
+
+/* Fondo para otras páginas */
+.fondo-secundario {
+    background-image: url("/static/imagenes/fondoPelotas.jpeg"); /* Cambia esto por la imagen que desees */
+    background-size: 100%; /* Ajusta el tamaño a un 80% del contenedor */
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 h3{
