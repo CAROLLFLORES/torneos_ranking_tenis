@@ -88,3 +88,27 @@ def busqueda_jugador(request):
 def datos_jugador(request, jugador_id):
     jugador = get_object_or_404(Jugador, id=jugador_id)
     return render(request, 'datos_jugador.html', {'jugador': jugador})
+
+
+
+
+def abm_categoria(request):
+    if request.method == "POST":
+        descripcion = request.POST.get("nombre")
+        try:
+            Categoria.objects.create(categoria=descripcion)
+            return redirect('exito_categoria')  
+        except Exception as e:
+            print(f"Error al crear categoría: {e}")
+            return render(request, "error_page.html", {"error": str(e)})
+    
+    return render(request, "abm_categoria.html")
+
+
+def exito_categoria(request):
+    return render(request, "exito_categoria.html")
+
+
+def listado_categorias(request):
+    categorias = Categoria.objects.all()
+    return render(request, 'listado_categorias.html', {'categorias': categorias})

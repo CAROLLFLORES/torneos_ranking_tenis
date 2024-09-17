@@ -1,0 +1,36 @@
+<!-- listado_categorias.html -->
+{% extends "layout.html" %}    
+{% block body_class %}fondo-secundario{% endblock %}
+
+{% block content %} 
+<div class="container-admin">
+    <h4>LISTADO DE CATEGORÍAS</h4>
+    <div class="text-section">
+        <hr class="separator-line"> <!-- Línea separadora -->
+        <h2>LISTADO</h2>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for categoria in categorias %}
+            <tr>
+                <td>{{ categoria.id }}</td>
+                <td>{{ categoria.nombre }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No hay categorías disponibles.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'admin_menu' %}">
+        <button class="login-button-gris chico">VOLVER</button>
+    </a>
+</div>
+{% endblock %}
