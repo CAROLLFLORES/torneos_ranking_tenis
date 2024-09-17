@@ -16,16 +16,20 @@
         <!-- Rectángulo angosto a la izquierda -->
         <div class="narrow-box">
             <div class="title-orange-gris">
-                <h1>ALTA</h1>
-                <h3 class="negro chico">DE NUEVOS JUGADORES</h3>
+                <h1>JUGADORES</h1>
+                <h3 class="negro chico">OPCIONES</h3>
             </div>
             <br><br>
             <h3 class="negro">BUSCAR POR JUGADOR</h3>
             <hr class="separator">
-            <input type="text" placeholder="Buscar por NOMBRE" class="input-field"><br>
-            <input type="text" placeholder="Buscar por APELLIDO" class="input-field">
+            <input type="text" placeholder="Buscar por APELLIDO" class="input-field"><br>
             <hr class="separator">
-
+            <a href="{% url 'listado_jugadores' %}">
+                <button class="login-button chico">Listado completo</button>
+            </a>
+            <a href="{% url 'listado_jugadores' %}">
+                <button class="login-button chico">por Categoria</button>
+            </a>
             <!-- Contenedor para los botones -->
             <div class="buttons-container">
                 <a href="{% url 'admin_menu' %}">
@@ -41,10 +45,13 @@
         <div class="login-box">
             <form method="POST" action="{% url 'admin_carga_jugador' %}" id="form-nuevo-jugador">
 
-                <h2>DATOS</h2>
+                <div class="title-orange-box grande">
+                    <h2>ALTA</h2>
+                </div>
                 {% csrf_token %}
                 
                 <div>
+                    <br>
                     <label for="nombre">Nombre</label>
                     <input type="text" id="nombre" name="nombre" placeholder="Nombre" required>
                 </div>

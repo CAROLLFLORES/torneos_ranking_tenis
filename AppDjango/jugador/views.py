@@ -4,6 +4,9 @@ from .models import Jugador, Categoria
 def datos_jugador(request):
     return render(request, "datos_jugador.html")
 
+def abm_categoria(request):
+    return render(request, "abm_categoria.html")
+
 def CrearJugador(request):
     if request.method == "POST":
         j_nombre = request.POST.get("nombre")

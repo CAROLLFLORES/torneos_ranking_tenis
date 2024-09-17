@@ -119,22 +119,54 @@ a {
 }
 
 /* Estilo para el contenedor del título en naranja */
-.title-orange-box {
-    background-color: orange;
-    padding: 0px;
-    color: rgb(5, 5, 5);
-    text-align: center;
-    font-size: 1em;
-    font-weight: bold;
-    border-top-left-radius: 15px;  /* Solo bordes superiores redondeados */
-    border-top-right-radius: 15px;
-    border-bottom-left-radius: 0;  /* Bordes inferiores rectos */
-    border-bottom-right-radius: 0;
-    margin-bottom: 10px;
-    width: 100%;
-    box-sizing: border-box;
-    margin-top: -40px;
+.title-orange-box {     
+    background-color: orange;     
+    padding: 0.2px;  /* Reduce el padding para hacer la barra más fina */
+    color: rgb(5, 5, 5);     
+    text-align: center;     
+    font-size: 1em;     
+    font-weight: bold;     
+    border-top-left-radius: 15px;  /* Bordes superiores redondeados */     
+    border-top-right-radius: 15px;     
+    border-bottom-left-radius: 0;  /* Bordes inferiores rectos */     
+    border-bottom-right-radius: 0;     
+    margin-bottom: 10px;     
+    width: 100%;     
+    box-sizing: border-box;     
+    margin-top: -30px; 
+    line-height: 20px;
 }
+.title-orange-box.grande {     
+    background-color: orange;     
+    padding: 5px;  /* El padding positivo ajusta el espacio interno de la barra */     
+    color: rgb(5, 5, 5);     
+    text-align: center;     
+    font-size: 1em;     
+    font-weight: bold;     
+    border-top-left-radius: 15px;  /* Bordes superiores redondeados */     
+    border-top-right-radius: 15px;     
+    border-bottom-left-radius: 0;  /* Bordes inferiores rectos */     
+    border-bottom-right-radius: 0;     
+    margin-bottom: 100px;  /* Aumenta el espacio debajo de la barra */     
+    width: 100%;     
+    box-sizing: border-box;     
+    margin-top: 0px;  /* Ajuste para que esté alineado correctamente */    
+    line-height: 1.5em;  /* Ajusta la altura de línea para centrar el texto verticalmente */
+}
+
+.grande {
+    position: absolute;  /* Se ajusta al contenedor padre */
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;        /* Ajusta la altura para asegurar que el texto quepa dentro */  
+    width: 100%;         /* Ocupa todo el ancho del contenedor padre */
+    z-index: 1;          /* Asegura que esté sobre otros elementos si es necesario */
+    display: flex;       /* Usa flexbox para centrar el contenido */
+    justify-content: center;  /* Centra el texto horizontalmente */
+    align-items: center;      /* Centra el texto verticalmente */
+}
+
 
 .title-orange-gris {
     background-color: rgb(172, 172, 172);
@@ -470,6 +502,9 @@ header {
     padding-bottom: 30px;
     padding-top: 15px;
     margin-bottom: 50px;
+
+    position: relative;  /* Asegura que .grande se ajuste correctamente */
+    min-height: 300px; 
 }
 
 
@@ -517,6 +552,7 @@ header {
     text-decoration: none;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); 
 }
+
 
 .login-button:hover {
     background-color: rgb(165, 83, 15);
@@ -725,17 +761,6 @@ header {
 
 .barra-titulos span {
     text-align: left; /* Alinear texto a la izquierda en la barra de títulos */
-}
-
-/* Login-box grande */
-.login-box.grande {
-    position: relative;
-    width: 100%; /* O ajusta el ancho según sea necesario */
-    max-width: 800px; /* Ajusta según el diseño deseado */
-    margin: 0 auto; /* Centra el login-box en el contenedor padre */
-    padding: 20px;
-    background-color: #f9f9f9; /* Opcional: color de fondo del login-box */
-    border: 1px solid #ddd; /* Opcional: borde alrededor del login-box */
 }
 
 /* Barra de filtros */
