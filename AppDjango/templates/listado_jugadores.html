@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
 <div class="container-admin">
@@ -22,7 +23,9 @@
             <h3 class="negro">BUSCAR POR JUGADOR</h3>
             <hr class="separator">
             <input type="text" placeholder="Buscar por NOMBRE" class="input-field"><br>
-            <input type="text" placeholder="Buscar por APELLIDO" class="input-field">
+            <input type="text" name="apellido" placeholder="Buscar por APELLIDO" class="input-field">
+            <button type="submit" name="accion" value="ver" class="login-button">Buscar</button>
+            
             <hr class="separator">
 
             <!-- Contenedor para los botones -->
@@ -48,20 +51,24 @@
             </div>
             <!-- Barra de títulos -->
             <div class="barra-titulos">
-                <div class="titulo-item">Nombre</div>
-                <div class="titulo-item">Apellido</div>
+                <div class="titulo-item">APELLIDO</div>
+                <div class="titulo-item">NOMBRE</div>                
                 <div class="titulo-item">DNI</div>
-                <div class="titulo-item">Sexo</div>
+                <div class="titulo-item">SEXO</div>
+                <div class="titulo-item">CATEGORIA</div>
+                <div class="titulo-item">MODIFICAR</div>
                 <!-- Agrega más títulos según necesites -->
             </div>
             <!-- Lista de jugadores -->
-            <div class="player-list">
+            <div class="player-list"><hr>
                 {% for jugador in jugadores %}
-                <div class="player-item">
-                    <span>{{ jugador.nombre }}</span>
+                <div class="player-item">                    
                     <span>{{ jugador.apellido }}</span>
+                    <span>{{ jugador.nombre }}</span>
                     <span>{{ jugador.dni }}</span>
                     <span>{{ jugador.sexo }}</span>
+                    <span>{{ jugador.sexo }}</span>
+                    <a href="" class="modificar-button">+</a> 
                 </div>
                 <hr class="player-separator">
                 {% empty %}

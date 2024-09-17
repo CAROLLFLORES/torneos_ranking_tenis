@@ -1,0 +1,64 @@
+{% extends "layout.html" %}    
+{% block body_class %}fondo-secundario{% endblock %}
+
+{% block content %} 
+<div class="container-admin">
+    <h4>ADMINISTRADOR</h4>
+    <div class="text-section">
+        <hr class="separator-line"> <!-- Línea separadora -->
+        <h2>ALTA</h2>
+    </div>
+    <div class="text-section">
+        <hr class="separator-line"> <!-- Línea separadora -->
+        <h5>CATEGORIA</h5>
+    </div>
+    <div class="form-container">
+        <!-- Rectángulo angosto a la izquierda -->
+        <div class="narrow-box">
+            <div class="title-orange-gris">
+                <h1>CATEGORIA</h1>
+                <h3 class="negro chico">OPCIONES</h3>
+            </div>
+            <br><br>
+            <h3 class="negro">BUSCAR</h3>
+            <hr class="separator">
+            <input type="text" placeholder="Buscar por NOMBRE" class="input-field"><br>
+            <hr class="separator">
+            <a href="{% url 'listado_jugadores' %}">
+                <button class="login-button chico">Listado completo</button>
+            </a>
+            <!-- Contenedor para los botones -->
+            <div class="buttons-container">
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button-gris chico">IMPRIMIR</button>
+                </a>
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button-gris chico">PDF</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- Login box a la derecha del rectángulo angosto -->
+        <div class="login-box">
+            <form method="POST" action="{% url 'abm_categoria' %}" id="form-nuevo-jugador">
+                
+                    <div class="title-orange-box grande">
+                        <h2>ALTA</h2>
+                     </div>
+                
+                
+                {% csrf_token %}
+                
+                <div>
+                    <br>
+                    <label for="nombre">Descripcion</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Descripcion" required>
+                </div>                  
+                
+                <br>
+                <button class="login-button" type="submit">SIGUIENTE</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

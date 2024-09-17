@@ -1,4 +1,5 @@
 {% extends "layout.html" %}    
+{% block body_class %}fondo-secundario{% endblock %}
 {% load static %}
 
 {% block content %} 
@@ -80,6 +81,13 @@
             </div>
         </section>
         <p class="p-centrado"><strong>PARTIDOS JUGADOS</strong></p>
+        <div class="narrow-box">
+            <h1>{{ jugador.nombre }} {{ jugador.apellido }}</h1>
+            <p><strong>DNI:</strong> {{ jugador.dni }}</p>
+            <p><strong>Sexo:</strong> {{ jugador.sexo }}</p>
+            <p><strong>Categoria:</strong> {{ jugador.categoria }}</p>
+            <a href="{% url 'listado_jugadores' %}" class="login-button-gris chico">Volver</a>
+        </div>
 
         <section class="match-history">        
             <div class="match">

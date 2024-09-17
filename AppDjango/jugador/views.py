@@ -1,5 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect , get_object_or_404
 from .models import Jugador, Categoria
+
+def datos_jugador(request):
+    return render(request, "datos_jugador.html")
+
+def abm_categoria(request):
+    return render(request, "abm_categoria.html")
 
 def CrearJugador(request):
     if request.method == "POST":
@@ -36,5 +42,49 @@ def guardar_jugador(request):
 
 
 def listado_jugadores(request):
+    nombre = request.GET.get('nombre', '')
+    apellido = request.GET.get('apellido', '')
+    
+    # Filtrar los jugadores según los parámetros de búsqueda
     jugadores = Jugador.objects.all()
+    if nombre:
+        jugadores = jugadores.filter(nombre__icontains=nombre)
+    if apellido:
+        jugadores = jugadores.filter(apellido__icontains=apellido)
+    
+    jugadores = jugadores.order_by('apellido', 'nombre')  # Ordenar alfabéticamente
+    
     return render(request, 'listado_jugadores.html', {'jugadores': jugadores})
+
+# views.py
+
+def datos_jugador(request, jugador_id):
+    jugador = get_object_or_404(Jugador, id=jugador_id)
+    return render(request, 'datos_jugador.html', {'jugador': jugador})
+
+
+def busqueda_jugador(request):
+    nombre = request.GET.get('nombre', '')
+    apellido = request.GET.get('apellido', '')
+    accion = request.GET.get('accion', '')
+
+    if accion == 'ver' and apellido:
+        try:
+            jugador = Jugador.objects.get(apellido=apellido)
+            return redirect('datos_jugador', jugador_id=jugador.id)
+        except Jugador.DoesNotExist:
+            return render(request, 'listado_jugadores.html', {'error': 'Jugador no encontrado.'})
+    
+    jugadores = Jugador.objects.all()
+    if nombre:
+        jugadores = jugadores.filter(nombre__icontains=nombre)
+    if apellido:
+        jugadores = jugadores.filter(apellido__icontains=apellido)
+    
+    jugadores = jugadores.order_by('apellido', 'nombre')
+    
+    return render(request, 'listado_jugadores.html', {'jugadores': jugadores})
+
+def datos_jugador(request, jugador_id):
+    jugador = get_object_or_404(Jugador, id=jugador_id)
+    return render(request, 'datos_jugador.html', {'jugador': jugador})

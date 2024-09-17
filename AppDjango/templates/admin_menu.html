@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 
+{% block body_class %}fondo-secundario{% endblock %}
 {% block content %}
 <div class="container-admin">
     <h4>ADMINISTRADOR </h4>
@@ -65,9 +66,13 @@
                 <h3>BUSCAR POR CATEGORIA</h3>
                 <input type="text" placeholder="Buscar por categorias" class="input-field">
                 <hr class="separator">
-                <h3>LISTADO COMPLETO</h3>
-                <a href="{% url 'admin_menu' %}">
+                <h3>NUEVA CATEGORIA</h3>
+                <a href="{% url 'abm_categoria' %}">
                     <button class="login-button">Aceptar</button>
+                </a>
+                <hr class="separator">
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button-gris">Listado completo de CATEGORIAS</button>
                 </a>
     
             </div>
