@@ -19,17 +19,22 @@
                 <h1>JUGADORES</h1>
                 <h3 class="negro chico">OPCIONES</h3>
             </div>
-            <br><br>
-            <h3 class="negro">BUSCAR POR JUGADOR</h3>
-            <hr class="separator">
-            <input type="text" placeholder="Buscar por APELLIDO" class="input-field"><br>
-            <hr class="separator">
+            <br>
             <a href="{% url 'listado_jugadores' %}">
                 <button class="login-button chico">Listado completo</button>
             </a>
             <a href="{% url 'listado_jugadores' %}">
                 <button class="login-button chico">por Categoria</button>
             </a>
+            <hr class="separator">
+            <h3 class="negro">BUSCAR POR JUGADOR</h3>            
+            <input type="text" placeholder="Buscar por APELLIDO" class="input-field"><br>
+            <hr class="separator"> 
+            <a href="{% url 'admin_carga_jugador' %}">
+                <button class="login-button chico">ALTA</button>
+            </a>
+           
+            <hr class="separator">           
             <!-- Contenedor para los botones -->
             <div class="buttons-container">
                 <a href="{% url 'admin_menu' %}">

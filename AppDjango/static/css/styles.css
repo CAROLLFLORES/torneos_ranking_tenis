@@ -166,6 +166,19 @@ a {
     justify-content: center;  /* Centra el texto horizontalmente */
     align-items: center;      /* Centra el texto verticalmente */
 }
+/* Asegúrate de que el CSS se está aplicando correctamente */
+/* Asegúrate de que el CSS se está aplicando correctamente */
+.listados {
+    width: 1000px !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
+    border: 1px solid #ddd !important;
+    background-color: #f4f4f4 !important;
+    box-sizing: border-box !important;
+}
+
+
 
 
 .title-orange-gris {
@@ -511,7 +524,7 @@ header {
 .narrow-box {
     background-color: rgba(255, 255, 255, 0.8);
     width: 200px; /* Ancho del rectángulo angosto */
-    height: 550px; /* Ajustar la altura automáticamente */
+    height: auto; /* Ajustar la altura automáticamente */
     padding: 10px; /* Espaciado interno */
     border-radius: 10px; /* Bordes redondeados */
     box-shadow: 2px 8px 16px rgba(0, 0, 0, 1);
@@ -805,3 +818,16 @@ header {
 .modificar-button:hover {
     background-color: #055216;
 }
+
+.separador{
+    border: none;          /* Elimina cualquier borde por defecto */
+    height: 2px;           /* Ajusta el grosor de la línea */
+    background-color: #000; /* Color de la línea (en este caso, negro) */
+    margin: 20px 0;        /* Espaciado opcional arriba y abajo */
+    width: 100%;  
+}
+
+.boton_rojo{
+    background-color: red;
+}
+

@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect , get_object_or_404
 from .models import Jugador, Categoria
 
-def datos_jugador(request):
-    return render(request, "datos_jugador.html")
+def jugador_detalle(request, jugador_id):
+    jugador = get_object_or_404(Jugador, id=jugador_id)
+    return render(request, 'datos_jugador.html', {'jugador': jugador})
 
 def abm_categoria(request):
     return render(request, "abm_categoria.html")
@@ -52,7 +53,7 @@ def listado_jugadores(request):
     if apellido:
         jugadores = jugadores.filter(apellido__icontains=apellido)
     
-    jugadores = jugadores.order_by('apellido', 'nombre')  # Ordenar alfabéticamente
+    jugadores = jugadores.order_by('apellido')  # Ordenar alfabéticamente
     
     return render(request, 'listado_jugadores.html', {'jugadores': jugadores})
 
