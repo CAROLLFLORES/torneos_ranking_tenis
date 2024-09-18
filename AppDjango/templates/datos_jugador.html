@@ -22,9 +22,13 @@
                     <div class="player-data">
                         <p class="texto-gris"><strong>Datos</strong></p>
                         <hr>
-                        <p>DNI: ########</p>
-                        <p>Edad: ##</p>
-                        <p>Ciudad: #######</p>
+                        <div class="details-box">
+                            <p><strong>Apellido:</strong> {{ jugador.apellido }}</p>
+                            <p><strong>Nombre:</strong> {{ jugador.nombre }}</p>
+                            <p><strong>DNI:</strong> {{ jugador.dni }}</p>
+                            <p><strong>Sexo:</strong> {{ jugador.sexo }}</p>
+                            <p><strong>Categoría:</strong> {{ jugador.categoria }}</p>
+                        </div>
                     </div>
                     
                 </div>

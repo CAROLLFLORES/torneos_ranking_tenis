@@ -16,66 +16,86 @@
         <!-- Rectángulo angosto a la izquierda -->
         <div class="narrow-box">
             <div class="title-orange-gris">
-                <h1>ALTA</h1>
-                <h3 class="negro chico">DE NUEVOS JUGADORES</h3>
+                <h1>JUGADORES</h1>
+                <h3 class="negro chico">OPCIONES</h3>
             </div>
-            <br><br>
-            <h3 class="negro">BUSCAR POR JUGADOR</h3>
+            <br>
+            <a href="{% url 'listado_jugadores' %}">
+                <button class="login-button chico">Listado completo</button>
+            </a>
+            <a href="{% url 'listado_jugadores' %}">
+                <button class="login-button chico">por Categoria</button>
+            </a>
             <hr class="separator">
-            <input type="text" placeholder="Buscar por NOMBRE" class="input-field"><br>
-            <input type="text" name="apellido" placeholder="Buscar por APELLIDO" class="input-field">
-            <button type="submit" name="accion" value="ver" class="login-button">Buscar</button>
+            <h3 class="negro">BUSCAR POR JUGADOR</h3>            
+            <input type="text" placeholder="Buscar por APELLIDO" class="input-field"><br>
+            <hr class="separator"> 
+            <a href="{% url 'admin_carga_jugador' %}">
+                <button class="login-button chico">ALTA</button>
+            </a>
             
-            <hr class="separator">
-
+            <hr class="separator">           
             <!-- Contenedor para los botones -->
             <div class="buttons-container">
                 <a href="{% url 'admin_menu' %}">
                     <button class="login-button-gris chico">IMPRIMIR</button>
                 </a>
-                <a href="{% url 'admin_menu' %}"> 
+                <a href="{% url 'admin_menu' %}">
                     <button class="login-button-gris chico">PDF</button>
                 </a>
             </div>
         </div>
 
         <!-- Login box a la derecha del rectángulo angosto -->
-        <div class="login-box grande">
-            <!-- Barra de filtros -->
-            <div class="barra-filtros">
-                <span class="filtros-texto">Filtros</span>
-                <div class="botones-filtros">
-                    <button class="login-button btn-filtro">Opción 1</button>
-                    <button class="login-button btn-filtro">Opción 2</button>
+        <div class="login-box listados">
+            <!-- Estructura de dos columnas -->
+            <div class="login-box-content">
+                <!-- Columna de filtros -->
+                <div class="column-filtros">
+                    <div class="barra-filtros">
+                        <span class="filtros-texto">Filtros</span>
+                        <div class="botones-filtros">
+                            <button class="login-button btn-filtro">Opción 1</button>
+                            <button class="login-button btn-filtro">Opción 2</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <!-- Barra de títulos -->
-            <div class="barra-titulos">
-                <div class="titulo-item">APELLIDO</div>
-                <div class="titulo-item">NOMBRE</div>                
-                <div class="titulo-item">DNI</div>
-                <div class="titulo-item">SEXO</div>
-                <div class="titulo-item">CATEGORIA</div>
-                <div class="titulo-item">MODIFICAR</div>
-                <!-- Agrega más títulos según necesites -->
-            </div>
-            <!-- Lista de jugadores -->
-            <div class="player-list"><hr>
-                {% for jugador in jugadores %}
-                <div class="player-item">                    
-                    <span>{{ jugador.apellido }}</span>
-                    <span>{{ jugador.nombre }}</span>
-                    <span>{{ jugador.dni }}</span>
-                    <span>{{ jugador.sexo }}</span>
-                    <span>{{ jugador.sexo }}</span>
-                    <a href="" class="modificar-button">+</a> 
+
+                <!-- Columna de listado de jugadores -->
+                <div class="column-listado">
+                    <!-- Barra de títulos -->
+                    <div class="barra-titulos">
+                        <div class="titulo-item">APELLIDO</div>
+                        <div class="titulo-item">NOMBRE</div>                
+                        <div class="titulo-item">DNI</div>
+                        <div class="titulo-item">SEXO</div>
+                        <div class="titulo-item">CATEGORIA</div>
+                        <div class="titulo-item">MODIFICAR</div>
+                    </div>
+
+                    <!-- Lista de jugadores -->
+                    <div class="player-list">
+                        {% if jugadores %}
+                        <hr>
+                        {% for jugador in jugadores %}
+                        <div class="player-item">                    
+                            <span class="player-column">{{ jugador.apellido }}</span>
+                            <span class="player-column">{{ jugador.nombre }}</span>
+                            <span class="player-column">{{ jugador.dni }}</span>
+                            <span class="player-column">{{ jugador.sexo }}</span>
+                            <span class="player-column">{{ jugador.categoria }}</span>
+                            <a href="#" class="modificar-button">+</a> 
+                        </div>
+                        <hr class="player-separator">
+                        {% endfor %}
+                        {% else %}
+                        <p>No hay jugadores registrados.</p>
+                        {% endif %}
+                    </div>
                 </div>
-                <hr class="player-separator">
-                {% empty %}
-                <p>No hay jugadores registrados.</p>
-                {% endfor %}
             </div>
         </div>
     </div>
+    
 </div>
 {% endblock %}
