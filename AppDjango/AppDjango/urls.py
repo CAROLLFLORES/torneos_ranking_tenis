@@ -41,5 +41,7 @@ urlpatterns = [
     path('categorias/', jugador_views.listado_categorias, name='listados_categorias'),
     path('exito_categoria/', jugador_views.exito_categoria, name='exito_categoria'),
     path('categorias/eliminar/<int:id_categoria>/', jugador_views.eliminar_categoria, name='eliminar_categoria'),
+    path('borrado_exitoso/<int:jugador_dni>/', jugador_views.borrado_exitoso, name='borrado_exitoso')
+
 ]
 
