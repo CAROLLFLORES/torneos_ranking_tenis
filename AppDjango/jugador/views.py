@@ -85,7 +85,3 @@ def busqueda_jugador(request):
     jugadores = jugadores.order_by('apellido', 'nombre')
     
     return render(request, 'listado_jugadores.html', {'jugadores': jugadores})
-
-def datos_jugador(request, jugador_id):
-    jugador = get_object_or_404(Jugador, id=jugador_id)
-    return render(request, 'datos_jugador.html', {'jugador': jugador})

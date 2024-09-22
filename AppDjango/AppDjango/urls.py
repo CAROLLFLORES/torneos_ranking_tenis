@@ -37,5 +37,7 @@ urlpatterns = [
     path('guardar_jugador/', jugador_views.guardar_jugador, name='guardar_jugador'),
     path('listado_jugadores/', jugador_views.listado_jugadores, name='listado_jugadores'),
     path('abm_categoria/', jugador_views.abm_categoria, name='abm_categoria'),
+    path('datos_jugador/<str:dni>/', jugador_views.datos_jugador, name='datos_jugador'),
+
 ]
 
