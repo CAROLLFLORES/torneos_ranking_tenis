@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block body_class %}fondo-secundario{% endblock %}
+
+{% block content %}
+<div class="container-admin">
+    <h4>ADMINISTRADOR</h4>
+    <div class="text-section">
+        <hr class="separator-line"> <!-- Línea separadora -->
+        <h2>LISTADO DE CATEGORÍAS</h2>
+    </div>
+    
+    <!-- Tabla de categorías -->
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nivel</th>
+                    <th>Edad</th>
+                    <th>Juego</th>
+                    <th>Acciones</th> <!-- Nueva columna para acciones -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for categoria in categorias %}
+                <tr>
+                    <td>{{ categoria.nivel }}</td>
+                    <td>{{ categoria.edad }}</td>
+                    <td>{{ categoria.tipo_juego }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'eliminar_categoria' categoria.id_categoria %}" style="display:inline;"
+                        onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta categoría?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">-</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No hay categorías disponibles.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

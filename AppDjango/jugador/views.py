@@ -5,8 +5,6 @@ def jugador_detalle(request, jugador_id):
     jugador = get_object_or_404(Jugador, id=jugador_id)
     return render(request, 'datos_jugador.html', {'jugador': jugador})
 
-def abm_categoria(request):
-    return render(request, "abm_categoria.html")
 
 def CrearJugador(request):
     if request.method == "POST":
@@ -85,3 +83,43 @@ def busqueda_jugador(request):
     jugadores = jugadores.order_by('apellido', 'nombre')
     
     return render(request, 'listado_jugadores.html', {'jugadores': jugadores})
+
+
+#Begin - 22/09/2024 -Franco Corbalan 'Agrego Funcionalidad de categoria'
+def abm_categoria(request):
+    if request.method == "POST":
+        c_nivel = request.POST.get("nivel")
+        c_edad = request.POST.get("edad")
+        c_tipo_juego = request.POST.get("tipo_juego")
+        
+        try:
+            categoria_existente= Categoria.objects,filter(nivel=c_nivel, edad=c_edad, tipo_juego=c_tipo_juego).exists()
+            
+            if categoria_existente:
+                return render(request, "error_page.html", {"error": "La categoría ya existe."})
+            else:
+                categoria = Categoria(nivel=c_nivel, 
+                                        edad=c_edad, 
+                                        tipo_juego=c_tipo_juego)
+                categoria.save()
+                return redirect('exito_categoria')  
+        except Exception as e:
+            print(f"Error al crear categoría: {e}")
+            return render(request, "error_page.html", {"error": str(e)})
+    
+    return render(request, "abm_categoria.html")
+
+
+def exito_categoria(request):
+    return render(request, "exito_categoria.html")
+
+
+def listado_categorias(request):
+    categorias = Categoria.objects.all()
+    return render(request, 'listados_categorias.html', {'categorias': categorias})
+
+def eliminar_categoria(request, id_categoria):
+    categoria = get_object_or_404(Categoria, id_categoria=id_categoria)
+    categoria.delete()
+    return redirect('listados_categorias')
+#End - 22/09/2024 -Franco Corbalan 'Agrego Funcionalidad de categoria'
