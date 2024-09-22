@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect , get_object_or_404
 from .models import Jugador, Categoria
+from django.http import JsonResponse
 
 def jugador_detalle(request, jugador_id):
     jugador = get_object_or_404(Jugador, id=jugador_id)
@@ -59,8 +60,8 @@ def listado_jugadores(request):
 
 # views.py
 
-def datos_jugador(request, jugador_id):
-    jugador = get_object_or_404(Jugador, id=jugador_id)
+def datos_jugador(request, dni):
+    jugador = get_object_or_404(Jugador, dni=dni)  # Corregido el parámetro
     return render(request, 'datos_jugador.html', {'jugador': jugador})
 
 
@@ -85,3 +86,12 @@ def busqueda_jugador(request):
     jugadores = jugadores.order_by('apellido', 'nombre')
     
     return render(request, 'listado_jugadores.html', {'jugadores': jugadores})
+
+
+def borrar_jugador(request, jugador_dni):
+    jugador = get_object_or_404(Jugador, dni=jugador_dni)
+    jugador.delete()  # Eliminar el jugador
+    return redirect('borrado_exitoso')  # Redirigir a la página de confirmación
+
+def borrado_exitoso(request):
+    return render(request, 'borrado_exitoso.html')

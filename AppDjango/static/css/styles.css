@@ -43,6 +43,16 @@ h3{
     text-align: center;
     align-items: center;
 }
+/*texto naranja*/
+.naranja{
+    color: orange;
+}
+
+.text-left {
+    align-self: flex-start; /* Alinea este contenedor a la izquierda */
+    text-align: left; /* Alinea el texto a la izquierda */
+    width: 100%; /* Asegúrate de que ocupe todo el ancho disponible */
+}
 
 .negro{
     color: #000000;
@@ -415,15 +425,17 @@ header {
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: limegreen;
+    background-color: rgb(85, 85, 85);
     text-align: center;
     align-items: center;
     padding: 10px;
     box-sizing: border-box;
+    height: 40px;
+    margin-top: 100px;
 }
 
 .footer-button {
-    background-color: rgba(7, 82, 11, 0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     border: none;
     padding: 5px 10px;
     font-size: 14px;
@@ -434,7 +446,7 @@ header {
 }
 
 .footer-button:hover {
-    background-color: limegreen;
+    background-color: rgb(104, 104, 104);
     color: black;
 }
 
@@ -449,11 +461,11 @@ header {
 }
 
 .icon-button i {
-    color: rgb(19, 68, 13);
+    color: rgb(0, 0, 0);
 }
 
 .icon-button i:hover {
-    color: rgb(4, 41, 4);
+    color: rgb(122, 122, 122);
 }
 
 /* Estilos de Contenedores */
@@ -537,7 +549,15 @@ header {
 .narrow-box .buttons-container {
     margin-top: auto; /* Empuja los botones hacia abajo */
 }
+/*alinea a la izquierda*/
+.match.izquierda {
+    text-align: left; /* Alinea el texto a la izquierda */
+}
 
+/* Si deseas asegurarte de que todos los elementos dentro también estén alineados */
+.match.izquierda p {
+    margin: 0; /* Elimina márgenes si es necesario */
+}
 
 .input-field {
     width: 70%;
@@ -569,6 +589,11 @@ header {
 
 .login-button:hover {
     background-color: rgb(165, 83, 15);
+}
+
+/*login boton rojo*/
+.rojo{
+    background-color:red
 }
 
 .login-button-gris {
@@ -691,7 +716,13 @@ header {
     box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2); /* Sombra para el rectángulo angosto */
     color: black; /* Color del texto */
 }
+/*narrow box mas largo*/
+.largo{
+    width: 450px;
+    height: 200px;
+    align-items: left;
 
+}
 /* Estilos de los Botones del Deslizador */
 .prev, .next {
     background-color: transparent;
@@ -755,6 +786,26 @@ header {
     text-align: left; /* Alinea el texto a la izquierda dentro de cada celda */
     margin: 0; /* Elimina márgenes adicionales */
 }
+
+.player-data{
+    width: 500px;
+}
+
+.player-card {
+    display: flex; /* Alinea los elementos en fila */
+    justify-content: space-between; /* Espacio entre los dos contenedores */
+}
+
+.player-details {
+    flex: 1; /* Ocupa el espacio restante */
+    margin-right: 20px; /* Espacio entre los contenedores */
+}
+
+.player-stats {
+    width: 200px; /* Ajusta según el tamaño que necesites */
+    /* Puedes añadir más estilos aquí según tus preferencias */
+}
+
 
 .titulo-item {
     text-align: left; /* Alinear los títulos a la izquierda */
@@ -829,5 +880,52 @@ header {
 
 .boton_rojo{
     background-color: red;
+}
+
+/*imagen pelota*/
+.pelota {
+    width: 50px; /* Ajusta según sea necesario */
+    height: auto; /* Mantiene la proporción */
+}
+
+.nombre-jugador {
+    font-size: 30px; /* Ajusta el tamaño según sea necesario */
+    color: white; /* Cambia el color a blanco */
+    margin: -10px; /* Opcional: elimina márgenes si es necesario */
+    text-align: left;
+}
+
+/*detalles del jugador*/
+.details-box p {
+    margin: 2px 0;  /* Reduce top and bottom margin */
+    padding: 0;     /* Ensure no padding is applied */
+}
+
+/*detalles partidos jugados*/
+.info-header {
+    background-color: black;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-header p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.match{
+    align-items: left;
+    text-align: left;
+}
+
+.jugador {
+    font-size: 25px; /* Aumenta el tamaño de la fuente según lo desees */
+    margin-bottom: 10px; /* Espacio entre los párrafos */
+    margin-top: 20px;
+    padding: 20px;
+
 }
 

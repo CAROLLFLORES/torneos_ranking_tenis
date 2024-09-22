@@ -70,7 +70,7 @@
                         <div class="titulo-item">DNI</div>
                         <div class="titulo-item">SEXO</div>
                         <div class="titulo-item">CATEGORIA</div>
-                        <div class="titulo-item">MODIFICAR</div>
+                        <div class="titulo-item">INFO</div>
                     </div>
 
                     <!-- Lista de jugadores -->
@@ -84,7 +84,8 @@
                             <span class="player-column">{{ jugador.dni }}</span>
                             <span class="player-column">{{ jugador.sexo }}</span>
                             <span class="player-column">{{ jugador.categoria }}</span>
-                            <a href="#" class="modificar-button">+</a> 
+                            <a href="{% url 'datos_jugador' jugador.dni %}" class="modificar-button">+</a>
+
                         </div>
                         <hr class="player-separator">
                         {% endfor %}
