@@ -9,110 +9,112 @@
     </div>
     <main>
         <section class="player-info">
-            <div class="player-card">
+            <div class="player-card ancho">
                 <div class="player-photo">
-                    
+                    <!-- Aquí va la foto del jugador -->
                 </div>
                 <div class="player-details">
                     <div class="player-name">
-                        <img src="{% static 'imagenes/pelota.png' %}" alt="Pelota">
-                        <h3>Apellido</h3>
-                        <h3>Nombre</h3>
+                        <img src="{% static 'imagenes/pelota.png' %}" alt="Pelota" class="pelota">
+                        <h3 class="nombre-jugador"><strong>{{ jugador.apellido }}</strong></h3>
+                        <h3 class="nombre-jugador"><strong>{{ jugador.nombre }}</strong></h3>
                     </div>
                     <div class="player-data">
-                        <p class="texto-gris"><strong>Datos</strong></p>
+                        <p class="texto-gris naranja"><strong>Datos</strong></p>
                         <hr>
-                        <div class="details-box">
-                            <p><strong>Apellido:</strong> {{ jugador.apellido }}</p>
-                            <p><strong>Nombre:</strong> {{ jugador.nombre }}</p>
-                            <p><strong>DNI:</strong> {{ jugador.dni }}</p>
-                            <p><strong>Sexo:</strong> {{ jugador.sexo }}</p>
-                            <p><strong>Categoría:</strong> {{ jugador.categoria }}</p>
-                        </div>
-                    </div>
-                    
-                </div>
-                <div class="player-stats">
-                    <h1>TORNEO</h1>
-                    <div class="stat">
-                        <p class="texto-naranja">Single Hombres</p>
-                        <div class="contenedor">
-                            <p class="texto-gris">Categoría:  <span class="numero">###4° + 30</span></p>
-                            <p class="texto-gris">Puntos: <span class="numero">#1500</span></p>
-                            <p class="texto-gris">Posición: <span class="numero">#3°</span></p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat">
-                        <p class="texto-naranja">Doble Hombres</p>
-                        <div class="contenedor">
-                            <p class="texto-gris">Categoría: <span class="numero">###4° + 30</span></p>
-                            <p class="texto-gris">Puntos: <span class="numero">###1500</span></p>
-                            <p class="texto-gris">Posición: <span class="numero">###3°</span></p>
-                        </div>
+                       
                     </div>
                 </div>
-            </div>
-        </section >
-
-       
-        <p class="p-centrado"><strong>HISTORIAL</strong></p> 
-        <section class="history">                     
-                          
-            <div class="history-item">
-                <div class="player-data">
-                    <p class="texto-naranja"><strong>Categoria</strong></p>
-                    <hr>
-                    <p class="texto-negro">##anterior Single Hombres</p>
-                </div>     
-                <div class="player-data">
-                    <p class="texto-naranja"><strong>Posicion</strong></p>
-                    <hr>
-                    <p class="texto-negro">##anterior</p>
-                </div>             
-            </div>
-            <div class="history-item">
-                <div class="player-data">
-                    <p class="texto-naranja"><strong>Categoria</strong></p>
-                    <hr>
-                    <p class="texto-negro">##anterior Single Hombres</p>
-                </div>     
-                <div class="player-data">
-                    <p class="texto-naranja"><strong>Posicion</strong></p>
-                    <hr>
-                    <p class="texto-negro">##anterior</p>
-                </div>             
+                <div class="player-stats"> <!-- Nuevo contenedor a la derecha -->
+                    <h4><strong style="color: black;">CATEGORIA</strong></h4>
+                    <p>{{ jugador.categoria }}</p>
+                    <h4><strong style="color: black;">PUNTUACION</strong></h4>
+                    <p>{{ jugador.puntuacion }}</p>
+                    <h4><strong style="color: black;">RANKING</strong></h4>
+                    <p>{{ jugador.ranking }}</p>
+                </div>
             </div>
         </section>
-        <p class="p-centrado"><strong>PARTIDOS JUGADOS</strong></p>
-        <div class="narrow-box">
-            <h1>{{ jugador.nombre }} {{ jugador.apellido }}</h1>
-            <p><strong>DNI:</strong> {{ jugador.dni }}</p>
-            <p><strong>Sexo:</strong> {{ jugador.sexo }}</p>
-            <p><strong>Categoria:</strong> {{ jugador.categoria }}</p>
-            <a href="{% url 'listado_jugadores' %}" class="login-button-gris chico">Volver</a>
+        <div class="history-item">
+            <div class="details-box">
+                <p><strong>DNI:</strong> {{ jugador.dni }}</p>
+                <p><strong>Sexo:</strong> {{ jugador.sexo }}</p>
+            </div>
         </div>
+        <p class="p-centrado naranja"><strong>Historial</strong></p> 
+                            
+            <div class="history-item">
+                <div class="player-data">
+                    <p class="texto-naranja"><strong>Categoria</strong></p>
+                    <hr>
+                    <p class="texto-negro">##anterior Single Hombres</p>
+                </div>     
+                <div class="player-data">
+                    <p class="texto-naranja"><strong>Posición</strong></p>
+                    <hr>
+                    <p class="texto-negro">##anterior</p>
+                </div>             
+            </div>
+            <div class="history-item">
+                <div class="player-data">
+                    <p class="texto-naranja"><strong>Categoria</strong></p>
+                    <hr>
+                    <p class="texto-negro">##anterior Single Hombres</p>
+                </div>     
+                <div class="player-data">
+                    <p class="texto-naranja"><strong>Posición</strong></p>
+                    <hr>
+                    <p class="texto-negro">##anterior</p>
+                </div>             
+            </div>
+      
 
-        <section class="match-history">        
-            <div class="match">
-                <p>Franco Corva 6 3 6</p>
-                <p>Tomas Servan 2 6 1</p>
+        <p class="p-centrado naranja"><strong>Partidos Jugados</strong></p>
+        <div class="narrow-box largo" style="display: inline-block; margin-right: 20px;">
+            <div class="info-header" style="background-color: black; color: white; padding: 10px; display: flex; justify-content: space-between;">
+                <p><strong>Categoría:</strong> 4° + 30</p>
+                <p><strong>Fecha:</strong> 20/09/2024</p>
             </div>
-            <div class="match">
-                <p>Juan Perez 7 5 6</p>
-                <p>Pedro Lopez 3 7 2</p>
+            <div class="match izquierda" style="text-align: left;">
+                <p class="jugador">Franco Corva&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;6</p>
+                <p class="jugador">Tomas Servan&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;1</p>
             </div>
-            <div class="match">
-                <p>Diego Marquez 6 4 6</p>
-                <p>Carlos Ruiz 1 6 3</p>
-            </div>
-        </section>
+        </div>
         
-
-        <div class="actions">
-            <button class="login-button">MODIFICAR</button>
-            <button class="login-button">BORRAR</button>
+        <div class="narrow-box largo" style="display: inline-block;">
+            <div class="info-header" style="background-color: black; color: white; padding: 10px; display: flex; justify-content: space-between;">
+                <p><strong>Categoría:</strong> 4° + 30</p>
+                <p><strong>Fecha:</strong> 21/09/2024</p>
+            </div>
+            <div class="match izquierda" style="text-align: left;">
+                <p class="jugador">Juan Perez&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;6</p>
+                <p class="jugador">Pedro Lopez&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;2</p>
+            </div>
+        </div>
+        
+        
+        
+        <div class="actions" style="margin-bottom: 100px; margin-top: 50px">
+            <button class="login-button ">MODIFICAR</button>
+            <br>
+             <!-- Botón BORRAR con clase 'delete-button' -->
+            <button class="login-button rojo delete-button">BORRAR</button>
         </div>
     </main>
 </div>
+<script>
+    document.querySelector('.delete-button').addEventListener('click', function(event) {
+        event.preventDefault(); // Evitar el comportamiento por defecto del botón
+        const jugadorDni = {{ jugador.dni }}; // Obtiene el DNI del jugador
+        const jugadorApellido = "{{ jugador.apellido }}"; // Obtiene el apellido del jugador
+    
+        // Mostrar ventana de confirmación con el apellido
+        if (confirm(`¿Desea borrar al jugador ${jugadorApellido}?`)) {
+            // Si el usuario confirma, redirigir a la vista de eliminación
+            window.location.href = `/borrado_exitoso/${jugadorDni}/`; // Esta URL no mostrará el host en la ventana emergente
+        }
+    });
+    </script>
+    
+
 {% endblock %}

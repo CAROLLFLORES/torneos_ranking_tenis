@@ -57,8 +57,8 @@ def listado_jugadores(request):
 
 # views.py
 
-def datos_jugador(request, jugador_id):
-    jugador = get_object_or_404(Jugador, id=jugador_id)
+def datos_jugador(request, dni):
+    jugador = get_object_or_404(Jugador, dni=dni)  # Corregido el parámetro
     return render(request, 'datos_jugador.html', {'jugador': jugador})
 
 
@@ -93,7 +93,7 @@ def abm_categoria(request):
         c_tipo_juego = request.POST.get("tipo_juego")
         
         try:
-            categoria_existente= Categoria.objects,filter(nivel=c_nivel, edad=c_edad, tipo_juego=c_tipo_juego).exists()
+            categoria_existente= Categoria.objects.filter(nivel=c_nivel, edad=c_edad, tipo_juego=c_tipo_juego).exists()
             
             if categoria_existente:
                 return render(request, "error_page.html", {"error": "La categoría ya existe."})
@@ -123,3 +123,12 @@ def eliminar_categoria(request, id_categoria):
     categoria.delete()
     return redirect('listados_categorias')
 #End - 22/09/2024 -Franco Corbalan 'Agrego Funcionalidad de categoria'
+
+def borrar_jugador(request, jugador_dni):
+    jugador = get_object_or_404(Jugador, dni=jugador_dni)
+    jugador.delete()  # Eliminar el jugador
+    return redirect('borrado_exitoso', jugador_dni=jugador_dni)  # Asegúrate de que este parámetro sea el correcto
+
+
+def borrado_exitoso(request, jugador_dni):
+    return render(request, 'borrado_exitoso.html', {'jugador_dni': jugador_dni})
