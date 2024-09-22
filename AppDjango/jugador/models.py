@@ -2,10 +2,12 @@ from django.db import models
 
 class Categoria(models.Model):
     id_categoria = models.AutoField(primary_key=True)
-    categoria = models.CharField(max_length=10)
+    nivel = models.IntegerField(default=0)  # Nuevo campo para Nivel
+    edad = models.IntegerField(default=0)              # Nuevo campo para Edad
+    tipo_juego = models.CharField(max_length=20,default='Sin tipo')  # Nuevo campo para Tipo de Juego
 
     def __str__(self):
-        return self.categoria
+        return f"Categoria: {self.nivel}+{self.edad}+{self.tipo_juego}"
 
 class Jugador(models.Model):
     dni = models.CharField(max_length=8, primary_key=True)

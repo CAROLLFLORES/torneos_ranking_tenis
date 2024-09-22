@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 
+{% load static %}  <!-- Asegúrate de cargar el módulo estático -->
+
 {% block content %}
 <div class="container-admin">
     <h4>GESTOR DE TORNEOS</h4>
@@ -8,11 +10,7 @@
         <p>ONN</p>
     </div>
     <div>
-        <h1 class="display-3 text-light fw-semibold text-align-right h1-right">Torneos de</h1>
-        <h2 class="display-1 text-light fw-bold titulos text-align-right">TENIS</h2>
-        <div class="row">
-            <!-- template.html -->
-        </div>
+        <img src="{% static 'imagenes/logo apur.png' %}" alt="Logo"/>
     </div>
 </div>
 {% endblock %}

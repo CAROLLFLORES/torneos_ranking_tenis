@@ -31,7 +31,7 @@
                 <a href="{% url 'listado_jugadores' %}">
                     <button class="login-button-gris">Ver listado completo</button>
                 </a>
-                <a href="{% url 'admin_menu' %}">
+                <a href="{% url 'abm_categoria' %}">
                     <button class="login-button-gris">X categoria</button>
                 </a>
             </div>
@@ -54,6 +54,7 @@
             </div>
         </div>
     </div>
+    
 
     <!-- Contenedor para los recuadros 2 -->
     <div class="recuadros-container">
@@ -63,16 +64,22 @@
                 <div class="title-orange-box">
                     <h2>CATEGORIA</h2>
                 </div>
-                <h3>BUSCAR POR CATEGORIA</h3>
+                <!-- Begin - Franco Corbalan Modifico 22/09/2024 - Eliminamos Buscado -->
+                <!--<h3>BUSCAR POR CATEGORIA</h3>
                 <input type="text" placeholder="Buscar por categorias" class="input-field">
-                <hr class="separator">
+                <hr class="separator">-->
+                <!-- End - Franco Corbalan Modifico 22/09/2024 - Eliminamos Buscador -->
                 <h3>NUEVA CATEGORIA</h3>
                 <a href="{% url 'abm_categoria' %}">
-                    <button class="login-button">Aceptar</button>
+                    <!-- Begin - Franco Corbalan Modifico 22/09/2024 - Boton Aceptar -->
+                    <!--<button class="login-button">Aceptar</button>-->
+                    <button class="login-button">AGREGAR CATEGORIA</button>
+                    <!-- End - Franco Corbalan Modifico 22/09/2024 - Boton Aceptar -->
+
                 </a>
                 <hr class="separator">
-                <a href="{% url 'admin_menu' %}">
-                    <button class="login-button-gris">Listado completo de CATEGORIAS</button>
+                <a href="{% url 'listados_categorias' %}">
+                    <button class="login-button">Listado completo de CATEGORIAS</button>
                 </a>
     
             </div>

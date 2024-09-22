@@ -32,12 +32,14 @@ urlpatterns = [
     path('admin_menu/', loginadmin_views.admin_menu, name='admin_menu'),    
     path('jugador/<int:jugador_id>/', jugador_views.datos_jugador, name='listado_jugador'),
     path('menu/', loginadmin_views.menu, name='menu'),
-    path('index/', torneo_views.index, name='index'),
+    path('', torneo_views.index, name='index'),
     path('admin_carga_jugador/', jugador_views.CrearJugador, name='admin_carga_jugador'),  # Asegúrate de que el nombre coincida aquí
     path('guardar_jugador/', jugador_views.guardar_jugador, name='guardar_jugador'),
     path('listado_jugadores/', jugador_views.listado_jugadores, name='listado_jugadores'),
     path('abm_categoria/', jugador_views.abm_categoria, name='abm_categoria'),
     path('datos_jugador/<str:dni>/', jugador_views.datos_jugador, name='datos_jugador'),
-
+    path('categorias/', jugador_views.listado_categorias, name='listados_categorias'),
+    path('exito_categoria/', jugador_views.exito_categoria, name='exito_categoria'),
+    path('categorias/eliminar/<int:id_categoria>/', jugador_views.eliminar_categoria, name='eliminar_categoria'),
 ]
 
