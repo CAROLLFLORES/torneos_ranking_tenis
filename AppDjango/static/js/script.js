@@ -14,7 +14,7 @@ document.getElementById('close-btn').addEventListener('click', function() {
     const sideMenu = document.getElementById('side-menu');
     sideMenu.classList.remove('active');
 });
-
+// test
 // Pantallas Administrativas
 document.addEventListener("DOMContentLoaded", function() {
     showScreen('login-screen');
