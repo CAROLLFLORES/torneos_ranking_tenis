@@ -5,15 +5,14 @@
 <div class="container-admin">
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
-        <hr class="separator-line"> <!-- Línea separadora -->
+        <hr class="separator-line">
         <h2>LISTADO</h2>
     </div>
     <div class="text-section">
-        <hr class="separator-line"> <!-- Línea separadora -->
+        <hr class="separator-line">
         <h5>COMPLETO DE JUGADORES</h5>
     </div>
     <div class="form-container">
-        <!-- Rectángulo angosto a la izquierda -->
         <div class="narrow-box">
             <div class="title-orange-gris">
                 <h1>JUGADORES</h1>
@@ -24,18 +23,20 @@
                 <button class="login-button chico">Listado completo</button>
             </a>
             <a href="{% url 'listado_jugadores' %}">
-                <button class="login-button chico">por Categoria</button>
+                <button class="login-button chico">Por Categoría</button>
             </a>
             <hr class="separator">
-            <h3 class="negro">BUSCAR POR JUGADOR</h3>            
-            <input type="text" placeholder="Buscar por APELLIDO" class="input-field"><br>
-            <hr class="separator"> 
+            <h3 class="negro">BUSCAR POR JUGADOR</h3>
+            <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center mb-3">
+                <input class="input-field" type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
+                <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
+            </form>
+            <br>
+            <hr class="separator">
             <a href="{% url 'admin_carga_jugador' %}">
                 <button class="login-button chico">ALTA</button>
             </a>
-            
-            <hr class="separator">           
-            <!-- Contenedor para los botones -->
+            <hr class="separator">
             <div class="buttons-container">
                 <a href="{% url 'admin_menu' %}">
                     <button class="login-button-gris chico">IMPRIMIR</button>
@@ -46,57 +47,155 @@
             </div>
         </div>
 
-        <!-- Login box a la derecha del rectángulo angosto -->
         <div class="login-box listados">
-            <!-- Estructura de dos columnas -->
-            <div class="login-box-content">
-                <!-- Columna de filtros -->
-                <div class="column-filtros">
-                    <div class="barra-filtros">
-                        <span class="filtros-texto">Filtros</span>
-                        <div class="botones-filtros">
-                            <button class="login-button btn-filtro">MUJER</button>
-                            <button class="login-button btn-filtro">HOMBRE</button>
+            <!-- Nueva barra de color que contiene la paginación y el filtro -->
+            <!-- Nueva barra de color que contiene la paginación y el filtro -->
+            <div class="barra-titulo">
+                <div class="barra-titulo-contenido d-flex justify-content-between align-items-center">
+                    <!-- Paginación -->
+                    <div class="pagination d-flex align-items-center">
+                        <div class="d-flex me-3">
+                            {% if jugadores.has_previous %}
+                                <a href="?page=1" class="btn btn-light">Primero</a>
+                            {% endif %}
+                            {% if jugadores.has_previous %}
+                                <a href="?page={{ jugadores.previous_page_number }}" class="btn btn-light">Anterior</a>
+                            {% endif %}
+                        </div>
+                        <div class="fw-bold mx-3">
+                            Página {{ jugadores.number }} de {{ jugadores.paginator.num_pages }}
+                        </div>
+                        <div class="d-flex">
+                            {% if jugadores.has_next %}
+                                <a href="?page={{ jugadores.next_page_number }}" class="login-button peque">Siguiente</a>
+                            {% endif %}
+                            {% if jugadores.has_next %}
+                                <a href="?page={{ jugadores.paginator.num_pages }}" class="login-button peque">Último</a>
+                            {% endif %}
                         </div>
                     </div>
-                </div>
 
-                <!-- Columna de listado de jugadores -->
-                <div class="column-listado">
-                    <!-- Barra de títulos -->
-                    <div class="barra-titulos">
-                        <div class="titulo-item">APELLIDO</div>
-                        <div class="titulo-item">NOMBRE</div>                
-                        <div class="titulo-item">DNI</div>
-                        <div class="titulo-item">SEXO</div>
-                        <div class="titulo-item">CATEGORIA</div>
-                        <div class="titulo-item">INFO</div>
-                    </div>
-
-                    <!-- Lista de jugadores -->
-                    <div class="player-list">
-                        {% if jugadores %}
-                        <hr>
-                        {% for jugador in jugadores %}
-                        <div class="player-item">                    
-                            <span class="player-column">{{ jugador.apellido }}</span>
-                            <span class="player-column">{{ jugador.nombre }}</span>
-                            <span class="player-column">{{ jugador.dni }}</span>
-                            <span class="player-column">{{ jugador.sexo }}</span>
-                            <span class="player-column">{{ jugador.categoria }}</span>
-                            <a href="{% url 'datos_jugador' jugador.dni %}" class="modificar-button">+</a>
-
-                        </div>
-                        <hr class="player-separator">
-                        {% endfor %}
-                        {% else %}
-                        <p>No hay jugadores registrados.</p>
-                        {% endif %}
-                    </div>
+                    <!-- Formulario de filtrado por sexo -->
+                    <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center ms-3">
+                        <select name="sexo" class="input-field me-2" style="width: 200px;" onchange="this.form.submit()">
+                            <option value="">Filtrar por sexo</option>
+                            <option value="masculino" {% if sexo == "masculino" %} selected {% endif %}>masculino</option>
+                            <option value="femenino" {% if sexo == "femenino" %} selected {% endif %}>femenino</option>
+                        </select>
+                        <input type="hidden" name="search" value="{{ search }}">
+                    </form>
+                    
                 </div>
             </div>
+            <!-- Fin de la nueva barra -->
+
+            <table class="table table-striped-columns table-light table-bordered table-sm">
+                <thead class="table-success">
+                    <tr class="title-container">
+                        <th>APELLIDO</th>
+                        <th>NOMBRE</th>
+                        <th>DNI</th>
+                        <th>SEXO</th>
+                        <th>CATEGORÍA</th>
+                        <th>INFO</th>
+                        <th>MODIFICAR</th>
+                        <th>ELIMINAR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if jugadores %}
+                        {% for jugador in jugadores %}
+                            <tr>
+                                <th scope="row">{{ jugador.apellido }}</th>
+                                <td>{{ jugador.nombre }}</td>
+                                <td>{{ jugador.dni }}</td>
+                                <td>{{ jugador.sexo }}</td>
+                                <td>
+                                    {% if jugador.categorias.all %}
+                                        {{ jugador.categorias.all|join:", " }}  <!-- Muestra las categorías separadas por coma -->
+                                    {% else %}
+                                        No hay categorías
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'datos_jugador' jugador.dni %}" class="modificar-button">+</a>
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modificarModal-{{ jugador.dni }}">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <!-- Modal para modificar el jugador -->
+                                    <div class="modal fade" id="modificarModal-{{ jugador.dni }}" tabindex="-1" aria-labelledby="modificarModalLabel-{{ jugador.dni }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h3 class="modal-title" id="modificarModalLabel-{{ jugador.dni }}">Modificar jugador '{{ jugador.apellido }} {{ jugador.nombre }}'</h3>
+                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                        <i class="bi bi-x" style="font-size: 1.5rem;"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form method="POST" action="{% url 'modificar_jugador' jugador.dni %}">
+                                                        {% csrf_token %}
+                                                        <div class="mb-3">
+                                                            <label for="nombre">Nombre:</label>
+                                                            <input class="input-field" type="text" value="{{ jugador.nombre }}" name="nombre" id="nombre" class="form-control" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="apellido">Apellido:</label>
+                                                            <input class="input-field" type="text" value="{{ jugador.apellido }}" name="apellido" id="apellido" class="form-control" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="dni">DNI:</label>
+                                                            <input class="input-field" type="text" value="{{ jugador.dni }}" name="dni" id="dni" class="form-control" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="sexo">Sexo:</label>
+                                                            <select class="form-select" name="sexo" id="sexo" required>
+                                                                <option value="M" {% if jugador.sexo == "M" %} selected {% endif %}>Masculino</option>
+                                                                <option value="F" {% if jugador.sexo == "F" %} selected {% endif %}>Femenino</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="text-center">
+                                                            <button class="login-button">Guardar cambios</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ jugador.dni }}">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                    <!-- Modal para eliminar -->
+                                    <div class="modal fade" id="eliminarModal-{{ jugador.dni }}" tabindex="-1" aria-labelledby="eliminarModalLabel-{{ jugador.dni }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h3 id="eliminarModalLabel-{{ jugador.dni }}">¿Está seguro de eliminar al jugador {{ jugador.apellido }} {{ jugador.nombre }}?</h3>
+                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                        <i class="bi bi-x" style="font-size: 1.5rem;"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body text-center">
+                                                    <a href="{% url 'borrar_jugador' jugador.dni %}" class="login-button rojo delete-button">Eliminar Jugador</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center">No hay jugadores registrados.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
     </div>
-    
 </div>
 {% endblock %}

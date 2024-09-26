@@ -176,20 +176,18 @@ a {
     justify-content: center;  /* Centra el texto horizontalmente */
     align-items: center;      /* Centra el texto verticalmente */
 }
-/* Asegúrate de que el CSS se está aplicando correctamente */
-/* Asegúrate de que el CSS se está aplicando correctamente */
+
 .listados {
+    display: flex; /* O display: grid; si prefieres usar grid */
+    flex-direction: column; /* Para apilar los elementos verticalmente */
     width: 1000px !important;
     height: auto !important;
     margin: 0 auto !important;
     padding: 20px !important;
     border: 1px solid #ddd !important;
-    background-color: #f4f4f4 !important;
+    background-color: rgba(202, 202, 202, 0.7) !important; /* 70% opaco */
     box-sizing: border-box !important;
 }
-
-
-
 
 .title-orange-gris {
     background-color: rgb(172, 172, 172);
@@ -813,14 +811,14 @@ header {
 
 /* Barra de títulos */
 .barra-titulos {
-    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; /* Define el ancho de las columnas */
-    gap: 20px; /* Espacio entre columnas */
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; /* Define el ancho de las columnas */
+    gap: 5px; /* Espacio entre columnas */
     text-align: left; /* Alinear texto a la izquierda */
     display: grid;
     background-color: #fff;
     border-top: 2px solid black; /* Línea arriba */
     border-bottom: 2px solid black; /* Línea abajo */
-    padding: 10px;
+    padding: 5px;
 }
 
 .barra-titulos span {
@@ -836,6 +834,7 @@ header {
     align-items: center; /* Centra verticalmente */
     justify-content: space-between; /* Distribuye el espacio horizontalmente */
     margin-bottom: 10px;
+    width: 100%;
 }
 
 .barra-filtros span {
@@ -928,4 +927,123 @@ header {
     padding: 20px;
 
 }
+/* Estilos para el modal */
+.modal {
+    display: none; /* Ocultar el modal por defecto */
+    position: fixed; /* Fijar posición */
+    z-index: 1; /* Asegurarse de que esté encima de otros elementos */
+    left: 0;
+    top: 0;
+    width: 100%; /* Ancho completo */
+    height: 100%; /* Altura completa */
+    overflow: auto; /* Habilitar desplazamiento si es necesario */
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+}
 
+.modal-content {
+    background-color: #c5c4c4;
+    margin: 15% auto; /* Centrando */
+    padding: 20px;
+    border: 1px solid #b6b6b6;
+    border-radius: 10px;
+    width: 60%; /* Ancho del contenido del modal */
+    box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
+    gap: 20px;
+}
+
+.close {
+    color: #aaa;
+    float: right; /* Alinear a la derecha */
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Estilo para la barra de color en el encabezado */
+.table-success {
+    background-color: #cfcfcf; /* Color de fondo de la barra del encabezado */
+    color: #0f0f0f; /* Color del texto */
+    text-align: center; /* Centrar los textos */
+    font-weight: bold; /* Poner los títulos en negrita */
+}
+
+/* Estilo para las filas de los jugadores */
+.table tbody tr {
+    border-bottom: 1px solid #ddd; /* Línea de separación entre las filas */
+    text-align: left;
+}
+
+/* Ajustar el padding de las celdas para reducir espacio entre filas */
+.table tbody tr td {
+    padding: 5px 10px; /* Ajustar el padding para que las filas estén más juntas */
+}
+
+/* Ajustar las celdas del encabezado */
+.table th {
+    padding: 10px;
+    text-align: LEFT;
+}
+
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra todos los elementos dentro del modal */
+    text-align: center;
+}
+
+/*PAGINACION DE LISTADOS*/
+/* Nuevo CSS para ajustar la disposición en una sola línea */
+.barra-titulo {
+    background-color: #f8f9fa; /* Color de fondo de la barra */
+    padding: 15px; /* Espaciado dentro de la barra */   
+    margin-bottom: 20px; /* Espacio debajo de la barra */
+    width: 100%;
+}
+
+.peque{
+    width: 10px;
+}
+
+
+.pagination, .formulario-filtrado {
+    display: flex; /* Usar flexbox para los botones de paginación y el formulario */
+    align-items: center; /* Centrar verticalmente */
+}
+
+.pagination a, .formulario-filtrado button {
+    margin-right: 10px; /* Espaciado entre botones */
+}
+
+.barra-titulo {
+    padding: 10px;
+    background-color: #b1afaf; /* Light background for better visibility */
+}
+
+.barra-titulo-contenido {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

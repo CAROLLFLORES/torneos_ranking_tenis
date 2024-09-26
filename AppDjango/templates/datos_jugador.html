@@ -98,8 +98,10 @@
             <button class="login-button ">MODIFICAR</button>
             <br>
              <!-- Botón BORRAR con clase 'delete-button' -->
-            <button class="login-button rojo delete-button">BORRAR</button>
-        </div>
+             <a href="{% url 'borrar_jugador' jugador.dni %}" class="login-button rojo delete-button">BORRAR</a>
+        
+        
+            </div>
     </main>
 </div>
 <script>
