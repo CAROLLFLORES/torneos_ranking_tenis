@@ -90,33 +90,29 @@
                 <p class="jugador">Juan Perez&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;6</p>
                 <p class="jugador">Pedro Lopez&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;2</p>
             </div>
-        </div>
-        
+        </div>        
         
         
         <div class="actions" style="margin-bottom: 100px; margin-top: 50px">
             <button class="login-button ">MODIFICAR</button>
             <br>
-             <!-- Botón BORRAR con clase 'delete-button' -->
-             <a href="{% url 'borrar_jugador' jugador.dni %}" class="login-button rojo delete-button">BORRAR</a>
-        
+            <td>
+                <!-- Botón BORRAR con clase 'delete-button' -->
+                <button class="login-button rojo" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ jugador.dni }}">
+                    ELIMINAR
+                </button>
+                
+                {% include 'modal_eliminar_jugador.html' %}
+            </td>
+             <br>
+             <a href="{% url 'admin_menu' %}">
+                <button class="login-button peque">MENU</button>
+            </a>
         
             </div>
     </main>
 </div>
-<script>
-    document.querySelector('.delete-button').addEventListener('click', function(event) {
-        event.preventDefault(); // Evitar el comportamiento por defecto del botón
-        const jugadorDni = {{ jugador.dni }}; // Obtiene el DNI del jugador
-        const jugadorApellido = "{{ jugador.apellido }}"; // Obtiene el apellido del jugador
-    
-        // Mostrar ventana de confirmación con el apellido
-        if (confirm(`¿Desea borrar al jugador ${jugadorApellido}?`)) {
-            // Si el usuario confirma, redirigir a la vista de eliminación
-            window.location.href = `/borrado_exitoso/${jugadorDni}/`; // Esta URL no mostrará el host en la ventana emergente
-        }
-    });
-    </script>
+
     
 
 {% endblock %}

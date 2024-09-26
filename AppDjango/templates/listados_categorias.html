@@ -5,10 +5,17 @@
 {% block content %}
 <div class="container-admin">
     <h4>ADMINISTRADOR</h4>
+    <a href="{% url 'admin_menu' %}">
+        <button class="login-button peque">MENU</button>
+    </a>
+        
+    <hr class="separator"> 
     <div class="text-section">
         <hr class="separator-line"> <!-- Línea separadora -->
         <h2>LISTADO DE CATEGORÍAS</h2>
     </div>
+   
+        
     
     <!-- Tabla de categorías -->
     <div class="table-container">

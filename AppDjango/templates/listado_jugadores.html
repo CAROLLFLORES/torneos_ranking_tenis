@@ -18,7 +18,9 @@
                 <h1>JUGADORES</h1>
                 <h3 class="negro chico">OPCIONES</h3>
             </div>
-            <br>
+            <a href="{% url 'admin_menu' %}">
+                <button class="login-button peque">MENU</button>
+            </a>
             <a href="{% url 'listado_jugadores' %}">
                 <button class="login-button chico">Listado completo</button>
             </a>
@@ -37,6 +39,7 @@
                 <button class="login-button chico">ALTA</button>
             </a>
             <hr class="separator">
+          
             <div class="buttons-container">
                 <a href="{% url 'admin_menu' %}">
                     <button class="login-button-gris chico">IMPRIMIR</button>
@@ -54,24 +57,20 @@
                 <div class="barra-titulo-contenido d-flex justify-content-between align-items-center">
                     <!-- Paginación -->
                     <div class="pagination d-flex align-items-center">
-                        <div class="d-flex me-3">
-                            {% if jugadores.has_previous %}
-                                <a href="?page=1" class="btn btn-light">Primero</a>
-                            {% endif %}
-                            {% if jugadores.has_previous %}
-                                <a href="?page={{ jugadores.previous_page_number }}" class="btn btn-light">Anterior</a>
-                            {% endif %}
-                        </div>
+                       
                         <div class="fw-bold mx-3">
-                            Página {{ jugadores.number }} de {{ jugadores.paginator.num_pages }}
+                            Página {{ jugadores.number }} de {{ jugadores.paginator.num_pages }}&nbsp;&nbsp;
+                        </div>
+                         <div class="d-flex me-3">
+                            {% if jugadores.has_previous %}
+                                <a href="?page={{ jugadores.previous_page_number }}" class="login-button peque" font-size: 34px; >&lt;</a>
+                            {% endif %}
                         </div>
                         <div class="d-flex">
                             {% if jugadores.has_next %}
-                                <a href="?page={{ jugadores.next_page_number }}" class="login-button peque">Siguiente</a>
+                                <a href="?page={{ jugadores.next_page_number }}" class="login-button peque" font-size: 34px; >&gt</a>
                             {% endif %}
-                            {% if jugadores.has_next %}
-                                <a href="?page={{ jugadores.paginator.num_pages }}" class="login-button peque">Último</a>
-                            {% endif %}
+                            
                         </div>
                     </div>
 
@@ -111,12 +110,19 @@
                                 <td>{{ jugador.dni }}</td>
                                 <td>{{ jugador.sexo }}</td>
                                 <td>
-                                    {% if jugador.categorias.all %}
-                                        {{ jugador.categorias.all|join:", " }}  <!-- Muestra las categorías separadas por coma -->
-                                    {% else %}
-                                        No hay categorías
-                                    {% endif %}
+                                    {% with jugador.jugadortcategoria_set.all as categorias %}
+                                        {% if categorias %}
+                                            {% for jugad_categoria in categorias %}
+                                                {{ jugad_categoria.categoria }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            No hay categorías
+                                        {% endif %}
+                                    {% endwith %}
                                 </td>
+                                
+                                
+                                
                                 <td>
                                     <a href="{% url 'datos_jugador' jugador.dni %}" class="modificar-button">+</a>
                                 </td>
@@ -166,25 +172,14 @@
                                     </div>
                                 </td>
                                 <td>
+                                    
+                                    <!-- Botón BORRAR con clase 'delete-button' -->
                                     <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ jugador.dni }}">
                                         <i class="bi bi-trash-fill"></i>
                                     </button>
-                                    <!-- Modal para eliminar -->
-                                    <div class="modal fade" id="eliminarModal-{{ jugador.dni }}" tabindex="-1" aria-labelledby="eliminarModalLabel-{{ jugador.dni }}" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h3 id="eliminarModalLabel-{{ jugador.dni }}">¿Está seguro de eliminar al jugador {{ jugador.apellido }} {{ jugador.nombre }}?</h3>
-                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                                        <i class="bi bi-x" style="font-size: 1.5rem;"></i>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body text-center">
-                                                    <a href="{% url 'borrar_jugador' jugador.dni %}" class="login-button rojo delete-button">Eliminar Jugador</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    
+                                    {% include 'modal_eliminar_jugador.html' %}
+                                    
                                 </td>
                             </tr>
                         {% endfor %}
