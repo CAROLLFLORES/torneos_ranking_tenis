@@ -49,7 +49,6 @@
         <!-- Login box a la derecha del rectángulo angosto -->
         <div class="login-box">
             <form method="POST" action="{% url 'admin_carga_jugador' %}" id="form-nuevo-jugador">
-
                 <div class="title-orange-box grande">
                     <h2>ALTA</h2>
                 </div>
@@ -81,21 +80,24 @@
                 
                 <div>
                     <label for="torneo">Torneo</label>
-                    <input type="text" id="torneo" name="torneo" placeholder="Torneo" >
+                    <input type="text" id="torneo" name="torneo" placeholder="Torneo">
                 </div>
                 
                 <div>
-                    <label for="categoria">Categoría</label>
-                    <select id="categoria" name="categoria" >
-                        <option value="" disabled selected>Seleccionar categoría</option>
-                        <option value="1">1° Intermedia</option>
-                        <option value="2">2 + 30</option>
-                        <option value="3">3 + 30</option>
-                        <option value="4">4 + 30</option>
-                        <option value="5">5 + 30</option>
-                        <option value="6">6 + 30</option>
-                    </select>
+                    <label>Categorías</label>
+                    <div>
+                        {% for categoria in categorias %}
+                            <div style="display: flex; align-items: center;">  <!-- Flexbox para alinear en una línea -->
+                                <input type="checkbox" id="categoria_{{ categoria.id }}" name="categorias" value="{{ categoria.id }}">
+                                <label for="categoria_{{ categoria.id }}">
+                                    {{ categoria.nivel }} + {{ categoria.edad }} - {{ categoria.tipo_juego }}
+                                </label> 
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
+          
+                
                 
                 <div>
                     <label for="foto">Foto</label>
