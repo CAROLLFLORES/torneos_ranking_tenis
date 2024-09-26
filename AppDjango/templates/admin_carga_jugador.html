@@ -19,7 +19,10 @@
                 <h1>JUGADORES</h1>
                 <h3 class="negro chico">OPCIONES</h3>
             </div>
-            <br>
+            <a href="{% url 'admin_menu' %}">
+                <button class="login-button peque">MENU</button>
+            </a>
+      
             <a href="{% url 'listado_jugadores' %}">
                 <button class="login-button chico">Listado completo</button>
             </a>
@@ -33,8 +36,8 @@
             <a href="{% url 'admin_carga_jugador' %}">
                 <button class="login-button chico">ALTA</button>
             </a>
-           
-            <hr class="separator">           
+            <hr class="separator">
+                       
             <!-- Contenedor para los botones -->
             <div class="buttons-container">
                 <a href="{% url 'admin_menu' %}">
@@ -87,7 +90,7 @@
                     <label>Categorías</label>
                     <div>
                         {% for categoria in categorias %}
-                            <div style="display: flex; align-items: center;">  <!-- Flexbox para alinear en una línea -->
+                            <div style="display: grid; align-items: center;">  <!-- Flexbox para alinear en una línea -->
                                 <input type="checkbox" id="categoria_{{ categoria.id }}" name="categorias" value="{{ categoria.id }}">
                                 <label for="categoria_{{ categoria.id }}">
                                     {{ categoria.nivel }} + {{ categoria.edad }} - {{ categoria.tipo_juego }}

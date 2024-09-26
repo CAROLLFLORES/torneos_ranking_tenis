@@ -23,10 +23,15 @@
             <h3 class="negro">BUSCAR</h3>
             <hr class="separator">
             <input type="text" placeholder="Buscar por NOMBRE" class="input-field"><br>-->
-            <hr class="separator">
+            <br>
             <a href="{% url 'listados_categorias' %}">
                 <button class="login-button chico">Listado completo</button>
             </a>
+            <hr class="separator">
+            <a href="{% url 'admin_menu' %}">
+                <button class="login-button peque">MENU</button>
+            </a>
+            <hr class="separator">
             <!-- Contenedor para los botones -->
             <div class="buttons-container">
                 <a href="{% url 'admin_menu' %}">
@@ -72,9 +77,9 @@
                     <label for="tipo_juego">Tipo de Juego</label>
                     <select id="tipo_juego" name="tipo_juego" required>
                         <option value="" disabled selected>Seleccione un tipo de juego</option>
-                        <option value="single">Single</option>
-                        <option value="dobles">Dobles</option>
-                        <option value="mixto">Mixto</option>
+                        <option value="Single">Single</option>
+                        <option value="Doble">Doble</option>
+                        <option value="Mixto">Mixto</option>
                     </select>
                 </div>                 
                 <br>

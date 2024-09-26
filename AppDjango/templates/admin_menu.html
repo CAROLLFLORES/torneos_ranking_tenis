@@ -20,8 +20,11 @@
                 <div class="title-orange-box">
                     <h2>JUGADORES</h2>
                 </div>
-                <h3>BUSCAR POR JUGADOR</h3>
-                <input type="text" placeholder="Buscar por Jugador" class="input-field">
+                <h3 class="negro">BUSCAR POR JUGADOR</h3>
+                <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center mb-3">
+                    <input class="input-field" type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
+                    <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
+                </form>
                 <hr class="separator">
                 <h3>CARGAR NUEVO JUGADOR</h3>
                 <a href="{% url 'admin_carga_jugador' %}">
