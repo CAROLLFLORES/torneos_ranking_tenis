@@ -1,0 +1,17 @@
+<!-- Modal para eliminar jugador -->
+<div class="modal fade" id="eliminarModal-{{ jugador.dni }}" tabindex="-1" aria-labelledby="eliminarModalLabel-{{ jugador.dni }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="eliminarModalLabel-{{ jugador.dni }}">¿Está seguro desea eliminar al jugador {{ jugador.apellido }} {{ jugador.nombre }}???</h3>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x" style="font-size: 1.5rem;"></i>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <a href="{% url 'borrar_jugador' jugador.dni %}" class="login-button rojo delete-button">Eliminar Jugador</a>
+            </div>
+        </div>
+    </div>
+    <!-- Modal para eliminar jugador -->
+</div>
