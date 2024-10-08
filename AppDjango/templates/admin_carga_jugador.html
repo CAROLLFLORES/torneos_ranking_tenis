@@ -51,62 +51,9 @@
 
         <!-- Login box a la derecha del rectángulo angosto -->
         <div class="login-box">
-            <form method="POST" action="{% url 'admin_carga_jugador' %}" id="form-nuevo-jugador">
-                <div class="title-orange-box grande">
-                    <h2>ALTA</h2>
-                </div>
+            <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                
-                <div>
-                    <br>
-                    <label for="nombre">Nombre</label>
-                    <input type="text" id="nombre" name="nombre" placeholder="Nombre" required>
-                </div>
-                
-                <div>
-                    <label for="apellido">Apellido</label>
-                    <input type="text" id="apellido" name="apellido" placeholder="Apellido" required>
-                </div>
-                
-                <div>
-                    <label for="dni">DNI</label>
-                    <input type="number" id="dni" name="dni" placeholder="DNI" required>
-                </div>
-                
-                <div>
-                    <select id="sexo" name="sexo" required>
-                        <option value="" disabled selected>Seleccionar sexo</option>
-                        <option value="masculino">Masculino</option>
-                        <option value="femenino">Femenino</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label for="torneo">Torneo</label>
-                    <input type="text" id="torneo" name="torneo" placeholder="Torneo">
-                </div>
-                
-                <div>
-                    <label>Categorías</label>
-                    <div>
-                        {% for categoria in categorias %}
-                            <div style="display: grid; align-items: center;">  <!-- Flexbox para alinear en una línea -->
-                                <input type="checkbox" id="categoria_{{ categoria.id }}" name="categorias" value="{{ categoria.id }}">
-                                <label for="categoria_{{ categoria.id }}">
-                                    {{ categoria.nivel }} + {{ categoria.edad }} - {{ categoria.tipo_juego }}
-                                </label> 
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-          
-                
-                
-                <div>
-                    <label for="foto">Foto</label>
-                    <input type="file" id="foto" name="foto">
-                </div>
-                
+                {{ form.as_p }}
                 <button class="login-button" type="submit">SIGUIENTE</button>
             </form>
         </div>

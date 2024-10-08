@@ -33,7 +33,6 @@
                 <input class="input-field" type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
                 <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
             </form>
-            <br>
             <hr class="separator">
             <a href="{% url 'admin_carga_jugador' %}">
                 <button class="login-button chico">ALTA</button>
@@ -52,25 +51,22 @@
 
         <div class="login-box listados">
             <!-- Nueva barra de color que contiene la paginación y el filtro -->
-            <!-- Nueva barra de color que contiene la paginación y el filtro -->
             <div class="barra-titulo">
                 <div class="barra-titulo-contenido d-flex justify-content-between align-items-center">
                     <!-- Paginación -->
                     <div class="pagination d-flex align-items-center">
-                       
                         <div class="fw-bold mx-3">
                             Página {{ jugadores.number }} de {{ jugadores.paginator.num_pages }}&nbsp;&nbsp;
                         </div>
-                         <div class="d-flex me-3">
+                        <div class="d-flex me-3">
                             {% if jugadores.has_previous %}
-                                <a href="?page={{ jugadores.previous_page_number }}" class="login-button peque" font-size: 34px; >&lt;</a>
+                                <a href="?page={{ jugadores.previous_page_number }}" class="login-button peque">&lt;</a>
                             {% endif %}
                         </div>
                         <div class="d-flex">
                             {% if jugadores.has_next %}
-                                <a href="?page={{ jugadores.next_page_number }}" class="login-button peque" font-size: 34px; >&gt</a>
+                                <a href="?page={{ jugadores.next_page_number }}" class="login-button peque">&gt;</a>
                             {% endif %}
-                            
                         </div>
                     </div>
 
@@ -78,12 +74,11 @@
                     <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center ms-3">
                         <select name="sexo" class="input-field me-2" style="width: 200px;" onchange="this.form.submit()">
                             <option value="">Filtrar por sexo</option>
-                            <option value="masculino" {% if sexo == "masculino" %} selected {% endif %}>masculino</option>
-                            <option value="femenino" {% if sexo == "femenino" %} selected {% endif %}>femenino</option>
+                            <option value="masculino" {% if sexo == "masculino" %} selected {% endif %}>Masculino</option>
+                            <option value="femenino" {% if sexo == "femenino" %} selected {% endif %}>Femenino</option>
                         </select>
                         <input type="hidden" name="search" value="{{ search }}">
                     </form>
-                    
                 </div>
             </div>
             <!-- Fin de la nueva barra -->
@@ -110,19 +105,11 @@
                                 <td>{{ jugador.dni }}</td>
                                 <td>{{ jugador.sexo }}</td>
                                 <td>
-                                    {% with jugador.jugadortcategoria_set.all as categorias %}
-                                        {% if categorias %}
-                                            {% for jugad_categoria in categorias %}
-                                                {{ jugad_categoria.categoria }}{% if not forloop.last %}, {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            No hay categorías
-                                        {% endif %}
-                                    {% endwith %}
+                                    {% for jugador_categoria in jugador.jugadorcategoria_set.all %}
+                                        {{ jugador_categoria.categoria.nivel }} - {{ jugador_categoria.categoria.edad }} - {{ jugador_categoria.categoria.tipo_juego }}
+                                        s{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
                                 </td>
-                                
-                                
-                                
                                 <td>
                                     <a href="{% url 'datos_jugador' jugador.dni %}" class="modificar-button">+</a>
                                 </td>
@@ -172,14 +159,11 @@
                                     </div>
                                 </td>
                                 <td>
-                                    
                                     <!-- Botón BORRAR con clase 'delete-button' -->
                                     <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ jugador.dni }}">
                                         <i class="bi bi-trash-fill"></i>
                                     </button>
-                                    
                                     {% include 'modal_eliminar_jugador.html' %}
-                                    
                                 </td>
                             </tr>
                         {% endfor %}
