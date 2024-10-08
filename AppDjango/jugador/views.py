@@ -4,40 +4,27 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q  # Asegúrate de importar Q para las búsquedas
+from .forms import JugadorForm
 
 def jugador_detalle(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
     return render(request, 'datos_jugador.html', {'jugador': jugador})
 
 def CrearJugador(request):
-    categorias = Categoria.objects.all()  # Obtén todas las categorías para el contexto
-
     if request.method == "POST":
-        j_nombre = request.POST.get("nombre")
-        j_apellido = request.POST.get("apellido")
-        j_dni = request.POST.get("dni")
-        j_sexo = request.POST.get("sexo")
-        categorias_seleccionadas = request.POST.getlist("categorias")  # Obtener categorías seleccionadas
-
-        try:
-            jugador = Jugador(
-                nombre=j_nombre,
-                apellido=j_apellido,
-                dni=j_dni,
-                sexo=j_sexo
-            )
+        form = JugadorForm(request.POST)
+        if form.is_valid():
+            jugador = form.save(commit=False)
             jugador.save()
-            
-                   
-           
+            form.save_m2m()  # Guarda la relación ManyToMany
             messages.success(request, "Jugador creado exitosamente.")
-            return redirect('guardar_jugador')  # Redirige al menú de administración después de guardar
+            return redirect('guardar_jugador')
+        else:
+            messages.error(request, "Error en el formulario. Revisa los datos ingresados.")
+    else:
+        form = JugadorForm()
 
-        except Exception as e:
-            messages.error(request, f"Error al crear jugador: {e}")
-            return render(request, "admin_carga_jugador.html", {"categorias": categorias})
-
-    return render(request, "admin_carga_jugador.html", {"categorias": categorias})
+    return render(request, "admin_carga_jugador.html", {"form": form})
 
 def guardar_jugador(request):
     return render(request, "guardar_jugador.html")
@@ -58,7 +45,9 @@ def modificar_jugador(request, dni):
     return redirect('listado_jugadores')  # Asegúrate de redirigir si la solicitud no es POST
 
 
-
+def listado_jugadores(request):
+    jugadores = Jugador.objects.prefetch_related('jugadorcategoria_set__categoria').all()
+    return render(request, 'listado_jugadores.html', {'jugadores': jugadores})
 
 def datos_jugador(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
@@ -135,6 +124,7 @@ def borrado_exitoso(request, jugador_dni):
 
 
 def listado_jugadores(request):
+    jugadores = Jugador.objects.prefetch_related('jugadorcategoria_set__categoria').all()
     search = request.GET.get('search', '')
     sexo_filter = request.GET.get('sexo', '')
 
