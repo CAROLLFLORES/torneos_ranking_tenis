@@ -5,7 +5,7 @@ def admin_login(request):
     return render(request, 'admin_login.html')
 
 def index(request):
-    return HttpResponse("probando")
+    return render(request, 'index.html')
 
 # loginAdmin/views.py
 def admin_menu(request):
