@@ -92,13 +92,15 @@
         <div class="recuadro">
             <div class="login-box">
                 <div class="title-orange-box">
-                    <h2>PARTIDOS</h2>
+                    <h2>TORNEOS E PARTIDOS</h2>
                 </div>
-                <h3>POR JUGADOR</h3>
-                <input type="text" placeholder="Buscar por Jugador" class="input-field">
+                <h3>TORNEO</h3>
+                <a href = "{% url 'abm_torneo'%}">
+                    <button class='login-button'>Listado completo TORNEOS</button>
                 <hr class="separator">
-                <h3>POR CATEGORIA</h3>
-                <input type="text" placeholder="Buscar por Categoria" class="input-field">
+                <h3>PARTIDO LIBRE</h3>
+                <a href = "{% url 'abm_torneo'%}">
+                    <button class='login-button'>Listado completo PARTIDOS</button>
                 
             </div>
         </div>
