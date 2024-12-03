@@ -88,9 +88,8 @@
                     <tr class="title-container">
                         <th>APELLIDO</th>
                         <th>NOMBRE</th>
-                        <th>DNI</th>
+                        <!-- <th>DNI</th> Eliminado -->
                         <th>SEXO</th>
-                        <th>CATEGORÍA</th>
                         <th>INFO</th>
                         <th>MODIFICAR</th>
                         <th>ELIMINAR</th>
@@ -102,14 +101,8 @@
                             <tr>
                                 <th scope="row">{{ jugador.apellido }}</th>
                                 <td>{{ jugador.nombre }}</td>
-                                <td>{{ jugador.dni }}</td>
+                                <!-- <td>{{ jugador.dni }}</td> Eliminado -->
                                 <td>{{ jugador.sexo }}</td>
-                                <td>
-                                    {% for jugador_categoria in jugador.jugadorcategoria_set.all %}
-                                        {{ jugador_categoria.categoria.nivel }} - {{ jugador_categoria.categoria.edad }} - {{ jugador_categoria.categoria.tipo_juego }}
-                                        s{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                </td>
                                 <td>
                                     <a href="{% url 'datos_jugador' jugador.dni %}" class="modificar-button">+</a>
                                 </td>
@@ -138,10 +131,8 @@
                                                             <label for="apellido">Apellido:</label>
                                                             <input class="input-field" type="text" value="{{ jugador.apellido }}" name="apellido" id="apellido" class="form-control" required>
                                                         </div>
-                                                        <div class="mb-3">
-                                                            <label for="dni">DNI:</label>
-                                                            <input class="input-field" type="text" value="{{ jugador.dni }}" name="dni" id="dni" class="form-control" required>
-                                                        </div>
+                                                        <!-- Campo DNI oculto -->
+                                                        <input type="hidden" name="dni" value="{{ jugador.dni }}">
                                                         <div class="mb-3">
                                                             <label for="sexo">Sexo:</label>
                                                             <select class="form-select" name="sexo" id="sexo" required>
@@ -169,7 +160,7 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="8" class="text-center">No hay jugadores registrados.</td>
+                            <td colspan="6" class="text-center">No hay jugadores registrados.</td>
                         </tr>
                     {% endif %}
                 </tbody>
