@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="form-container">
+    <h2>Editar Torneo</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    </form>
+    <a href="{% url 'abm_torneo' %}">Volver a la lista de torneos</a>
+</div>
+{% endblock %}
