@@ -5,3 +5,4 @@ from .models import Categoria,Jugador,JugadorCategoria
 admin.site.register(Categoria)
 admin.site.register(Jugador)
 admin.site.register(JugadorCategoria)
+

@@ -20,6 +20,7 @@ from loginAdmin import views as loginadmin_views
 from torneo import views as torneo_views
 from jugador import views as jugador_views
 
+
 urlpatterns = [
     path('',loginadmin_views.index, name='index'),
     path('admin/', admin.site.urls),    
@@ -39,6 +40,12 @@ urlpatterns = [
     path('borrado_exitoso/<str:jugador_dni>/', jugador_views.borrado_exitoso, name='borrado_exitoso'),  # Cambiado a str
     path('modificar_jugador/<str:dni>/', jugador_views.modificar_jugador, name='modificar_jugador'),
     path('borrar_jugador/<str:dni>/', jugador_views.borrar_jugador, name='borrar_jugador'),
-    path('abm_torneo', torneo_views.abm_torneo, name='abm_torneo'),
-    
+    path('abm_torneo/', torneo_views.abm_torneo, name='abm_torneo'),
+    path('crear_torneo/', torneo_views.crear_torneo, name='crear_torneo'),
+    path('eliminar_torneo/<int:id>/', torneo_views.eliminar_torneo, name='eliminar_torneo'),
+    path('editar_torneo/<int:id>/', torneo_views.editar_torneo, name='abm_torneo_editar'),
+    path('datos_torneo/<int:id>/', torneo_views.ver_caracteristicas_torneo, name='datos_torneo'),
+    path('asociar_jugadores/<int:id>/', torneo_views.asociar_jugadores, name='asociar_jugadores'),
+    path('generar_partidos/<int:id>/', torneo_views.generar_partidos_torneo, name='generar_partidos_torneo'),
+    path('torneo/<int:id>/', torneo_views.ver_caracteristicas_torneo, name='ver_caracteristicas_torneo'),
 ]

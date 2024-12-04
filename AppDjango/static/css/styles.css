@@ -189,6 +189,25 @@ a {
     box-sizing: border-box !important;
 }
 
+.listadosuno {
+    display: flex; /* O display: grid; si prefieres usar grid */
+    flex-direction: column;
+    width: 1000px !important;
+    height: auto !important;
+    padding: 20px !important;
+    border: 1px solid #ddd !important;
+    background-color: rgba(202, 202, 202, 0.7) !important; /* 70% opaco */
+    box-sizing: border-box !important;
+
+    /* Posicionamiento */
+    position: fixed; /* Cambiar a 'absolute' si deseas posicionarlo en relación al contenedor principal */
+    top: -290px; /* ajusta la posición según sea necesario */
+    right: -140px; /* o left, según lo requieras */
+    width: 300px;
+    height: auto;
+    z-index: 1000;
+}
+
 .title-orange-gris {
     background-color: rgb(172, 172, 172);
     padding: 0px;
