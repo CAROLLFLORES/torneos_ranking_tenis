@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body_class %}fondo-secundario{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5 mb-5 p-4">
+    <!-- Título de la Página -->
+    <div class="title-bar mb-4">
+        <h2 class="text-primary">Asociar Jugadores al Torneo: {{ torneo.nombre }}</h2>
+    </div>
+
+    <!-- Sección para Mostrar Mensajes -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Formulario para Asociar Jugadores -->
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div class="d-flex justify-content-between">
+            <!-- Recuadro Izquierdo: Jugadores Disponibles -->
+            <div class="col-md-5 p-3 card shadow-sm">
+                <h4 class="text-center">Jugadores Disponibles</h4>
+                <div class="card-body overflow-auto" style="height: 400px;" id="availableBox">
+                    {% for jugador in jugadores_disponibles %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="{{ jugador.dni }}" id="jugador{{ jugador.dni }}" name="jugadores">
+                            <label class="form-check-label" for="jugador{{ jugador.dni }}">
+                                {{ jugador.nombre }} {{ jugador.apellido }}
+                            </label>
+                        </div>
+                    {% empty %}
+                        <p>No hay jugadores disponibles para este torneo.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Recuadro Central: Botones para Mover Jugadores -->
+            <div class="d-flex flex-column justify-content-center align-items-center gap-3">
+                <button type="button" class="btn btn-primary" onclick="moveSelected('availableBox', 'selectedBox')">Agregar &gt;&gt;</button>
+                <button type="button" class="btn btn-secondary" onclick="moveSelected('selectedBox', 'availableBox')">&lt;&lt; Eliminar</button>
+            </div>
+
+            <!-- Recuadro Derecho: Jugadores Seleccionados -->
+            <div class="col-md-5 p-3 card shadow-sm">
+                <h4 class="text-center">Jugadores Seleccionados</h4>
+                <div class="card-body overflow-auto" style="height: 400px;" id="selectedBox">
+                    {% for jugador in jugadores_asociados %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="{{ jugador.dni }}" id="jugadorSeleccionado{{ jugador.dni }}" name="jugadores_seleccionados">
+                            <label class="form-check-label" for="jugadorSeleccionado{{ jugador.dni }}">
+                                {{ jugador.nombre }} {{ jugador.apellido }}
+                            </label>
+                        </div>
+                    {% empty %}
+                        <p>No hay jugadores seleccionados para este torneo.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón para Guardar Asociaciones -->
+        <div class="text-center mt-4">
+            <button type="submit" name="action" value="asociar" class="btn btn-success">Guardar Asociaciones</button>
+            <button type="submit" name="action" value="desasociar" class="btn btn-danger">Eliminar Jugadores Seleccionados</button>
+        </div>
+    </form>
+</div>
+
+<!-- JavaScript para Manejar el Movimiento de Jugadores -->
+<script>
+    function moveSelected(sourceBoxId, destinationBoxId) {
+        const sourceBox = document.getElementById(sourceBoxId);
+        const destinationBox = document.getElementById(destinationBoxId);
+
+        // Obtener todos los checkboxes seleccionados en el recuadro de origen
+        const selectedCheckboxes = sourceBox.querySelectorAll('input[type="checkbox"]:checked');
+
+        selectedCheckboxes.forEach(function(checkbox) {
+            // Crear una nueva línea para el destino
+            const newDiv = document.createElement('div');
+            newDiv.classList.add('form-check');
+
+            const newCheckbox = document.createElement('input');
+            newCheckbox.classList.add('form-check-input');
+            newCheckbox.type = 'checkbox';
+            newCheckbox.value = checkbox.value;
+            newCheckbox.name = sourceBoxId === 'availableBox' ? 'jugadores' : 'jugadores_seleccionados';
+            newCheckbox.checked = true;
+
+            const newLabel = document.createElement('label');
+            newLabel.classList.add('form-check-label');
+            newLabel.textContent = checkbox.nextElementSibling.textContent;
+
+            newDiv.appendChild(newCheckbox);
+            newDiv.appendChild(newLabel);
+
+            // Añadir el nuevo div al recuadro de destino
+            destinationBox.appendChild(newDiv);
+
+            // Eliminar el checkbox original del recuadro de origen
+            checkbox.parentElement.remove();
+        });
+    }
+</script>
+{% endblock %}
