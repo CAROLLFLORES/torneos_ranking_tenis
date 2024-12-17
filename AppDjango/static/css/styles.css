@@ -184,28 +184,9 @@ a {
     height: auto !important;
     margin: 0 auto !important;
     padding: 20px !important;
-    border: 1px solid #ddd !important;
+    
     background-color: rgba(202, 202, 202, 0.7) !important; /* 70% opaco */
     box-sizing: border-box !important;
-}
-
-.listadosuno {
-    display: flex; /* O display: grid; si prefieres usar grid */
-    flex-direction: column;
-    width: 1000px !important;
-    height: auto !important;
-    padding: 20px !important;
-    border: 1px solid #ddd !important;
-    background-color: rgba(202, 202, 202, 0.7) !important; /* 70% opaco */
-    box-sizing: border-box !important;
-
-    /* Posicionamiento */
-    position: fixed; /* Cambiar a 'absolute' si deseas posicionarlo en relación al contenedor principal */
-    top: -290px; /* ajusta la posición según sea necesario */
-    right: -140px; /* o left, según lo requieras */
-    width: 300px;
-    height: auto;
-    z-index: 1000;
 }
 
 .title-orange-gris {
@@ -544,6 +525,7 @@ header {
     padding-bottom: 30px;
     padding-top: 15px;
     margin-bottom: 50px;
+    border: none !important;
 
     position: relative;  /* Asegura que .grande se ajuste correctamente */
     min-height: 300px; 
@@ -561,6 +543,7 @@ header {
     display: flex;
     flex-direction: column;
     align-items: center; /* Centrar los contenidos horizontalmente */
+    border: none !important;
 }
 
 .narrow-box .buttons-container {
@@ -773,7 +756,7 @@ header {
 /* Listado de jugadores */
 .player-record {
     padding: 10px;
-    border-bottom: 1px solid #ddd; /* Línea de separación entre registros */
+  
 }
 
 .player-separator {
@@ -994,7 +977,7 @@ header {
 
 /* Estilo para las filas de los jugadores */
 .table tbody tr {
-    border-bottom: 1px solid #ddd; /* Línea de separación entre las filas */
+    
     text-align: left;
 }
 
@@ -1009,14 +992,13 @@ header {
     text-align: LEFT;
 }
 
-
 table {
     border-collapse: collapse;
     width: 100%;
 }
 
 .td {
-    border: 1px solid #ddd;
+   
     padding: 8px;
 }
 
@@ -1071,4 +1053,33 @@ table {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.btn-danger {
+    background-color: none;
+    color: red
+}
+
+.fondo-boton-eliminar{
+    background-color: red;
+}
+
+
+/*asociar generar partido torneo*/
+.table {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.panel {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }

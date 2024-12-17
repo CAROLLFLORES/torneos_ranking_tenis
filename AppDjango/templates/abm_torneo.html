@@ -1,188 +1,90 @@
-<!-- torneo/templates/torneo/abm_torneo.html -->
-
 {% extends "layout.html" %}
 {% load static %}
 
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
-<div class="container-admin d-flex me-4" style="flex: 1;">
+<div class="container-admin">
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
         <hr class="separator-line">
         <h2>CREACIÓN DE TORNEO</h2>
     </div>
-</div>
 
-<!-- Sección para Mostrar Mensajes -->
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    {% endfor %}
-{% endif %}
-
-<!-- Div para el formulario de creación de torneo -->
-<div class="form-container">
-    <div class="narrow-box">
-        <div class="title-orange-gris">
-            <h1>CREAR TORNEO</h1>
-            <h3 class="negro chico">INFORMACIÓN DEL TORNEO</h3>
-        </div>
-
-        <form method="POST" action="{% url 'crear_torneo' %}">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="id_nombre" class="form-label">Nombre del Torneo:</label>
-                {{ form.nombre }}
-                {% if form.nombre.errors %}
-                    <div class="text-danger">{{ form.nombre.errors }}</div>
-                {% endif %}
+    <!-- Contenedor Principal -->
+    <div class="form-container d-flex gap-4 justify-content-between">
+        <!-- Recuadro IZQUIERDO: CREAR TORNEO -->
+        <div class="narrow-box flex-grow-1">
+            <div class="title-orange-gris">
+                <h1>CREAR TORNEO</h1>
+                <h3 class="negro chico">INFORMACIÓN DEL TORNEO</h3>
             </div>
-            <div class="mb-3">
-                <label for="id_fecha_inicio" class="form-label">Fecha de Inicio:</label>
-                {{ form.fecha_inicio }}
-                {% if form.fecha_inicio.errors %}
-                    <div class="text-danger">{{ form.fecha_inicio.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="mb-3">
-                <label for="id_fecha_fin" class="form-label">Fecha de Fin:</label>
-                {{ form.fecha_fin }}
-                {% if form.fecha_fin.errors %}
-                    <div class="text-danger">{{ form.fecha_fin.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="mb-3">
-                <lobel for="id_sexp" class="form-label">Tipo:</label>
-                {{ form.tipo }}
-                {% if form.tipo.errors %}
-                    <div class="text-danger">{{ form.tipo.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="mb-3">
-                <label for="id_categorias" class="form-label">Categorías:</label>
-                {{ form.categorias }}
-                {% if form.categorias.errors %}
-                    <div class="text-danger">{{ form.categorias.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="text-center">
-                <button class="login-button btn btn-primary" type="submit">Crear Torneo</button>
-            </div>
-        </form>
-
-        <hr class="separator">
-        <a href="{% url 'admin_menu' %}">
-            <button class="login-button btn btn-secondary">VOLVER AL MENÚ</button>
-        </a>
-    </div>
-</div>
-
-<!-- Tabla de Torneos creados -->
-<div class="login-box listadosuno">
-    <div class="barra-titulo">
-        <div class="barra-titulo-contenido d-flex justify-content-between align-items-center">
-            <!-- Paginación -->
-            <div class="pagination d-flex align-items-center">
-                <div class="fw-bold mx-3">
-                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}&nbsp;&nbsp;
+            <form method="POST" action="{% url 'crear_torneo' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_nombre" class="form-label">Nombre del Torneo:</label>
+                    {{ form.nombre }}
                 </div>
-                <div class="d-flex me-3">
-                    {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}" class="btn btn-outline-primary btn-sm">&lt;</a>
-                    {% endif %}
+                <div class="mb-3">
+                    <label for="id_fecha_inicio" class="form-label">Fecha de Inicio:</label>
+                    {{ form.fecha_inicio }}
                 </div>
-                <div class="d-flex">
-                    {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}" class="btn btn-outline-primary btn-sm">&gt;</a>
-                    {% endif %}
+                <div class="mb-3">
+                    <label for="id_fecha_fin" class="form-label">Fecha de Fin:</label>
+                    {{ form.fecha_fin }}
                 </div>
-            </div>
-
-            <!-- Formulario de filtrado por categoría -->
-            <form method="GET" action="{% url 'abm_torneo' %}" class="d-flex align-items-center ms-3">
-                <select name="categoria" class="form-select me-2" style="width: 200px;" onchange="this.form.submit()">
-                    <option value="">Filtrar por categoría</option>
-                    {% for categoria in all_categorias %}
-                        <option value="{{ categoria.id }}" {% if categoria.id|stringformat:"s" == categoria_id|stringformat:"s" %} selected {% endif %}>
-                            {{ categoria.nivel }}+{{ categoria.edad }}+{{ categoria.tipo_juego}}
-                        </option>
-                    {% endfor %}
-                </select>
-                <input type="hidden" name="search" value="{{ search }}">
+                <div class="text-center">
+                    <button class="login-button btn btn-primary" type="submit">Crear Torneo</button>
+                </div>
             </form>
+            <hr class="separator">
+            <a href="{% url 'admin_menu' %}">
+                <button class="login-button peque">MENU</button>
+            </a>
         </div>
-    </div>
-    
-    <div class="text-section mt-5">
-        <hr class="separator-line">
-        <h2>TORNEOS GUARDADOS</h2>
-    </div>
-    
-    <div class="tournament-list">
-        <table class="table table-striped table-light table-bordered table-sm">
-            <thead class="table-success">
-                <tr class="title-container">
-                    <th>NOMBRE DEL TORNEO</th>
-                    <th>FECHA DE INICIO</th>
-                    <th>FECHA DE FIN</th>
-                    <th>CATEGORÍAS</th>
-                    <th>ACCIONES</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if page_obj %}
-                    {% for torneo in page_obj %}
-                        <tr>
-                            <th scope="row">{{ torneo.nombre }}</th>
-                            <td>{{ torneo.fecha_inicio|date:"d/m/Y" }}</td>
-                            <td>{{ torneo.fecha_fin|date:"d/m/Y" }}</td>
-                            <td>
-                                {% for categoria in torneo.categorias.all %}
-                                    {{ categoria.nivel }}+{{ categoria.edad }}+{{ categoria.tipo_juego}}
-                                    {% if not forloop.last %} | {% endif %}
-                                {% endfor %}
-                            </td>
-                            <td>
-                                <a href="{% url 'abm_torneo_editar' torneo.id %}" class="btn btn-warning btn-sm">Editar</a>
-                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ torneo.id }}">Eliminar</button>
-                                 <!-- Nuevo Botón "Ver Características" -->
-                                 <a href="{% url 'datos_torneo' torneo.id %}" class="btn btn-info btn-sm">Ver</a>
 
-                                <!-- Modal para confirmar la eliminación -->
-                                <div class="modal fade" id="eliminarModal-{{ torneo.id }}" tabindex="-1" aria-labelledby="eliminarModalLabel-{{ torneo.id }}" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="eliminarModalLabel-{{ torneo.id }}">Eliminar Torneo</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                ¿Estás seguro de que deseas eliminar el torneo '{{ torneo.nombre }}'?
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                <form method="POST" action="{% url 'eliminar_torneo' torneo.id %}">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-danger">Eliminar</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                {% else %}
+        <!-- Recuadro DERECHO: TORNEOS GUARDADOS -->
+        <div class="login-box listados flex-grow-1" style="padding: 5px; margin: 0; max-height: 80px; overflow: auto;">            
+                <div class="title-orange-box grande text-center">
+                    <h2>TORNEOS GUARDADOS</h2>
+                </div>          
+            <table class="table table-striped table-light table-bordered table-sm">
+                <thead class="table-success">
                     <tr>
-                        <td colspan="5" class="text-center">No hay torneos guardados.</td>
+                        <th>NOMBRE DEL TORNEO</th>
+                        <th>FECHA DE INICIO</th>
+                        <th>FECHA DE FIN</th>
+                        <th>MODIFICAR</th>
+                        <th>VER</th>
                     </tr>
-                {% endif %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% if page_obj %}
+                        {% for torneo in page_obj %}
+                            <tr>
+                                <td>{{ torneo.nombre }}</td>
+                                <td>{{ torneo.fecha_inicio|date:"d/m/Y" }}</td>
+                                <td>{{ torneo.fecha_fin|date:"d/m/Y" }}</td>
+                                <td>
+                                    <a href="{% url 'abm_torneo_editar' torneo.id %}" class="btn btn-warning btn-sm text-center align-middle">
+                                        <i class="bi bi-pencil-square"></i>                                   
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{% url 'datos_torneo' torneo.id %}" class="btn btn-info btn-sm" style="color:black">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">No hay torneos guardados.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

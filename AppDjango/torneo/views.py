@@ -10,6 +10,7 @@ from jugador.models import Jugador
 import random
 from django.utils import timezone
 
+
 def abm_torneo(request):
     # Manejo del filtro por categoría
     categoria_id = request.GET.get('categoria')
@@ -108,17 +109,18 @@ def ver_caracteristicas_torneo(request, id):
 def asociar_jugadores(request, id):
     torneo = get_object_or_404(Torneo, id=id)
     
+    #acomode para que muestre ordenado alfabeticamente de apellido y nombre
     # Filtrar jugadores disponibles según el tipo de torneo
     if torneo.tipo == 'F':
-        jugadores_disponibles = Jugador.objects.filter(sexo='F').exclude(jugador_torneos__torneo=torneo)
+        jugadores_disponibles = Jugador.objects.filter(sexo='F').exclude(jugador_torneos__torneo=torneo).order_by('apellido', 'nombre')
     elif torneo.tipo == 'M':
-        jugadores_disponibles = Jugador.objects.filter(sexo='M').exclude(jugador_torneos__torneo=torneo)
+        jugadores_disponibles = Jugador.objects.filter(sexo='M').exclude(jugador_torneos__torneo=torneo).order_by('apellido', 'nombre')
     elif torneo.tipo == 'Mixto':
-        jugadores_disponibles = Jugador.objects.filter(sexo__in=['F', 'M']).exclude(jugador_torneos__torneo=torneo)
+        jugadores_disponibles = Jugador.objects.filter(sexo__in=['F', 'M']).exclude(jugador_torneos__torneo=torneo).order_by('apellido', 'nombre')
     else:
         jugadores_disponibles = Jugador.objects.none()
 
-    jugadores_asociados = Jugador.objects.filter(jugador_torneos__torneo=torneo)
+    jugadores_asociados = Jugador.objects.filter(jugador_torneos__torneo=torneo).order_by('apellido', 'nombre')
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -152,5 +154,42 @@ def asociar_jugadores(request, id):
         'jugadores_disponibles': jugadores_disponibles,
         'jugadores_asociados': jugadores_asociados,
     })
-def generar_partidos_torneo(request, id):
-   pass
+
+#def generar_partidos_torneo(request, id):
+   # torneo = get_object_or_404(Torneo, id=id)
+
+    # Aquí va la lógica para generar los partidos
+
+    #return render(request, 'generar_partidos.html', {'torneo': torneo})
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import Torneo, Jugador
+def generar_partidos_torneo(request, torneo_id):
+    torneo = get_object_or_404(Torneo, id=torneo_id)
+
+    jugadores_seleccionados = Jugador.objects.filter(
+        jugador_torneos__torneo=torneo
+    ).order_by('apellido', 'nombre')
+
+    if request.method == 'POST':
+        jugador1_ids = request.POST.getlist('jugador1[]')
+        jugador2_ids = request.POST.getlist('jugador2[]')
+        fechas = request.POST.getlist('fecha[]')
+        horas = request.POST.getlist('hora[]')
+
+        for j1, j2, fecha, hora in zip(jugador1_ids, jugador2_ids, fechas, horas):
+            if j1 != j2:  # Evitar que un jugador juegue contra sí mismo
+                Partido.objects.create(
+                    torneo=torneo,
+                    jugador1_id=j1,
+                    jugador2_id=j2,
+                    fecha=fecha,
+                    hora=hora
+                )
+        return redirect('ver_caracteristicas_torneo', id=torneo.id)
+
+    return render(request, 'generar_partidos_torneo.html', {
+        'torneo': torneo,
+        'jugadores_seleccionados': jugadores_seleccionados,
+    })
