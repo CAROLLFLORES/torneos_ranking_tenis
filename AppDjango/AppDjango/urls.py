@@ -46,6 +46,7 @@ urlpatterns = [
     path('editar_torneo/<int:id>/', torneo_views.editar_torneo, name='abm_torneo_editar'),
     path('datos_torneo/<int:id>/', torneo_views.ver_caracteristicas_torneo, name='datos_torneo'),
     path('asociar_jugadores/<int:id>/', torneo_views.asociar_jugadores, name='asociar_jugadores'),
-    path('generar_partidos/<int:id>/', torneo_views.generar_partidos_torneo, name='generar_partidos_torneo'),
+    path('generar_partidos_torneo/<int:torneo_id>/', torneo_views.generar_partidos_torneo, name='generar_partidos_torneo'),
     path('torneo/<int:id>/', torneo_views.ver_caracteristicas_torneo, name='ver_caracteristicas_torneo'),
+    
 ]

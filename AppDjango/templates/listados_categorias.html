@@ -1,54 +1,80 @@
 {% extends "layout.html" %}
-
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
 <div class="container-admin">
     <h4>ADMINISTRADOR</h4>
-    <a href="{% url 'admin_menu' %}">
-        <button class="login-button peque">MENU</button>
-    </a>
-        
-    <hr class="separator"> 
     <div class="text-section">
-        <hr class="separator-line"> <!-- Línea separadora -->
-        <h2>LISTADO DE CATEGORÍAS</h2>
+        <hr class="separator-line">
+        <h2>LISTADO DE CATEGORIAS</h2>
     </div>
-   
-        
     
-    <!-- Tabla de categorías -->
-    <div class="table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Nivel</th>
-                    <th>Edad</th>
-                    <th>Juego</th>
-                    <th>Acciones</th> <!-- Nueva columna para acciones -->
-                </tr>
-            </thead>
-            <tbody>
-                {% for categoria in categorias %}
-                <tr>
-                    <td>{{ categoria.nivel }}</td>
-                    <td>{{ categoria.edad }}</td>
-                    <td>{{ categoria.tipo_juego }}</td>
-                    <td>
-                        <form method="POST" action="{% url 'eliminar_categoria' categoria.id_categoria %}" style="display:inline;"
-                        onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta categoría?');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">-</button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4">No hay categorías disponibles.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="form-container">
+        <div class="narrow-box">
+            <div class="title-orange-gris">
+                <h1>CATEGORIAS</h1>
+                <h3 class="negro chico">OPCIONES</h3>
+            </div>
+            <a href="{% url 'admin_menu' %}">
+                <button class="login-button peque">MENU</button>
+            </a>
+            
+            <hr class="separator">
+            <a href="{% url 'abm_categoria' %}">
+                <button class="login-button chico">ALTA</button>
+            </a>
+            <hr class="separator">
+          
+        </div>
+
+        <div class="login-box listados">
+            <!-- Nueva barra de color que contiene la paginación y el filtro -->
+            <div class="barra-titulo">
+                <div class="barra-titulo-contenido d-flex justify-content-between align-items-center">
+                    
+
+                </div>
+            </div>
+            <!-- Fin de la nueva barra -->
+
+            <table class="table table-striped-columns table-light table-bordered table-sm">
+                <thead class="table-success">
+                    <tr class="title-container">
+                        <th>Nivel</th>
+                        <th>Edad</th>
+                        <th>Juego</th>
+                        <th>Acciones</th> <!-- Nueva columna para acciones -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for categoria in categorias %}
+                    <tr>
+                        <td>{{ categoria.nivel }}</td>
+                        <td>{{ categoria.edad }}</td>
+                        <td>{{ categoria.tipo_juego }}</td>
+                        <td>
+                            <form method="POST" action="{% url 'eliminar_categoria' categoria.id_categoria %}" style="display:inline;"
+                            onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta categoría?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger"  style="color:red">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">No hay categorías disponibles.</td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
+
+
+   
+        

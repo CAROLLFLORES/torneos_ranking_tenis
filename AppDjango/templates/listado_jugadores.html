@@ -99,8 +99,8 @@
                     {% if jugadores %}
                         {% for jugador in jugadores %}
                             <tr>
-                                <th scope="row">{{ jugador.apellido }}</th>
-                                <td>{{ jugador.nombre }}</td>
+                                <th scope="row">{{ jugador.apellido | upper}}</th>
+                                <td>{{ jugador.nombre  |capfirst}}</td>
                                 <!-- <td>{{ jugador.dni }}</td> Eliminado -->
                                 <td>{{ jugador.sexo }}</td>
                                 <td>
@@ -125,11 +125,11 @@
                                                         {% csrf_token %}
                                                         <div class="mb-3">
                                                             <label for="nombre">Nombre:</label>
-                                                            <input class="input-field" type="text" value="{{ jugador.nombre }}" name="nombre" id="nombre" class="form-control" required>
+                                                            <input class="input-field" type="text" value="{{ jugador.nombre |capfirst }}" name="nombre" id="nombre" class="form-control" required>
                                                         </div>
                                                         <div class="mb-3">
                                                             <label for="apellido">Apellido:</label>
-                                                            <input class="input-field" type="text" value="{{ jugador.apellido }}" name="apellido" id="apellido" class="form-control" required>
+                                                            <input class="input-field" type="text" value="{{ jugador.apellido | upper}}" name="apellido" id="apellido" class="form-control" required>
                                                         </div>
                                                         <!-- Campo DNI oculto -->
                                                         <input type="hidden" name="dni" value="{{ jugador.dni }}">
@@ -151,8 +151,8 @@
                                 </td>
                                 <td>
                                     <!-- Botón BORRAR con clase 'delete-button' -->
-                                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ jugador.dni }}">
-                                        <i class="bi bi-trash-fill"></i>
+                                    <button  data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ jugador.dni }}">
+                                        <i class="bi bi-trash-fill btn-danger" style="align:center"></i>
                                     </button>
                                     {% include 'modal_eliminar_jugador.html' %}
                                 </td>

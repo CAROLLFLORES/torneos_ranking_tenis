@@ -4,60 +4,71 @@
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-5 mb-5 p-4">
-    <!-- Título de la Página -->
-    <div class="title-bar mb-4">
+<div class="container-admin">
+    <h4>ADMINISTRADOR</h4>
+    <div class="text-section">
+        <hr class="separator-line">
         <h2 class="text-primary">Características del Torneo: {{ torneo.nombre }}</h2>
     </div>
-
-    <!-- Sección de Información Básica del Torneo -->
-    <div class="card mb-4 shadow">
-        <div class="card-header bg-dark text-light">
-            <strong class="fs-4">Información</strong>
-        </div>
-        <div class="card-body">
-            <p class="fs-5"><strong>Nombre del Torneo:</strong> {{ torneo.nombre }}</p>
-            <p class="fs-5"><strong>Fecha de Inicio:</strong> {{ torneo.fecha_inicio|date:"d/m/Y" }}</p>
-            <p class="fs-5"><strong>Fecha de Fin:</strong> {{ torneo.fecha_fin|date:"d/m/Y" }}</p>
-            <p class="fs-5"><strong>Categorías Juegan:</strong>
-                {% for categoria in torneo.categorias.all %}
-                    {{ categoria.nivel }} + {{ categoria.edad }} + {{ categoria.tipo_juego }}
-                    {% if not forloop.last %} | {% endif %}
-                {% endfor %}
-            </p>
-        </div>
+    <div class="text-section">
+        <hr class="separator-line">
     </div>
-
-    <!-- Botones de Acción -->
-    <div class="d-flex justify-content-start align-items-center gap-3 mb-4">
-        <!-- Botón para Asociar Jugadores -->
-        <a href="{% url 'asociar_jugadores' torneo.id %}" class="btn btn-success">
-            <i class="bi bi-person-plus-fill"></i> Inscribir Jugadores Torneo
-        </a>
-        
-        <!-- Botón para Generar Partido del Torneo -->
-        <a href="{% url 'generar_partidos_torneo' torneo.id %}" class="btn btn-primary">
-            <i class="bi bi-calendar-check-fill"></i> Generar Cruce del Torneo
-        </a>
-    </div>
-
-    <!-- Sección Adicional: Lista de Jugadores Asociados -->
-    <div class="card shadow">
-        <div class="card-header bg-secondary text-light">
-            <strong class="fs-4">Jugadores Inscriptos</strong>
-        </div>
-        <div class="card-body">
-            {% if torneo.torneo_jugadores.exists %}
-                <ul class="list-group list-group-flush">
-                    {% for torneo_jugador in torneo.torneo_jugadores.all %}
-                        <li class="list-group-item fs-5">
-                            {{ torneo_jugador.jugador.nombre }} {{ torneo_jugador.jugador.apellido }} 
-                        </li>
+    <br>
+    <!-- Información del Torneo -->
+    <div class="form-container">
+        <div class="narrow-box">
+            <div class="title-orange-gris">
+                <h1>INFORMACIÓN DEL TORNEO</h1>
+            </div>
+            <a href="{% url 'admin_menu' %}">
+                <button class="login-button peque">MENU</button>
+            </a>
+            <hr class="separator-line">
+            <div class="card-body p-2">
+                <p class="fs-6 mb-1"><strong>Torneo</strong> <br>{{ torneo.nombre | upper}}</p>
+                <hr class="separator-line">
+                <p class="fs-6 mb-1"><strong>Fecha de Inicio</strong><br> {{ torneo.fecha_inicio|date:"d/m/Y" }}</p>
+                <hr class="separator-line">
+                <p class="fs-6 mb-1"><strong>Fecha de Fin</strong><br> {{ torneo.fecha_fin|date:"d/m/Y" }}</p>
+                <hr class="separator-line">
+                <p class="fs-6 mb-1"><strong>Categorías Juegan</strong>
+                    {% for categoria in torneo.categorias.all %}
+                        {{ categoria.nivel }} + {{ categoria.edad }} + {{ categoria.tipo_juego }}
+                        {% if not forloop.last %} | {% endif %}
                     {% endfor %}
-                </ul>
-            {% else %}
-                <p class="fs-5">No hay jugadores asociados a este torneo.</p>
-            {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="login-box listados">
+            <div class="title-orange-box grande">
+                <h2>JUGADORES INSCRIPTOS</h2>
+             </div>
+            
+                <div class="card-body">
+                    {% if torneo.torneo_jugadores.exists %}
+                        <ul class="list-group list-group-flush">
+                            {% for torneo_jugador in torneo.torneo_jugadores.all %}
+                                <li class="list-group-item fs-5">
+                                    {{ torneo_jugador.jugador.apellido | upper}} {{ torneo_jugador.jugador.nombre |capfirst }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="fs-5">No hay jugadores asociados a este torneo.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="d-flex justify-content-start align-items-center gap-3 mb-4">
+                <a href="{% url 'asociar_jugadores' torneo.id %}" class="btn btn-success" >
+                    <button type="button" class="login-button chico mb-2" style="margin-top: 80px;" >INSCRIBIR Jugadores </button>
+                </a>
+                <a href="{% url 'generar_partidos_torneo' torneo.id %}" class="btn btn-primary">
+                    <button type="button" class="login-button chico mb-2" style="margin-top: 80px;" >GENERAR Cruce  </button>
+                </a>
+            </div>
         </div>
     </div>
 </div>

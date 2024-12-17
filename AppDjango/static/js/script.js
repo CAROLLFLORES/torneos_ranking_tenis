@@ -124,3 +124,45 @@ function editarDatos() {
     document.getElementById('confirmar').style.display = "none";
 }
 
+function agregarFila() {
+    const table = document.getElementById('partidosTable');
+    const row = table.insertRow();
+    row.innerHTML = `
+        <td>
+            <select name="jugador1[]" class="form-select" onchange="actualizarOpciones(this)">
+                {% for jugador in jugadores_seleccionados %}
+                    <option value="{{ jugador.id }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td>VS</td>
+        <td>
+            <select name="jugador2[]" class="form-select">
+                {% for jugador in jugadores_seleccionados %}
+                    <option value="{{ jugador.id }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td><input type="date" name="fecha[]" class="form-control"></td>
+        <td><input type="time" name="hora[]" class="form-control"></td>
+        <td>
+            <button type="button" class="btn btn-danger" onclick="eliminarFila(this)">Eliminar</button>
+        </td>
+    `;
+}
+
+function actualizarOpciones(select) {
+    const currentRow = select.closest('tr');
+    const jugador1Value = select.value;
+
+    const jugador2Select = currentRow.querySelector('select[name="jugador2[]"]');
+    const options = jugador2Select.options;
+
+    for (let i = 0; i < options.length; i++) {
+        if (options[i].value === jugador1Value) {
+            options[i].disabled = true;
+        } else {
+            options[i].disabled = false;
+        }
+    }
+}
