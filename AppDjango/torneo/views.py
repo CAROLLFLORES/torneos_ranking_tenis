@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import TorneoForms
-from .models import Torneo, TorneoCategoria, TorneoJugador, Partido
+from .models import Torneo, TorneoCategoria, TorneoJugador, Partido , Equipo
 from jugador.models import Categoria
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
@@ -154,6 +154,84 @@ def asociar_jugadores(request, id):
         'jugadores_disponibles': jugadores_disponibles,
         'jugadores_asociados': jugadores_asociados,
     })
+
+def asociar_equipos(request, id):
+    torneo = get_object_or_404(Torneo, id=id)
+
+    # Filtrar equipos disponibles según el tipo de torneo
+    if torneo.tipo == 'F':
+        jugadores_disponibles = Jugador.objects.filter(sexo='F').order_by('apellido', 'nombre')
+    elif torneo.tipo == 'M':
+        jugadores_disponibles = Jugador.objects.filter(sexo='M').order_by('apellido', 'nombre')
+    elif torneo.tipo == 'Mixto':
+        jugadores_disponibles = Jugador.objects.filter(sexo__in=['F', 'M']).order_by('apellido', 'nombre')
+    else:
+        jugadores_disponibles = Jugador.objects.none()
+
+    # Obtener equipos ya asociados al torneo
+    equipos_asociados = Equipo.objects.filter(torneo=torneo).select_related('jugador1', 'jugador2')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        equipos_ids = request.POST.getlist('equipos')  # Equipos a asociar
+        equipos_seleccionados_ids = request.POST.getlist('equipos_seleccionados')  # Equipos a desasociar
+        jugador1_id = request.POST.get('jugador1')
+        jugador2_id = request.POST.get('jugador2')
+
+        try:
+            with transaction.atomic():
+                if action == "crear_equipo":
+                    if jugador1_id and jugador2_id and jugador1_id != jugador2_id:
+                        jugador1 = Jugador.objects.get(dni=jugador1_id)
+                        jugador2 = Jugador.objects.get(dni=jugador2_id)
+                        Equipo.objects.get_or_create(
+                            jugador1=jugador1,
+                            jugador2=jugador2,
+                            torneo=torneo
+                        )
+                        messages.success(request, 'Equipo creado exitosamente.')
+
+                elif action == "asociar":
+                    if equipos_ids:
+                        equipos = Equipo.objects.filter(id__in=equipos_ids)
+                        for equipo in equipos:
+                            equipo.torneo = torneo
+                            equipo.save()
+                        messages.success(request, 'Equipos asociados exitosamente al torneo.')
+
+                elif action == "desasociar":
+                    if equipos_seleccionados_ids:
+                        equipos = Equipo.objects.filter(id__in=equipos_seleccionados_ids, torneo=torneo)
+                        for equipo in equipos:
+                            equipo.delete()
+                        messages.success(request, 'Equipos desasociados exitosamente del torneo.')
+
+            return redirect('asociar_equipos', torneo.id)
+
+        except IntegrityError:
+            messages.error(request, 'Ocurrió un error con la base de datos.')
+        except Exception as e:
+            messages.error(request, f'Error al procesar la solicitud: {e}')
+
+    return render(request, 'asociar_equipos.html', {
+        'torneo': torneo,
+        'jugadores_disponibles': jugadores_disponibles,
+        'equipos_asociados': equipos_asociados,
+    })
+
+
+def redirigir_inscripcion(request, torneo_id):
+    torneo = get_object_or_404(Torneo, id=torneo_id)
+    categorias = torneo.categorias.all()
+
+    # Verifica si alguna categoría del torneo es de dobles
+    es_doble = any("doble" in categoria.tipo_juego.lower() for categoria in categorias)
+
+    if es_doble:
+        return redirect('asociar_equipos', torneo_id=torneo.id)  # Redirige a asociar equipos
+    else:
+        return redirect('asociar_jugadores', id=torneo.id)  # Redirige a asociar jugadores
+
 
 #def generar_partidos_torneo(request, id):
    # torneo = get_object_or_404(Torneo, id=id)

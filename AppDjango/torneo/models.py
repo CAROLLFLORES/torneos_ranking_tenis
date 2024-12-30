@@ -92,3 +92,35 @@ class PartidoCancha(models.Model):
 
     def __str__(self):
         return f'Partido {self.id_partido} - Cancha {self.id_cancha}'
+
+
+#Modelo De crecion de equipos para torneo 
+class Equipo(models.Model):
+    # Nombre opcional del equipo (puede ser generado automáticamente)
+    nombre = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Relaciones con los jugadores que forman el equipo
+    jugador1 = models.ForeignKey(
+        'jugador.Jugador',  # Referencia correcta a la app 'jugador' y el modelo 'Jugador'
+        related_name='equipos_como_jugador1',
+        on_delete=models.CASCADE
+    )
+    jugador2 = models.ForeignKey(
+        'jugador.Jugador',  # Referencia correcta a la app 'jugador' y el modelo 'Jugador'
+        related_name='equipos_como_jugador2',
+        on_delete=models.CASCADE
+    )
+    
+    # Relación con el torneo al que pertenece el equipo
+    torneo = models.ForeignKey(
+        'Torneo',  # Modelo Torneo está en la misma app
+        related_name='equipos',
+        on_delete=models.CASCADE
+    )
+
+    # Restricción para evitar duplicidad de equipos en el mismo torneo
+    class Meta:
+        unique_together = ('jugador1', 'jugador2', 'torneo')
+
+    def __str__(self):
+        return f"Equipo: {self.jugador1} y {self.jugador2} en Torneo {self.torneo.nombre}"

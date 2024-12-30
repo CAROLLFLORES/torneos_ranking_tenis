@@ -33,6 +33,14 @@
                     <label for="id_fecha_fin" class="form-label">Fecha de Fin:</label>
                     {{ form.fecha_fin }}
                 </div>
+                <div class="mb-3">
+                    <label for="id_categoria" class="form-label">Categorias:</label>
+                    {{ form.categorias }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_tipo" class="form-label">Tipo:</label>
+                    {{ form.tipo }}
+                </div>
                 <div class="text-center">
                     <button class="login-button btn btn-primary" type="submit">Crear Torneo</button>
                 </div>
@@ -56,6 +64,7 @@
                         <th>FECHA DE FIN</th>
                         <th>MODIFICAR</th>
                         <th>VER</th>
+                        <th>ELIMINAR</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -75,6 +84,35 @@
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 </td>
+                                <td>
+                                    <!-- Botón ELIMINAR con clase 'delete-button' -->
+                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ torneo.id }}">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                    <!-- Incluye el modal de confirmación -->
+                                    <div class="modal fade" id="eliminarModal-{{ torneo.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Eliminar Torneo</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    ¿Estás seguro de que deseas eliminar el torneo <strong>{{ torneo.nombre }}</strong>?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <form method="POST" action="{% url 'eliminar_torneo' torneo.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                
+                                
                             </tr>
                         {% endfor %}
                     {% else %}

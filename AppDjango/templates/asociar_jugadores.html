@@ -41,10 +41,9 @@
 
                 <!-- Recuadro Central: Botones para Mover Jugadores -->
                 <div class="d-flex flex-column justify-content-center align-items-center" style="flex: 0.1;">
-                    <button type="button" class="login-button chico mb-2" style="margin-top: 80px;" onclick="moveSelected('availableBox', 'selectedBox')">Agregar &gt;&gt;</button>
-                    <button type="button" class="login-button chico fondo-boton-eliminar" style="margin-top: 80px; background-color: red" onclick="moveSelected('selectedBox', 'availableBox')">&lt;&lt; Eliminar</button>
+                    <button type="button" class="login-button chico mb-2" style="margin-top: 80px;" onclick="moveSelected('availableBox', 'selectedBox', event)">Agregar &gt;&gt;</button>
+                    <button type="button" class="login-button chico fondo-boton-eliminar" style="margin-top: 80px; background-color: red" onclick="moveSelected('selectedBox', 'availableBox', event)">&lt;&lt; Eliminar</button>
                 </div>
-
                 <!-- Recuadro Derecho: Jugadores Seleccionados -->
                 <div class="jugadores-box jugadores-seleccionados">
                     <h4 class="text-center">Jugadores Seleccionados</h4>
@@ -121,7 +120,9 @@ button.login-button.chico {
 
 <!-- JavaScript para Manejar el Movimiento de Jugadores -->
 <script>
-    function moveSelected(sourceBoxId, destinationBoxId) {
+    function moveSelected(sourceBoxId, destinationBoxId, event) {
+        if (event) event.preventDefault();  // Previene el envío del formulario si ocurre accidentalmente.
+
         const sourceBox = document.getElementById(sourceBoxId);
         const destinationBox = document.getElementById(destinationBoxId);
 
@@ -150,4 +151,5 @@ button.login-button.chico {
         });
     }
 </script>
+
 {% endblock %}
