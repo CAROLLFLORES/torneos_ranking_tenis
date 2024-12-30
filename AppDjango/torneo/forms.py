@@ -7,10 +7,9 @@ from jugador.models import Categoria  # Asegúrate de importar correctamente des
 class TorneoForms(forms.ModelForm):
     categorias = forms.ModelMultipleChoiceField(
         queryset=Categoria.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=True
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'}),  # Cambia a Select si quieres que sea un solo seleccionable
+        label="Categorías"
     )
-    
     tipo = forms.ChoiceField(
         choices=Torneo.TIPO_CHOICES,
         required=True,
@@ -24,6 +23,6 @@ class TorneoForms(forms.ModelForm):
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Torneo'}),
             'fecha_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'fecha_fin': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'categorias': forms.CheckboxSelectMultiple(),
+            'categorias': forms.Select(attrs={'class': 'form-control'}),
             'tipo': forms.Select(attrs={'class': 'form-control'}),
         }
