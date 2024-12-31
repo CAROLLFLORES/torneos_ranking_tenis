@@ -206,7 +206,7 @@ def asociar_equipos(request, id):
                             equipo.delete()
                         messages.success(request, 'Equipos desasociados exitosamente del torneo.')
 
-            return redirect('asociar_equipos', torneo.id)
+            return redirect('asociar_equipos', id=torneo.id)
 
         except IntegrityError:
             messages.error(request, 'Ocurrió un error con la base de datos.')
@@ -220,6 +220,7 @@ def asociar_equipos(request, id):
     })
 
 
+
 def redirigir_inscripcion(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
     categorias = torneo.categorias.all()
@@ -228,9 +229,10 @@ def redirigir_inscripcion(request, torneo_id):
     es_doble = any("doble" in categoria.tipo_juego.lower() for categoria in categorias)
 
     if es_doble:
-        return redirect('asociar_equipos', torneo_id=torneo.id)  # Redirige a asociar equipos
+        return redirect('asociar_equipos', id=torneo.id)  # Cambia torneo_id a id
     else:
-        return redirect('asociar_jugadores', id=torneo.id)  # Redirige a asociar jugadores
+        return redirect('asociar_jugadores', id=torneo.id)  # Sin cambios
+
 
 
 #def generar_partidos_torneo(request, id):

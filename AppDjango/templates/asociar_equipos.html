@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body_class %}fondo-secundario{% endblock %}
+
+{% block content %}
+<div class="container-admin" style="max-width: 1200px; margin: auto;">
+    <h4>ADMINISTRADOR</h4>
+    <div class="text-section">
+        <hr class="separator-line">
+        <h2 class="text-primary text-center">Asociar Equipos al Torneo: {{ torneo.nombre }}</h2>
+    </div>
+
+    <div class="form-container d-flex justify-content-center align-items-center" style="margin-top: 40px;">
+        <div class="narrow-box">
+            <div class="title-orange-gris">
+                <h1 class="text-center">INFORMACIÓN DEL TORNEO</h1>
+            </div>
+            <a href="{% url 'admin_menu' %}" class="d-flex justify-content-center">
+                <button class="login-button peque">MENU</button>
+            </a>
+        </div>
+        <form method="POST" action="" style="width: 100%; max-width: 900px;">
+            {% csrf_token %}
+            <div class="recuadros-container d-flex justify-content-center align-items-start gap-5">
+                <!-- Recuadro Izquierdo: Crear Equipos -->
+                <div class="jugadores-box" style="flex: 1; text-align: center;">
+                    <h4>Crear Equipos</h4>
+                    <div>
+                        <label for="selectJugador1{{ torneo.id }}">Jugador 1:</label>
+                        <select id="selectJugador1{{ torneo.id }}" name="jugador1" class="form-select">
+                            {% for jugador in jugadores_disponibles %}
+                                <option value="{{ jugador.dni }}" data-apellido="{{ jugador.apellido }}">{{ jugador.apellido }} {{ jugador.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <label for="selectJugador2{{ torneo.id }}">Jugador 2:</label>
+                        <select id="selectJugador2{{ torneo.id }}" name="jugador2" class="form-select">
+                            {% for jugador in jugadores_disponibles %}
+                                <option value="{{ jugador.dni }}" data-apellido="{{ jugador.apellido }}">{{ jugador.apellido }} {{ jugador.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="button" class="login-button chico mt-5" onclick="addTeam({{ torneo.id }})" style="margin-top: 30px;">Crear Equipo</button>
+                    <h5 class="text-center mt-3">Equipos Creados: <span id="equiposCount{{ torneo.id }}">0</span></h5>
+                </div>
+
+                <!-- Recuadro Derecho: Equipos Seleccionados -->
+                <div class="jugadores-box" style="flex: 1; text-align: center;">
+                    <h4>Equipos Seleccionados</h4>
+                    <div class="card-body" id="selectedTeamsBox{{ torneo.id }}" style="border: 1px solid rgba(0, 0, 0, 0.2); background-color: rgba(255, 255, 255, 0.9); border-radius: 10px; padding: 15px; height: 300px; overflow-y: auto;">
+                        <p id="noTeamsText" style="color: gray; display: {% if equipos_seleccionados %}none{% else %}block{% endif %};">No hay equipos seleccionados.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón para Guardar Asociaciones -->
+            <div class="text-center mt-4" style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+                <button type="submit" name="action" value="asociar" class="login-button chico mb-2" style="margin: 0; padding: 10px 30px;">Guardar Asociaciones</button>
+                <button type="submit" name="action" value="desasociar" class="login-button chico fondo-boton-eliminar" style="margin: 0; padding: 10px 30px;">Eliminar Equipos Seleccionados</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript para Manejar la Creación de Equipos -->
+<script>
+    let equipoCount = 0; // Contador global para numerar equipos
+
+    function addTeam(torneoId) {
+        const jugador1Select = document.getElementById(`selectJugador1${torneoId}`);
+        const jugador2Select = document.getElementById(`selectJugador2${torneoId}`);
+        const jugador1 = jugador1Select.value;
+        const jugador2 = jugador2Select.value;
+        const jugador1Apellido = jugador1Select.options[jugador1Select.selectedIndex].getAttribute('data-apellido');
+        const jugador2Apellido = jugador2Select.options[jugador2Select.selectedIndex].getAttribute('data-apellido');
+
+        if (jugador1 && jugador2 && jugador1 !== jugador2) {
+            equipoCount++; // Incrementa el contador de equipos
+
+            const noTeamsText = document.getElementById('noTeamsText');
+            noTeamsText.style.display = 'none'; // Oculta el mensaje "No hay equipos seleccionados"
+
+            const teamDiv = document.createElement('div');
+            teamDiv.classList.add('form-check');
+
+            const teamCheckbox = document.createElement('input');
+            teamCheckbox.classList.add('form-check-input');
+            teamCheckbox.type = 'checkbox';
+            teamCheckbox.value = `${jugador1}-${jugador2}`;
+            teamCheckbox.name = 'equipos';
+
+            const teamLabel = document.createElement('label');
+            teamLabel.classList.add('form-check-label');
+            teamLabel.textContent = `Equipo ${equipoCount}: ${jugador1Apellido} y ${jugador2Apellido}`;
+            teamLabel.style.color = 'black'; // Cambiado a negro
+
+            teamDiv.appendChild(teamCheckbox);
+            teamDiv.appendChild(teamLabel);
+
+            document.getElementById(`selectedTeamsBox${torneoId}`).appendChild(teamDiv);
+
+            // Actualiza el contador visual de equipos creados
+            document.getElementById(`equiposCount${torneoId}`).textContent = equipoCount;
+        } else {
+            alert('Selecciona dos jugadores distintos para crear un equipo.');
+        }
+    }
+</script>
+
+
+{% endblock %}
