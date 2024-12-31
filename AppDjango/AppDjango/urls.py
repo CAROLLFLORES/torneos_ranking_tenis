@@ -49,6 +49,6 @@ urlpatterns = [
     path('generar_partidos_torneo/<int:torneo_id>/', torneo_views.generar_partidos_torneo, name='generar_partidos_torneo'),
     path('torneo/<int:id>/', torneo_views.ver_caracteristicas_torneo, name='ver_caracteristicas_torneo'),
     path('asociar_equipos/<int:id>/', torneo_views.asociar_equipos, name='asociar_equipos'),
-     path('redirigir_inscripcion/<int:torneo_id>/', torneo_views.redirigir_inscripcion, name='redirigir_inscripcion'),
+    path('redirigir_inscripcion/<int:torneo_id>/', torneo_views.redirigir_inscripcion, name='redirigir_inscripcion'),
     
 ]
