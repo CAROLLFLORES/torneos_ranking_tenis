@@ -42,28 +42,46 @@
 
         <div class="login-box listados">
             <div class="title-orange-box grande">
-                <h2>JUGADORES INSCRIPTOS</h2>
-             </div>
-            
-                <div class="card-body">
-                    {% if torneo.torneo_jugadores.exists %}
-                        <ul class="list-group list-group-flush">
-                            {% for torneo_jugador in torneo.torneo_jugadores.all %}
-                                <li class="list-group-item fs-5">
-                                    {{ torneo_jugador.jugador.apellido | upper}} {{ torneo_jugador.jugador.nombre |capfirst }}
-                                </li>
-                            {% endfor %}
-                        </ul>
+                <h2>
+                    {% if torneo.tipo_juego == "Doble" %}
+                        EQUIPOS ASOCIADOS
                     {% else %}
-                        <p class="fs-5">No hay jugadores asociados a este torneo.</p>
+                        JUGADORES INSCRIPTOS
                     {% endif %}
-                </div>
+                </h2>
             </div>
+            
+            <div class="card-body">
+                {% if torneo.equipos.exists %}
+                    <!-- Mostrar equipos -->
+                    <ul class="list-group list-group-flush">
+                        {% for equipo in torneo.equipos.all %}
+                            <li class="list-group-item fs-5">
+                                Equipo: {{ equipo.jugador1.apellido | upper }} y {{ equipo.jugador2.apellido | upper }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% elif torneo.torneo_jugadores.exists %}
+                    <!-- Mostrar jugadores -->
+                    <ul class="list-group list-group-flush">
+                        {% for torneo_jugador in torneo.torneo_jugadores.all %}
+                            <li class="list-group-item fs-5">
+                                {{ torneo_jugador.jugador.apellido | upper }} {{ torneo_jugador.jugador.nombre | capfirst }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <!-- Sin inscripciones -->
+                    <p class="fs-5">No hay inscripciones asociadas a este torneo.</p>
+                {% endif %}
+            </div>
+        </div>
+        
 
             <!-- Botones de Acción -->
             <div class="d-flex justify-content-start align-items-center gap-3 mb-4">
                 <a href="{% url 'redirigir_inscripcion' torneo.id %}" class="btn btn-success">
-                    <button type="button" class="login-button chico mb-2" style="margin-top: 80px;">INSCRIBIR Jugadores</button>
+                    <button type="button" class="login-button chico mb-2" style="margin-top: 80px;">INSCRIBIR </button>
                 </a>
                 <a href="{% url 'generar_partidos_torneo' torneo.id %}" class="btn btn-primary">
                     <button type="button" class="login-button chico mb-2" style="margin-top: 80px;" >GENERAR Cruce  </button>
