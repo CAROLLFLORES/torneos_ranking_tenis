@@ -158,28 +158,27 @@ def asociar_jugadores(request, id):
 def asociar_equipos(request, id):
     torneo = get_object_or_404(Torneo, id=id)
 
-    # Filtrar equipos disponibles según el tipo de torneo
+    # Filtrar jugadores disponibles según el tipo de torneo
+    jugadores_disponibles = Jugador.objects.none()
     if torneo.tipo == 'F':
         jugadores_disponibles = Jugador.objects.filter(sexo='F').order_by('apellido', 'nombre')
     elif torneo.tipo == 'M':
         jugadores_disponibles = Jugador.objects.filter(sexo='M').order_by('apellido', 'nombre')
     elif torneo.tipo == 'Mixto':
         jugadores_disponibles = Jugador.objects.filter(sexo__in=['F', 'M']).order_by('apellido', 'nombre')
-    else:
-        jugadores_disponibles = Jugador.objects.none()
 
     # Obtener equipos ya asociados al torneo
     equipos_asociados = Equipo.objects.filter(torneo=torneo).select_related('jugador1', 'jugador2')
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        equipos_ids = request.POST.getlist('equipos')  # Equipos a asociar
-        equipos_seleccionados_ids = request.POST.getlist('equipos_seleccionados')  # Equipos a desasociar
+        equipos_seleccionados = request.POST.getlist('equipos')  # Equipos creados enviados desde el formulario
         jugador1_id = request.POST.get('jugador1')
         jugador2_id = request.POST.get('jugador2')
 
         try:
             with transaction.atomic():
+                # Crear equipo nuevo
                 if action == "crear_equipo":
                     if jugador1_id and jugador2_id and jugador1_id != jugador2_id:
                         jugador1 = Jugador.objects.get(dni=jugador1_id)
@@ -190,20 +189,28 @@ def asociar_equipos(request, id):
                             torneo=torneo
                         )
                         messages.success(request, 'Equipo creado exitosamente.')
+                    else:
+                        messages.error(request, 'Selecciona dos jugadores distintos para crear un equipo.')
 
+                # Asociar equipos creados al torneo
                 elif action == "asociar":
-                    if equipos_ids:
-                        equipos = Equipo.objects.filter(id__in=equipos_ids)
-                        for equipo in equipos:
-                            equipo.torneo = torneo
-                            equipo.save()
-                        messages.success(request, 'Equipos asociados exitosamente al torneo.')
+                    if equipos_seleccionados:
+                        for equipo_str in equipos_seleccionados:
+                            jugador1_id, jugador2_id = equipo_str.split('-')
+                            jugador1 = Jugador.objects.get(dni=jugador1_id)
+                            jugador2 = Jugador.objects.get(dni=jugador2_id)
+                            Equipo.objects.get_or_create(
+                                jugador1=jugador1,
+                                jugador2=jugador2,
+                                torneo=torneo
+                            )
+                        messages.success(request, 'Equipos guardados exitosamente en la base de datos.')
 
+                # Desasociar equipos del torneo
                 elif action == "desasociar":
-                    if equipos_seleccionados_ids:
-                        equipos = Equipo.objects.filter(id__in=equipos_seleccionados_ids, torneo=torneo)
-                        for equipo in equipos:
-                            equipo.delete()
+                    if equipos_seleccionados:
+                        equipos = Equipo.objects.filter(id__in=equipos_seleccionados, torneo=torneo)
+                        equipos.delete()
                         messages.success(request, 'Equipos desasociados exitosamente del torneo.')
 
             return redirect('asociar_equipos', id=torneo.id)
@@ -220,7 +227,6 @@ def asociar_equipos(request, id):
     })
 
 
-
 def redirigir_inscripcion(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
     categorias = torneo.categorias.all()
@@ -233,6 +239,13 @@ def redirigir_inscripcion(request, torneo_id):
     else:
         return redirect('asociar_jugadores', id=torneo.id)  # Sin cambios
 
+
+
+def tiene_categoria_doble(self):
+        """
+        Verifica si alguna de las categorías asociadas al torneo es de tipo 'Doble'.
+        """
+        return self.categorias.filter(tipo_juego__iexact="Doble").exists()
 
 
 #def generar_partidos_torneo(request, id):
