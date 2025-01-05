@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block body_class %}fondo-secundario{% endblock %}
+
+{% block content %}
+<div class="container-admin">
+    <h4>ADMINISTRADOR</h4>
+    <div class="text-section">
+        <hr class="separator-line">
+        <h2>LISTADO DE CANCHAS</h2>
+    </div>
+    <div class="form-container">
+        <div class="table-responsive">
+            <table class="table table-striped table-light table-bordered table-sm">
+                <thead class="table-success text-center">
+                    <tr>
+                        <th>Número de Cancha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cancha in canchas %}
+                        <tr>
+                            <td class="text-center">{{ cancha.cancha }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <a href="{% url 'abm_cancha' %}">
+            <button class="login-button chico">Volver a ABM Canchas</button>
+        </a>
+    </div>
+</div>
+{% endblock %}
