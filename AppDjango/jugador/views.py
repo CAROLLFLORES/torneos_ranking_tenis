@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Jugador,Categoria
+from .models import Jugador,Categoria,JugadorCategoria
 from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -28,19 +28,26 @@ def guardar_jugador(request):
 
 def modificar_jugador(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
-    
     if request.method == "POST":
-        form = JugadorForm(request.POST, instance=jugador)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Jugador modificado exitosamente.")
-            return redirect('listado_jugadores')
-        else:
-            messages.error(request, "Error en el formulario. Revisa los datos ingresados.")
-    else:
-        form = JugadorForm(instance=jugador)
-    
-    return render(request, "modificar_jugador.html", {"form": form, "jugador": jugador})
+        nombre = request.POST.get('nombre')
+        apellido = request.POST.get('apellido')
+        sexo = request.POST.get('sexo')
+        categorias_ids = request.POST.getlist('categorias[]')  # Captura las categorías seleccionadas
+
+        jugador.nombre = nombre
+        jugador.apellido = apellido
+        jugador.sexo = sexo
+        jugador.save()
+
+        # Actualizar las categorías
+        jugador.categorias.clear()  # Elimina las categorías anteriores
+        for categoria_id in categorias_ids:
+            categoria = get_object_or_404(Categoria, id_categoria=categoria_id)
+            JugadorCategoria.objects.get_or_create(jugador=jugador, categoria=categoria)
+
+        messages.success(request, "Jugador actualizado exitosamente.")
+        return redirect('listado_jugadores')
+    return render(request, 'modificar_jugador.html', {'jugador': jugador})
 
 def listado_jugadores(request):
     search = request.GET.get('search', '')
@@ -60,7 +67,16 @@ def listado_jugadores(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'listado_jugadores.html', {'jugadores': page_obj, 'search': search, 'sexo': sexo_filter})
+    # Pasar todas las categorías al contexto
+    todas_categorias = Categoria.objects.all()
+
+    return render(request, 'listado_jugadores.html', {
+        'jugadores': page_obj,
+        'todas_categorias': todas_categorias,
+        'search': search,
+        'sexo': sexo_filter
+    })
+
 
 def datos_jugador(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)

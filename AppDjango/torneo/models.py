@@ -1,5 +1,5 @@
 from django.db import models
-from jugador.models import Categoria, Jugador
+from jugador.models import Categoria, Jugador,JugadorCategoria
 from django.utils import timezone
 from datetime import date
 
@@ -75,15 +75,19 @@ class Cancha(models.Model):
 
 # Modelo Partido
 class Partido(models.Model):
-    id_partido = models.AutoField(primary_key=True)
-    fecha = models.DateTimeField(default=timezone.now)
-    hora = models.DateTimeField(default=timezone.now)
-    id_categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
-    id_cancha = models.ManyToManyField('Cancha', through='PartidoCancha')
-    id_torneo = models.ForeignKey(Torneo, on_delete=models.CASCADE, related_name='partidos')
+    torneo = models.ForeignKey(Torneo, on_delete=models.CASCADE)  # Relación con Torneo
+    jugador1 = models.ForeignKey(Jugador, on_delete=models.CASCADE, related_name='partidos_jugador1')  # Jugador 1
+    jugador2 = models.ForeignKey(Jugador, on_delete=models.CASCADE, related_name='partidos_jugador2')  # Jugador 2
+    fecha = models.DateField()  # Fecha del partido
+    hora = models.TimeField()  # Hora del partido
+    cancha = models.ForeignKey(Cancha, on_delete=models.CASCADE)  # Relación con Cancha
+    jornada = models.IntegerField()  # Número de la jornada
 
     def __str__(self):
-        return f'Partido {self.id_partido} - {self.fecha} {self.hora}'
+        return f"{self.torneo.nombre} - Jornada {self.jornada}: {self.jugador1} vs {self.jugador2}"
+
+
+
 
 # Modelo intermedio PartidoCancha
 class PartidoCancha(models.Model):

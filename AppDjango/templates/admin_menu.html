@@ -6,106 +6,101 @@
     <h4>ADMINISTRADOR </h4>
     <div class="text-section">
         <hr class="separator-line"> <!-- Línea separadora -->
-    <h5>GESTIÓN TORNEOS DE TENIS</h5>
-    <div class="text-section">
-        <hr class="separator-line"> <!-- Línea separadora -->
-        <h2>OPCIONES</h2>
-    </div>
+        <h5>GESTIÓN TORNEOS DE TENIS</h5>
+        <div class="text-section">
+            <hr class="separator-line"> <!-- Línea separadora -->
+            <h2>OPCIONES</h2>
+        </div>
 
-    <!-- Contenedor para los recuadros -->
-    <div class="recuadros-container">
-        <!-- Primer recuadro: JUGADORES -->
-        <div class="recuadro">
-            <div class="login-box">
-                <div class="title-orange-box">
-                    <h2>JUGADORES</h2>
+        <!-- Contenedor para los recuadros -->
+        <div class="recuadros-container">
+            <!-- Primer recuadro: JUGADORES -->
+            <div class="recuadro">
+                <div class="login-box">
+                    <div class="title-orange-box">
+                        <h2>JUGADORES</h2>
+                    </div>
+                    <h3 class="negro">BUSCAR POR JUGADOR</h3>
+                    <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center mb-3">
+                        <input class="input-field" type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
+                        <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
+                    </form>
+                    <hr class="separator">
+                    <h3>CARGAR NUEVO JUGADOR</h3>
+                    <a href="{% url 'admin_carga_jugador' %}">
+                        <button class="login-button">ALTA</button>
+                    </a>
+                    <hr class="separator">
+                    <a href="{% url 'listado_jugadores' %}">
+                        <button class="login-button-gris">Ver listado completo</button>
+                    </a>
                 </div>
-                <h3 class="negro">BUSCAR POR JUGADOR</h3>
-                <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center mb-3">
-                    <input class="input-field" type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
-                    <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
-                </form>
-                <hr class="separator">
-                <h3>CARGAR NUEVO JUGADOR</h3>
-                <a href="{% url 'admin_carga_jugador' %}">
-                    <button class="login-button">ALTA</button>
-                </a>
-                <hr class="separator">
-                <a href="{% url 'listado_jugadores' %}">
-                    <button class="login-button-gris">Ver listado completo</button>
-                </a>
-                <a href="{% url 'abm_categoria' %}">
-                    <button class="login-button-gris">X categoria</button>
-                </a>
+            </div>
+
+            <!-- Segundo recuadro: Ranking -->
+            <div class="recuadro">
+                <div class="login-box">
+                    <div class="title-orange-box">
+                        <h2>RANKING</h2>
+                    </div>
+                    <h3>BUSCAR POR CATEGORÍA</h3>
+                    <input type="text" placeholder="Buscar Categorías" class="input-field">
+                    <hr class="separator">
+                    <h3>LISTADO COMPLETO</h3>
+                    <a href="{% url 'admin_menu' %}">
+                        <button class="login-button">Aceptar</button>
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- Segundo recuadro: Ranking -->
-        <div class="recuadro">
-            <div class="login-box">
-                <div class="title-orange-box">
-                    <h2>RANKING</h2>
+        <!-- Contenedor para los recuadros 2 -->
+        <div class="recuadros-container">
+            <!-- Primer recuadro: GESTIÓN -->
+            <div class="recuadro">
+                <div class="login-box">
+                    <div class="title-orange-box">
+                        <h2>GESTIÓN</h2>
+                    </div>
+                    <h3>NUEVA CATEGORÍA</h3>
+                    <a href="{% url 'abm_categoria' %}">
+                        <button class="login-button">ALTA</button>
+                    </a>
+                    <hr class="separator">
+                    <a href="{% url 'listados_categorias' %}">
+                        <button class="login-button">Listado completo de CATEGORÍAS</button>
+                    </a>
+                    <hr class="separator">
+                    <h3>NUEVA CANCHA</h3>
+                    <a href="{% url 'abm_cancha' %}">
+                        <button class="login-button">ALTA</button>
+                    </a>
+                    <hr class="separator">
+                    <a href="{% url 'listado_canchas' %}">
+                        <button class="login-button">Listado completo de CANCHAS</button>
+                    </a>
                 </div>
-                <h3>BUSCAR POR CATEGORIA</h3>
-                <input type="text" placeholder="Buscar Categorias" class="input-field">
-                <hr class="separator">
-                <h3>LISTADO COMPLETO</h3>
-                <a href="{% url 'admin_menu' %}">
-                    <button class="login-button">Aceptar</button>
-                </a>
-                
             </div>
-        </div>
-    </div>
-    
 
-    <!-- Contenedor para los recuadros 2 -->
-    <div class="recuadros-container">
-        <!-- Primer recuadro: CATEGORIA -->
-        <div class="recuadro">
-            <div class="login-box">
-                <div class="title-orange-box">
-                    <h2>CATEGORIA</h2>
+            <!-- Segundo recuadro: PARTIDOS -->
+            <div class="recuadro">
+                <div class="login-box">
+                    <div class="title-orange-box">
+                        <h2>TORNEOS Y PARTIDOS</h2>
+                    </div>
+                    <h3>TORNEO</h3>
+                    <a href="{% url 'abm_torneo' %}">
+                        <button class='login-button'>Listado completo TORNEOS</button>
+                    </a>
+                    <hr class="separator">
+                    <h3>PARTIDO LIBRE</h3>
+                    <a href="{% url 'abm_torneo' %}">
+                        <button class='login-button'>Listado completo PARTIDOS</button>
+                    </a>
                 </div>
-                <!-- Begin - Franco Corbalan Modifico 22/09/2024 - Eliminamos Buscado -->
-                <!--<h3>BUSCAR POR CATEGORIA</h3>
-                <input type="text" placeholder="Buscar por categorias" class="input-field">
-                <hr class="separator">-->
-                <!-- End - Franco Corbalan Modifico 22/09/2024 - Eliminamos Buscador -->
-                <h3>NUEVA CATEGORIA</h3>
-                <a href="{% url 'abm_categoria' %}">
-                    <!-- Begin - Franco Corbalan Modifico 22/09/2024 - Boton Aceptar -->
-                    <!--<button class="login-button">Aceptar</button>-->
-                    <button class="login-button">ALTA</button>
-                    <!-- End - Franco Corbalan Modifico 22/09/2024 - Boton Aceptar -->
-
-                </a>
-                <hr class="separator">
-                <a href="{% url 'listados_categorias' %}">
-                    <button class="login-button">Listado completo de CATEGORIAS</button>
-                </a>
-    
-            </div>
-        </div>
-
-        <!-- Segundo recuadro: PARTIDOS -->
-        <div class="recuadro">
-            <div class="login-box">
-                <div class="title-orange-box">
-                    <h2>TORNEOS E PARTIDOS</h2>
-                </div>
-                <h3>TORNEO</h3>
-                <a href = "{% url 'abm_torneo'%}">
-                    <button class='login-button'>Listado completo TORNEOS</button>
-                <hr class="separator">
-                <h3>PARTIDO LIBRE</h3>
-                <a href = "{% url 'abm_torneo'%}">
-                    <button class='login-button'>Listado completo PARTIDOS</button>
-                
             </div>
         </div>
     </div>
 </div>
-
 
 {% endblock %}

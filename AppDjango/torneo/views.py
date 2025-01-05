@@ -1,14 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import TorneoForms
-from .models import Torneo, TorneoCategoria, TorneoJugador, Partido , Equipo
+from .models import Torneo, TorneoCategoria, TorneoJugador, Partido , Equipo,Cancha
 from jugador.models import Categoria
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
 from django.db import transaction, IntegrityError
 from jugador.models import Jugador
 import random
+from django.http import JsonResponse
 from django.utils import timezone
+from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 def abm_torneo(request):
@@ -238,8 +242,150 @@ def redirigir_inscripcion(request, torneo_id):
         return redirect('asociar_equipos', id=torneo.id)  # Cambia torneo_id a id
     else:
         return redirect('asociar_jugadores', id=torneo.id)  # Sin cambios
+    
+    
+def redirigir_partidos(request, torneo_id):
+    # Obtén el torneo
+    torneo = get_object_or_404(Torneo, id=torneo_id)
+    
+    # Verifica si el torneo tiene una categoría de tipo doble
+    es_doble = torneo.categorias.filter(tipo_juego__iexact="Doble").exists()
+
+    if es_doble:
+        # Redirige al template de partidos para torneos dobles
+        return redirect('partido_doble', torneo_id=torneo.id)
+    else:
+        # Redirige al template de partidos para torneos singles
+        return redirect('partido_single', torneo_id=torneo.id)
+    
+def partido_doble(request, torneo_id):
+    torneo = get_object_or_404(Torneo, id=torneo_id)
+    equipos = Equipo.objects.filter(torneo=torneo).select_related('jugador1', 'jugador2')
+    
+    return render(request, 'partido_doble.html', {
+        'torneo': torneo,
+        'equipos': equipos,
+    })
+
+def guardar_fecha(request, torneo_id):
+    if request.method == 'POST':
+        # Procesar los datos enviados en el formulario
+        print(f"Datos recibidos: {request.POST}")
+        # Aquí puedes guardar la información de la fecha, partidos, etc.
+        
+        # Redirigir a la misma página para cargar la siguiente fecha
+        return redirect('partido_single', torneo_id=torneo_id)
+    else:
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def partido_single(request, torneo_id):
+    torneo = get_object_or_404(Torneo, id=torneo_id)
+    
+    if request.method == 'POST':
+        numero_jornada = request.POST.get('numero_jornada')  # Obtener el número de jornada del input
+        jugadores1 = request.POST.getlist('jugador1[]')
+        jugadores2 = request.POST.getlist('jugador2[]')
+        fechas = request.POST.getlist('fecha[]')
+        horas = request.POST.getlist('hora[]')
+        canchas = request.POST.getlist('cancha[]')
+
+        advertencias = []  # Lista para almacenar mensajes de advertencia
+        partidos_creados = []  # Para registrar los partidos creados
+        
+        for jugador1, jugador2, fecha, hora, cancha in zip(jugadores1, jugadores2, fechas, horas, canchas):
+            # Validación 1: Verificar si los jugadores ya jugaron entre sí
+            if Partido.objects.filter(
+                torneo=torneo
+            ).filter(
+                (Q(jugador1_id=jugador1, jugador2_id=jugador2) | 
+                 Q(jugador1_id=jugador2, jugador2_id=jugador1))
+            ).exists():
+                advertencias.append(f"Los jugadores con IDs {jugador1} y {jugador2} ya han jugado entre sí en este torneo.")
+            
+            # Validación 2: Verificar si la fecha, hora y cancha ya están ocupadas
+            if Partido.objects.filter(
+                torneo=torneo,
+                fecha=fecha,
+                hora=hora,
+                cancha_id=cancha
+            ).exists():
+                advertencias.append(f"Ya existe un partido programado el {fecha} a las {hora} en la Cancha {cancha}.")
+            else:
+                # Crear el partido si no hay conflictos
+                partido = Partido.objects.create(
+                    torneo=torneo,
+                    jugador1_id=jugador1,
+                    jugador2_id=jugador2,
+                    fecha=fecha,
+                    hora=hora,
+                    cancha_id=cancha,
+                    jornada=numero_jornada
+                )
+                partidos_creados.append(partido)
+        
+        # Mostrar advertencias o mensaje de éxito
+        if advertencias:
+            for advertencia in advertencias:
+                messages.warning(request, advertencia)
+        if partidos_creados:
+            messages.success(request, f"Se han guardado {len(partidos_creados)} partidos para la jornada número {numero_jornada}.")
+
+        return redirect('partido_single', torneo_id=torneo_id)
+
+    # Determinar el número de jornada
+    numero_jornada = Partido.objects.filter(torneo=torneo).values('jornada').distinct().count() + 1
+    
+    # Obtener jugadores y canchas disponibles
+    jugadores = Jugador.objects.filter(jugador_torneos__torneo=torneo).order_by('apellido', 'nombre')
+    canchas = Cancha.objects.all()
+
+    return render(request, 'partido_single.html', {
+        'torneo': torneo,
+        'numero_jornada': numero_jornada,
+        'jugadores': jugadores,
+        'canchas': canchas,
+    })
 
 
+@csrf_exempt
+def validar_partido(request, torneo_id):
+    if request.method == 'POST':
+        torneo = get_object_or_404(Torneo, id=torneo_id)
+        data = json.loads(request.body)
+
+        jugador1 = data.get('jugador1')
+        jugador2 = data.get('jugador2')
+        fecha = data.get('fecha')
+        hora = data.get('hora')
+        cancha = data.get('cancha')
+
+        errors = []
+
+        # Validación 1: Verificar si los jugadores ya jugaron entre sí
+        if Partido.objects.filter(
+            torneo=torneo
+        ).filter(
+            (Q(jugador1_id=jugador1, jugador2_id=jugador2) |
+             Q(jugador1_id=jugador2, jugador2_id=jugador1))
+        ).exists():
+            errors.append(f"Los jugadores seleccionados ya jugaron entre sí en este torneo.")
+
+        # Validación 2: Verificar si la fecha, hora y cancha ya están ocupadas
+        if Partido.objects.filter(
+            torneo=torneo,
+            fecha=fecha,
+            hora=hora,
+            cancha_id=cancha
+        ).exists():
+            errors.append(f"Ya existe un partido programado el {fecha} a las {hora} en la Cancha {cancha}.")
+
+        # Devolver resultado
+        if errors:
+            return JsonResponse({'errors': errors}, status=400)
+        else:
+            return JsonResponse({'message': 'Validación exitosa'}, status=200)
+
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 def tiene_categoria_doble(self):
         """
@@ -248,41 +394,37 @@ def tiene_categoria_doble(self):
         return self.categorias.filter(tipo_juego__iexact="Doble").exists()
 
 
-#def generar_partidos_torneo(request, id):
-   # torneo = get_object_or_404(Torneo, id=id)
-
-    # Aquí va la lógica para generar los partidos
-
-    #return render(request, 'generar_partidos.html', {'torneo': torneo})
 
 
-from django.shortcuts import render, get_object_or_404
-from .models import Torneo, Jugador
-def generar_partidos_torneo(request, torneo_id):
-    torneo = get_object_or_404(Torneo, id=torneo_id)
 
-    jugadores_seleccionados = Jugador.objects.filter(
-        jugador_torneos__torneo=torneo
-    ).order_by('apellido', 'nombre')
 
-    if request.method == 'POST':
-        jugador1_ids = request.POST.getlist('jugador1[]')
-        jugador2_ids = request.POST.getlist('jugador2[]')
-        fechas = request.POST.getlist('fecha[]')
-        horas = request.POST.getlist('hora[]')
 
-        for j1, j2, fecha, hora in zip(jugador1_ids, jugador2_ids, fechas, horas):
-            if j1 != j2:  # Evitar que un jugador juegue contra sí mismo
-                Partido.objects.create(
-                    torneo=torneo,
-                    jugador1_id=j1,
-                    jugador2_id=j2,
-                    fecha=fecha,
-                    hora=hora
-                )
-        return redirect('ver_caracteristicas_torneo', id=torneo.id)
+#Cancha 
 
-    return render(request, 'generar_partidos_torneo.html', {
-        'torneo': torneo,
-        'jugadores_seleccionados': jugadores_seleccionados,
-    })
+
+
+
+def abm_cancha(request):
+    if request.method == "POST":
+        try:
+            numero_cancha = request.POST.get("cancha")
+            
+            # Validar si el número de cancha ya existe
+            if Cancha.objects.filter(cancha=numero_cancha).exists():
+                messages.error(request, f"La cancha número {numero_cancha} ya está registrada.")
+            else:
+                # Crear y guardar la nueva cancha
+                nueva_cancha = Cancha(cancha=numero_cancha)
+                nueva_cancha.save()
+                messages.success(request, f"La cancha número {numero_cancha} fue guardada exitosamente.")
+                
+            return redirect('abm_cancha')  # Redirige de nuevo a la página de ABM Cancha
+
+        except Exception as e:
+            messages.error(request, f"Error al intentar guardar la cancha: {e}")
+    return render(request, 'abm_cancha.html')
+
+    
+def listado_canchas(request):
+    canchas = Cancha.objects.all()  # Obtener todas las canchas de la base de datos
+    return render(request, 'listado_canchas.html', {'canchas': canchas})

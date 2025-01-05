@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block body_class %}fondo-secundario{% endblock %}
+
+{% block content %}
+<div class="container-admin">
+    <h4>ADMINISTRADOR</h4>
+    <div class="text-section">
+        <hr class="separator-line">
+        <h2>ALTA</h2>
+    </div>
+    <div class="text-section">
+        <hr class="separator-line">
+        <h5>CARGA DE NUEVA CANCHA</h5>
+    </div>
+
+    <!-- Contenedor de mensajes -->
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="form-container">
+        <!-- Rectángulo angosto a la izquierda -->
+        <div class="narrow-box">
+            <div class="title-orange-gris">
+                <h1>CANCHAS</h1>
+                <h3 class="negro chico">OPCIONES</h3>
+            </div>
+            <a href="{% url 'admin_menu' %}">
+                <button class="login-button peque">MENU</button>
+            </a>
+            <a href="{% url 'listado_canchas' %}">
+                <button class="login-button chico">Listado completo</button>
+            </a>
+            <hr class="separator">
+            <h3 class="negro">BUSCAR POR CANCHA</h3>
+            <input type="text" placeholder="Buscar por número de cancha" class="input-field"><br>
+            <hr class="separator">
+            <a href="{% url 'abm_cancha' %}">
+                <button class="login-button chico">ALTA</button>
+            </a>
+            <hr class="separator">
+
+            <!-- Contenedor para los botones -->
+            <div class="buttons-container">
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button-gris chico">IMPRIMIR</button>
+                </a>
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button-gris chico">PDF</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- Formulario para cargar la nueva cancha -->
+        <div class="login-box">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_cancha" class="form-label">Número de Cancha:</label>
+                    <input type="number" name="cancha" id="id_cancha" class="form-control" placeholder="Ingrese el número de la cancha" required>
+                </div>
+                <button class="login-button" type="submit">GUARDAR</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -46,9 +46,15 @@ urlpatterns = [
     path('editar_torneo/<int:id>/', torneo_views.editar_torneo, name='abm_torneo_editar'),
     path('datos_torneo/<int:id>/', torneo_views.ver_caracteristicas_torneo, name='datos_torneo'),
     path('asociar_jugadores/<int:id>/', torneo_views.asociar_jugadores, name='asociar_jugadores'),
-    path('generar_partidos_torneo/<int:torneo_id>/', torneo_views.generar_partidos_torneo, name='generar_partidos_torneo'),
+     path('redirigir_partidos/<int:torneo_id>/', torneo_views.redirigir_partidos, name='redirigir_partidos'),
+    path('partido_doble/<int:torneo_id>/', torneo_views.partido_doble, name='partido_doble'),
+    path('partido_single/<int:torneo_id>/', torneo_views.partido_single, name='partido_single'),
     path('torneo/<int:id>/', torneo_views.ver_caracteristicas_torneo, name='ver_caracteristicas_torneo'),
     path('asociar_equipos/<int:id>/', torneo_views.asociar_equipos, name='asociar_equipos'),
     path('redirigir_inscripcion/<int:torneo_id>/', torneo_views.redirigir_inscripcion, name='redirigir_inscripcion'),
+    path('guardar_fecha/<int:torneo_id>/', torneo_views.guardar_fecha, name='guardar_fecha'),
+    path('abm_cancha/', torneo_views.abm_cancha, name='abm_cancha'),
+    path('listado_canchas/', torneo_views.listado_canchas, name='listado_canchas'),
+    path('validar_partido/<int:torneo_id>/', torneo_views.validar_partido, name='validar_partido'),
     
 ]

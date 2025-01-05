@@ -38,7 +38,6 @@
                 <button class="login-button chico">ALTA</button>
             </a>
             <hr class="separator">
-          
             <div class="buttons-container">
                 <a href="{% url 'admin_menu' %}">
                     <button class="login-button-gris chico">IMPRIMIR</button>
@@ -69,16 +68,6 @@
                             {% endif %}
                         </div>
                     </div>
-
-                    <!-- Formulario de filtrado por sexo -->
-                    <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center ms-3">
-                        <select name="sexo" class="input-field me-2" style="width: 200px;" onchange="this.form.submit()">
-                            <option value="">Filtrar por sexo</option>
-                            <option value="masculino" {% if sexo == "masculino" %} selected {% endif %}>Masculino</option>
-                            <option value="femenino" {% if sexo == "femenino" %} selected {% endif %}>Femenino</option>
-                        </select>
-                        <input type="hidden" name="search" value="{{ search }}">
-                    </form>
                 </div>
             </div>
             <!-- Fin de la nueva barra -->
@@ -88,7 +77,6 @@
                     <tr class="title-container">
                         <th>APELLIDO</th>
                         <th>NOMBRE</th>
-                        <!-- <th>DNI</th> Eliminado -->
                         <th>SEXO</th>
                         <th>INFO</th>
                         <th>MODIFICAR</th>
@@ -99,9 +87,8 @@
                     {% if jugadores %}
                         {% for jugador in jugadores %}
                             <tr>
-                                <th scope="row">{{ jugador.apellido | upper}}</th>
-                                <td>{{ jugador.nombre  |capfirst}}</td>
-                                <!-- <td>{{ jugador.dni }}</td> Eliminado -->
+                                <th scope="row">{{ jugador.apellido | upper }}</th>
+                                <td>{{ jugador.nombre | capfirst }}</td>
                                 <td>{{ jugador.sexo }}</td>
                                 <td>
                                     <a href="{% url 'datos_jugador' jugador.dni %}" class="modificar-button">+</a>
@@ -115,7 +102,9 @@
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h3 class="modal-title" id="modificarModalLabel-{{ jugador.dni }}">Modificar jugador '{{ jugador.apellido }} {{ jugador.nombre }}'</h3>
+                                                    <h3 class="modal-title" id="modificarModalLabel-{{ jugador.dni }}">
+                                                        Modificar jugador '{{ jugador.apellido | upper }} {{ jugador.nombre | capfirst }}'
+                                                    </h3>
                                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                                         <i class="bi bi-x" style="font-size: 1.5rem;"></i>
                                                     </button>
@@ -125,13 +114,12 @@
                                                         {% csrf_token %}
                                                         <div class="mb-3">
                                                             <label for="nombre">Nombre:</label>
-                                                            <input class="input-field" type="text" value="{{ jugador.nombre |capfirst }}" name="nombre" id="nombre" class="form-control" required>
+                                                            <input class="form-control" type="text" value="{{ jugador.nombre | capfirst }}" name="nombre" id="nombre" required>
                                                         </div>
                                                         <div class="mb-3">
                                                             <label for="apellido">Apellido:</label>
-                                                            <input class="input-field" type="text" value="{{ jugador.apellido | upper}}" name="apellido" id="apellido" class="form-control" required>
+                                                            <input class="form-control" type="text" value="{{ jugador.apellido | upper }}" name="apellido" id="apellido" required>
                                                         </div>
-                                                        <!-- Campo DNI oculto -->
                                                         <input type="hidden" name="dni" value="{{ jugador.dni }}">
                                                         <div class="mb-3">
                                                             <label for="sexo">Sexo:</label>
@@ -140,8 +128,18 @@
                                                                 <option value="F" {% if jugador.sexo == "F" %} selected {% endif %}>Femenino</option>
                                                             </select>
                                                         </div>
+                                                        <div class="mb-3">
+                                                            <label for="categorias">Categorías:</label>
+                                                            <select id="categorias-{{ jugador.dni }}" name="categorias[]" class="form-select" multiple>
+                                                                {% for categoria in todas_categorias %}
+                                                                    <option value="{{ categoria.id_categoria }}" {% if categoria in jugador.categorias.all %} selected {% endif %}>
+                                                                        {{ categoria }}
+                                                                    </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
                                                         <div class="text-center">
-                                                            <button class="login-button">Guardar cambios</button>
+                                                            <button class="btn btn-success" type="submit">Guardar cambios</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -150,9 +148,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <!-- Botón BORRAR con clase 'delete-button' -->
-                                    <button  data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ jugador.dni }}">
-                                        <i class="bi bi-trash-fill btn-danger" style="align:center"></i>
+                                    <button data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ jugador.dni }}">
+                                        <i class="bi bi-trash-fill btn-danger"></i>
                                     </button>
                                     {% include 'modal_eliminar_jugador.html' %}
                                 </td>
@@ -168,4 +165,15 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('select[id^="categorias-"]').select2({
+            placeholder: 'Selecciona una o más categorías',
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
+
 {% endblock %}
