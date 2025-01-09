@@ -30,201 +30,247 @@
         </div>
     </div>
 
-    <!-- Campo para ingresar el número de jornada -->
-    <div class="text-center mb-3">
-        <form id="numeroJornadaForm" class="d-inline">
-            <label for="numero_jornada" class="form-label">Jornada:</label>
-            <input type="number" id="numero_jornada" name="numero_jornada" class="form-control d-inline w-auto"
-                value="{{ numero_jornada }}" required style="display: inline-block; width: 80px; text-align: center;">
-        </form>
-    </div>
-
-    <!-- Formulario para agregar partidos -->
-    <form method="POST" action="{% url 'guardar_fecha' torneo.id %}" id="formPartidos">
-        {% csrf_token %}
-        <div class="table-responsive">
-            <table class="table table-striped table-light table-bordered table-sm">
-                <thead class="table-success text-center">
-                    <tr>
-                        <th>Jugador 1</th>
-                        <th>VS</th>
-                        <th>Jugador 2</th>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Cancha</th>
-                        <th>ELIMINAR</th>
-                    </tr>
-                </thead>
-                <tbody id="partidosTable">
-                    <tr>
-                        <td>
-                            <select name="jugador1[]" class="form-select form-select-sm" required>
-                                <option value="" disabled selected>Seleccionar Jugador 1</option>
-                                {% for jugador in jugadores %}
-                                    <option value="{{ jugador.id }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
-                        <td class="text-center">VS</td>
-                        <td>
-                            <select name="jugador2[]" class="form-select form-select-sm" required>
-                                <option value="" disabled selected>Seleccionar Jugador 2</option>
-                                {% for jugador in jugadores %}
-                                    <option value="{{ jugador.id }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
-                        <td><input type="date" name="fecha[]" class="form-control form-control-sm" required></td>
-                        <td><input type="time" name="hora[]" class="form-control form-control-sm" required></td>
-                        <td>
-                            <select name="cancha[]" class="form-select form-select-sm" required>
-                                <option value="" disabled selected>Seleccionar Cancha</option>
-                                {% for cancha in canchas %}
-                                    <option value="{{ cancha.id }}">Cancha {{ cancha.cancha }}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">
-                                <i class="bi bi-trash-fill"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Botones centrados -->
-        <div class="text-center mt-4">
-            <div class="btn-group" role="group">
-                <button type="submit" class="btn btn-success" id="guardarFechaButton">Generar Jornada</button>
-                <button type="button" id="addRowButton" class="btn btn-warning">Agregar Nueva Fila</button>
-                <button type="button" class="btn btn-info" onclick="imprimirPagina()">
-                    <i class="bi bi-printer"></i> Imprimir
-                </button>
+    <!-- Contenedor Principal -->
+    <div class="form-container d-flex gap-4 justify-content-between">
+        <!-- Recuadro IZQUIERDO: Jornadas Disponibles -->
+        <div class="narrow-box flex-grow-1">
+            <div class="title-orange-gris">
+                <h1>JORNADAS</h1>
+                <h3 class="negro chico">Seleccionar Jornada</h3>
+            </div>
+            <div class="info-box">
+                <h5 class="info-title">Jornadas Disponibles</h5>
+                <div class="info-content">
+                    <label for="jornada_seleccionada" class="form-label">Seleccionar Jornada:</label>
+                    <select id="jornada_seleccionada" name="jornada_seleccionada" class="form-select">
+                        <option value="" disabled selected>Elige una jornada</option>
+                        {% for jornada in jornadas %}
+                            <option value="{{ jornada.id }}">Jornada {{ jornada.numero }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
         </div>
-    </form>
+
+        <!-- Recuadro DERECHO: Formulario principal (UN SOLO FORM) -->
+        <div class="login-box listados flex-grow-1">
+            <form method="POST" action="{% url 'guardar_fecha' torneo.id %}" id="formPartidos">
+                {% csrf_token %}
+
+                <!-- Campo para ingresar el número de jornada (mismo formulario) -->
+                <div class="text-center mb-3">
+                    <label for="numero_jornada" class="form-label">Jornada:</label>
+                    <input 
+                        type="number" 
+                        id="numero_jornada" 
+                        name="numero_jornada" 
+                        class="form-control d-inline w-auto"
+                        value="{{ numero_jornada }}" 
+                        required 
+                        style="width: 80px; text-align: center;"
+                    >
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-light table-bordered table-sm">
+                        <thead class="table-success text-center">
+                            <tr>
+                                <th>Jugador 1</th>
+                                <th>VS</th>
+                                <th>Jugador 2</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Cancha</th>
+                                <th>ELIMINAR</th>
+                            </tr>
+                        </thead>
+                        <tbody id="partidosTable">
+                            <tr>
+                                <td>
+                                    <select name="jugador1[]" class="form-select form-select-sm" required>
+                                        {% for jugador in jugadores %}
+                                            {% if forloop.first %}
+                                                <option value="{{ jugador.id }}" selected>
+                                                    {{ jugador.apellido }}, {{ jugador.nombre }}
+                                                </option>
+                                            {% else %}
+                                                <option value="{{ jugador.id }}">
+                                                    {{ jugador.apellido }}, {{ jugador.nombre }}
+                                                </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td class="text-center">VS</td>
+                                <td>
+                                    <select name="jugador2[]" class="form-select form-select-sm" required>
+                                        {% for jugador in jugadores %}
+                                            {% if forloop.first %}
+                                                <option value="{{ jugador.id }}" selected>
+                                                    {{ jugador.apellido }}, {{ jugador.nombre }}
+                                                </option>
+                                            {% else %}
+                                                <option value="{{ jugador.id }}">
+                                                    {{ jugador.apellido }}, {{ jugador.nombre }}
+                                                </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <input 
+                                        type="date" 
+                                        name="fecha[]" 
+                                        class="form-control form-control-sm" 
+                                        required
+                                    >
+                                </td>
+                                <td>
+                                    <input 
+                                        type="time" 
+                                        name="hora[]" 
+                                        class="form-control form-control-sm" 
+                                        required
+                                    >
+                                </td>
+                                <td>
+                                    <select name="cancha[]" class="form-select form-select-sm" required>
+                                        {% for c in canchas %}
+                                            {% if forloop.first %}
+                                                <option value="{{ c.id }}" selected>
+                                                    Cancha {{ c.cancha }}
+                                                </option>
+                                            {% else %}
+                                                <option value="{{ c.id }}">
+                                                    Cancha {{ c.cancha }}
+                                                </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td class="text-center">
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-danger btn-sm" 
+                                        onclick="eliminarFila(this)"
+                                    >
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Botones centrados debajo (mismo form) -->
+                <div class="text-center mt-4">
+                    <div class="btn-group" role="group">
+                        <button type="submit" class="btn btn-success" id="guardarFechaButton">
+                            Generar Jornada
+                        </button>
+                        <button type="button" id="addRowButton" class="btn btn-warning">
+                            Agregar Nueva Fila
+                        </button>
+                        <button type="button" class="btn btn-info" onclick="imprimirPagina()">
+                            <i class="bi bi-printer"></i> Imprimir
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- FIN DEL FORM -->
+    </div>
 </div>
 
 <script>
     let continuar = false; // Variable para permitir la continuación manual
 
-    // Validar si hay conflictos de horario y cancha o duplicados
     function validarDuplicadosYConflictos(fila) {
         const jugador1 = fila.querySelector('select[name="jugador1[]"]').value;
         const jugador2 = fila.querySelector('select[name="jugador2[]"]').value;
         const fecha = fila.querySelector('input[name="fecha[]"]').value;
         const hora = fila.querySelector('input[name="hora[]"]').value;
         const cancha = fila.querySelector('select[name="cancha[]"]').value;
-    
+
         const filas = document.querySelectorAll('#partidosTable tr');
         for (let otraFila of filas) {
-            if (otraFila === fila) continue; // Saltar la fila actual
-    
+            if (otraFila === fila) continue;
+
             const jugador1Otro = otraFila.querySelector('select[name="jugador1[]"]').value;
             const jugador2Otro = otraFila.querySelector('select[name="jugador2[]"]').value;
             const fechaOtro = otraFila.querySelector('input[name="fecha[]"]').value;
             const horaOtro = otraFila.querySelector('input[name="hora[]"]').value;
             const canchaOtro = otraFila.querySelector('select[name="cancha[]"]').value;
-    
-            // Validar partidos idénticos (mismos jugadores en cualquier orden)
+
             if (
                 (jugador1 === jugador1Otro && jugador2 === jugador2Otro) ||
                 (jugador1 === jugador2Otro && jugador2 === jugador1Otro)
             ) {
                 if (fecha === fechaOtro && hora === horaOtro && cancha === canchaOtro) {
                     if (!continuar) {
-                        mostrarModal(
-                            'Advertencia: Este partido ya existe en otra fila. ¿Desea continuar?',
-                            () => { continuar = true; },
-                            () => { continuar = false; }
-                        );
+                        alert("Advertencia: Este partido ya existe en otra fila.");
                         return false;
                     }
-                }
-            }
-    
-            // Validar conflictos de horario y cancha con jugadores diferentes
-            if (
-                fecha === fechaOtro &&
-                hora === horaOtro &&
-                cancha === canchaOtro &&
-                (jugador1 !== jugador1Otro || jugador2 !== jugador2Otro)
-            ) {
-                if (!continuar) {
-                    mostrarModal(
-                        'Advertencia: Hay un conflicto de horario y cancha con otro partido. ¿Desea continuar?',
-                        () => { continuar = true; },
-                        () => { continuar = false; }
-                    );
-                    return false;
                 }
             }
         }
         return true;
     }
-    
-    // Mostrar modal con mensaje
-    function mostrarModal(mensaje, onContinuar, onCancelar) {
-        const modalMensaje = document.getElementById('modalAdvertenciaMensaje');
-        modalMensaje.innerHTML = mensaje;
-    
-        const btnContinuar = document.getElementById('btnContinuar');
-        const btnCancelar = document.getElementById('btnCancelar');
-    
-        const modal = new bootstrap.Modal(document.getElementById('modalAdvertencia'));
-    
-        btnContinuar.onclick = () => {
-            modal.hide();
-            onContinuar();
-        };
-    
-        btnCancelar.onclick = () => {
-            modal.hide();
-            onCancelar();
-        };
-    
-        modal.show();
-    }
-    
-    // Escuchar cambios en el formulario
-    document.getElementById('partidosTable').addEventListener('change', function (event) {
-        const fila = event.target.closest('tr');
-        if (fila) {
-            validarDuplicadosYConflictos(fila);
-        }
-    });
-    
-    // Agregar una nueva fila
+
+    // Botón "Agregar Nueva Fila"
     document.getElementById('addRowButton').addEventListener('click', function () {
         const tableBody = document.getElementById('partidosTable');
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
             <td>
                 <select name="jugador1[]" class="form-select form-select-sm" required>
-                    <option value="" disabled selected>Seleccionar Jugador 1</option>
                     {% for jugador in jugadores %}
-                        <option value="{{ jugador.id }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                        {% if forloop.first %}
+                            <option value="{{ jugador.id }}" selected>
+                                {{ jugador.apellido }}, {{ jugador.nombre }}
+                            </option>
+                        {% else %}
+                            <option value="{{ jugador.id }}">
+                                {{ jugador.apellido }}, {{ jugador.nombre }}
+                            </option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </td>
             <td class="text-center">VS</td>
             <td>
                 <select name="jugador2[]" class="form-select form-select-sm" required>
-                    <option value="" disabled selected>Seleccionar Jugador 2</option>
                     {% for jugador in jugadores %}
-                        <option value="{{ jugador.id }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                        {% if forloop.first %}
+                            <option value="{{ jugador.id }}" selected>
+                                {{ jugador.apellido }}, {{ jugador.nombre }}
+                            </option>
+                        {% else %}
+                            <option value="{{ jugador.id }}">
+                                {{ jugador.apellido }}, {{ jugador.nombre }}
+                            </option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </td>
-            <td><input type="date" name="fecha[]" class="form-control form-control-sm" required></td>
-            <td><input type="time" name="hora[]" class="form-control form-control-sm" required></td>
+            <td>
+                <input type="date" name="fecha[]" class="form-control form-control-sm" required>
+            </td>
+            <td>
+                <input type="time" name="hora[]" class="form-control form-control-sm" required>
+            </td>
             <td>
                 <select name="cancha[]" class="form-select form-select-sm" required>
-                    <option value="" disabled selected>Seleccionar Cancha</option>
-                    {% for cancha in canchas %}
-                        <option value="{{ cancha.id }}">Cancha {{ cancha.cancha }}</option>
+                    {% for c in canchas %}
+                        {% if forloop.first %}
+                            <option value="{{ c.id }}" selected>
+                                Cancha {{ c.cancha }}
+                            </option>
+                        {% else %}
+                            <option value="{{ c.id }}">
+                                Cancha {{ c.cancha }}
+                            </option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </td>
@@ -236,32 +282,82 @@
         `;
         tableBody.appendChild(newRow);
     });
-    
-    // Eliminar fila
+
+    // Botón "Generar Jornada": 
+    document.getElementById('guardarFechaButton').addEventListener('click', function (e) {
+        const filas = document.querySelectorAll('#partidosTable tr');
+        for (let fila of filas) {
+            const jugador1 = fila.querySelector('select[name="jugador1[]"]').value;
+            const jugador2 = fila.querySelector('select[name="jugador2[]"]').value;
+            // const fecha = fila.querySelector('input[name="fecha[]"]').value;
+            // const hora = fila.querySelector('input[name="hora[]"]').value;
+            const cancha = fila.querySelector('select[name="cancha[]"]').value;
+
+            if (!jugador1 || !jugador2 || !cancha) {
+                alert("Por favor, completa Jugador 1, Jugador 2 y Cancha antes de guardar.");
+                e.preventDefault(); 
+                return;
+            }
+            if (jugador1 === jugador2) {
+                alert("Un jugador no puede enfrentarse a sí mismo.");
+                e.preventDefault();
+                return;
+            }
+        }
+        // Si deseas, podrías usar validarDuplicadosYConflictos(...) para cada fila
+    });
+
     function eliminarFila(button) {
         const row = button.closest('tr');
         row.remove();
     }
-    </script>
 
+    function imprimirPagina() {
+        window.print();
+    }
+</script>
 
 <style>
-    .table-responsive {
-        overflow-x: auto;
+    .info-box {
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
         width: 100%;
-        max-width: 100%;
+        max-width: 200px;
+        box-shadow: none;
+    }
+
+    .info-title {
+        font-size: 1rem;
+        font-weight: bold;
+        color: black;
+        margin-bottom: 5px;
+    }
+
+    .info-content label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 0.85rem;
+        color: black;
+    }
+
+    .info-content select {
+        width: 100%;
+        padding: 5px;
+        font-size: 0.9rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.8);
+        color: black;
     }
 
     .btn-group {
         display: flex;
         justify-content: center;
         gap: 10px;
-    }
-
-    #numero_jornada {
-        display: inline-block;
-        width: 80px;
-        text-align: center;
+        margin-top: 20px;
     }
 </style>
+
 {% endblock %}

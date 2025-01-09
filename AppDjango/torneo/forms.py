@@ -3,6 +3,7 @@
 from django import forms
 from .models import Torneo
 from jugador.models import Categoria  # Asegúrate de importar correctamente desde la app jugador
+from .models import Partido
 
 class TorneoForms(forms.ModelForm):
     categorias = forms.ModelMultipleChoiceField(
@@ -26,3 +27,14 @@ class TorneoForms(forms.ModelForm):
             'categorias': forms.Select(attrs={'class': 'form-control'}),
             'tipo': forms.Select(attrs={'class': 'form-control'}),
         }
+
+class PartidoForm(forms.ModelForm):
+    class Meta:
+        model = Partido
+        fields = ['jornada', 'jugador1', 'jugador2', 'equipo1', 'equipo2', 'fecha', 'hora', 'cancha']
+
+    def __init__(self, *args, **kwargs):
+        torneo = kwargs.pop('torneo', None)
+        super().__init__(*args, **kwargs)
+        if torneo:
+            self.instance.torneo = torneo

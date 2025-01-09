@@ -2,6 +2,7 @@ from django.db import models
 from jugador.models import Categoria, Jugador,JugadorCategoria
 from django.utils import timezone
 from datetime import date
+from django.core.exceptions import ValidationError
 
 class Torneo(models.Model):
     TIPO_CHOICES = [
@@ -72,32 +73,8 @@ class Cancha(models.Model):
 
     def __str__(self):
         return f'Cancha {self.cancha}'
-
-# Modelo Partido
-class Partido(models.Model):
-    torneo = models.ForeignKey(Torneo, on_delete=models.CASCADE)  # Relación con Torneo
-    jugador1 = models.ForeignKey(Jugador, on_delete=models.CASCADE, related_name='partidos_jugador1')  # Jugador 1
-    jugador2 = models.ForeignKey(Jugador, on_delete=models.CASCADE, related_name='partidos_jugador2')  # Jugador 2
-    fecha = models.DateField()  # Fecha del partido
-    hora = models.TimeField()  # Hora del partido
-    cancha = models.ForeignKey(Cancha, on_delete=models.CASCADE)  # Relación con Cancha
-    jornada = models.IntegerField()  # Número de la jornada
-
-    def __str__(self):
-        return f"{self.torneo.nombre} - Jornada {self.jornada}: {self.jugador1} vs {self.jugador2}"
-
-
-
-
-# Modelo intermedio PartidoCancha
-class PartidoCancha(models.Model):
-    id_partido = models.ForeignKey(Partido, on_delete=models.CASCADE)
-    id_cancha = models.ForeignKey(Cancha, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f'Partido {self.id_partido} - Cancha {self.id_cancha}'
-
-
+    
+    
 #Modelo De crecion de equipos para torneo 
 class Equipo(models.Model):
     # Nombre opcional del equipo (puede ser generado automáticamente)
@@ -128,3 +105,71 @@ class Equipo(models.Model):
 
     def __str__(self):
         return f"Equipo: {self.jugador1} y {self.jugador2} en Torneo {self.torneo.nombre}"
+
+# Modelo Partido
+class Partido(models.Model):
+    torneo = models.ForeignKey('Torneo', on_delete=models.CASCADE)
+    jugador1 = models.ForeignKey('jugador.Jugador', on_delete=models.CASCADE, related_name='partidos_jugador1', null=True, blank=True)
+    jugador2 = models.ForeignKey('jugador.Jugador', on_delete=models.CASCADE, related_name='partidos_jugador2', null=True, blank=True)
+    equipo1 = models.ForeignKey('Equipo', on_delete=models.CASCADE, related_name='partidos_equipo1', null=True, blank=True)
+    equipo2 = models.ForeignKey('Equipo', on_delete=models.CASCADE, related_name='partidos_equipo2', null=True, blank=True)
+    fecha = models.DateField()
+    hora = models.TimeField()
+    cancha = models.ForeignKey('Cancha', on_delete=models.CASCADE)
+    jornada = models.IntegerField()
+
+    def clean(self):
+        if (self.jugador1 and self.jugador2) and (self.equipo1 or self.equipo2):
+            raise ValidationError("Un partido no puede tener jugadores y equipos al mismo tiempo.")
+        if not ((self.jugador1 and self.jugador2) or (self.equipo1 and self.equipo2)):
+            raise ValidationError("Debes completar jugadores o equipos para el partido.")
+        if self.jugador1 == self.jugador2:
+            raise ValidationError("Un jugador no puede enfrentarse a sí mismo.")
+        if self.equipo1 == self.equipo2:
+            raise ValidationError("Un equipo no puede enfrentarse a sí mismo.")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+    
+    
+class ResultadoPartido(models.Model):
+    partido = models.OneToOneField('Partido', on_delete=models.CASCADE, related_name='resultado')
+
+    # Resultados para partidos individuales
+    set1_jugador1 = models.IntegerField(null=True, blank=True)
+    set1_jugador2 = models.IntegerField(null=True, blank=True)
+    set2_jugador1 = models.IntegerField(null=True, blank=True)
+    set2_jugador2 = models.IntegerField(null=True, blank=True)
+    set3_jugador1 = models.IntegerField(null=True, blank=True)
+    set3_jugador2 = models.IntegerField(null=True, blank=True)
+
+    # Resultados para partidos dobles
+    set1_equipo1 = models.IntegerField(null=True, blank=True)
+    set1_equipo2 = models.IntegerField(null=True, blank=True)
+    set2_equipo1 = models.IntegerField(null=True, blank=True)
+    set2_equipo2 = models.IntegerField(null=True, blank=True)
+    set3_equipo1 = models.IntegerField(null=True, blank=True)
+    set3_equipo2 = models.IntegerField(null=True, blank=True)
+
+    # Ganador puede ser un jugador o un equipo (solo se usará uno de los dos campos)
+    ganador_jugador = models.ForeignKey(
+        'jugador.Jugador', on_delete=models.SET_NULL, null=True, blank=True, related_name="partidos_ganados"
+    )
+    ganador_equipo = models.ForeignKey(
+        'Equipo', on_delete=models.SET_NULL, null=True, blank=True, related_name="partidos_ganados"
+    )
+
+
+
+
+
+# Modelo intermedio PartidoCancha
+class PartidoCancha(models.Model):
+    id_partido = models.ForeignKey(Partido, on_delete=models.CASCADE)
+    id_cancha = models.ForeignKey(Cancha, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'Partido {self.id_partido} - Cancha {self.id_cancha}'
+
+
