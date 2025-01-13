@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body_class %}fondo-secundario{% endblock %}
+
+{% block content %}
+<div class="container-admin">
+    <h4 class="text-center">ADMINISTRADOR</h4>
+    <div class="text-section">
+        <hr class="separator-line">
+        <h2 class="text-primary text-center">Torneo: {{ torneo.nombre|upper }}</h2>
+        <h4 class="text-center">Jornada: {{ jornada }}</h4>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-light table-bordered table-sm">
+            <thead class="table-success text-center">
+                <tr>
+                    <th>Jugador 1</th>
+                    <th>VS</th>
+                    <th>Jugador 2</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Cancha</th>
+                    <th>Set 1 Jugador 1</th>
+                    <th>Set 1 Jugador 2</th>
+                    <th>Set 2 Jugador 1</th>
+                    <th>Set 2 Jugador 2</th>
+                    <th>Set 3 Jugador 1</th>
+                    <th>Set 3 Jugador 2</th>
+                    <th>Ganador</th>
+                    <th>ELIMINAR</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for partido in partidos %}
+                <tr>
+                    <td style="color: black;">{{ partido.jugador1 }}</td>
+                    <td class="text-center" style="color: black;">VS</td>
+                    <td style="color: black;">{{ partido.jugador2 }}</td>
+                    <td style="color: black;">{{ partido.fecha }}</td>
+                    <td style="color: black;">{{ partido.hora }}</td>
+                    <td style="color: black;">{{ partido.cancha }}</td>
+                    <td><input type="number" name="set1_jugador1" value="{{ partido.resultado.set1_jugador1 }}" style="color: black; background-color: white;"></td>
+                    <td><input type="number" name="set1_jugador2" value="{{ partido.resultado.set1_jugador2 }}" style="color: black; background-color: white;"></td>
+                    <td><input type="number" name="set2_jugador1" value="{{ partido.resultado.set2_jugador1 }}" style="color: black; background-color: white;"></td>
+                    <td><input type="number" name="set2_jugador2" value="{{ partido.resultado.set2_jugador2 }}" style="color: black; background-color: white;"></td>
+                    <td><input type="number" name="set3_jugador1" value="{{ partido.resultado.set3_jugador1 }}" style="color: black; background-color: white;"></td>
+                    <td><input type="number" name="set3_jugador2" value="{{ partido.resultado.set3_jugador2 }}" style="color: black; background-color: white;"></td>
+                    <td>
+                        <select name="ganador" style="color: black; background-color: white;">
+                            <option value="{{ partido.jugador1.id }}" {% if partido.resultado.ganador_jugador == partido.jugador1 %}selected{% endif %}>
+                                {{ partido.jugador1 }}
+                            </option>
+                            <option value="{{ partido.jugador2.id }}" {% if partido.resultado.ganador_jugador == partido.jugador2 %}selected{% endif %}>
+                                {{ partido.jugador2 }}
+                            </option>
+                        </select>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="eliminarPartido({{ partido.id }})">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    /* Estilo adicional para asegurar que el texto sea visible */
+    table th, table td {
+        color: black; /* Color negro para el texto en celdas */
+    }
+
+    input[type="number"],
+    select {
+        color: black; /* Texto negro */
+        background-color: white; /* Fondo blanco */
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+        border: 1px solid #ccc;
+    }
+
+    option {
+        color: black; /* Texto negro en opciones */
+        background-color: white; /* Fondo blanco */
+    }
+</style>
+
+<script>
+    function eliminarPartido(partidoId) {
+        if (confirm('¿Estás seguro de eliminar este partido?')) {
+            console.log('Eliminar partido:', partidoId);
+        }
+    }
+</script>
+{% endblock %}

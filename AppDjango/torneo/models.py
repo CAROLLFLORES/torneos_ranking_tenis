@@ -118,19 +118,7 @@ class Partido(models.Model):
     cancha = models.ForeignKey('Cancha', on_delete=models.CASCADE)
     jornada = models.IntegerField()
 
-    def clean(self):
-        if (self.jugador1 and self.jugador2) and (self.equipo1 or self.equipo2):
-            raise ValidationError("Un partido no puede tener jugadores y equipos al mismo tiempo.")
-        if not ((self.jugador1 and self.jugador2) or (self.equipo1 and self.equipo2)):
-            raise ValidationError("Debes completar jugadores o equipos para el partido.")
-        if self.jugador1 == self.jugador2:
-            raise ValidationError("Un jugador no puede enfrentarse a sí mismo.")
-        if self.equipo1 == self.equipo2:
-            raise ValidationError("Un equipo no puede enfrentarse a sí mismo.")
-
-    def save(self, *args, **kwargs):
-        self.clean()
-        super().save(*args, **kwargs)
+   
     
     
 class ResultadoPartido(models.Model):

@@ -258,10 +258,14 @@ def partido_doble(request, torneo_id):
     })
 
 
+from datetime import datetime, date
+
 def guardar_fecha(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
 
     if request.method == 'POST':
+        print("Datos recibidos en POST:", request.POST)  # Depuración
+        
         numero_jornada = request.POST.get('numero_jornada')
         jugadores1 = request.POST.getlist('jugador1[]')
         jugadores2 = request.POST.getlist('jugador2[]')
@@ -269,68 +273,32 @@ def guardar_fecha(request, torneo_id):
         horas = request.POST.getlist('hora[]')
         canchas = request.POST.getlist('cancha[]')
 
-        errores = []
+        print("Jugadores 1:", jugadores1)  # Depuración
+        print("Jugadores 2:", jugadores2)  # Depuración
+        print("Fechas:", fechas)           # Depuración
+        print("Horas:", horas)             # Depuración
+        print("Canchas:", canchas)         # Depuración
+
         partidos_creados = []
 
         for i in range(len(fechas)):
             try:
-                # Validar jugadores
-                jugador1_id = jugadores1[i]
-                jugador2_id = jugadores2[i]
-                if not jugador1_id or not jugador2_id:
-                    errores.append(f"Fila {i + 1}: Ambos jugadores deben estar seleccionados.")
-                    continue
-                if jugador1_id == jugador2_id:
-                    errores.append(f"Fila {i + 1}: Un jugador no puede enfrentarse a sí mismo.")
-                    continue
-
-                # Validar fecha
-                try:
-                    fecha_obj = date.fromisoformat(fechas[i])
-                except ValueError:
-                    errores.append(f"Fila {i + 1}: Fecha '{fechas[i]}' no válida. Usa el formato YYYY-MM-DD.")
-                    continue
-
-                # Validar hora
-                try:
-                    hora_obj = datetime.strptime(horas[i], '%H:%M').time()
-                except ValueError:
-                    errores.append(f"Fila {i + 1}: Hora '{horas[i]}' no válida. Usa el formato HH:MM.")
-                    continue
-
-                # Validar cancha
-                cancha_id = canchas[i]
-                if not cancha_id:
-                    errores.append(f"Fila {i + 1}: La cancha debe estar seleccionada.")
-                    continue
-
-                # Verificar conflictos de programación
-                if Partido.objects.filter(
-                    torneo=torneo, fecha=fecha_obj, hora=hora_obj, cancha_id=cancha_id
-                ).exists():
-                    errores.append(f"Fila {i + 1}: Ya existe un partido en la fecha y hora seleccionada.")
-                    continue
-
                 # Crear el partido
                 partido = Partido(
                     torneo=torneo,
                     jornada=numero_jornada,
-                    jugador1_id=jugador1_id,
-                    jugador2_id=jugador2_id,
-                    fecha=fecha_obj,
-                    hora=hora_obj,
-                    cancha_id=cancha_id
+                    jugador1_id=jugadores1[i],
+                    jugador2_id=jugadores2[i],
+                    fecha=date.fromisoformat(fechas[i]),
+                    hora=datetime.strptime(horas[i], '%H:%M').time(),
+                    cancha_id=canchas[i]
                 )
                 partido.save()
                 partidos_creados.append(partido)
 
             except Exception as e:
-                errores.append(f"Fila {i + 1}: Error inesperado: {str(e)}")
+                print(f"Error al guardar el partido en la fila {i + 1}: {str(e)}")  # Depuración
 
-        # Mostrar mensajes al usuario
-        if errores:
-            for error in errores:
-                messages.error(request, error)
         if partidos_creados:
             messages.success(request, f"Se guardaron {len(partidos_creados)} partidos correctamente.")
 
@@ -339,14 +307,13 @@ def guardar_fecha(request, torneo_id):
     return redirect('partido_single', torneo_id=torneo.id)
 
 
+
+
 def partido_single(request, torneo_id):
-    """
-    Similar a guardar_fecha, pero para un solo form.
-    También parseamos la fecha/hora por si el usuario teclea DD/MM/YYYY o HH:MM con AM/PM.
-    """
     torneo = get_object_or_404(Torneo, id=torneo_id)
     
     if request.method == 'POST':
+        # Capturar datos enviados desde el formulario
         numero_jornada = request.POST.get('numero_jornada')
         jugadores1 = request.POST.getlist('jugador1[]')
         jugadores2 = request.POST.getlist('jugador2[]')
@@ -354,74 +321,70 @@ def partido_single(request, torneo_id):
         horas = request.POST.getlist('hora[]')
         canchas = request.POST.getlist('cancha[]')
 
+        # Imprimir los datos capturados
+        print("Número de jornada:", numero_jornada)
+        print("Jugadores 1:", jugadores1)
+        print("Jugadores 2:", jugadores2)
+        print("Fechas:", fechas)
+        print("Horas:", horas)
+        print("Canchas:", canchas)
+
+        # Verificar si los datos están vacíos
+        if not jugadores1 or not jugadores2 or not fechas or not horas or not canchas:
+            messages.error(request, "No se recibieron todos los datos necesarios desde el formulario.")
+            return redirect('partido_single', torneo_id=torneo_id)
+
+        # Restante lógica para crear partidos
         advertencias = []
         partidos_creados = []
-        
-        for jugador1, jugador2, fecha_str, hora_str, cancha_id in zip(
-            jugadores1, jugadores2, fechas, horas, canchas
-        ):
-            # 1) Parse FECHA
-            try:
-                fecha_obj = date.fromisoformat(fecha_str)  # YYYY-MM-DD
-            except ValueError:
-                # Intentar dd/mm/yyyy
-                try:
-                    day, month, year = fecha_str.split('/')
-                    fecha_obj = date(int(year), int(month), int(day))
-                except:
-                    messages.warning(
-                        request,
-                        f"La fecha '{fecha_str}' no es válida. Formato esperado: YYYY-MM-DD o DD/MM/YYYY"
-                    )
-                    continue
 
-            # 2) Parse HORA
+        for jugador1, jugador2, fecha_str, hora_str, cancha_id in zip(jugadores1, jugadores2, fechas, horas, canchas):
+            # 1) Parse de fecha y hora
             try:
+                fecha_obj = date.fromisoformat(fecha_str)
                 hora_obj = datetime.strptime(hora_str, '%H:%M').time()
-            except ValueError:
-                messages.warning(
-                    request,
-                    f"La hora '{hora_str}' no es válida. Usa formato HH:MM (24h)."
-                )
+            except ValueError as e:
+                messages.warning(request, f"Error en fecha/hora: {e}")
                 continue
 
-            # Validación 1: Verificar si ya jugaron entre sí
-            if Partido.objects.filter(torneo=torneo).filter(
-                Q(jugador1_id=jugador1, jugador2_id=jugador2) |
-                Q(jugador1_id=jugador2, jugador2_id=jugador1)
-            ).exists():
-                advertencias.append(f"Jugadores {jugador1} y {jugador2} ya jugaron entre sí en este torneo.")
-            
-            # Validación 2: Verificar fecha/hora/cancha ocupadas
+            # 2) Validación de duplicados
             if Partido.objects.filter(
-                torneo=torneo, fecha=fecha_obj, hora=hora_obj, cancha_id=cancha_id
+                torneo=torneo,
+                jornada=numero_jornada,
+                jugador1_id=jugador1,
+                jugador2_id=jugador2,
             ).exists():
-                advertencias.append(f"Ya existe un partido en {fecha_obj} {hora_obj} en la Cancha {cancha_id}.")
-            else:
-                # Crear
-                p = Partido.objects.create(
-                    torneo=torneo,
-                    jugador1_id=jugador1,
-                    jugador2_id=jugador2,
-                    fecha=fecha_obj,
-                    hora=hora_obj,
-                    cancha_id=cancha_id,
-                    jornada=numero_jornada
-                )
-                partidos_creados.append(p)
-        
+                advertencias.append(f"El partido entre {jugador1} y {jugador2} ya existe.")
+                continue
+
+            # Crear el partido
+            partido = Partido(
+                torneo=torneo,
+                jornada=numero_jornada,
+                jugador1_id=jugador1,
+                jugador2_id=jugador2,
+                fecha=fecha_obj,
+                hora=hora_obj,
+                cancha_id=cancha_id
+            )
+            partido.save()
+            partidos_creados.append(partido)
+
+        # Mensajes de resultado
         if advertencias:
             for adv in advertencias:
                 messages.warning(request, adv)
         if partidos_creados:
             messages.success(
                 request,
-                f"Se han guardado {len(partidos_creados)} partidos para la jornada {numero_jornada}."
+                f"Se han creado {len(partidos_creados)} partidos para la jornada {numero_jornada}."
             )
 
         return redirect('partido_single', torneo_id=torneo_id)
 
-    numero_jornada = Partido.objects.filter(torneo=torneo).values('jornada').distinct().count() + 1
+    # Obtener datos para renderizar el formulario
+    jornadas = Partido.objects.filter(torneo=torneo).values('jornada').distinct().order_by('jornada')
+    numero_jornada = jornadas.count() + 1
     jugadores = Jugador.objects.filter(jugador_torneos__torneo=torneo).order_by('apellido', 'nombre')
     canchas = Cancha.objects.all()
 
@@ -430,6 +393,19 @@ def partido_single(request, torneo_id):
         'numero_jornada': numero_jornada,
         'jugadores': jugadores,
         'canchas': canchas,
+        'jornadas': jornadas,
+    })
+
+
+
+def jornada_detalle(request, torneo_id, jornada):
+    torneo = get_object_or_404(Torneo, id=torneo_id)
+    partidos = Partido.objects.filter(torneo=torneo, jornada=jornada).select_related('jugador1', 'jugador2', 'cancha')
+    
+    return render(request, 'jornada_detalle.html', {
+        'torneo': torneo,
+        'jornada': jornada,
+        'partidos': partidos,
     })
 
 
