@@ -187,12 +187,27 @@ def asociar_equipos(request, id):
                     if jugador1_id and jugador2_id and jugador1_id != jugador2_id:
                         jugador1 = Jugador.objects.get(dni=jugador1_id)
                         jugador2 = Jugador.objects.get(dni=jugador2_id)
-                        Equipo.objects.get_or_create(
+
+                        # VALIDACIÓN: Evitar equipos repetidos
+                        equipo_existente = Equipo.objects.filter(
+                            torneo=torneo,
                             jugador1=jugador1,
-                            jugador2=jugador2,
-                            torneo=torneo
-                        )
-                        messages.success(request, 'Equipo creado exitosamente.')
+                            jugador2=jugador2
+                        ).exists() or Equipo.objects.filter(
+                            torneo=torneo,
+                            jugador1=jugador2,
+                            jugador2=jugador1
+                        ).exists()
+
+                        if equipo_existente:
+                            messages.error(request, 'Este equipo ya fue creado.')
+                        else:
+                            Equipo.objects.create(
+                                jugador1=jugador1,
+                                jugador2=jugador2,
+                                torneo=torneo
+                            )
+                            messages.success(request, 'Equipo creado exitosamente.')
                     else:
                         messages.error(request, 'Selecciona dos jugadores distintos para crear un equipo.')
 
@@ -221,11 +236,15 @@ def asociar_equipos(request, id):
             messages.error(request, 'Ocurrió un error con la base de datos.')
         except Exception as e:
             messages.error(request, f'Error al procesar la solicitud: {e}')
+            
+    # Pasar mensajes como contexto para el modal
+    all_messages = [m.message for m in messages.get_messages(request)]
 
     return render(request, 'asociar_equipos.html', {
         'torneo': torneo,
         'jugadores_disponibles': jugadores_disponibles,
         'equipos_asociados': equipos_asociados,
+        'all_messages': all_messages,  # Pasamos los mensajes al contexto
     })
 
 
