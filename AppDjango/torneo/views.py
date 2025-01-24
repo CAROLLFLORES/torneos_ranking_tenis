@@ -187,12 +187,27 @@ def asociar_equipos(request, id):
                     if jugador1_id and jugador2_id and jugador1_id != jugador2_id:
                         jugador1 = Jugador.objects.get(dni=jugador1_id)
                         jugador2 = Jugador.objects.get(dni=jugador2_id)
-                        Equipo.objects.get_or_create(
+
+                        # VALIDACIÓN: Evitar equipos repetidos
+                        equipo_existente = Equipo.objects.filter(
+                            torneo=torneo,
                             jugador1=jugador1,
-                            jugador2=jugador2,
-                            torneo=torneo
-                        )
-                        messages.success(request, 'Equipo creado exitosamente.')
+                            jugador2=jugador2
+                        ).exists() or Equipo.objects.filter(
+                            torneo=torneo,
+                            jugador1=jugador2,
+                            jugador2=jugador1
+                        ).exists()
+
+                        if equipo_existente:
+                            messages.error(request, 'Este equipo ya fue creado.')
+                        else:
+                            Equipo.objects.create(
+                                jugador1=jugador1,
+                                jugador2=jugador2,
+                                torneo=torneo
+                            )
+                            messages.success(request, 'Equipo creado exitosamente.')
                     else:
                         messages.error(request, 'Selecciona dos jugadores distintos para crear un equipo.')
 
@@ -221,11 +236,15 @@ def asociar_equipos(request, id):
             messages.error(request, 'Ocurrió un error con la base de datos.')
         except Exception as e:
             messages.error(request, f'Error al procesar la solicitud: {e}')
+            
+    # Pasar mensajes como contexto para el modal
+    all_messages = [m.message for m in messages.get_messages(request)]
 
     return render(request, 'asociar_equipos.html', {
         'torneo': torneo,
         'jugadores_disponibles': jugadores_disponibles,
         'equipos_asociados': equipos_asociados,
+        'all_messages': all_messages,  # Pasamos los mensajes al contexto
     })
 
 
@@ -408,6 +427,16 @@ def jornada_detalle(request, torneo_id, jornada):
         'partidos': partidos,
     })
 
+def listar_partidos(request, jornada):
+    partidos = Partido.objects.filter(jornada=jornada).order_by('fecha', 'hora')
+    partidos_list = list(partidos)
+
+    for idx, partido in enumerate(partidos_list, start=1):
+        partido.numero = idx  # Asigna un número consecutivo correctamente
+    
+    return render(request, 'jornada_detalle.html', {'partidos': partidos_list, 'jornada': jornada})
+
+
 
 @csrf_exempt
 def validar_partido(request, torneo_id):
@@ -491,3 +520,34 @@ def abm_cancha(request):
 def listado_canchas(request):
     canchas = Cancha.objects.all()
     return render(request, 'listado_canchas.html', {'canchas': canchas})
+
+
+#Maneja la  vista de ver la jornada 
+
+@csrf_exempt
+def eliminar_partido(request, partido_id):
+    if request.method == 'POST':
+        partido = get_object_or_404(Partido, id=partido_id)
+        try:
+            partido.delete()
+            return JsonResponse({'success': True, 'message': 'Partido eliminado exitosamente.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Método no permitido.'}, status=405)
+
+@csrf_exempt
+def modificar_partido(request, partido_id):
+    if request.method == 'POST':
+        partido = get_object_or_404(Partido, id=partido_id)
+        try:
+            data = json.loads(request.body)
+            partido.jugador1 = Jugador.objects.get(nombre=data['jugador1'])
+            partido.jugador2 = Jugador.objects.get(nombre=data['jugador2'])
+            partido.fecha = data['fecha']
+            partido.hora = data['hora']
+            partido.cancha = Cancha.objects.get(cancha=data['cancha'])
+            partido.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)

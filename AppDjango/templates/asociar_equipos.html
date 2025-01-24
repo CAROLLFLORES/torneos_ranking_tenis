@@ -20,94 +20,216 @@
                 <button class="login-button peque">MENU</button>
             </a>
         </div>
-        <form method="POST" action="" style="width: 100%; max-width: 900px;">
+
+        <form id="createTeamForm" method="POST" action="" style="width: 100%; max-width: 900px;">
             {% csrf_token %}
-            <div class="recuadros-container d-flex justify-content-center align-items-start gap-5">
-                <!-- Recuadro Izquierdo: Crear Equipos -->
+            <div class="recuadros-container d-flex align-items-center gap-5">
+                <!-- Recuadro Izquierdo: Lista de Jugadores -->
                 <div class="jugadores-box" style="flex: 1; text-align: center;">
-                    <h4>Crear Equipos</h4>
-                    <div>
-                        <label for="selectJugador1{{ torneo.id }}">Jugador 1:</label>
-                        <select id="selectJugador1{{ torneo.id }}" name="jugador1" class="form-select">
-                            {% for jugador in jugadores_disponibles %}
-                                <option value="{{ jugador.dni }}" data-apellido="{{ jugador.apellido }}">{{ jugador.apellido }} {{ jugador.nombre }}</option>
-                            {% endfor %}
-                        </select>
+                    <h4>Lista de Jugadores</h4>
+                    <div id="jugadoresLista" style="max-height: 300px; overflow-y: auto; border: 1px solid rgba(0, 0, 0, 0.2); background-color: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 10px;">
+                        {% for jugador in jugadores_disponibles %}
+                        <div class="form-check">
+                            <input 
+                                class="form-check-input jugador-checkbox" 
+                                type="checkbox" 
+                                name="jugadores" 
+                                value="{{ jugador.dni }}" 
+                                id="jugador{{ jugador.dni }}"
+                            >
+                            <label class="form-check-label jugador-label" for="jugador{{ jugador.dni }}">
+                                {{ jugador.apellido }} {{ jugador.nombre }}
+                            </label>
+                        </div>
+                        {% endfor %}
                     </div>
-                    <div style="margin-top: 15px;">
-                        <label for="selectJugador2{{ torneo.id }}">Jugador 2:</label>
-                        <select id="selectJugador2{{ torneo.id }}" name="jugador2" class="form-select">
-                            {% for jugador in jugadores_disponibles %}
-                                <option value="{{ jugador.dni }}" data-apellido="{{ jugador.apellido }}">{{ jugador.apellido }} {{ jugador.nombre }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button type="button" class="login-button chico mt-5" onclick="addTeam({{ torneo.id }})" style="margin-top: 30px;">Crear Equipo</button>
-                    <h5 class="text-center mt-3">Equipos Creados: <span id="equiposCount{{ torneo.id }}">0</span></h5>
+                </div>
+
+                <!-- Botón Crear Equipos y Contador de Equipos Creados -->
+                <div class="d-flex flex-column align-items-center" style="text-align: center; margin-top: 50px;">
+                    <button 
+                        type="button"
+                        id="crearEquipoButton"
+                        class="login-button chico mt-3"
+                        style="margin: 0 0 20px 0;"
+                    >
+                        Crear Equipo
+                    </button>
+                    <h5 class="text-center">
+                        Equipos Creados: 
+                        <span id="equiposCount{{ torneo.id }}">
+                            {{ equipos_asociados.count }}
+                        </span>
+                    </h5>
                 </div>
 
                 <!-- Recuadro Derecho: Equipos Seleccionados -->
                 <div class="jugadores-box" style="flex: 1; text-align: center;">
                     <h4>Equipos Seleccionados</h4>
-                    <div class="card-body" id="selectedTeamsBox{{ torneo.id }}" style="border: 1px solid rgba(0, 0, 0, 0.2); background-color: rgba(255, 255, 255, 0.9); border-radius: 10px; padding: 15px; height: 300px; overflow-y: auto;">
-                        <p id="noTeamsText" style="color: gray; display: {% if equipos_seleccionados %}none{% else %}block{% endif %};">No hay equipos seleccionados.</p>
+                    <div 
+                        class="card-body"
+                        id="selectedTeamsBox{{ torneo.id }}"
+                        style="border: 1px solid rgba(0, 0, 0, 0.2); background-color: rgba(255, 255, 255, 0.9);
+                               border-radius: 10px; padding: 15px; height: 300px; overflow-y: auto;"
+                    >
+                        {% if equipos_asociados %}
+                            {% for equipo in equipos_asociados %}
+                                <div class="form-check">
+                                    <input 
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="equipos"
+                                        value="{{ equipo.id }}"
+                                        id="equipo{{ equipo.id }}"
+                                    >
+                                    <label 
+                                        class="form-check-label"
+                                        for="equipo{{ equipo.id }}"
+                                        style="color: black;"
+                                    >
+                                        Equipo {{ forloop.counter }}: 
+                                        {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }}
+                                        y
+                                        {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p id="noTeamsText" style="color: gray;">
+                                No hay equipos seleccionados.
+                            </p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
 
-            <!-- Botón para Guardar Asociaciones -->
             <div class="text-center mt-4" style="display: flex; justify-content: center; align-items: center; gap: 20px;">
-                <button type="submit" name="action" value="asociar" class="login-button chico mb-2" style="margin: 0; padding: 10px 30px;">Guardar Asociaciones</button>
-                <button type="submit" name="action" value="desasociar" class="login-button chico fondo-boton-eliminar" style="margin: 0; padding: 10px 30px;">Eliminar Equipos Seleccionados</button>
+                <button type="submit" name="action" value="asociar" class="login-button chico mb-2" style="margin: 0; padding: 10px 30px;">
+                    Guardar Asociaciones
+                </button>
+                <button type="submit" name="action" value="desasociar" class="login-button chico fondo-boton-eliminar" style="margin: 0; padding: 10px 30px;">
+                    Eliminar Equipos Seleccionados
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- JavaScript para Manejar la Creación de Equipos -->
+<!-- Modal para mensajes -->
+<div id="messageModal" class="modal">
+    <div class="modal-content">
+        <h4 id="modal-title">Mensaje</h4>
+        <p id="modal-message"></p>
+        <div class="modal-buttons">
+            <button id="closeModalButton" class="button-close">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Estilo del modal -->
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 50%;
+    text-align: center;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.button-close {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.button-close:hover {
+    background-color: #0056b3;
+}
+
+.jugador-label {
+    color: black;
+}
+
+.form-check-label {
+    color: black;
+}
+</style>
+
+<!-- JavaScript para funcionalidad del botón y el modal -->
 <script>
-    let equipoCount = 0; // Contador global para numerar equipos
+    document.addEventListener('DOMContentLoaded', function () {
+        const crearEquipoButton = document.getElementById('crearEquipoButton');
+        const checkboxes = document.querySelectorAll('.jugador-checkbox');
+        const form = document.getElementById('createTeamForm');
+        const modal = document.getElementById('messageModal');
+        const modalMessage = document.getElementById('modal-message');
+        const closeModalButton = document.getElementById('closeModalButton');
 
-    function addTeam(torneoId) {
-        const jugador1Select = document.getElementById(`selectJugador1${torneoId}`);
-        const jugador2Select = document.getElementById(`selectJugador2${torneoId}`);
-        const jugador1 = jugador1Select.value;
-        const jugador2 = jugador2Select.value;
-        const jugador1Apellido = jugador1Select.options[jugador1Select.selectedIndex].getAttribute('data-apellido');
-        const jugador2Apellido = jugador2Select.options[jugador2Select.selectedIndex].getAttribute('data-apellido');
+        closeModalButton.addEventListener('click', function () {
+            modal.style.display = 'none';
+        });
 
-        if (jugador1 && jugador2 && jugador1 !== jugador2) {
-            equipoCount++; // Incrementa el contador de equipos
+        crearEquipoButton.addEventListener('click', function () {
+            const seleccionados = Array.from(checkboxes).filter(cb => cb.checked);
 
-            const noTeamsText = document.getElementById('noTeamsText');
-            noTeamsText.style.display = 'none'; // Oculta el mensaje "No hay equipos seleccionados"
+            if (seleccionados.length !== 2) {
+                modalMessage.innerHTML = 'Debes seleccionar exactamente dos jugadores para crear un equipo.';
+                modal.style.display = 'block';
+                return;
+            }
 
-            const teamDiv = document.createElement('div');
-            teamDiv.classList.add('form-check');
+            // Crear inputs para jugadores seleccionados y enviarlos al formulario
+            const jugador1Input = document.createElement('input');
+            jugador1Input.type = 'hidden';
+            jugador1Input.name = 'jugador1';
+            jugador1Input.value = seleccionados[0].value;
 
-            const teamCheckbox = document.createElement('input');
-            teamCheckbox.classList.add('form-check-input');
-            teamCheckbox.type = 'checkbox';
-            teamCheckbox.value = `${jugador1}-${jugador2}`;
-            teamCheckbox.name = 'equipos';
+            const jugador2Input = document.createElement('input');
+            jugador2Input.type = 'hidden';
+            jugador2Input.name = 'jugador2';
+            jugador2Input.value = seleccionados[1].value;
 
-            const teamLabel = document.createElement('label');
-            teamLabel.classList.add('form-check-label');
-            teamLabel.textContent = `Equipo ${equipoCount}: ${jugador1Apellido} y ${jugador2Apellido}`;
-            teamLabel.style.color = 'black'; // Cambiado a negro
+            form.appendChild(jugador1Input);
+            form.appendChild(jugador2Input);
 
-            teamDiv.appendChild(teamCheckbox);
-            teamDiv.appendChild(teamLabel);
+            // Configurar la acción para crear equipo
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'crear_equipo';
 
-            document.getElementById(`selectedTeamsBox${torneoId}`).appendChild(teamDiv);
+            form.appendChild(actionInput);
 
-            // Actualiza el contador visual de equipos creados
-            document.getElementById(`equiposCount${torneoId}`).textContent = equipoCount;
-        } else {
-            alert('Selecciona dos jugadores distintos para crear un equipo.');
-        }
-    }
+            // Enviar el formulario
+            form.submit();
+        });
+         // Mostrar mensajes de Django en el modal
+         const messages = JSON.parse('{{ all_messages|escapejs|safe }}');
+         if (messages.length > 0) {
+             modalMessage.innerHTML = messages.join('<br>');
+             modal.style.display = 'block';
+         }
+    });
 </script>
-
 
 {% endblock %}
