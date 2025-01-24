@@ -223,6 +223,12 @@
             // Enviar el formulario
             form.submit();
         });
+         // Mostrar mensajes de Django en el modal
+         const messages = JSON.parse('{{ all_messages|escapejs|safe }}');
+         if (messages.length > 0) {
+             modalMessage.innerHTML = messages.join('<br>');
+             modal.style.display = 'block';
+         }
     });
 </script>
 
