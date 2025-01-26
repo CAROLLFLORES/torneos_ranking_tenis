@@ -52,8 +52,8 @@
                         {% endfor %}
                     </select>
                     <!-- Botón para cargar la jornada manualmente (opc.) -->
-                    <button type="button" class="btn btn-secondary mt-2" onclick="redirigirJornada()">
-                        Cargar Jornada
+                    <button type="button" class="login-button chico" onclick="redirigirJornada()">
+                        Cargar RESULTADOS
                     </button>
                 </div>
             </div>
@@ -88,6 +88,7 @@
                                 <th>Fecha</th>
                                 <th>Hora</th>
                                 <th>Cancha</th>
+                                <th></th>
                                 <th>ELIMINAR</th>
                             </tr>
                         </thead>
@@ -125,6 +126,13 @@
                                         {% endfor %}
                                     </select>
                                 </td>
+                                <td rowspan="2">
+                                    <button type="button" class="login-button mas-chico" 
+                                        onclick="guardarPartido({{ torneo.id }}, {{ partido.id }})">
+                                        Guardar
+                                    </button>
+                                </td>
+                                
                                 <td class="text-center">
                                     <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">
                                         <i class="bi bi-trash-fill"></i>
@@ -228,6 +236,116 @@
     function imprimirPagina() {
         window.print();
     }
+
+
+    
+        function validarPartido(torneoId, jugador1, jugador2, callback) {
+            fetch(`/validar_partido_existente/${torneoId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    jugador1: jugador1,
+                    jugador2: jugador2
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ya_jugaron) {
+                    mostrarModalConfirmacion(data.message, callback);
+                } else {
+                    callback();
+                }
+            })
+            .catch(error => {
+                console.error('Error en la validación:', error);
+            });
+        }
+    
+        function mostrarModalConfirmacion(mensaje, callback) {
+            const modalHtml = `
+                <div id="confirmModal" class="modal fade show" style="display: block; background: rgba(0,0,0,0.5);">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title">Confirmación</h3>
+                                <button type="button" class="btn-close" onclick="cerrarModal()"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>${mensaje}</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-danger" onclick="cerrarModal()">Cancelar</button>
+                                <button class="btn btn-success" onclick="confirmarContinuar(${callback})">Continuar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+    
+        function cerrarModal() {
+            const modal = document.getElementById('confirmModal');
+            modal.remove();
+        }
+    
+        function confirmarContinuar(callback) {
+            cerrarModal();
+            callback();
+        }
+    
+        function guardarPartido(torneoId, partidoId) {
+            let jugador1 = document.getElementById(`jugador1-${partidoId}`).value;
+            let jugador2 = document.getElementById(`jugador2-${partidoId}`).value;
+    
+            validarPartido(torneoId, jugador1, jugador2, () => {
+                let fecha = document.getElementById(`fecha-${partidoId}`).value;
+                let hora = document.getElementById(`hora-${partidoId}`).value;
+                let set1Jugador1 = document.getElementById(`set1-jugador1-${partidoId}`).value;
+                let set2Jugador1 = document.getElementById(`set2-jugador1-${partidoId}`).value;
+                let set3Jugador1 = document.getElementById(`set3-jugador1-${partidoId}`).value;
+                let set1Jugador2 = document.getElementById(`set1-jugador2-${partidoId}`).value;
+                let set2Jugador2 = document.getElementById(`set2-jugador2-${partidoId}`).value;
+                let set3Jugador2 = document.getElementById(`set3-jugador2-${partidoId}`).value;
+                let ganador = document.getElementById(`ganador-${partidoId}`).value;
+    
+                fetch(`/modificar_partido/${partidoId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fecha: fecha,
+                        hora: hora,
+                        set1_jugador1: set1Jugador1,
+                        set2_jugador1: set2Jugador1,
+                        set3_jugador1: set3Jugador1,
+                        set1_jugador2: set1Jugador2,
+                        set2_jugador2: set2Jugador2,
+                        set3_jugador2: set3Jugador2,
+                        ganador: ganador
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Partido guardado correctamente.');
+                        location.reload();
+                    } else {
+                        alert('Error al guardar el partido.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        }
+    
+    
 </script>
 
 <style>
