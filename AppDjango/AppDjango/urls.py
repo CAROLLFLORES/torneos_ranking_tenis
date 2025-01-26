@@ -59,5 +59,6 @@ urlpatterns = [
     path('torneo/<int:torneo_id>/jornada/<int:jornada>/', torneo_views.jornada_detalle, name='jornada_detalle'),
     path('eliminar_partido/<int:partido_id>/', torneo_views.eliminar_partido, name='eliminar_partido'),
     path('modificar_partido/<int:partido_id>/', torneo_views.modificar_partido, name='modificar_partido'),
-    
+    path('guardar_resultados/', torneo_views.guardar_resultados, name='guardar_resultados'),
+
 ]

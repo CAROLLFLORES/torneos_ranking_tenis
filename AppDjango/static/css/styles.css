@@ -63,6 +63,12 @@ h3{
     font-size: 15px;
 }
 
+.mas-chico{
+    font-size: 45px;
+    width: 100px !important;
+
+}
+
 h5{
     color: rgb(255, 255, 255);
     font-style: LIGHT;

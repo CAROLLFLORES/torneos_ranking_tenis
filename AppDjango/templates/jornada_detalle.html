@@ -25,6 +25,7 @@
                     <th >Set 2</th>
                     <th >Set 3</th>
                     <th>Ganador</th>
+                    <th></th>
                     <th>Modificar</th>
                     <th>Eliminar</th>
                 </tr>
@@ -33,13 +34,13 @@
                 {% for partido in partidos %}
                 <tr>
                     <td rowspan="2" class="partido-numero">{{ partido.numero }}</td>
-                    <td rowspan="2"><input type="text" class="form-control" value="{{ partido.cancha }}" id="cancha-{{ partido.id }}" disabled></td>
-                    <td rowspan="2"><input type="date" class="form-control" value="{{ partido.fecha|date:'Y-m-d' }}" id="fecha-{{ partido.id }}" disabled></td>
-                    <td rowspan="2"><input type="time" class="form-control" value="{{ partido.hora|time:'H:i' }}" id="hora-{{ partido.id }}" disabled></td>
+                    <td rowspan="2"><input type="text" class="form-control hora" value="{{ partido.cancha }}" id="cancha-{{ partido.id }}" disabled></td>
+                    <td rowspan="2"><input type="date" class="form-control hora" value="{{ partido.fecha|date:'Y-m-d' }}" id="fecha-{{ partido.id }}" disabled></td>
+                    <td rowspan="2"><input type="time" class="form-control hora" value="{{ partido.hora|time:'H:i' }}" id="hora-{{ partido.id }}" disabled></td>
                     <td><input type="text" class="form-control" value="{{ partido.jugador1 }}" id="jugador1-{{ partido.id }}" disabled></td>
-                    <td><input type="number" class="form-control" value="{{ partido.resultado.set1_jugador1 }}" id="set1-jugador1-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" class="form-control" value="{{ partido.resultado.set2_jugador1}}" id="set2-jugador1-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" class="form-control" value="{{ partido.resultado.set3_jugador1}}" id="set3-jugador1-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set1_jugador1 }}" id="set1-jugador1-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set2_jugador1}}" id="set2-jugador1-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set3_jugador1}}" id="set3-jugador1-{{ partido.id }}" min="0" disabled></td>
                     <td rowspan="2">
                         <select class="form-control" id="ganador-{{ partido.id }}" disabled>
                             <option value="{{ partido.jugador1.id }}" {% if partido.resultado.ganador_jugador == partido.jugador1 %}selected{% endif %}>{{ partido.jugador1 }}</option>
@@ -47,20 +48,25 @@
                         </select>
                     </td>
                     <td rowspan="2">
-                        <button type="button" class="btn btn-warning btn-sm" onclick="habilitarEdicion({{ partido.id }})">Modificar</button>
+                        <button type="button" class="login-button mas-chico " onclick="guardarPartido({{ partido.id }})">Guardar</button>
                     </td>
                     <td rowspan="2">
-                        <button type="button" class="btn btn-danger btn-sm" onclick="mostrarModalEliminar({{ partido.id }})">
-                            <i class="bi bi-trash-fill"></i>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modificarModal-{{ partido.id }}">
+                            <i class="bi bi-pencil-square"></i>
                         </button>
+                    </td>
+                    <td rowspan="2">
+                        <button class="btn btn-primary" onclick="mostrarModalEliminar({{ partido.id }})">
+                            <i class="bi bi-trash-fill btn-danger"></i>                        </button>
                     </td>
                 </tr>
                 <tr>
                     <td><input type="text" class="form-control" value="{{ partido.jugador2 }}" id="jugador2-{{ partido.id }}" disabled></td>
-                    <td><input type="number" class="form-control" value="{{ partido.resultado.set1_jugador2 }}" id="set1-jugador2-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" class="form-control" value="{{ partido.resultado.set2_jugador2 }}" id="set2-jugador2-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" class="form-control" value="{{ partido.resultado.set3_jugador2 }}" id="set3-jugador2-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set1_jugador2 }}" id="set1-jugador2-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set2_jugador2 }}" id="set2-jugador2-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set3_jugador2 }}" id="set3-jugador2-{{ partido.id }}" min="0" disabled></td>
                 </tr>
+                
                 {% endfor %}
             </tbody>
     </div>
@@ -84,13 +90,24 @@
 </div>
 
 <style>
+    .hora{
+        width: 70px;
+        text-align: center;
+        border: none;
+        background: none;
+    }
+    
+    .set-input {
+        width: 30px;
+        text-align: center;
+    }
+
     table th, table td {
         color: black;
     }
 
     input[type="number"], select {
         color: black;
-        background-color: white;
     }
 
     input[type="number"]:focus, select:focus {
@@ -158,6 +175,18 @@
 </style>
 
 <script>
+    //da color a las filas distintas
+    document.addEventListener("DOMContentLoaded", function() {
+        let filas = document.querySelectorAll("tbody tr");
+
+        filas.forEach((fila, index) => {
+            if (index % 4 === 0 || index % 4 === 1) {
+                fila.style.backgroundColor = "#f2f2f2";  // Color gris claro
+            } else {
+                fila.style.backgroundColor = "#ffffff";  // Color blanco
+            }
+        });
+    });
     function mostrarModalEliminar(partidoId) {
         document.getElementById('deleteModal').style.display = 'block';
         document.getElementById('partidoIdToDelete').value = partidoId;
@@ -264,6 +293,46 @@
     rows.forEach(row => table.appendChild(row));
 });
 
+//agregado para guardar partido
+function guardarPartido(partidoId) {
+    let set1Jugador1 = document.getElementById(`set1-jugador1-${partidoId}`).value || '0';
+    let set2Jugador1 = document.getElementById(`set2-jugador1-${partidoId}`).value || '0';
+    let set3Jugador1 = document.getElementById(`set3-jugador1-${partidoId}`).value || '0';
+    let set1Jugador2 = document.getElementById(`set1-jugador2-${partidoId}`).value || '0';
+    let set2Jugador2 = document.getElementById(`set2-jugador2-${partidoId}`).value || '0';
+    let set3Jugador2 = document.getElementById(`set3-jugador2-${partidoId}`).value || '0';
+    let ganador = document.getElementById(`ganador-${partidoId}`).value;
+
+    fetch('/guardar_resultados/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            partido_id: partidoId,
+            set1_jugador1: parseInt(set1Jugador1, 10),
+            set2_jugador1: parseInt(set2Jugador1, 10),
+            set3_jugador1: parseInt(set3Jugador1, 10),
+            set1_jugador2: parseInt(set1Jugador2, 10),
+            set2_jugador2: parseInt(set2Jugador2, 10),
+            set3_jugador2: parseInt(set3Jugador2, 10),
+            ganador: ganador
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Partido guardado correctamente.');
+        } else {
+            alert('Error al guardar el resultado: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Hubo un problema al guardar.');
+    });
+}
 </script>
 
 {% endblock %}

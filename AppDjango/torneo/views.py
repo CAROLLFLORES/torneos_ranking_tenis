@@ -325,7 +325,38 @@ def guardar_fecha(request, torneo_id):
 
     return redirect('partido_single', torneo_id=torneo.id)
 
+#esto agregrue para el guardado de resultaultado por partidofrom django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .models import Partido, ResultadoPartido
 
+@csrf_exempt
+def guardar_resultados(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            partido_id = data.get('partido_id')
+            partido = Partido.objects.get(id=partido_id)
+
+            resultado, created = ResultadoPartido.objects.get_or_create(partido=partido)
+
+            resultado.set1_jugador1 = int(data.get('set1_jugador1') or 0)
+            resultado.set2_jugador1 = int(data.get('set2_jugador1') or 0)
+            resultado.set3_jugador1 = int(data.get('set3_jugador1') or 0)
+            resultado.set1_jugador2 = int(data.get('set1_jugador2') or 0)
+            resultado.set2_jugador2 = int(data.get('set2_jugador2') or 0)
+            resultado.set3_jugador2 = int(data.get('set3_jugador2') or 0)
+            resultado.ganador_jugador_id = data.get('ganador') or None
+
+            resultado.save()
+
+            return JsonResponse({'success': True, 'message': 'Resultado guardado correctamente.'})
+        except ValueError:
+            return JsonResponse({'success': False, 'message': 'Error: Asegúrate de que todos los campos estén completos y sean numéricos.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
 
 
 def partido_single(request, torneo_id):
@@ -538,16 +569,27 @@ def eliminar_partido(request, partido_id):
 @csrf_exempt
 def modificar_partido(request, partido_id):
     if request.method == 'POST':
-        partido = get_object_or_404(Partido, id=partido_id)
         try:
             data = json.loads(request.body)
-            partido.jugador1 = Jugador.objects.get(nombre=data['jugador1'])
-            partido.jugador2 = Jugador.objects.get(nombre=data['jugador2'])
+            partido = Partido.objects.get(id=partido_id)
+
             partido.fecha = data['fecha']
             partido.hora = data['hora']
-            partido.cancha = Cancha.objects.get(cancha=data['cancha'])
             partido.save()
+
+            resultado, created = ResultadoPartido.objects.get_or_create(partido=partido)
+            resultado.set1_jugador1 = data.get('set1_jugador1', 0)
+            resultado.set2_jugador1 = data.get('set2_jugador1', 0)
+            resultado.set3_jugador1 = data.get('set3_jugador1', 0)
+            resultado.set1_jugador2 = data.get('set1_jugador2', 0)
+            resultado.set2_jugador2 = data.get('set2_jugador2', 0)
+            resultado.set3_jugador2 = data.get('set3_jugador2', 0)
+            resultado.ganador_jugador_id = data.get('ganador', None)
+
+            resultado.save()
+
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
+    
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
