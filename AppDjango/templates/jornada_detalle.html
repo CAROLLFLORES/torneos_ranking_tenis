@@ -76,7 +76,6 @@
 
     <div class="text-center mt-3">
         <button type="button" class="btn btn-success btn-lg" onclick="guardarTodosCambios()">Guardar</button>
-        <button type="button" class="btn btn-primary btn-lg" onclick="imprimirPagina()">Imprimir</button>
         <button type="button" class="btn btn-danger btn-lg" onclick="generarPDF()">
             <i class="bi bi-file-earmark-pdf"></i> PDF
         </button>
@@ -84,14 +83,19 @@
     </div>
 </div>
 
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <h4>Confirmar Eliminación</h4>
-        <p>¿Estás seguro de que deseas eliminar este partido?</p>
-        <input type="hidden" id="partidoIdToDelete">
-        <div class="modal-buttons">
-            <button id="confirmDeleteButton" class="button-delete">Eliminar</button>
-            <button id="cancelDeleteButton" class="button-close">Cancelar</button>
+<div id="deleteModal" class="modal fade" >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 >Confirmar Eliminación</h4>
+                <p>¿Estás seguro de que deseas eliminar este partido?</p>
+                <input type="hidden" id="partidoIdToDelete">
+                <div class="modal-buttons">
+                    <button id="confirmDeleteButton" class="button-delete">Eliminar</button>
+                    <button id="cancelDeleteButton" class="button-close">Cancelar</button>
+                </div>
+                
+            </div>
         </div>
     </div>
 </div>
@@ -191,62 +195,67 @@
     
         doc.setFont("helvetica", "bold");
         doc.setFontSize(18);
-        doc.text("Resultados de la Jornada", 70, 20);
+        doc.text(`Torneo: {{ torneo.nombre|upper }}`, 70, 20);
     
         doc.setFont("helvetica", "normal");
+        doc.setFontSize(14);
+    
         doc.setFontSize(12);
     
-        let y = 40;  // Posición vertical inicial para las filas
-    
-        // Encabezados de la tabla
-        doc.text("Partido", 20, y);
-        doc.text("Jugador 1", 50, y);
-        doc.text("Jugador 2", 90, y);
-        doc.text("Set 1", 130, y);
-        doc.text("Set 2", 150, y);
-        doc.text("Set 3", 170, y);
-        doc.text("Ganador", 190, y);
-        y += 10;  // Espaciado entre líneas
-    
-        // Seleccionar todas las filas de partidos
-        let rows = document.querySelectorAll("tbody tr:nth-child(odd)");
-    
-        if (rows.length === 0) {
-            alert("No hay datos para generar el PDF.");
-            return;
-        }
-    
-        rows.forEach(row => {
-            try {
-                let partido = row.querySelector(".partido-numero").textContent.trim();
-                let jugador1 = row.querySelector(`#jugador1-${partido}`).value.trim();
-                let jugador2 = row.nextElementSibling.querySelector(`#jugador2-${partido}`).value.trim();
-                let set1_j1 = row.querySelector(`#set1-jugador1-${partido}`).value || '0';
-                let set2_j1 = row.querySelector(`#set2-jugador1-${partido}`).value || '0';
-                let set3_j1 = row.querySelector(`#set3-jugador1-${partido}`).value || '0';
-                let set1_j2 = row.nextElementSibling.querySelector(`#set1-jugador2-${partido}`).value || '0';
-                let set2_j2 = row.nextElementSibling.querySelector(`#set2-jugador2-${partido}`).value || '0';
-                let set3_j2 = row.nextElementSibling.querySelector(`#set3-jugador2-${partido}`).value || '0';
-                let ganador = row.querySelector(`#ganador-${partido} option:checked`).textContent.trim();
-    
-                // Agregar datos al PDF
-                doc.text(partido, 20, y);
-                doc.text(jugador1, 50, y);
-                doc.text(jugador2, 90, y);
-                doc.text(`${set1_j1} - ${set1_j2}`, 130, y);
-                doc.text(`${set2_j1} - ${set2_j2}`, 150, y);
-                doc.text(`${set3_j1} - ${set3_j2}`, 170, y);
-                doc.text(ganador, 190, y);
-                y += 10;
-    
-            } catch (error) {
-                console.error("Error al procesar la fila:", error);
+        let partidosPorFecha = {};
+        document.querySelectorAll("tbody tr:nth-child(odd)").forEach(row => {
+            let fecha = row.querySelector(`[id^='fecha']`).value;
+            if (!partidosPorFecha[fecha]) {
+                partidosPorFecha[fecha] = [];
             }
+            partidosPorFecha[fecha].push(row);
         });
     
-        // Guardar el archivo PDF con un nombre específico
-        doc.save(`Resultados_Jornada_${new Date().toLocaleDateString()}.pdf`);
+        let y = 50;
+    
+        Object.keys(partidosPorFecha).sort().forEach(fecha => {
+            doc.setFont("helvetica", "bold");
+            doc.text(`Fecha: ${fecha}`, 20, y);
+            y += 10;
+    
+            doc.setFont("helvetica", "normal");
+            doc.text("Partido°", 20, y);
+            doc.text("Jugador 1", 40, y);
+            doc.text("Jugador 2", 80, y);
+            doc.text("Set 1", 120, y);
+            doc.text("Set 2", 140, y);
+            doc.text("Set 3", 160, y);
+            doc.text("Ganador", 180, y);
+            y += 8;
+    
+            partidosPorFecha[fecha].forEach(row => {
+                let partido = row.querySelector(".partido-numero").textContent.trim();
+                let jugador1 = row.querySelector(`[id^='jugador1']`).value || "-";
+                let jugador2 = row.nextElementSibling.querySelector(`[id^='jugador2']`).value || "-";
+                let set1_j1 = row.querySelector(`[id^='set1-jugador1']`).value || '0';
+                let set2_j1 = row.querySelector(`[id^='set2-jugador1']`).value || '0';
+                let set3_j1 = row.querySelector(`[id^='set3-jugador1']`).value || '0';
+                let set1_j2 = row.nextElementSibling.querySelector(`[id^='set1-jugador2']`).value || '0';
+                let set2_j2 = row.nextElementSibling.querySelector(`[id^='set2-jugador2']`).value || '0';
+                let set3_j2 = row.nextElementSibling.querySelector(`[id^='set3-jugador2']`).value || '0';
+                let ganador = row.querySelector(`[id^='ganador'] option:checked`).textContent.trim() || "-";
+    
+                doc.text(partido, 20, y);
+                doc.text(jugador1, 40, y);
+                doc.text(jugador2, 80, y);
+                doc.text(`${set1_j1} - ${set1_j2}`, 120, y);
+                doc.text(`${set2_j1} - ${set2_j2}`, 140, y);
+                doc.text(`${set3_j1} - ${set3_j2}`, 160, y);
+                doc.text(ganador, 180, y);
+                y += 8;
+            });
+    
+            y += 10;  // Espacio entre fechas
+        });
+    
+        doc.save(`Resultados_Torneo_{{ torneo.nombre|upper }}.pdf`);
     }
+    
     
     
 
@@ -315,9 +324,7 @@
         alert('Todos los cambios han sido guardados exitosamente.');
     }
 
-    function imprimirPagina() {
-        window.print();
-    }
+    
 
     document.addEventListener("DOMContentLoaded", function() {
         renumerarPartidos();
