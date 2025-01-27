@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block body_class %}fondo-secundario{% endblock %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 {% block content %}
 <div class="container-admin">
@@ -79,6 +80,7 @@
         <button type="button" class="btn btn-danger btn-lg" onclick="generarPDF()">
             <i class="bi bi-file-earmark-pdf"></i> PDF
         </button>
+         
     </div>
 </div>
 
@@ -185,24 +187,68 @@
 
     async function generarPDF() {
         const { jsPDF } = window.jspdf;
-
-        // Captura la sección que contiene la tabla de partidos
-        let element = document.querySelector(".table-responsive");
-
-        // Usa html2canvas para capturar la sección
-        html2canvas(element, { scale: 2 }).then(canvas => {
-            let imgData = canvas.toDataURL('image/png');
-            let pdf = new jsPDF('l', 'mm', 'a4'); // Formato horizontal A4
-            let imgWidth = 280; // Ajustar ancho de imagen en el PDF
-            let imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-            pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-            pdf.save(`Torneo_${new Date().toLocaleDateString()}.pdf`);
-        }).catch(error => {
-            console.error('Error al generar PDF:', error);
-            alert("Hubo un error al generar el PDF.");
+        let doc = new jsPDF('p', 'mm', 'a4');
+    
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.text("Resultados de la Jornada", 70, 20);
+    
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+    
+        let y = 40;  // Posición vertical inicial para las filas
+    
+        // Encabezados de la tabla
+        doc.text("Partido", 20, y);
+        doc.text("Jugador 1", 50, y);
+        doc.text("Jugador 2", 90, y);
+        doc.text("Set 1", 130, y);
+        doc.text("Set 2", 150, y);
+        doc.text("Set 3", 170, y);
+        doc.text("Ganador", 190, y);
+        y += 10;  // Espaciado entre líneas
+    
+        // Seleccionar todas las filas de partidos
+        let rows = document.querySelectorAll("tbody tr:nth-child(odd)");
+    
+        if (rows.length === 0) {
+            alert("No hay datos para generar el PDF.");
+            return;
+        }
+    
+        rows.forEach(row => {
+            try {
+                let partido = row.querySelector(".partido-numero").textContent.trim();
+                let jugador1 = row.querySelector(`#jugador1-${partido}`).value.trim();
+                let jugador2 = row.nextElementSibling.querySelector(`#jugador2-${partido}`).value.trim();
+                let set1_j1 = row.querySelector(`#set1-jugador1-${partido}`).value || '0';
+                let set2_j1 = row.querySelector(`#set2-jugador1-${partido}`).value || '0';
+                let set3_j1 = row.querySelector(`#set3-jugador1-${partido}`).value || '0';
+                let set1_j2 = row.nextElementSibling.querySelector(`#set1-jugador2-${partido}`).value || '0';
+                let set2_j2 = row.nextElementSibling.querySelector(`#set2-jugador2-${partido}`).value || '0';
+                let set3_j2 = row.nextElementSibling.querySelector(`#set3-jugador2-${partido}`).value || '0';
+                let ganador = row.querySelector(`#ganador-${partido} option:checked`).textContent.trim();
+    
+                // Agregar datos al PDF
+                doc.text(partido, 20, y);
+                doc.text(jugador1, 50, y);
+                doc.text(jugador2, 90, y);
+                doc.text(`${set1_j1} - ${set1_j2}`, 130, y);
+                doc.text(`${set2_j1} - ${set2_j2}`, 150, y);
+                doc.text(`${set3_j1} - ${set3_j2}`, 170, y);
+                doc.text(ganador, 190, y);
+                y += 10;
+    
+            } catch (error) {
+                console.error("Error al procesar la fila:", error);
+            }
         });
+    
+        // Guardar el archivo PDF con un nombre específico
+        doc.save(`Resultados_Jornada_${new Date().toLocaleDateString()}.pdf`);
     }
+    
+    
 
     //da color a las filas distintas
     document.addEventListener("DOMContentLoaded", function() {

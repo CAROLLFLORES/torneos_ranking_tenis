@@ -324,10 +324,59 @@
         }
     });
     
+    function validarDuplicadosEnJornada() {
+        let filas = document.querySelectorAll("#partidosTable tr");
+        let combinaciones = new Set();
+        let hayDuplicados = false;
+    
+        filas.forEach(fila => {
+            let jugador1 = fila.querySelector("select[name='jugador1[]']").value;
+            let jugador2 = fila.querySelector("select[name='jugador2[]']").value;
+    
+            if (jugador1 && jugador2) {
+                let combinacion = jugador1 < jugador2 ? `${jugador1}-${jugador2}` : `${jugador2}-${jugador1}`;
+    
+                if (combinaciones.has(combinacion)) {
+                    hayDuplicados = true;
+                    fila.classList.add("table-danger"); // Resalta la fila duplicada
+                } else {
+                    combinaciones.add(combinacion);
+                    fila.classList.remove("table-danger"); // Elimina la marca de error si ya estaba
+                }
+            }
+        });
+    
+        if (hayDuplicados) {
+            mostrarModalAdvertencia("Existen partidos duplicados en la jornada. Modifique los jugadores.");
+            return false;
+        }
+    
+        return true;
+    }
+    
+    // Mostrar el modal de advertencia con el mensaje personalizado
+    function mostrarModalAdvertencia(mensaje) {
+        document.getElementById('modalAdvertenciaMensaje').innerText = mensaje;
+        let modal = new bootstrap.Modal(document.getElementById('modalAdvertencia'));
+        modal.show();
+    }
+    
+    // Agregar validación antes de guardar
+    document.getElementById("guardarFechaButton").addEventListener("click", function(event) {
+        if (!validarDuplicadosEnJornada()) {
+            event.preventDefault();  // Previene el envío del formulario si hay duplicados
+        }
+    });
+    
     
 </script>
 
 <style>
+    
+    .table-danger {
+        background-color: #f8d7da !important;
+    }
+    
     .modal-header {
         color: black;
         font-weight: bold;
