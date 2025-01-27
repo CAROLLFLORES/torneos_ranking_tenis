@@ -14,6 +14,8 @@ from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 import json
 from datetime import datetime, date, time
+from django.http import JsonResponse
+
 
 # NUEVO import para parsear fechas/horas
 from datetime import datetime, date, time
@@ -467,64 +469,95 @@ def listar_partidos(request, jornada):
     
     return render(request, 'jornada_detalle.html', {'partidos': partidos_list, 'jornada': jornada})
 
-
-
 @csrf_exempt
-def validar_partido(request, torneo_id):
+def validar_partido_existente(request, torneo_id):
     if request.method == 'POST':
-        torneo = get_object_or_404(Torneo, id=torneo_id)
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body)
+            jugador1_id = data.get('jugador1')
+            jugador2_id = data.get('jugador2')
+            fecha = data.get('fecha')
+            hora = data.get('hora')
+            cancha = data.get('cancha')
 
-        jugador1 = data.get('jugador1')
-        jugador2 = data.get('jugador2')
-        fecha_str = data.get('fecha')
-        hora_str = data.get('hora')
-        cancha_id = data.get('cancha')
+            if not jugador1_id or not jugador2_id:
+                return JsonResponse({'success': False, 'message': 'Faltan jugadores.'}, status=400)
 
-        errors = []
+            ya_existe = Partido.objects.filter(
+                torneo_id=torneo_id
+            ).filter(
+                Q(jugador1_id=jugador1_id, jugador2_id=jugador2_id) |
+                Q(jugador1_id=jugador2_id, jugador2_id=jugador1_id)
+            ).exists()
+
+            if ya_existe:
+                return JsonResponse({'success': False, 'message': 'Estos jugadores ya han jugado en este torneo.'})
+            
+            return JsonResponse({'success': True, 'message': 'El partido es válido.'})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Error en el formato de los datos.'}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+    return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
+#@csrf_exempt
+#def validar_partido(request, torneo_id):
+    #if request.method == 'POST':
+       # torneo = get_object_or_404(Torneo, id=torneo_id)
+      #  data = json.loads(request.body)
+
+      #  jugador1 = data.get('jugador1')
+       # jugador2 = data.get('jugador2')
+        #fecha_str = data.get('fecha')
+        #hora_str = data.get('hora')
+        #cancha_id = data.get('cancha')
+
+        #errors = []
 
         # Parse de fecha
-        try:
-            fecha_obj = date.fromisoformat(fecha_str)
-        except ValueError:
+        #try:
+           # fecha_obj = date.fromisoformat(fecha_str)
+        #except ValueError:
             # fallback dd/mm/yyyy
-            try:
-                day, month, year = fecha_str.split('/')
-                fecha_obj = date(int(year), int(month), int(day))
-            except:
-                errors.append(f"Fecha '{fecha_str}' inválida. Usa YYYY-MM-DD o DD/MM/YYYY")
+            #try:
+                #day, month, year = fecha_str.split('/')
+                #fecha_obj = date(int(year), int(month), int(day))
+            #except:
+               # errors.append(f"Fecha '{fecha_str}' inválida. Usa YYYY-MM-DD o DD/MM/YYYY")
 
         # Parse de hora
-        if not errors:
-            try:
-                hora_obj = datetime.strptime(hora_str, '%H:%M').time()
-            except ValueError:
-                errors.append(f"La hora '{hora_str}' no es válida. Usa HH:MM 24h.")
+        #if not errors:
+            #try:
+               # hora_obj = datetime.strptime(hora_str, '%H:%M').time()
+            #except ValueError:
+                #errors.append(f"La hora '{hora_str}' no es válida. Usa HH:MM 24h.")
 
         # Validaciones si no hay errores de parsing
-        if not errors:
-            if Partido.objects.filter(
-                torneo=torneo
-            ).filter(
-                Q(jugador1_id=jugador1, jugador2_id=jugador2) |
-                Q(jugador1_id=jugador2, jugador2_id=jugador1)
-            ).exists():
-                errors.append("Los jugadores seleccionados ya jugaron entre sí en este torneo.")
+        #if not errors:
+            #if Partido.objects.filter(
+             #   torneo=torneo
+           # ).filter(
+             #   Q(jugador1_id=jugador1, jugador2_id=jugador2) |
+              #  Q(jugador1_id=jugador2, jugador2_id=jugador1)
+           # ).exists():
+              #  errors.append("Los jugadores seleccionados ya jugaron entre sí en este torneo.")
 
-            if Partido.objects.filter(
-                torneo=torneo,
-                fecha=fecha_obj,
-                hora=hora_obj,
-                cancha_id=cancha_id
-            ).exists():
-                errors.append(f"Ya existe un partido en {fecha_str} {hora_str} - Cancha {cancha_id}.")
+           # if Partido.objects.filter(
+               # torneo=torneo,
+              #  fecha=fecha_obj,
+              #  hora=hora_obj,
+              #  cancha_id=cancha_id
+            #).exists():
+               # errors.append(f"Ya existe un partido en {fecha_str} {hora_str} - Cancha {cancha_id}.")
 
-        if errors:
-            return JsonResponse({'errors': errors}, status=400)
-        else:
-            return JsonResponse({'message': 'Validación exitosa'}, status=200)
+       # if errors:
+          #  return JsonResponse({'errors': errors}, status=400)
+       # else:
+           # return JsonResponse({'message': 'Validación exitosa'}, status=200)
 
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
+   # return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
 def tiene_categoria_doble(self):

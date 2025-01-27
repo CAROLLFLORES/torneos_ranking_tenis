@@ -21,6 +21,7 @@ from torneo import views as torneo_views
 from jugador import views as jugador_views
 
 
+
 urlpatterns = [
     path('',loginadmin_views.index, name='index'),
     path('admin/', admin.site.urls),    
@@ -55,10 +56,10 @@ urlpatterns = [
     path('guardar_fecha/<int:torneo_id>/', torneo_views.guardar_fecha, name='guardar_fecha'),
     path('abm_cancha/', torneo_views.abm_cancha, name='abm_cancha'),
     path('listado_canchas/', torneo_views.listado_canchas, name='listado_canchas'),
-    path('validar_partido/<int:torneo_id>/', torneo_views.validar_partido, name='validar_partido'),
     path('torneo/<int:torneo_id>/jornada/<int:jornada>/', torneo_views.jornada_detalle, name='jornada_detalle'),
     path('eliminar_partido/<int:partido_id>/', torneo_views.eliminar_partido, name='eliminar_partido'),
     path('modificar_partido/<int:partido_id>/', torneo_views.modificar_partido, name='modificar_partido'),
     path('guardar_resultados/', torneo_views.guardar_resultados, name='guardar_resultados'),
+    path('validar_partido_existente/<int:torneo_id>/', torneo_views.validar_partido_existente, name='validar_partido_existente'),
 
 ]

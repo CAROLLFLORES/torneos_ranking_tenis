@@ -47,14 +47,16 @@
                             <option value="{{ partido.jugador2.id }}" {% if partido.resultado.ganador_jugador == partido.jugador2 %}selected{% endif %}>{{ partido.jugador2 }}</option>
                         </select>
                     </td>
+                    
                     <td rowspan="2">
                         <button type="button" class="login-button mas-chico " onclick="guardarPartido({{ partido.id }})">Guardar</button>
                     </td>
                     <td rowspan="2">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modificarModal-{{ partido.id }}">
+                        <button type="button" class="btn btn-primary" onclick="habilitarEdicion({{ partido.id }})">
                             <i class="bi bi-pencil-square"></i>
                         </button>
                     </td>
+                    
                     <td rowspan="2">
                         <button class="btn btn-primary" onclick="mostrarModalEliminar({{ partido.id }})">
                             <i class="bi bi-trash-fill btn-danger"></i>                        </button>
@@ -74,6 +76,9 @@
     <div class="text-center mt-3">
         <button type="button" class="btn btn-success btn-lg" onclick="guardarTodosCambios()">Guardar</button>
         <button type="button" class="btn btn-primary btn-lg" onclick="imprimirPagina()">Imprimir</button>
+        <button type="button" class="btn btn-danger btn-lg" onclick="generarPDF()">
+            <i class="bi bi-file-earmark-pdf"></i> PDF
+        </button>
     </div>
 </div>
 
@@ -173,8 +178,32 @@
         padding: 5px 10px;
     }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
+
+    async function generarPDF() {
+        const { jsPDF } = window.jspdf;
+
+        // Captura la sección que contiene la tabla de partidos
+        let element = document.querySelector(".table-responsive");
+
+        // Usa html2canvas para capturar la sección
+        html2canvas(element, { scale: 2 }).then(canvas => {
+            let imgData = canvas.toDataURL('image/png');
+            let pdf = new jsPDF('l', 'mm', 'a4'); // Formato horizontal A4
+            let imgWidth = 280; // Ajustar ancho de imagen en el PDF
+            let imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+            pdf.save(`Torneo_${new Date().toLocaleDateString()}.pdf`);
+        }).catch(error => {
+            console.error('Error al generar PDF:', error);
+            alert("Hubo un error al generar el PDF.");
+        });
+    }
+
     //da color a las filas distintas
     document.addEventListener("DOMContentLoaded", function() {
         let filas = document.querySelectorAll("tbody tr");
@@ -333,6 +362,9 @@ function guardarPartido(partidoId) {
         alert('Hubo un problema al guardar.');
     });
 }
+
+
+
 </script>
 
 {% endblock %}
