@@ -73,12 +73,17 @@
     </div>
 
     <div class="text-center mt-3">
-        <button type="button" class="btn btn-success btn-lg" onclick="guardarTodosCambios()">Guardar</button>
+        <button type="button" class="login-button btn btn-success btn-lg" onclick="guardarTodosCambios()">Guardar Jornada Terminada</button>
         <button type="button" class="btn btn-danger btn-lg" onclick="generarPDF()">
             <i class="bi bi-file-earmark-pdf"></i> PDF
         </button>
          
+        <a href="{% url 'admin_menu' %}">
+            <button class="login-button peque">MENU</button>
+        </a>
     </div>
+        
+    
 </div>
 
 <div id="deleteModal" class="modal fade" >
@@ -188,72 +193,80 @@
 <script>
 
     async function generarPDF() {
-        const { jsPDF } = window.jspdf;
-        let doc = new jsPDF('p', 'mm', 'a4');
-    
+    const { jsPDF } = window.jspdf;
+    let doc = new jsPDF('p', 'mm', 'a4');
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text(`Torneo: {{ torneo.nombre|upper }}`, 70, 20);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+
+    let partidosPorFecha = {};
+    document.querySelectorAll("tbody tr:nth-child(odd)").forEach(row => {
+        let fechaInput = row.querySelector(`[id^='fecha']`);
+        let fecha = fechaInput ? fechaInput.value : "Fecha desconocida";
+
+        if (!partidosPorFecha[fecha]) {
+            partidosPorFecha[fecha] = [];
+        }
+        partidosPorFecha[fecha].push(row);
+    });
+
+    let y = 50;
+
+    Object.keys(partidosPorFecha).sort().forEach(fecha => {
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(18);
-        doc.text(`Torneo: {{ torneo.nombre|upper }}`, 70, 20);
-    
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(14);
-    
+        doc.text(`Fecha: ${fecha}`, 20, y);
+        y += 10;
+
+         // **Cabecera con líneas separadoras**
         doc.setFontSize(12);
-    
-        let partidosPorFecha = {};
-        document.querySelectorAll("tbody tr:nth-child(odd)").forEach(row => {
-            let fecha = row.querySelector(`[id^='fecha']`).value;
-            if (!partidosPorFecha[fecha]) {
-                partidosPorFecha[fecha] = [];
-            }
-            partidosPorFecha[fecha].push(row);
-        });
-    
-        let y = 50;
-    
-        Object.keys(partidosPorFecha).sort().forEach(fecha => {
-            doc.setFont("helvetica", "bold");
-            doc.text(`Fecha: ${fecha}`, 20, y);
-            y += 10;
-    
-            doc.setFont("helvetica", "normal");
-            doc.text("Partido°", 20, y);
-            doc.text("Jugador 1", 40, y);
-            doc.text("Jugador 2", 80, y);
-            doc.text("Set 1", 120, y);
-            doc.text("Set 2", 140, y);
-            doc.text("Set 3", 160, y);
-            doc.text("Ganador", 180, y);
+        doc.setLineWidth(0.1);  // 🔹 **LÍNEA MÁS FINA**
+        doc.line(15, y + 2, 195, y + 2); // Línea horizontal debajo del título
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Partido°", 20, y);
+        doc.text("Jugador 1", 40, y);
+        doc.text("Jugador 2", 80, y);
+        doc.text("Set 1", 120, y);
+        doc.text("Set 2", 140, y);
+        doc.text("Set 3", 160, y);
+        doc.text("Ganador", 180, y);
+        y += 8;
+
+        partidosPorFecha[fecha].forEach(row => {
+            let partido = row.querySelector(".partido-numero")?.textContent.trim() || "-";
+            let jugador1 = row.querySelector(`[id^='jugador1']`)?.value || "-";
+            let jugador2 = row.nextElementSibling?.querySelector(`[id^='jugador2']`)?.value || "-";
+
+            let set1_j1 = row.querySelector(`[id^='set1-jugador1']`)?.value || '0';
+            let set2_j1 = row.querySelector(`[id^='set2-jugador1']`)?.value || '0';
+            let set3_j1 = row.querySelector(`[id^='set3-jugador1']`)?.value || '0';
+
+            let set1_j2 = row.nextElementSibling?.querySelector(`[id^='set1-jugador2']`)?.value || '0';
+            let set2_j2 = row.nextElementSibling?.querySelector(`[id^='set2-jugador2']`)?.value || '0';
+            let set3_j2 = row.nextElementSibling?.querySelector(`[id^='set3-jugador2']`)?.value || '0';
+
+            let ganador = row.querySelector(`[id^='ganador']`)?.value || "-";
+
+            doc.text(partido, 20, y);
+            doc.text(jugador1, 40, y);
+            doc.text(jugador2, 80, y);
+            doc.text(`${set1_j1} - ${set1_j2}`, 120, y);
+            doc.text(`${set2_j1} - ${set2_j2}`, 140, y);
+            doc.text(`${set3_j1} - ${set3_j2}`, 160, y);
+            doc.text(ganador, 180, y);
             y += 8;
-    
-            partidosPorFecha[fecha].forEach(row => {
-                let partido = row.querySelector(".partido-numero").textContent.trim();
-                let jugador1 = row.querySelector(`[id^='jugador1']`).value || "-";
-                let jugador2 = row.nextElementSibling.querySelector(`[id^='jugador2']`).value || "-";
-                let set1_j1 = row.querySelector(`[id^='set1-jugador1']`).value || '0';
-                let set2_j1 = row.querySelector(`[id^='set2-jugador1']`).value || '0';
-                let set3_j1 = row.querySelector(`[id^='set3-jugador1']`).value || '0';
-                let set1_j2 = row.nextElementSibling.querySelector(`[id^='set1-jugador2']`).value || '0';
-                let set2_j2 = row.nextElementSibling.querySelector(`[id^='set2-jugador2']`).value || '0';
-                let set3_j2 = row.nextElementSibling.querySelector(`[id^='set3-jugador2']`).value || '0';
-                let ganador = row.querySelector(`[id^='ganador'] option:checked`).textContent.trim() || "-";
-    
-                doc.text(partido, 20, y);
-                doc.text(jugador1, 40, y);
-                doc.text(jugador2, 80, y);
-                doc.text(`${set1_j1} - ${set1_j2}`, 120, y);
-                doc.text(`${set2_j1} - ${set2_j2}`, 140, y);
-                doc.text(`${set3_j1} - ${set3_j2}`, 160, y);
-                doc.text(ganador, 180, y);
-                y += 8;
-            });
-    
-            y += 10;  // Espacio entre fechas
         });
-    
-        doc.save(`Resultados_Torneo_{{ torneo.nombre|upper }}.pdf`);
-    }
-    
+
+        y += 10;  // Espacio entre fechas
+    });
+
+    doc.save(`Resultados_Torneo_{{ torneo.nombre|upper }}.pdf`);
+}
+
     
     
 

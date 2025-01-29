@@ -626,3 +626,4 @@ def modificar_partido(request, partido_id):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
