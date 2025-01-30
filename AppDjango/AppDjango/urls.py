@@ -19,6 +19,7 @@ from django.urls import path
 from loginAdmin import views as loginadmin_views
 from torneo import views as torneo_views
 from jugador import views as jugador_views
+from torneo.views import listar_partidos  # ✅ Importa desde torneo, NO desde jugador
 
 
 
@@ -61,5 +62,6 @@ urlpatterns = [
     path('modificar_partido/<int:partido_id>/', torneo_views.modificar_partido, name='modificar_partido'),
     path('guardar_resultados/', torneo_views.guardar_resultados, name='guardar_resultados'),
     path('validar_partido_existente/<int:torneo_id>/', torneo_views.validar_partido_existente, name='validar_partido_existente'),
+    path('partidos/', listar_partidos, name='listar_partidos'),
 
 ]

@@ -17,6 +17,7 @@ from datetime import datetime, date, time
 from django.http import JsonResponse
 
 
+
 # NUEVO import para parsear fechas/horas
 from datetime import datetime, date, time
 
@@ -337,6 +338,7 @@ def guardar_resultados(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
+            print("📩 Datos recibidos en la API:", data)  # 👀 Depuración
 
             partido_id = data.get('partido_id')
             partido = Partido.objects.get(id=partido_id)
@@ -349,14 +351,32 @@ def guardar_resultados(request):
             resultado.set1_jugador2 = int(data.get('set1_jugador2') or 0)
             resultado.set2_jugador2 = int(data.get('set2_jugador2') or 0)
             resultado.set3_jugador2 = int(data.get('set3_jugador2') or 0)
-            resultado.ganador_jugador_id = data.get('ganador') or None
+            
+            ganador_dni = data.get('ganador_dni')
+
+            print(f"Ganador DNI recibido: {ganador_dni}")  # 👀 Depuración
+
+            if ganador_dni:
+                try:
+                    ganador_jugador = Jugador.objects.get(dni=int(ganador_dni))  # 🔹 Convertimos a entero
+                    resultado.ganador_jugador = ganador_jugador  # 🔹 Guardamos como objeto Jugador
+                    print(f"✅ Guardando ganador con DNI {ganador_dni}")
+                except Jugador.DoesNotExist:
+                    print(f"⚠ Jugador con DNI {ganador_dni} no encontrado.")
+                    resultado.ganador_jugador = None
+            else:
+                resultado.ganador_jugador = None
+                print("⚠ No se recibió un ganador válido.")
 
             resultado.save()
+            print("✅ Resultado guardado correctamente.")
 
             return JsonResponse({'success': True, 'message': 'Resultado guardado correctamente.'})
-        except ValueError:
-            return JsonResponse({'success': False, 'message': 'Error: Asegúrate de que todos los campos estén completos y sean numéricos.'})
+        except ValueError as e:
+            print(f"❌ Error de valor: {e}")  # 👀 Debugging
+            return JsonResponse({'success': False, 'message': 'Error en los datos numéricos.'})
         except Exception as e:
+            print(f"❌ Error inesperado: {e}")  # 👀 Debugging
             return JsonResponse({'success': False, 'message': str(e)})
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
 
@@ -460,15 +480,39 @@ def jornada_detalle(request, torneo_id, jornada):
         'partidos': partidos,
     })
 
-def listar_partidos(request, jornada):
-    partidos = Partido.objects.filter(jornada=jornada).order_by('fecha', 'hora')
-    partidos_list = list(partidos)
+def listar_partidos(request):
+    torneo_id = request.GET.get('torneo', '')  # Filtrar por torneo si se selecciona
+    dni = request.GET.get('jugador', '')  # Filtrar por jugador específico
+    search_fecha = request.GET.get('fecha', '')  # Filtrar por fecha
 
-    for idx, partido in enumerate(partidos_list, start=1):
-        partido.numero = idx  # Asigna un número consecutivo correctamente
+    # Obtener todos los partidos y aplicar filtros si existen
+    partidos = Partido.objects.all().select_related('jugador1', 'jugador2', 'torneo').order_by('-fecha', '-hora')
+
+    if torneo_id:
+        partidos = partidos.filter(torneo_id=torneo_id)
+
+    if dni:
+        partidos = partidos.filter(Q(jugador1__dni=dni) | Q(jugador2__dni=dni))
+
+    if search_fecha:
+        partidos = partidos.filter(fecha=search_fecha)
+
+    # Paginación (10 partidos por página)
+    paginator = Paginator(partidos, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    torneos = Torneo.objects.all()  # Obtener los torneos disponibles para el filtro
+
+    return render(request, 'listar_partidos.html', {
+        'page_obj': page_obj,
+        'torneos': torneos,
+        'torneo_id': torneo_id,
+        'search_fecha': search_fecha,
+        'dni': dni
+    })
     
-    return render(request, 'jornada_detalle.html', {'partidos': partidos_list, 'jornada': jornada})
-
+    
 @csrf_exempt
 def validar_partido_existente(request, torneo_id):
     if request.method == 'POST':
@@ -626,4 +670,6 @@ def modificar_partido(request, partido_id):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
+
 

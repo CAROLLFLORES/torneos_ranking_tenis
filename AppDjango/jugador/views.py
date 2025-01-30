@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Jugador,Categoria,JugadorCategoria
+from torneo.models import TorneoJugador, Partido, Torneo
 from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -80,8 +81,21 @@ def listado_jugadores(request):
 
 def datos_jugador(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
-    return render(request, 'datos_jugador.html', {'jugador': jugador})
 
+    # 🔹 Obtener los torneos en los que está inscrito el jugador
+    torneos = Torneo.objects.filter(torneo_jugadores__jugador=jugador).distinct()
+
+    # 🔹 Obtener los partidos en los que ha jugado el jugador
+    partidos = Partido.objects.filter(
+        (Q(jugador1=jugador) | Q(jugador2=jugador))
+    ).select_related('torneo').order_by('-fecha')
+
+    return render(request, 'datos_jugador.html', {
+        'jugador': jugador,
+        'torneos': torneos,
+        'partidos': partidos,
+    })
+    
 def busqueda_jugador(request):
     nombre = request.GET.get('nombre', '')
     apellido = request.GET.get('apellido', '')

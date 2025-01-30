@@ -812,7 +812,10 @@ header {
     /* Puedes añadir más estilos aquí según tus preferencias */
 }
 
+.datos{
+        margin: 100px;
 
+}
 .titulo-item {
     text-align: left; /* Alinear los títulos a la izquierda */
 }
@@ -896,7 +899,7 @@ header {
 }
 
 .nombre-jugador {
-    font-size: 30px; /* Ajusta el tamaño según sea necesario */
+    font-size: 40px; /* Ajusta el tamaño según sea necesario */
     color: white; /* Cambia el color a blanco */
     margin: -10px; /* Opcional: elimina márgenes si es necesario */
     text-align: left;

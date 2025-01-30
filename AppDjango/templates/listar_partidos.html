@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">📅 Historial de Partidos</h2>
+
+    <!-- FILTROS -->
+    <form method="GET" class="d-flex gap-2 mb-3">
+        <select name="torneo" class="form-control">
+            <option value="">🔍 Filtrar por Torneo</option>
+            {% for torneo in torneos %}
+                <option value="{{ torneo.id }}" {% if torneo.id|stringformat:"s" == torneo_id %}selected{% endif %}>
+                    {{ torneo.nombre }}
+                </option>
+            {% endfor %}
+        </select>
+        <input type="date" name="fecha" class="form-control" value="{{ search_fecha }}">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </form>
+
+    <!-- LISTA DE PARTIDOS -->
+    {% for partido in page_obj %}
+    <div class="card partido-card mb-3">
+        <div class="card-header bg-dark text-white">
+            🏆 <strong>{{ partido.torneo.nombre }}</strong> | 📅 {{ partido.fecha|date:"d/m/Y" }} | ⏰ {{ partido.hora|time:"H:i" }}
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col text-center">
+                    <h5>{{ partido.jugador1 }}</h5>
+                    <p class="score">
+                        {{ partido.resultado.set1_jugador1 }} - {{ partido.resultado.set1_jugador2 }}
+                        | {{ partido.resultado.set2_jugador1 }} - {{ partido.resultado.set2_jugador2 }}
+                        | {{ partido.resultado.set3_jugador1 }} - {{ partido.resultado.set3_jugador2 }}
+                    </p>
+                    <h5>{{ partido.jugador2 }}</h5>
+                </div>
+                <div class="col text-center">
+                    <p><strong>Cancha:</strong> {{ partido.cancha }}</p>
+                    <p class="ganador">
+                        🏅 <strong>Ganador:</strong>
+                        {% if partido.resultado.ganador_jugador %}
+                            {{ partido.resultado.ganador_jugador }}
+                        {% else %}
+                            - Sin definir -
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+        <p class="text-center text-muted">No hay partidos disponibles.</p>
+    {% endfor %}
+
+    <!-- PAGINACIÓN -->
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1">Primero</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+            {% endif %}
+
+            <li class="page-item active"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Último</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+<!-- ESTILOS CSS -->
+<style>
+    .partido-card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 10px;
+        background-color: #fff;
+    }
+    .score {
+        font-size: 18px;
+        font-weight: bold;
+        color: #444;
+    }
+    .ganador {
+        font-size: 16px;
+        color: green;
+        font-weight: bold;
+    }
+</style>
+
+{% endblock %}
