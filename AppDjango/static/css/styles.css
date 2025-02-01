@@ -63,6 +63,12 @@ h3{
     font-size: 15px;
 }
 
+.mas-chico{
+    font-size: 45px;
+    width: 100px !important;
+
+}
+
 h5{
     color: rgb(255, 255, 255);
     font-style: LIGHT;
@@ -559,8 +565,13 @@ header {
     margin: 0; /* Elimina márgenes si es necesario */
 }
 
+select.input-field {
+    min-width: 200px; /* Ajusta según el ancho deseado */
+    text-align: center; /* Centra el texto del option */
+}
+
 .input-field {
-    width: 70%;
+    width: 90%;
     padding: 10px;
     margin: 5px 0;
     border: 1px solid #ccc;
@@ -806,7 +817,10 @@ header {
     /* Puedes añadir más estilos aquí según tus preferencias */
 }
 
+.datos{
+        margin: 100px;
 
+}
 .titulo-item {
     text-align: left; /* Alinear los títulos a la izquierda */
 }
@@ -890,7 +904,7 @@ header {
 }
 
 .nombre-jugador {
-    font-size: 30px; /* Ajusta el tamaño según sea necesario */
+    font-size: 40px; /* Ajusta el tamaño según sea necesario */
     color: white; /* Cambia el color a blanco */
     margin: -10px; /* Opcional: elimina márgenes si es necesario */
     text-align: left;
@@ -1083,3 +1097,6 @@ table {
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+
+/*muestra los tornes que participa un jugador dentro de su ficha*/

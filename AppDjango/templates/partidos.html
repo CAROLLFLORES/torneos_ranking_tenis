@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Partidos del Torneo {{ torneo.nombre }}</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Jugador 1</th>
+            <th>Jugador 2</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Cancha</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for partido in partidos %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ partido.jugador1 }}</td>
+            <td>{{ partido.jugador2 }}</td>
+            <td>{{ partido.fecha|date:"d/m/Y" }}</td>
+            <td>{{ partido.hora|time:"H:i" }}</td>
+            <td>{{ partido.cancha }}</td>
+            <td>{% if partido.resultado %} Terminado {% else %} Pendiente {% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">No hay partidos programados.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'admin_menu' %}"><button>Volver al Menú</button></a>
+{% endblock %}

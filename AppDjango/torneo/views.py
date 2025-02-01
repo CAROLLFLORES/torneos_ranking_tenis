@@ -14,6 +14,14 @@ from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 import json
 from datetime import datetime, date, time
+from django.http import JsonResponse
+from torneo.models import Partido, HistorialJornada, Torneo
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from ranking.models import Ranking
+
+
+
 
 # NUEVO import para parsear fechas/horas
 from datetime import datetime, date, time
@@ -325,7 +333,57 @@ def guardar_fecha(request, torneo_id):
 
     return redirect('partido_single', torneo_id=torneo.id)
 
+#esto agregrue para el guardado de resultaultado por partidofrom django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .models import Partido, ResultadoPartido
 
+@csrf_exempt
+def guardar_resultados(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            print("📩 Datos recibidos en la API:", data)  # 👀 Depuración
+
+            partido_id = data.get('partido_id')
+            partido = Partido.objects.get(id=partido_id)
+
+            resultado, created = ResultadoPartido.objects.get_or_create(partido=partido)
+
+            resultado.set1_jugador1 = int(data.get('set1_jugador1') or 0)
+            resultado.set2_jugador1 = int(data.get('set2_jugador1') or 0)
+            resultado.set3_jugador1 = int(data.get('set3_jugador1') or 0)
+            resultado.set1_jugador2 = int(data.get('set1_jugador2') or 0)
+            resultado.set2_jugador2 = int(data.get('set2_jugador2') or 0)
+            resultado.set3_jugador2 = int(data.get('set3_jugador2') or 0)
+            
+            ganador_dni = data.get('ganador_dni')
+
+            print(f"Ganador DNI recibido: {ganador_dni}")  # 👀 Depuración
+
+            if ganador_dni:
+                try:
+                    ganador_jugador = Jugador.objects.get(dni=int(ganador_dni))  # 🔹 Convertimos a entero
+                    resultado.ganador_jugador = ganador_jugador  # 🔹 Guardamos como objeto Jugador
+                    print(f"✅ Guardando ganador con DNI {ganador_dni}")
+                except Jugador.DoesNotExist:
+                    print(f"⚠ Jugador con DNI {ganador_dni} no encontrado.")
+                    resultado.ganador_jugador = None
+            else:
+                resultado.ganador_jugador = None
+                print("⚠ No se recibió un ganador válido.")
+
+            resultado.save()
+            print("✅ Resultado guardado correctamente.")
+
+            return JsonResponse({'success': True, 'message': 'Resultado guardado correctamente.'})
+        except ValueError as e:
+            print(f"❌ Error de valor: {e}")  # 👀 Debugging
+            return JsonResponse({'success': False, 'message': 'Error en los datos numéricos.'})
+        except Exception as e:
+            print(f"❌ Error inesperado: {e}")  # 👀 Debugging
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
 
 
 def partido_single(request, torneo_id):
@@ -427,73 +485,122 @@ def jornada_detalle(request, torneo_id, jornada):
         'partidos': partidos,
     })
 
-def listar_partidos(request, jornada):
-    partidos = Partido.objects.filter(jornada=jornada).order_by('fecha', 'hora')
-    partidos_list = list(partidos)
+def listar_partidos(request):
+    torneo_id = request.GET.get('torneo')
+    jugador_id = request.GET.get('jugador')
+    search_fecha = request.GET.get('fecha')
 
-    for idx, partido in enumerate(partidos_list, start=1):
-        partido.numero = idx  # Asigna un número consecutivo correctamente
+    partidos = Partido.objects.all().order_by('-jornada')  # Ordenar por jornada
+
+    if torneo_id:
+        partidos = partidos.filter(torneo_id=torneo_id)
     
-    return render(request, 'jornada_detalle.html', {'partidos': partidos_list, 'jornada': jornada})
+    if jugador_id:
+        partidos = partidos.filter(jugador1_id=jugador_id) | partidos.filter(jugador2_id=jugador_id)
 
+    if search_fecha:
+        partidos = partidos.filter(fecha=search_fecha)
 
+    context = {
+        'page_obj': partidos,
+        'torneos': Torneo.objects.all(),
+        'torneo_id': torneo_id,
+        'jugador_id': jugador_id,
+        'search_fecha': search_fecha,
+    }
 
+    return render(request, 'listar_partidos.html', context)
+
+    
 @csrf_exempt
-def validar_partido(request, torneo_id):
+def validar_partido_existente(request, torneo_id):
     if request.method == 'POST':
-        torneo = get_object_or_404(Torneo, id=torneo_id)
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body)
+            jugador1_id = data.get('jugador1')
+            jugador2_id = data.get('jugador2')
+            fecha = data.get('fecha')
+            hora = data.get('hora')
+            cancha = data.get('cancha')
 
-        jugador1 = data.get('jugador1')
-        jugador2 = data.get('jugador2')
-        fecha_str = data.get('fecha')
-        hora_str = data.get('hora')
-        cancha_id = data.get('cancha')
+            if not jugador1_id or not jugador2_id:
+                return JsonResponse({'success': False, 'message': 'Faltan jugadores.'}, status=400)
 
-        errors = []
+            ya_existe = Partido.objects.filter(
+                torneo_id=torneo_id
+            ).filter(
+                Q(jugador1_id=jugador1_id, jugador2_id=jugador2_id) |
+                Q(jugador1_id=jugador2_id, jugador2_id=jugador1_id)
+            ).exists()
+
+            if ya_existe:
+                return JsonResponse({'success': False, 'message': 'Estos jugadores ya han jugado en este torneo.'})
+            
+            return JsonResponse({'success': True, 'message': 'El partido es válido.'})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Error en el formato de los datos.'}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+    return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
+#@csrf_exempt
+#def validar_partido(request, torneo_id):
+    #if request.method == 'POST':
+       # torneo = get_object_or_404(Torneo, id=torneo_id)
+      #  data = json.loads(request.body)
+
+      #  jugador1 = data.get('jugador1')
+       # jugador2 = data.get('jugador2')
+        #fecha_str = data.get('fecha')
+        #hora_str = data.get('hora')
+        #cancha_id = data.get('cancha')
+
+        #errors = []
 
         # Parse de fecha
-        try:
-            fecha_obj = date.fromisoformat(fecha_str)
-        except ValueError:
+        #try:
+           # fecha_obj = date.fromisoformat(fecha_str)
+        #except ValueError:
             # fallback dd/mm/yyyy
-            try:
-                day, month, year = fecha_str.split('/')
-                fecha_obj = date(int(year), int(month), int(day))
-            except:
-                errors.append(f"Fecha '{fecha_str}' inválida. Usa YYYY-MM-DD o DD/MM/YYYY")
+            #try:
+                #day, month, year = fecha_str.split('/')
+                #fecha_obj = date(int(year), int(month), int(day))
+            #except:
+               # errors.append(f"Fecha '{fecha_str}' inválida. Usa YYYY-MM-DD o DD/MM/YYYY")
 
         # Parse de hora
-        if not errors:
-            try:
-                hora_obj = datetime.strptime(hora_str, '%H:%M').time()
-            except ValueError:
-                errors.append(f"La hora '{hora_str}' no es válida. Usa HH:MM 24h.")
+        #if not errors:
+            #try:
+               # hora_obj = datetime.strptime(hora_str, '%H:%M').time()
+            #except ValueError:
+                #errors.append(f"La hora '{hora_str}' no es válida. Usa HH:MM 24h.")
 
         # Validaciones si no hay errores de parsing
-        if not errors:
-            if Partido.objects.filter(
-                torneo=torneo
-            ).filter(
-                Q(jugador1_id=jugador1, jugador2_id=jugador2) |
-                Q(jugador1_id=jugador2, jugador2_id=jugador1)
-            ).exists():
-                errors.append("Los jugadores seleccionados ya jugaron entre sí en este torneo.")
+        #if not errors:
+            #if Partido.objects.filter(
+             #   torneo=torneo
+           # ).filter(
+             #   Q(jugador1_id=jugador1, jugador2_id=jugador2) |
+              #  Q(jugador1_id=jugador2, jugador2_id=jugador1)
+           # ).exists():
+              #  errors.append("Los jugadores seleccionados ya jugaron entre sí en este torneo.")
 
-            if Partido.objects.filter(
-                torneo=torneo,
-                fecha=fecha_obj,
-                hora=hora_obj,
-                cancha_id=cancha_id
-            ).exists():
-                errors.append(f"Ya existe un partido en {fecha_str} {hora_str} - Cancha {cancha_id}.")
+           # if Partido.objects.filter(
+               # torneo=torneo,
+              #  fecha=fecha_obj,
+              #  hora=hora_obj,
+              #  cancha_id=cancha_id
+            #).exists():
+               # errors.append(f"Ya existe un partido en {fecha_str} {hora_str} - Cancha {cancha_id}.")
 
-        if errors:
-            return JsonResponse({'errors': errors}, status=400)
-        else:
-            return JsonResponse({'message': 'Validación exitosa'}, status=200)
+       # if errors:
+          #  return JsonResponse({'errors': errors}, status=400)
+       # else:
+           # return JsonResponse({'message': 'Validación exitosa'}, status=200)
 
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
+   # return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
 def tiene_categoria_doble(self):
@@ -538,16 +645,148 @@ def eliminar_partido(request, partido_id):
 @csrf_exempt
 def modificar_partido(request, partido_id):
     if request.method == 'POST':
-        partido = get_object_or_404(Partido, id=partido_id)
         try:
             data = json.loads(request.body)
-            partido.jugador1 = Jugador.objects.get(nombre=data['jugador1'])
-            partido.jugador2 = Jugador.objects.get(nombre=data['jugador2'])
+            partido = Partido.objects.get(id=partido_id)
+
             partido.fecha = data['fecha']
             partido.hora = data['hora']
-            partido.cancha = Cancha.objects.get(cancha=data['cancha'])
             partido.save()
+
+            resultado, created = ResultadoPartido.objects.get_or_create(partido=partido)
+            resultado.set1_jugador1 = data.get('set1_jugador1', 0)
+            resultado.set2_jugador1 = data.get('set2_jugador1', 0)
+            resultado.set3_jugador1 = data.get('set3_jugador1', 0)
+            resultado.set1_jugador2 = data.get('set1_jugador2', 0)
+            resultado.set2_jugador2 = data.get('set2_jugador2', 0)
+            resultado.set3_jugador2 = data.get('set3_jugador2', 0)
+            resultado.ganador_jugador_id = data.get('ganador', None)
+
+            resultado.save()
+
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
+    
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
+
+
+
+@receiver(post_save, sender=Partido)
+def actualizar_ranking(sender, instance, **kwargs):
+    """ Actualiza el ranking cuando se guarda un partido con resultado """
+
+    # Verificamos que el partido tenga un ganador guardado
+    if instance.ganador and instance.perdedor:
+        torneo = instance.torneo
+        categoria = instance.categoria
+        ganador = instance.ganador  # 🔥 Ya lo tienes guardado
+        perdedor = instance.perdedor  # 🔥 Ya lo tienes guardado
+
+        # 🔥 ACTUALIZAR RANKING DEL GANADOR 🔥
+        ranking_ganador, created = Ranking.objects.get_or_create(
+            jugador=ganador,
+            torneo=torneo,
+            categoria=categoria,
+            defaults={"posicion": 0, "pj": 0, "pg": 0, "puntaje_total": 0}
+        )
+        ranking_ganador.pj += 1
+        ranking_ganador.pg += 1
+        ranking_ganador.puntaje_total += 100  # ✅ SUMA 100 PUNTOS
+        ranking_ganador.save()
+
+        # 🔥 ACTUALIZAR RANKING DEL PERDEDOR 🔥
+        ranking_perdedor, created = Ranking.objects.get_or_create(
+            jugador=perdedor,
+            torneo=torneo,
+            categoria=categoria,
+            defaults={"posicion": 0, "pj": 0, "pg": 0, "puntaje_total": 0}
+        )
+        ranking_perdedor.pj += 1
+        ranking_perdedor.puntaje_total -= 50  # ❌ RESTA 50 PUNTOS
+        ranking_perdedor.save()
+
+        print(f"🏆 Ranking de {torneo.nombre} actualizado: {ganador.nombre} (+100) | {perdedor.nombre} (-50)")
+
+
+def vista_partidos(request, torneo_id):
+    torneo = Torneo.objects.get(id=torneo_id)
+    partidos = Partido.objects.filter(torneo=torneo)  # Solo los partidos no terminados
+
+    return render(request, 'partidos.html', {"torneo": torneo, "partidos": partidos})
+
+
+def guardar_jornada(request, torneo_id):
+    """ Guarda todos los partidos de un torneo en el historial de jornada y los elimina de la vista actual """
+    
+    if request.method == "POST":
+        try:
+            torneo = Torneo.objects.get(id=torneo_id)
+            partidos = Partido.objects.filter(torneo=torneo)
+
+            if not partidos.exists():
+                return JsonResponse({"success": False, "message": "No hay partidos para guardar."})
+
+            # 🔥 Crear una nueva jornada en el historial
+            jornada = HistorialJornada.objects.create(torneo=torneo, fecha=date.today())
+            jornada.partidos.set(partidos)  # Asociar los partidos terminados
+            jornada.save()
+
+            # 🔥 Eliminar los partidos de la vista principal
+            partidos.delete()
+
+            return JsonResponse({"success": True, "message": "Jornada guardada y eliminada correctamente."})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+
+    return JsonResponse({"success": False, "message": "Método no permitido."})
+
+from .models import HistorialJornada
+
+def historial_jornada(request):
+    # Asegurar que los partidos están bien relacionados
+    jornadas = HistorialJornada.objects.prefetch_related('partidos__jugador1', 'partidos__jugador2', 'partidos__cancha')
+
+    # Debug: Mostrar en la consola qué se está trayendo
+    for jornada in jornadas:
+        print(f"📅 Jornada {jornada.fecha} - Torneo: {jornada.torneo.nombre}")
+        print(f"📝 Número de partidos en la jornada: {jornada.partidos.count()}")
+
+    return render(request, 'historial_jornada.html', {"jornadas": jornadas})
+
+#filtrar por jugador los partidos 
+from django.shortcuts import render
+from .models import Partido, Torneo, Jugador
+from django.core.paginator import Paginator
+
+def historial_partidos(request):
+    torneo_id = request.GET.get('torneo')
+    jugador_id = request.GET.get('jugador')
+    search_fecha = request.GET.get('fecha')
+
+    partidos = Partido.objects.all()
+
+    if torneo_id:
+        partidos = partidos.filter(torneo_id=torneo_id)
+    
+    if jugador_id:
+        partidos = partidos.filter(jugador1_id=jugador_id) | partidos.filter(jugador2_id=jugador_id)
+
+    if search_fecha:
+        partidos = partidos.filter(fecha=search_fecha)
+
+    paginator = Paginator(partidos, 10)  # 10 partidos por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'torneos': Torneo.objects.all(),
+        'jugadores': Jugador.objects.all(),
+        'page_obj': page_obj,
+        'torneo_id': torneo_id,
+        'jugador_id': jugador_id,
+        'search_fecha': search_fecha,
+    }
+    
+    return render(request, 'historial_partidos.html', context)

@@ -1,0 +1,301 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block body_class %}fondo-secundario{% endblock %}
+<!-- jQuery (Obligatorio para Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+{% block content %}
+
+<div class="container-admin">
+    <div class="text-section">
+        <hr class="separator-line">
+        <h2>HISTORIAL PARTIDOS</h2>
+    </div>
+    <div class="text-section">
+        <hr class="separator-line">
+        <h5>TORNEO</h5>
+    </div>
+  
+
+    <div class="form-container">
+        <div class="narrow-box">
+            <div class="title-orange-gris">
+                <h1>HISTORIAL DE PARTIDOS</h1>
+                <h3 class="negro chico">FILTRAR</h3>
+            </div>
+
+            <!-- Botones de navegación -->
+            <a href="{% url 'admin_menu' %}">
+                <button class="login-button peque">MENU</button>
+            </a>
+            <a href="{% url 'listar_partidos' %}">
+                <button class="login-button chico">Listado Completo</button>
+            </a>
+            <hr class="separator">
+
+            <!-- FILTRO POR TORNEO -->
+            <h3 class="negro">FILTRAR POR TORNEO</h3>
+            <form method="GET" action="{% url 'listar_partidos' %}" class="d-flex align-items-center mb-3">
+                <select name="torneo" class="input-field me-2">
+                    <option class="negro" value="">Seleccionar Torneo</option>
+                    {% for torneo in torneos %}
+                        <option value="{{ torneo.id }}" {% if torneo.id|stringformat:"s" == torneo_id %}selected{% endif %}>
+                            {{ torneo.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
+            </form>
+            <hr class="separator">
+
+            <!-- FILTRO POR JUGADOR -->
+            <h3 class="negro">FILTRAR POR JUGADOR</h3>
+            <form method="GET" action="{% url 'listar_partidos' %}" class="d-flex align-items-center mb-3">
+                <select name="jugador" id="jugador-select" class="select2 form-control me-2">
+                    <option value="">🎾 Buscar Jugador</option>
+                    {% for jugador in jugadores %}
+                        <option value="{{ jugador.id }}">{{ jugador.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
+            </form>
+
+
+            
+            <hr class="separator">
+
+            <!-- FILTRO POR FECHA -->
+            <h3 class="negro">FILTRAR POR FECHA</h3>
+            <form method="GET" action="{% url 'listar_partidos' %}" class="d-flex align-items-center mb-3">
+                <input class="input-field me-2" type="date" name="fecha" value="{{ search_fecha }}">
+                <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
+            </form>
+            <hr class="separator">
+
+            <!-- Botones adicionales -->
+            <div class="buttons-container">
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button-gris chico">IMPRIMIR</button>
+                </a>
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button-gris chico">PDF</button>
+                </a>
+            </div>
+        </div>
+    </div>
+  
+    <!-- LISTA DE PARTIDOS -->
+    <div class="grid-container">
+        {% for partido in page_obj %}
+        <div class="card partido-card">
+            <div class="card-header">
+                <p class="torneo-nombre">🏆 <strong>{{ partido.torneo.nombre }}</strong></p>
+
+            <!-- Contenedor para alinear Fecha y Hora en la misma línea -->
+            <div class="fecha-hora">
+                <span class="fecha"> <strong>{{ partido.fecha|date:"d/m/Y" }}</strong></span>
+                <span class="hora"><strong>{{ partido.hora|time:"H:i" }}</strong></span>
+            </div>
+
+            <p class="jornada"><strong>Jornada: {{ partido.jornada }}</strong></p>
+            </div>
+            <div class="card-body">
+                <table class="resultado-tabla">
+                    <tbody>
+                        <!-- Jugador 1 -->
+                        <tr class="{% if partido.resultado.ganador_jugador == partido.jugador1 %} ganador {% endif %}">
+                            <td class="jugador-nombre">{{ partido.jugador1 }}</td>
+                            <td class="puntaje">{{ partido.resultado.set1_jugador1 }}</td>
+                            <td class="puntaje">{{ partido.resultado.set2_jugador1 }}</td>
+                            <td class="puntaje">{{ partido.resultado.set3_jugador1 }}</td>
+                        </tr>
+                        <!-- Jugador 2 -->
+                        <tr class="{% if partido.resultado.ganador_jugador == partido.jugador2 %} ganador {% endif %}">
+                            <td class="jugador-nombre">{{ partido.jugador2 }}</td>
+                            <td class="puntaje">{{ partido.resultado.set1_jugador2 }}</td>
+                            <td class="puntaje">{{ partido.resultado.set2_jugador2 }}</td>
+                            <td class="puntaje">{{ partido.resultado.set3_jugador2 }}</td>
+                        </tr>
+                        
+                    </tbody>
+                    
+                </table>
+                <div class="col text-center">
+                    <p><strong>Cancha:</strong> {{ partido.cancha }}</p>
+                    <p class="ganador">
+                        🏅 <strong>Ganador:</strong>
+                        {% if partido.resultado.ganador_jugador %}
+                            {{ partido.resultado.ganador_jugador }}
+                        {% else %}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <H2 class="text-center text-muted">NO HAY PARTIDOS JUGADOS</H2>
+        {% endfor %}
+    </div>
+    
+
+
+    <!-- PAGINACIÓN -->
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1">Primero</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+            {% endif %}
+
+            <li class="page-item active"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Último</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+<!-- ESTILOS CSS -->
+<style>
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3 columnas */
+        gap: 20px; /* Espaciado entre tarjetas */
+        align-items: start; /* Asegura que empiecen alineados */
+        margin-left: 270px; /* Ajustar al mismo nivel que el menú de la izquierda */
+        margin-top: -850px; /* Ajusta la altura para alinearlo con el menú izquierdo */
+        padding-top: 20px; /* Pequeño margen para separación */
+        
+    }
+    
+    .card-header {
+        display: flex;
+        flex-direction: column; /* Acomoda en columna */
+        background-color: rgba(102, 100, 100, 0.5); /* Fondo oscuro semi-transparente */
+        color: white;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+    }
+    
+    .card-header p {
+        margin: 5px 0;
+    }
+    
+    /* Alinea Fecha y Hora en la misma línea */
+    .fecha-hora {
+        display: flex;
+        justify-content: center; /* Centra los elementos */
+        gap: 15px; /* Espaciado entre fecha y hora */
+        margin-top: 5px;
+    }
+    
+    .resultado-tabla {
+        width: 100%;
+        text-align: center;
+        border-collapse: collapse;
+        margin-top: 5px;
+    }
+    .partido-card {
+        border: 1px solid #ddd;
+        border-radius: 15px;
+        background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
+        color: white;
+        padding: 10px;
+        width: 100%;
+        gap: 5px;
+    }
+    
+    .container{
+        background: transparent;
+        padding:20px;
+        gap:5PX;
+    }
+    
+    .score {
+        font-size: 18px;
+        font-weight: bold;
+        color: #444;
+    }
+    .ganador {
+        background-color: rgba(255, 215, 0, 0.8); /* Amarillo dorado */
+        color: black;
+        font-weight: bold;
+    }
+
+    .resultado-tabla td {
+        padding: 5px;
+        font-size: 16px;
+    }
+    
+    .jugador-nombre {
+        text-align: left;
+        font-weight: bold;
+    }
+    
+    .puntaje {
+        text-align: center;
+        width: 30px;
+    }
+
+    .torneos-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;  /* Espaciado entre tarjetas */
+        justify-content: center; /* Centra las tarjetas */
+    }
+
+    .torneo-card {
+        width: 250px;  /* Tamaño fijo en ancho (ajústalo según necesidad) */
+        height: 150px; /* Tamaño fijo en alto */
+        background-color: #fff; /* Fondo blanco */
+        border-radius: 10px; /* Bordes redondeados */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra */
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between; /* Asegura que el contenido se distribuya */
+        align-items: center;
+        text-align: center;
+    }
+
+    .info-header {
+        background-color: black;
+        color: white;
+        padding: 10px;
+        width: 100%;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .match {
+        width: 100%;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+</style>
+<script>
+    $(document).ready(function() {
+        $('#jugador-select').select2({
+            width: '100%',  // Asegura que el select ocupe el ancho completo
+            placeholder: "🎾 Buscar Jugador",
+            allowClear: true,
+            minimumInputLength: 1  // Activa la búsqueda solo si se ingresa al menos 1 carácter
+        });
+    });
+</script>
+
+
+
+
+{% endblock %}

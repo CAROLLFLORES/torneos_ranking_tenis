@@ -1,7 +1,9 @@
+<!-- guardar jornada completa no esta funcionando por eso saque el id -->
 {% extends "layout.html" %}
 {% load static %}
 
 {% block body_class %}fondo-secundario{% endblock %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 {% block content %}
 <div class="container-admin">
@@ -23,9 +25,10 @@
                     <th >Jugadores</th>
                     <th >Set 1</th>
                     <th >Set 2</th>
-                    <th >Set 3</th>
-                    <th>Ganador</th>
+                    <th >Set 3</th> 
                     <th>Modificar</th>
+                    <th></th>   
+                    <th>Ganador</th>                                  
                     <th>Eliminar</th>
                 </tr>
             </thead>
@@ -33,64 +36,99 @@
                 {% for partido in partidos %}
                 <tr>
                     <td rowspan="2" class="partido-numero">{{ partido.numero }}</td>
-                    <td rowspan="2"><input type="text" class="form-control" value="{{ partido.cancha }}" id="cancha-{{ partido.id }}" disabled></td>
-                    <td rowspan="2"><input type="date" class="form-control" value="{{ partido.fecha|date:'Y-m-d' }}" id="fecha-{{ partido.id }}" disabled></td>
-                    <td rowspan="2"><input type="time" class="form-control" value="{{ partido.hora|time:'H:i' }}" id="hora-{{ partido.id }}" disabled></td>
-                    <td><input type="text" class="form-control" value="{{ partido.jugador1 }}" id="jugador1-{{ partido.id }}" disabled></td>
-                    <td><input type="number" class="form-control" value="{{ partido.resultado.set1_jugador1 }}" id="set1-jugador1-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" class="form-control" value="{{ partido.resultado.set2_jugador1}}" id="set2-jugador1-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" class="form-control" value="{{ partido.resultado.set3_jugador1}}" id="set3-jugador1-{{ partido.id }}" min="0" disabled></td>
+                    <td rowspan="2"><input type="text" class="form-control hora" value="{{ partido.cancha }}" id="cancha-{{ partido.id }}" disabled></td>
+                    <td rowspan="2"><input type="date" class="form-control hora" value="{{ partido.fecha|date:'Y-m-d' }}" id="fecha-{{ partido.id }}" disabled></td>
+                    <td rowspan="2"><input type="time" class="form-control hora" value="{{ partido.hora|time:'H:i' }}" id="hora-{{ partido.id }}" disabled></td>
+                    <td><input type="text" class="form-control" value="{{ partido.jugador1 }}" data-dni="{{ partido.jugador1.dni }}" id="jugador1-{{ partido.id }}" disabled></td>
+                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set1_jugador1 }}" id="set1-jugador1-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set2_jugador1}}" id="set2-jugador1-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set3_jugador1}}" id="set3-jugador1-{{ partido.id }}" min="0" disabled></td>
                     <td rowspan="2">
-                        <select class="form-control" id="ganador-{{ partido.id }}" disabled>
-                            <option value="{{ partido.jugador1.id }}" {% if partido.resultado.ganador_jugador == partido.jugador1 %}selected{% endif %}>{{ partido.jugador1 }}</option>
-                            <option value="{{ partido.jugador2.id }}" {% if partido.resultado.ganador_jugador == partido.jugador2 %}selected{% endif %}>{{ partido.jugador2 }}</option>
-                        </select>
-                    </td>
-                    <td rowspan="2">
-                        <button type="button" class="btn btn-warning btn-sm" onclick="habilitarEdicion({{ partido.id }})">Modificar</button>
-                    </td>
-                    <td rowspan="2">
-                        <button type="button" class="btn btn-danger btn-sm" onclick="mostrarModalEliminar({{ partido.id }})">
-                            <i class="bi bi-trash-fill"></i>
+                        <button type="button" class="btn btn-primary" onclick="habilitarEdicion({{ partido.id }})">
+                            <i class="bi bi-pencil-square"></i>
                         </button>
+                    </td>
+                    <td rowspan="2">
+                        <button type="button" class="login-button mas-chico " onclick="guardarPartido({{ partido.id }})">Guardar</button>
+                    </td>
+                    
+
+
+                    <td rowspan="2">
+                        <input type="text" class="form-control" id="ganador-{{ partido.id }}" value="{% if partido.resultado.ganador_jugador %}{{ partido.resultado.ganador_jugador }}{% endif %}" readonly>
+                    </td>
+                    
+                    
+                    
+                    
+                    <td rowspan="2">
+                        <button class="btn btn-primary" onclick="mostrarModalEliminar({{ partido.id }})">
+                            <i class="bi bi-trash-fill btn-danger"></i>                        </button>
                     </td>
                 </tr>
                 <tr>
-                    <td><input type="text" class="form-control" value="{{ partido.jugador2 }}" id="jugador2-{{ partido.id }}" disabled></td>
-                    <td><input type="number" class="form-control" value="{{ partido.resultado.set1_jugador2 }}" id="set1-jugador2-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" class="form-control" value="{{ partido.resultado.set2_jugador2 }}" id="set2-jugador2-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" class="form-control" value="{{ partido.resultado.set3_jugador2 }}" id="set3-jugador2-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="text" class="form-control" value="{{ partido.jugador2 }}" data-dni="{{ partido.jugador2.dni }}" id="jugador2-{{ partido.id }}" disabled></td>
+                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set1_jugador2 }}" id="set1-jugador2-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set2_jugador2 }}" id="set2-jugador2-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set3_jugador2 }}" id="set3-jugador2-{{ partido.id }}" min="0" disabled></td>
                 </tr>
+                
                 {% endfor %}
             </tbody>
     </div>
 
     <div class="text-center mt-3">
-        <button type="button" class="btn btn-success btn-lg" onclick="guardarTodosCambios()">Guardar</button>
-        <button type="button" class="btn btn-primary btn-lg" onclick="imprimirPagina()">Imprimir</button>
+        <button type="button" class="login-button btn btn-success btn-lg" onclick="">
+            Guardar Jornada Terminada
+        <button type="button" class="btn btn-danger btn-lg">
+            <i class="bi bi-file-earmark-pdf"></i> PDF
+        </button>
+            
+         
+        <a href="{% url 'admin_menu' %}">
+            <button class="login-button peque">MENU</button>
+        </a>
     </div>
+        
+    
 </div>
 
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <h4>Confirmar Eliminación</h4>
-        <p>¿Estás seguro de que deseas eliminar este partido?</p>
-        <input type="hidden" id="partidoIdToDelete">
-        <div class="modal-buttons">
-            <button id="confirmDeleteButton" class="button-delete">Eliminar</button>
-            <button id="cancelDeleteButton" class="button-close">Cancelar</button>
+<div id="deleteModal" class="modal fade" >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 >Confirmar Eliminación</h4>
+                <p>¿Estás seguro de que deseas eliminar este partido?</p>
+                <input type="hidden" id="partidoIdToDelete">
+                <div class="modal-buttons">
+                    <button id="confirmDeleteButton" class="button-delete">Eliminar</button>
+                    <button id="cancelDeleteButton" class="button-close">Cancelar</button>
+                </div>
+                
+            </div>
         </div>
     </div>
 </div>
 
 <style>
+    .hora{
+        width: 70px;
+        text-align: center;
+        border: none;
+        background: none;
+    }
+    
+    .set-input {
+        width: 30px;
+        text-align: center;
+    }
+
     table th, table td {
         color: black;
     }
 
     input[type="number"], select {
         color: black;
-        background-color: white;
     }
 
     input[type="number"]:focus, select:focus {
@@ -156,8 +194,101 @@
         padding: 5px 10px;
     }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
+
+    async function generarPDF() {
+    const { jsPDF } = window.jspdf;
+    let doc = new jsPDF('p', 'mm', 'a4');
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text(`Torneo: {{ torneo.nombre|upper }}`, 70, 20);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+
+    let partidosPorFecha = {};
+    document.querySelectorAll("tbody tr:nth-child(odd)").forEach(row => {
+        let fechaInput = row.querySelector(`[id^='fecha']`);
+        let fecha = fechaInput ? fechaInput.value : "Fecha desconocida";
+
+        if (!partidosPorFecha[fecha]) {
+            partidosPorFecha[fecha] = [];
+        }
+        partidosPorFecha[fecha].push(row);
+    });
+
+    let y = 50;
+
+    Object.keys(partidosPorFecha).sort().forEach(fecha => {
+        doc.setFont("helvetica", "bold");
+        doc.text(`Fecha: ${fecha}`, 20, y);
+        y += 10;
+
+         // **Cabecera con líneas separadoras**
+        doc.setFontSize(12);
+        doc.setLineWidth(0.1);  // 🔹 **LÍNEA MÁS FINA**
+        doc.line(15, y + 2, 195, y + 2); // Línea horizontal debajo del título
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Partido°", 20, y);
+        doc.text("Jugador 1", 40, y);
+        doc.text("Jugador 2", 80, y);
+        doc.text("Set 1", 120, y);
+        doc.text("Set 2", 140, y);
+        doc.text("Set 3", 160, y);
+        doc.text("Ganador", 180, y);
+        y += 8;
+
+        partidosPorFecha[fecha].forEach(row => {
+            let partido = row.querySelector(".partido-numero")?.textContent.trim() || "-";
+            let jugador1 = row.querySelector(`[id^='jugador1']`)?.value || "-";
+            let jugador2 = row.nextElementSibling?.querySelector(`[id^='jugador2']`)?.value || "-";
+
+            let set1_j1 = row.querySelector(`[id^='set1-jugador1']`)?.value || '0';
+            let set2_j1 = row.querySelector(`[id^='set2-jugador1']`)?.value || '0';
+            let set3_j1 = row.querySelector(`[id^='set3-jugador1']`)?.value || '0';
+
+            let set1_j2 = row.nextElementSibling?.querySelector(`[id^='set1-jugador2']`)?.value || '0';
+            let set2_j2 = row.nextElementSibling?.querySelector(`[id^='set2-jugador2']`)?.value || '0';
+            let set3_j2 = row.nextElementSibling?.querySelector(`[id^='set3-jugador2']`)?.value || '0';
+
+            let ganador = row.querySelector(`[id^='ganador']`)?.value || "-";
+
+            doc.text(partido, 20, y);
+            doc.text(jugador1, 40, y);
+            doc.text(jugador2, 80, y);
+            doc.text(`${set1_j1} - ${set1_j2}`, 120, y);
+            doc.text(`${set2_j1} - ${set2_j2}`, 140, y);
+            doc.text(`${set3_j1} - ${set3_j2}`, 160, y);
+            doc.text(ganador, 180, y);
+            y += 8;
+        });
+
+        y += 10;  // Espacio entre fechas
+    });
+
+    doc.save(`Resultados_Torneo_{{ torneo.nombre|upper }}.pdf`);
+}
+
+    
+    
+
+    //da color a las filas distintas
+    document.addEventListener("DOMContentLoaded", function() {
+        let filas = document.querySelectorAll("tbody tr");
+
+        filas.forEach((fila, index) => {
+            if (index % 4 === 0 || index % 4 === 1) {
+                fila.style.backgroundColor = "#f2f2f2";  // Color gris claro
+            } else {
+                fila.style.backgroundColor = "#ffffff";  // Color blanco
+            }
+        });
+    });
     function mostrarModalEliminar(partidoId) {
         document.getElementById('deleteModal').style.display = 'block';
         document.getElementById('partidoIdToDelete').value = partidoId;
@@ -207,13 +338,31 @@
         document.getElementById(`set3-jugador2-${partidoId}`).disabled = false;
     }
 
-    function guardarTodosCambios() {
-        alert('Todos los cambios han sido guardados exitosamente.');
-    }
+    //esto es cuando termina la jornada y guarda para pasar a historial//
 
-    function imprimirPagina() {
-        window.print();
+    function guardarTodosCambios() {
+        if (!confirm("¿Estás seguro de que deseas guardar la jornada terminada?")) return;
+    
+        fetch("/guardar_jornada/{{ torneo.id }}/", {
+            method: "POST",
+            headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/json" },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("✅ Jornada guardada correctamente.");
+                location.reload(); // Refrescar para actualizar la vista
+            } else {
+                alert("❌ Error: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("❌ Error en la solicitud:", error);
+            alert("❌ Hubo un problema al guardar.");
+        });
     }
+    
+    
 
     document.addEventListener("DOMContentLoaded", function() {
         renumerarPartidos();
@@ -263,6 +412,109 @@
 
     rows.forEach(row => table.appendChild(row));
 });
+
+//agregado para guardar partido
+function guardarPartido(partidoId) {
+    let set1Jugador1 = document.getElementById(`set1-jugador1-${partidoId}`).value.trim() || "0";
+    let set2Jugador1 = document.getElementById(`set2-jugador1-${partidoId}`).value.trim() || "0";
+    let set3Jugador1 = document.getElementById(`set3-jugador1-${partidoId}`).value.trim() || "0";
+    let set1Jugador2 = document.getElementById(`set1-jugador2-${partidoId}`).value.trim() || "0";
+    let set2Jugador2 = document.getElementById(`set2-jugador2-${partidoId}`).value.trim() || "0";
+    let set3Jugador2 = document.getElementById(`set3-jugador2-${partidoId}`).value.trim() || "0";
+
+    let ganadorInput = document.getElementById(`ganador-${partidoId}`).value.trim();
+    
+    // ✅ Obtener el DNI del jugador ganador como número
+    let jugador1DNI = parseInt(document.getElementById(`jugador1-${partidoId}`).getAttribute("data-dni"), 10);
+    let jugador2DNI = parseInt(document.getElementById(`jugador2-${partidoId}`).getAttribute("data-dni"), 10);
+
+    let ganadorDNI = null;
+    if (ganadorInput === document.getElementById(`jugador1-${partidoId}`).value) {
+        ganadorDNI = jugador1DNI;
+    } else if (ganadorInput === document.getElementById(`jugador2-${partidoId}`).value) {
+        ganadorDNI = jugador2DNI;
+    }
+
+    console.log("🔍 Enviando datos a la API:");
+    console.log("Partido ID:", partidoId);
+    console.log("Sets Jugador 1:", set1Jugador1, set2Jugador1, set3Jugador1);
+    console.log("Sets Jugador 2:", set1Jugador2, set2Jugador2, set3Jugador2);
+    console.log("Ganador DNI:", ganadorDNI);
+
+    fetch('/guardar_resultados/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            partido_id: partidoId,
+            set1_jugador1: parseInt(set1Jugador1, 10),
+            set2_jugador1: parseInt(set2Jugador1, 10),
+            set3_jugador1: parseInt(set3Jugador1, 10),
+            set1_jugador2: parseInt(set1Jugador2, 10),
+            set2_jugador2: parseInt(set2Jugador2, 10),
+            set3_jugador2: parseInt(set3Jugador2, 10),
+            ganador_dni: ganadorDNI  // 👈 Ahora se envía como número
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("🔍 Respuesta del servidor:", data);
+        if (data.success) {
+            alert('✅ Partido guardado correctamente.');
+        } else {
+            alert('❌ Error al guardar el resultado.');
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error en la solicitud:', error);
+        alert('❌ Hubo un problema al guardar.');
+    });
+}
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".set-input").forEach(input => {
+        input.addEventListener("input", function () {
+            let partidoId = this.id.match(/\d+$/)[0]; // Extrae el ID del partido
+            actualizarGanador(partidoId);
+        });
+    });
+});
+
+function actualizarGanador(partidoId) {
+    let set1Jugador1 = parseInt(document.getElementById(`set1-jugador1-${partidoId}`).value || '0', 10);
+    let set2Jugador1 = parseInt(document.getElementById(`set2-jugador1-${partidoId}`).value || '0', 10);
+    let set3Jugador1 = parseInt(document.getElementById(`set3-jugador1-${partidoId}`).value || '0', 10);
+
+    let set1Jugador2 = parseInt(document.getElementById(`set1-jugador2-${partidoId}`).value || '0', 10);
+    let set2Jugador2 = parseInt(document.getElementById(`set2-jugador2-${partidoId}`).value || '0', 10);
+    let set3Jugador2 = parseInt(document.getElementById(`set3-jugador2-${partidoId}`).value || '0', 10);
+
+    let ganadorInput = document.getElementById(`ganador-${partidoId}`);
+    let jugador1 = document.getElementById(`jugador1-${partidoId}`).value;
+    let jugador2 = document.getElementById(`jugador2-${partidoId}`).value;
+
+    let setsGanadosJugador1 = 0;
+    let setsGanadosJugador2 = 0;
+
+    if (set1Jugador1 > set1Jugador2) setsGanadosJugador1++;
+    if (set2Jugador1 > set2Jugador2) setsGanadosJugador1++;
+    if (set3Jugador1 > set3Jugador2) setsGanadosJugador1++;
+
+    if (set1Jugador2 > set1Jugador1) setsGanadosJugador2++;
+    if (set2Jugador2 > set2Jugador1) setsGanadosJugador2++;
+    if (set3Jugador2 > set3Jugador1) setsGanadosJugador2++;
+
+    if (setsGanadosJugador1 >= 2) {
+        ganadorInput.value = jugador1;
+    } else if (setsGanadosJugador2 >= 2) {
+        ganadorInput.value = jugador2;
+    } else {
+        ganadorInput.value = "";
+    }
+}
+
+
 
 </script>
 

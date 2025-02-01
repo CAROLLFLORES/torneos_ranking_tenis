@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'loginAdmin',
     'jugador',
     'ranking',
-    'torneo'
+    'torneo',
       
     
 ]
