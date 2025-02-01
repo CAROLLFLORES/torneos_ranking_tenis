@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2 class="text-center">📜 Historial de Jornadas</h2>
+
+{% if jornadas %}
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Fecha</th>
+                <th>Torneo</th>
+                <th># Partido</th>
+                <th>Jugador 1</th>
+                <th>Jugador 2</th>
+                <th>Cancha</th>
+                <th>Hora</th>
+                <th>Set 1</th>
+                <th>Set 2</th>
+                <th>Set 3</th>
+                <th>Ganador</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for jornada in jornadas %}
+                <tr class="table-primary">
+                    <td colspan="11" class="text-center">
+                        <strong>📅 Jornada {{ jornada.fecha|date:"d/m/Y" }} - Torneo: {{ jornada.torneo.nombre }}</strong>
+                    </td>
+                </tr>
+                {% for partido in jornada.partidos.all %}
+                    <tr>
+                        <td>{{ jornada.fecha|date:"d/m/Y" }}</td>
+                        <td>{{ jornada.torneo.nombre }}</td>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ partido.jugador1 }}</td>
+                        <td>{{ partido.jugador2 }}</td>
+                        <td>{{ partido.cancha }}</td>
+                        <td>{{ partido.hora|time:"H:i" }}</td>
+                        <td>{{ partido.resultado.set1_jugador1 }} - {{ partido.resultado.set1_jugador2 }}</td>
+                        <td>{{ partido.resultado.set2_jugador1 }} - {{ partido.resultado.set2_jugador2 }}</td>
+                        <td>{{ partido.resultado.set3_jugador1 }} - {{ partido.resultado.set3_jugador2 }}</td>
+                        <td>{{ partido.resultado.ganador_jugador }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="11" class="text-center text-danger">❌ Error: No hay partidos guardados en esta jornada.</td>
+                    </tr>
+                {% endfor %}
+            {% empty %}
+                <tr>
+                    <td colspan="11" class="text-center text-danger">⚠ No hay jornadas guardadas.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="text-center text-danger">❌ No hay jornadas guardadas.</p>
+{% endif %}
+
+{% endblock %}

@@ -149,9 +149,6 @@ class ResultadoPartido(models.Model):
     )
 
 
-
-
-
 # Modelo intermedio PartidoCancha
 class PartidoCancha(models.Model):
     id_partido = models.ForeignKey(Partido, on_delete=models.CASCADE)
@@ -161,3 +158,14 @@ class PartidoCancha(models.Model):
         return f'Partido {self.id_partido} - Cancha {self.id_cancha}'
 
 
+from django.db import models
+from torneo.models import Partido
+
+class HistorialJornada(models.Model):
+    torneo = models.ForeignKey("torneo.Torneo", on_delete=models.CASCADE)
+    fecha = models.DateField()
+    partidos = models.ManyToManyField(Partido)
+    creada_en = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Jornada {self.fecha} - {self.torneo.nombre}"

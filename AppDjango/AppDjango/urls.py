@@ -20,8 +20,7 @@ from loginAdmin import views as loginadmin_views
 from torneo import views as torneo_views
 from jugador import views as jugador_views
 from torneo.views import listar_partidos  # ✅ Importa desde torneo, NO desde jugador
-
-
+from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada
 
 urlpatterns = [
     path('',loginadmin_views.index, name='index'),
@@ -63,5 +62,10 @@ urlpatterns = [
     path('guardar_resultados/', torneo_views.guardar_resultados, name='guardar_resultados'),
     path('validar_partido_existente/<int:torneo_id>/', torneo_views.validar_partido_existente, name='validar_partido_existente'),
     path('partidos/', listar_partidos, name='listar_partidos'),
+    path('ranking/<int:torneo_id>/', actualizar_ranking, name='ranking_por_torneo'),
+    path('guardar_jornada/<int:torneo_id>/', guardar_jornada, name='guardar_jornada'),
+    path('historial/', historial_jornada, name='historial_jornada'),
+
+
 
 ]

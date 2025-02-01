@@ -64,28 +64,21 @@
       <!-- trae torneos que participa de manera dinamica -->
 
             <p class="p-centrado naranja"><strong>TORNEOS EN CURSO</strong></p>
-
-            {% for torneo in torneos %}
-            <div class="narrow-box" style="display: inline-block; margin-right: 20px;">
-                <div class="info-header" style="background-color: black; color: white; padding: 10px; display: flex; justify-content: space-between;">
-                    <p><strong>Categoría:</strong> {{ torneo.categorias.first }}</p>
-                    <p><strong>Fecha:</strong> {{ torneo.fecha_inicio|date:"d/m/Y" }}</p>
+            <div class="torneos-container">
+                {% for torneo in torneos %}
+                <div class="narrow-box torneo-card">
+                    <div class="info-header">
+                        <p><strong></strong> {{ torneo.categorias.first }}</p>
+                        <p><strong>FECHA</strong> {{ torneo.fecha_inicio|date:"d/m/Y" }}</p>
+                    </div>
+                    <div class="match izquierda">
+                        <p><strong>TORENO</strong> <BR>
+                            {{ torneo.nombre }}</p>
+                    </div>
                 </div>
-                <div class="match izquierda" style="text-align: left;">
-                    <p><strong>Torneo:</strong> {{ torneo.nombre }}</p>
-                </div>
-                
+                {% endfor %}
             </div>
             
-            {% empty %}
-                <p style="text-align: center; color: grey;"><strong>No está inscrito en ningún torneo actualmente.</strong></p>
-            {% endfor %}
-
-            <div class="text-center">
-                <a href="{% url 'listar_partidos' %}?torneo={{ torneo.id }}&jugador={{ jugador.dni }}" class="btn btn-primary btn-sm mt-2">
-                    📅 Ver Partidos
-                </a>
-            </div>
 
             <p class="p-centrado naranja"><strong>HISTORIAL DE PARTIDOS</strong></p> 
 

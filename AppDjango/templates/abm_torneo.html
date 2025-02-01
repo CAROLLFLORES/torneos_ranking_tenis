@@ -60,11 +60,13 @@
                 <thead class="table-success">
                     <tr>
                         <th>NOMBRE DEL TORNEO</th>
+                        <th>RANKING</th>
                         <th>FECHA DE INICIO</th>
                         <th>FECHA DE FIN</th>
                         <th>MODIFICAR</th>
                         <th>VER</th>
                         <th>ELIMINAR</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
@@ -72,6 +74,12 @@
                         {% for torneo in page_obj %}
                             <tr>
                                 <td>{{ torneo.nombre }}</td>
+                                <td>
+                                    <button class="login-button mas-chico" font-color="color:white;" >
+                                            <a href="{% url 'listar_partidos' %}?torneo={{ torneo.id }}&jugador={{ jugador.dni }}" >
+                                             Historial</a>
+                                    </button>
+                                </td>
                                 <td>{{ torneo.fecha_inicio|date:"d/m/Y" }}</td>
                                 <td>{{ torneo.fecha_fin|date:"d/m/Y" }}</td>
                                 <td>

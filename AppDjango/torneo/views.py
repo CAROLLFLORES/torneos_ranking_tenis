@@ -15,6 +15,11 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from datetime import datetime, date, time
 from django.http import JsonResponse
+from torneo.models import Partido, HistorialJornada, Torneo
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from ranking.models import Ranking
+
 
 
 
@@ -481,37 +486,31 @@ def jornada_detalle(request, torneo_id, jornada):
     })
 
 def listar_partidos(request):
-    torneo_id = request.GET.get('torneo', '')  # Filtrar por torneo si se selecciona
-    dni = request.GET.get('jugador', '')  # Filtrar por jugador específico
-    search_fecha = request.GET.get('fecha', '')  # Filtrar por fecha
+    torneo_id = request.GET.get('torneo')
+    jugador_id = request.GET.get('jugador')
+    search_fecha = request.GET.get('fecha')
 
-    # Obtener todos los partidos y aplicar filtros si existen
-    partidos = Partido.objects.all().select_related('jugador1', 'jugador2', 'torneo').order_by('-fecha', '-hora')
+    partidos = Partido.objects.all().order_by('-jornada')  # Ordenar por jornada
 
     if torneo_id:
         partidos = partidos.filter(torneo_id=torneo_id)
-
-    if dni:
-        partidos = partidos.filter(Q(jugador1__dni=dni) | Q(jugador2__dni=dni))
+    
+    if jugador_id:
+        partidos = partidos.filter(jugador1_id=jugador_id) | partidos.filter(jugador2_id=jugador_id)
 
     if search_fecha:
         partidos = partidos.filter(fecha=search_fecha)
 
-    # Paginación (10 partidos por página)
-    paginator = Paginator(partidos, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    torneos = Torneo.objects.all()  # Obtener los torneos disponibles para el filtro
-
-    return render(request, 'listar_partidos.html', {
-        'page_obj': page_obj,
-        'torneos': torneos,
+    context = {
+        'page_obj': partidos,
+        'torneos': Torneo.objects.all(),
         'torneo_id': torneo_id,
+        'jugador_id': jugador_id,
         'search_fecha': search_fecha,
-        'dni': dni
-    })
-    
+    }
+
+    return render(request, 'listar_partidos.html', context)
+
     
 @csrf_exempt
 def validar_partido_existente(request, torneo_id):
@@ -673,3 +672,121 @@ def modificar_partido(request, partido_id):
 
 
 
+
+@receiver(post_save, sender=Partido)
+def actualizar_ranking(sender, instance, **kwargs):
+    """ Actualiza el ranking cuando se guarda un partido con resultado """
+
+    # Verificamos que el partido tenga un ganador guardado
+    if instance.ganador and instance.perdedor:
+        torneo = instance.torneo
+        categoria = instance.categoria
+        ganador = instance.ganador  # 🔥 Ya lo tienes guardado
+        perdedor = instance.perdedor  # 🔥 Ya lo tienes guardado
+
+        # 🔥 ACTUALIZAR RANKING DEL GANADOR 🔥
+        ranking_ganador, created = Ranking.objects.get_or_create(
+            jugador=ganador,
+            torneo=torneo,
+            categoria=categoria,
+            defaults={"posicion": 0, "pj": 0, "pg": 0, "puntaje_total": 0}
+        )
+        ranking_ganador.pj += 1
+        ranking_ganador.pg += 1
+        ranking_ganador.puntaje_total += 100  # ✅ SUMA 100 PUNTOS
+        ranking_ganador.save()
+
+        # 🔥 ACTUALIZAR RANKING DEL PERDEDOR 🔥
+        ranking_perdedor, created = Ranking.objects.get_or_create(
+            jugador=perdedor,
+            torneo=torneo,
+            categoria=categoria,
+            defaults={"posicion": 0, "pj": 0, "pg": 0, "puntaje_total": 0}
+        )
+        ranking_perdedor.pj += 1
+        ranking_perdedor.puntaje_total -= 50  # ❌ RESTA 50 PUNTOS
+        ranking_perdedor.save()
+
+        print(f"🏆 Ranking de {torneo.nombre} actualizado: {ganador.nombre} (+100) | {perdedor.nombre} (-50)")
+
+
+def vista_partidos(request, torneo_id):
+    torneo = Torneo.objects.get(id=torneo_id)
+    partidos = Partido.objects.filter(torneo=torneo)  # Solo los partidos no terminados
+
+    return render(request, 'partidos.html', {"torneo": torneo, "partidos": partidos})
+
+
+def guardar_jornada(request, torneo_id):
+    """ Guarda todos los partidos de un torneo en el historial de jornada y los elimina de la vista actual """
+    
+    if request.method == "POST":
+        try:
+            torneo = Torneo.objects.get(id=torneo_id)
+            partidos = Partido.objects.filter(torneo=torneo)
+
+            if not partidos.exists():
+                return JsonResponse({"success": False, "message": "No hay partidos para guardar."})
+
+            # 🔥 Crear una nueva jornada en el historial
+            jornada = HistorialJornada.objects.create(torneo=torneo, fecha=date.today())
+            jornada.partidos.set(partidos)  # Asociar los partidos terminados
+            jornada.save()
+
+            # 🔥 Eliminar los partidos de la vista principal
+            partidos.delete()
+
+            return JsonResponse({"success": True, "message": "Jornada guardada y eliminada correctamente."})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+
+    return JsonResponse({"success": False, "message": "Método no permitido."})
+
+from .models import HistorialJornada
+
+def historial_jornada(request):
+    # Asegurar que los partidos están bien relacionados
+    jornadas = HistorialJornada.objects.prefetch_related('partidos__jugador1', 'partidos__jugador2', 'partidos__cancha')
+
+    # Debug: Mostrar en la consola qué se está trayendo
+    for jornada in jornadas:
+        print(f"📅 Jornada {jornada.fecha} - Torneo: {jornada.torneo.nombre}")
+        print(f"📝 Número de partidos en la jornada: {jornada.partidos.count()}")
+
+    return render(request, 'historial_jornada.html', {"jornadas": jornadas})
+
+#filtrar por jugador los partidos 
+from django.shortcuts import render
+from .models import Partido, Torneo, Jugador
+from django.core.paginator import Paginator
+
+def historial_partidos(request):
+    torneo_id = request.GET.get('torneo')
+    jugador_id = request.GET.get('jugador')
+    search_fecha = request.GET.get('fecha')
+
+    partidos = Partido.objects.all()
+
+    if torneo_id:
+        partidos = partidos.filter(torneo_id=torneo_id)
+    
+    if jugador_id:
+        partidos = partidos.filter(jugador1_id=jugador_id) | partidos.filter(jugador2_id=jugador_id)
+
+    if search_fecha:
+        partidos = partidos.filter(fecha=search_fecha)
+
+    paginator = Paginator(partidos, 10)  # 10 partidos por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'torneos': Torneo.objects.all(),
+        'jugadores': Jugador.objects.all(),
+        'page_obj': page_obj,
+        'torneo_id': torneo_id,
+        'jugador_id': jugador_id,
+        'search_fecha': search_fecha,
+    }
+    
+    return render(request, 'historial_partidos.html', context)

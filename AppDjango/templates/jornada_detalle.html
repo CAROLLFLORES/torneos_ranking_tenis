@@ -1,3 +1,4 @@
+<!-- guardar jornada completa no esta funcionando por eso saque el id -->
 {% extends "layout.html" %}
 {% load static %}
 
@@ -24,10 +25,10 @@
                     <th >Jugadores</th>
                     <th >Set 1</th>
                     <th >Set 2</th>
-                    <th >Set 3</th>
-                    <th>Ganador</th>
-                    <th></th>
+                    <th >Set 3</th> 
                     <th>Modificar</th>
+                    <th></th>   
+                    <th>Ganador</th>                                  
                     <th>Eliminar</th>
                 </tr>
             </thead>
@@ -43,18 +44,22 @@
                     <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set2_jugador1}}" id="set2-jugador1-{{ partido.id }}" min="0" disabled></td>
                     <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set3_jugador1}}" id="set3-jugador1-{{ partido.id }}" min="0" disabled></td>
                     <td rowspan="2">
-                        <input type="text" class="form-control" id="ganador-{{ partido.id }}" value="{% if partido.resultado.ganador_jugador %}{{ partido.resultado.ganador_jugador }}{% endif %}" readonly>
-                    </td>
-                    
-                    
-                    <td rowspan="2">
-                        <button type="button" class="login-button mas-chico " onclick="guardarPartido({{ partido.id }})">Guardar</button>
-                    </td>
-                    <td rowspan="2">
                         <button type="button" class="btn btn-primary" onclick="habilitarEdicion({{ partido.id }})">
                             <i class="bi bi-pencil-square"></i>
                         </button>
                     </td>
+                    <td rowspan="2">
+                        <button type="button" class="login-button mas-chico " onclick="guardarPartido({{ partido.id }})">Guardar</button>
+                    </td>
+                    
+
+
+                    <td rowspan="2">
+                        <input type="text" class="form-control" id="ganador-{{ partido.id }}" value="{% if partido.resultado.ganador_jugador %}{{ partido.resultado.ganador_jugador }}{% endif %}" readonly>
+                    </td>
+                    
+                    
+                    
                     
                     <td rowspan="2">
                         <button class="btn btn-primary" onclick="mostrarModalEliminar({{ partido.id }})">
@@ -73,10 +78,12 @@
     </div>
 
     <div class="text-center mt-3">
-        <button type="button" class="login-button btn btn-success btn-lg" onclick="guardarTodosCambios()">Guardar Jornada Terminada</button>
-        <button type="button" class="btn btn-danger btn-lg" onclick="generarPDF()">
+        <button type="button" class="login-button btn btn-success btn-lg" onclick="">
+            Guardar Jornada Terminada
+        <button type="button" class="btn btn-danger btn-lg">
             <i class="bi bi-file-earmark-pdf"></i> PDF
         </button>
+            
          
         <a href="{% url 'admin_menu' %}">
             <button class="login-button peque">MENU</button>
@@ -331,10 +338,30 @@
         document.getElementById(`set3-jugador2-${partidoId}`).disabled = false;
     }
 
-    function guardarTodosCambios() {
-        alert('Todos los cambios han sido guardados exitosamente.');
-    }
+    //esto es cuando termina la jornada y guarda para pasar a historial//
 
+    function guardarTodosCambios() {
+        if (!confirm("¿Estás seguro de que deseas guardar la jornada terminada?")) return;
+    
+        fetch("/guardar_jornada/{{ torneo.id }}/", {
+            method: "POST",
+            headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/json" },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("✅ Jornada guardada correctamente.");
+                location.reload(); // Refrescar para actualizar la vista
+            } else {
+                alert("❌ Error: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("❌ Error en la solicitud:", error);
+            alert("❌ Hubo un problema al guardar.");
+        });
+    }
+    
     
 
     document.addEventListener("DOMContentLoaded", function() {

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking - Torneo</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Asegúrate de enlazar tu archivo CSS -->
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>TORNEOS</h2>
+            <div class="search-box">
+                <h3>BUSCADOR DE JUGADOR</h3>
+                <input type="text" placeholder="Por nombre">
+                <button class="btn">Siguiente</button>
+                <input type="text" placeholder="Por categoría">
+                <button class="btn">Siguiente</button>
+            </div>
+            <button class="btn">IMPRIMIR</button>
+            <button class="btn">PDF</button>
+        </aside>
+        <main class="ranking-container">
+            <h1>RANKING - TORNEO X SINGLE HOMBRES</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Jugador</th>
+                        <th>PJ</th>
+                        <th>PG</th>
+                        <th>Games</th>
+                        <th>Puntos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for jugador in ranking %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ jugador.jugador.nombre }}</td>
+                        <td>{{ jugador.pj }}</td>
+                        <td>{{ jugador.pg }}</td>
+                        <td>+10</td> <!-- Aquí puedes cambiar si tienes otro cálculo -->
+                        <td>{{ jugador.puntaje_total }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">No hay jugadores en este torneo aún.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </main>
+    </div>
+</body>
+</html>

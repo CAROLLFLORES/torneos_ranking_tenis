@@ -565,8 +565,13 @@ header {
     margin: 0; /* Elimina márgenes si es necesario */
 }
 
+select.input-field {
+    min-width: 200px; /* Ajusta según el ancho deseado */
+    text-align: center; /* Centra el texto del option */
+}
+
 .input-field {
-    width: 70%;
+    width: 90%;
     padding: 10px;
     margin: 5px 0;
     border: 1px solid #ccc;
@@ -1092,3 +1097,6 @@ table {
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+
+/*muestra los tornes que participa un jugador dentro de su ficha*/
