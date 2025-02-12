@@ -1,56 +1,347 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ranking - Torneo</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Asegúrate de enlazar tu archivo CSS -->
-</head>
-<body>
-    <div class="container">
-        <aside class="sidebar">
-            <h2>TORNEOS</h2>
-            <div class="search-box">
-                <h3>BUSCADOR DE JUGADOR</h3>
-                <input type="text" placeholder="Por nombre">
-                <button class="btn">Siguiente</button>
-                <input type="text" placeholder="Por categoría">
-                <button class="btn">Siguiente</button>
-            </div>
-            <button class="btn">IMPRIMIR</button>
-            <button class="btn">PDF</button>
-        </aside>
-        <main class="ranking-container">
-            <h1>RANKING - TORNEO X SINGLE HOMBRES</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Jugador</th>
-                        <th>PJ</th>
-                        <th>PG</th>
-                        <th>Games</th>
-                        <th>Puntos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for jugador in ranking %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ jugador.jugador.nombre }}</td>
-                        <td>{{ jugador.pj }}</td>
-                        <td>{{ jugador.pg }}</td>
-                        <td>+10</td> <!-- Aquí puedes cambiar si tienes otro cálculo -->
-                        <td>{{ jugador.puntaje_total }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6">No hay jugadores en este torneo aún.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </main>
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body_class %}fondo-secundario{% endblock %}
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+{% block content %}
+<div class="container-admin">
+    <div class="text-section">
+        <hr class="separator-line">
+        <h2 class="text-primary text-center">RANKING - {{ torneo_actual.nombre|upper }}</h2>
     </div>
-</body>
-</html>
+
+    <!-- Modal de advertencia -->
+    <!-- Modal de advertencia -->
+<!-- Modal de advertencia personalizado -->
+
+
+<div class="modal fade" id="modalAdvertencia" tabindex="-1" aria-labelledby="modalAdvertenciaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header ">
+                <h4 class="modal-title" id="modalAdvertenciaLabel">Advertencia</h4>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x" style="font-size: 1.5rem;"></i>
+                </button>
+            </div>
+            <div class="modal-body text-center" id="modalAdvertenciaMensaje">
+                <!-- Mensaje dinámico de advertencia -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="login-button" id="btnCancelar" data-bs-dismiss="modal">ACEPTAR</button>
+            </div>
+            
+        </div>
+    </div>
+</div><!-- Modal de advertencia personalizado -->
+
+
+
+
+
+    
+
+    <!-- Contenedor Principal -->
+    <div class="form-container d-flex gap-4 justify-content-between">
+        
+
+        <!-- Se ha quitado el onchange para que NO recargue automáticamente -->
+        <div class="narrow-box flex-grow-1">
+            <div class="title-orange-gris text-center"> <!-- ✅ Centrar título -->
+                <h1>TORNEOS DISPONIBLES</h1>
+            </div>
+            <div class="text-center">
+                <a href="{% url 'admin_menu' %}">
+                    <button class="login-button peque">MENU</button>
+                </a>
+            </div>
+            <hr class="separator">
+
+        
+            <ul class="tournament-list">
+                {% for torneo in torneos_en_curso %}
+                    <li class="tournament-item">
+                        <span class="tournament-name">{{ torneo.nombre|upper }}</span>
+                        <a href="{% url 'ver_ranking' torneo.id %}">
+                            <button class="login-button chico">RANKING</button>
+                        </a>
+                        <hr class="separator">
+                    </li>
+                {% empty %}
+                    <li>No hay torneos disponibles.</li>
+                {% endfor %}
+            </ul>
+            
+        
+            <!-- ✅ Botón alineado correctamente -->
+            
+        </div>
+        
+
+        <!-- RECUADRO DERECHO: Formulario principal (UN SOLO FORM) -->
+        
+            <div class="table-responsive ranking-table-container">
+                <table class="table table-dark table-bordered ranking-table">
+                    <thead class="table-success text-center">
+                        <tr>
+                            <th>#</th>
+                            <th>JUGADOR</th>
+                            <th>PJ</th>
+                            <th>PG</th>
+                            <th>GAMES</th>
+                            <th>PUNTOS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for jugador in ranking %}
+                        <tr class="ranking-row">
+                            <td class="ranking-position">{{ forloop.counter }}</td>
+                            <td class="ranking-name">{{ jugador.jugador.nombre }} {{ jugador.jugador.apellido }}</td>
+                            <td class="ranking-data">{{ jugador.pj }}</td>
+                            <td class="ranking-data">{{ jugador.pg }}</td>
+                            <td class="ranking-data">
+                                {% if jugador.games > 0 %}
+                                    +{{ jugador.games }}
+                                {% else %}
+                                    {{ jugador.games }}
+                                {% endif %}
+                            </td>
+                            <td class="ranking-points">{{ jugador.puntaje_total_categoria }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">❌ No hay jugadores en este torneo aún.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+     
+    </div>
+</div>
+
+
+
+<style>
+
+    
+    /* Contenedor de la tabla */
+    .ranking-table-container {
+        padding: 10px;
+        border-radius: 10px;
+        width: 100%;
+            
+    }
+
+
+    /* Estilo de la tabla */
+    .ranking-table {
+        width: 100%;
+        text-align: center;
+        border-collapse: separate; /* Importante: separa los bordes */
+        border-spacing: 0 10px; /* Espaciado entre filas */
+        background-color: transparent; /* Hace el fondo completamente transparente */
+        
+    }
+
+    /* Aumenta el espacio entre filas */
+    .ranking-row {
+        background-color: rgba(30, 30, 30, 0.9);
+        color: white;
+        padding: 5px 5px; /* Más padding para mayor separación */
+        line-height: 0.5; /* Aumenta la altura de la línea */
+        height: 35px; /* Ajusta la altura mínima */
+        margin-bottom: 30px; /* Añade espacio entre filas */
+    }
+
+    /* Alternar colores en filas */
+    .ranking-row:nth-child(even) {
+        background-color: rgba(40, 40, 40, 0.9);
+    }
+
+    /* Bordes y sombras */
+    .ranking-table th,
+    .ranking-table td {
+        border: 1px solid #5a5a5a;
+        padding: 8px;
+        gap:5px;
+    }
+
+
+    /* Posición del ranking */
+    .ranking-position {
+        font-weight: bold;
+        background: linear-gradient(45deg, #ffcc00, #ff8800);
+        color: black;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    /* Estilo del nombre del jugador */
+    .ranking-name {
+        font-weight: bold;
+        color: #ffd700;
+    }
+
+    /* Estilo de datos */
+    .ranking-data {
+        font-size: 1rem;
+        color: #ffffff;
+    }
+
+    /* Estilo especial para puntos */
+    .ranking-points {
+        font-weight: bold;
+        color: #00ff00;
+    }
+
+    /* Asegurar que la tabla sea responsive */
+    @media (max-width: 768px) {
+        .ranking-table {
+            font-size: 0.8rem;
+        }
+    }
+
+        
+    .ranking-container {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.2);  /* ✅ Semi-transparente */
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: none;
+    }
+    
+    .table-danger {
+        background-color: #f8d7da !important;
+    }
+
+    table {
+        width: 100%; /* ✅ Ocupar todo el ancho del contenedor */
+        min-width: 500px; /* ✅ Evita que se haga demasiado pequeña */
+    }
+    
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+    .modal-header {
+        color: black;
+        font-weight: bold;
+    }
+
+    .modal-body {
+        font-size: 1.2rem;
+        color: black;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    .info-box {
+        background-color: rgba(0, 0, 0, 0.5); /* Fondo negro con transparencia */
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        width: 100%;
+        max-width: 200px;
+        box-shadow: none;
+    }
+
+    .info-title {
+        font-size: 1rem;
+        font-weight: bold;
+        color: black;
+        margin-bottom: 5px;
+    }
+
+    .info-content label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 0.85rem;
+        color: black;
+    }
+
+    .info-content select {
+        width: 100%;
+        padding: 5px;
+        font-size: 0.9rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.8);
+        color: black;
+    }
+
+    .btn-group {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .table-danger {
+        background-color: #f8d7da !important;
+    }
+
+    /* Asegurar que la lista ocupe todo el ancho disponible */
+    .tournament-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        width: 100%; /* Ocupar todo el ancho del contenedor */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    /* Estilo de cada torneo */
+    .tournament-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 10px; /* Espacio entre elementos */
+    }
+    
+    /* Asegurar que el botón de ranking no se salga del contenedor */
+    .ranking-button {
+        width: 90%; /* Ajusta el ancho del botón para que ocupe el 90% del contenedor */
+        max-width: 200px; /* Establece un ancho máximo */
+        text-align: center;
+        background-color: #ffa500;
+        color: black;
+        font-size: 1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        padding: 10px;
+        cursor: pointer;
+    }
+    
+    /* Hacer que los botones sean responsivos */
+    @media (max-width: 768px) {
+        .ranking-button {
+            width: 100%; /* En pantallas pequeñas ocupa el 100% */
+        }
+    }
+    
+    /* Alinear el texto del nombre del jugador a la izquierda */
+.ranking-table td:nth-child(2) { /* Segunda columna (nombre del jugador) */
+    text-align: left;
+    padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
+}
+
+    
+    
+    
+</style>
+
+{% endblock %}
