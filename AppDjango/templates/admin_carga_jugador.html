@@ -2,6 +2,32 @@
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %} 
+<!-- Modal de Confirmación de Alta de Jugador -->
+<div class="modal fade" id="modalConfirmacionAlta" tabindex="-1" aria-labelledby="modalConfirmacionAltaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color:rgba(210, 223, 101, 0.85); color: white; text-align: center;">
+           
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalConfirmacionAltaLabel">¡Jugador Guardado con Éxito!</h3>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x" style="font-size: 1.5rem; color: white;"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>El jugador ha sido registrado correctamente.</p>
+                <hr class="separator">
+                <button type="button" class="login-button" onclick="window.location.href='{% url 'admin_carga_jugador' %}'">
+                    Cargar Otro Jugador
+                </button>
+                <hr class="separator">
+                <button type="button" class="login-button" onclick="window.location.href='{% url 'admin_menu' %}'">
+                    Ir al Menú Principal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container-admin">
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
@@ -22,7 +48,8 @@
             <a href="{% url 'admin_menu' %}">
                 <button class="login-button peque">MENU</button>
             </a>
-      
+            <hr class="separator">
+
             <a href="{% url 'listado_jugadores' %}">
                 <button class="login-button chico">Listado completo</button>
             </a>
@@ -30,29 +57,68 @@
             <hr class="separator">
             <h3 class="negro">BUSCAR POR JUGADOR</h3>            
             <input type="text" placeholder="Buscar por APELLIDO" class="input-field"><br>
-            <hr class="separator"> 
-            <a href="{% url 'admin_carga_jugador' %}">
-                <button class="login-button chico">ALTA</button>
-            </a>
-            <hr class="separator">
-                       
-            <!-- Contenedor para los botones -->
-            <div class="buttons-container">
-                
-                <a href="{% url 'admin_menu' %}">
-                    <button class="login-button-gris chico">PDF</button>
-                </a>
-            </div>
+            
         </div>
 
         <!-- Login box a la derecha del rectángulo angosto -->
         <div class="login-box">
-            <form method="POST" enctype="multipart/form-data">
+            <form method="POST" id="formNuevoJugador" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button class="login-button" type="submit">SIGUIENTE</button>
+                <button class="login-button" type="submit">GUARDAR JUGADOR</button>
             </form>
         </div>
+        
     </div>
 </div>
+
+<script>
+    document.getElementById("formNuevoJugador").addEventListener("submit", function (event) {
+        event.preventDefault(); // Evita el envío normal del formulario
+    
+        let formData = new FormData(this); // Captura los datos del formulario
+    
+        fetch("{% url 'admin_carga_jugador' %}", { // Asegúrate de que la URL sea correcta
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json()) // Convertimos la respuesta a JSON
+        .then(data => {
+            if (data.success) {
+                let modal = new bootstrap.Modal(document.getElementById('modalConfirmacionAlta'));
+                modal.show();
+            } else {
+                mostrarError(data.errors); // Muestra mensaje de error
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Hubo un problema con el servidor.");
+        });
+    });
+    
+    // Función para mostrar un mensaje de error
+    function mostrarError(mensaje) {
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "alert alert-danger text-center";
+        errorDiv.style.position = "fixed";
+        errorDiv.style.top = "20px";
+        errorDiv.style.left = "50%";
+        errorDiv.style.transform = "translateX(-50%)";
+        errorDiv.style.zIndex = "1050";
+        errorDiv.style.padding = "15px";
+        errorDiv.style.borderRadius = "5px";
+        errorDiv.style.fontWeight = "bold";
+        errorDiv.style.backgroundColor = "#d9534f";  // Rojo Bootstrap
+        errorDiv.style.color = "white";
+        errorDiv.innerHTML = mensaje;
+    
+        document.body.appendChild(errorDiv);
+    
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 4000); // El mensaje desaparece después de 4 segundos
+    }
+    
+</script>
 {% endblock %}

@@ -6,23 +6,33 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .forms import JugadorForm
+from django.http import JsonResponse
+
 
 def jugador_detalle(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
     return render(request, 'datos_jugador.html', {'jugador': jugador})
 
+
 def CrearJugador(request):
     if request.method == "POST":
-        form = JugadorForm(request.POST)
+        nombre = request.POST.get("nombre")
+        apellido = request.POST.get("apellido")
+
+        # 🔍 Verificar si ya existe un jugador con el mismo nombre y apellido
+        if Jugador.objects.filter(nombre__iexact=nombre, apellido__iexact=apellido).exists():
+            return JsonResponse({"success": False, "errors": "El jugador ya existe en la base de datos."})
+
+        form = JugadorForm(request.POST, request.FILES)
         if form.is_valid():
-            jugador = form.save()
-            messages.success(request, "Jugador creado exitosamente.")
-            return redirect('guardar_jugador')
+            form.save()
+            return JsonResponse({"success": True})  # ✅ Respuesta exitosa
         else:
-            messages.error(request, "Error en el formulario. Revisa los datos ingresados.")
-    else:
-        form = JugadorForm()
+            return JsonResponse({"success": False, "errors": form.errors})  # ❌ Errores de validación
+
+    form = JugadorForm()
     return render(request, "admin_carga_jugador.html", {"form": form})
+
 
 def guardar_jugador(request):
     return render(request, "guardar_jugador.html")
@@ -132,6 +142,8 @@ def borrar_jugador(request, dni):
 def borrado_exitoso(request, jugador_dni):
     return render(request, 'borrado_exitoso.html', {'jugador_dni': jugador_dni})
 
+
+
 def abm_categoria(request):
     if request.method == "POST":
         c_nivel = request.POST.get("nivel")
@@ -142,16 +154,16 @@ def abm_categoria(request):
             categoria_existente = Categoria.objects.filter(nivel=c_nivel, edad=c_edad, tipo_juego=c_tipo_juego).exists()
             
             if categoria_existente:
-                return render(request, "error_page.html", {"error": "La categoría ya existe."})
+                return JsonResponse({"success": False, "errors": "La categoría ya existe."})
             else:
-                categoria = Categoria(nivel=c_nivel, edad=c_edad, tipo_juego=c_tipo_juego)
-                categoria.save()
-                return redirect('exito_categoria')  
+                Categoria.objects.create(nivel=c_nivel, edad=c_edad, tipo_juego=c_tipo_juego)
+                return JsonResponse({"success": True})  # ✅ Respuesta JSON exitosa
         except Exception as e:
             print(f"Error al crear categoría: {e}")
-            return render(request, "error_page.html", {"error": str(e)})
-    
+            return JsonResponse({"success": False, "errors": str(e)})
+
     return render(request, "abm_categoria.html")
+
 
 def exito_categoria(request):
     return render(request, "exito_categoria.html")

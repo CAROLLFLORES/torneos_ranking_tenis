@@ -41,7 +41,22 @@
     </div>
 </div><!-- Modal de advertencia personalizado -->
 
-
+<!-- Modal de confirmación para eliminar partido -->
+<div class="modal fade" id="eliminarPartidoModal" tabindex="-1" aria-labelledby="eliminarPartidoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="eliminarPartidoLabel">¿Está seguro de que desea eliminar este partido?</h3>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x" style="font-size: 1.5rem;"></i>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <button type="button" class="login-button rojo delete-button" id="confirmarEliminar">ELIMINAR</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
@@ -88,7 +103,7 @@
         <div class="login-box listados flex-grow-1">
             <form method="POST" action="{% url 'guardar_fecha' torneo.id %}" id="formPartidos">
                 {% csrf_token %}
-
+                
                 <!-- Campo para ingresar el número de jornada (mismo formulario) -->
                 <div class="text-center mb-3">
                     <label for="numero_jornada" class="form-label">Jornada:</label>
@@ -101,6 +116,9 @@
                         required 
                         style="width: 80px; text-align: center;"
                     >
+                    <button type="submit" class="btn btn-success" id="guardarFechaButton">
+                        Generar Jornada
+                    </button>
                 </div>
 
                 <div class="table-responsive">
@@ -152,10 +170,11 @@
                                 </td>
                                 
                                 <td>
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminacion(this)">
                                         <i class="bi bi-trash-fill"></i>
                                     </button>
                                 </td>
+                                
                             </tr>
                         </tbody>
                         
@@ -166,11 +185,9 @@
                 <!-- Botones centrados debajo (mismo form) -->
                 <div class="text-center mt-4">
                     <div class="btn-group" role="group">
-                        <button type="submit" class="btn btn-success" id="guardarFechaButton">
-                            Generar Jornada
-                        </button>
-                        <button type="button" id="addRowButton" class="btn btn-warning">
-                            Agregar Nueva Fila
+                        
+                        <button type="button" id="addRowButton" class="login-button btn btn-warning">
+                            Agregar Partido
                         </button>
                        
                     </div>
@@ -275,8 +292,11 @@
         notification.style.left = "50%";
         notification.style.transform = "translateX(-50%)";
         notification.style.zIndex = "1050";
-        notification.style.padding = "15px";
+        notification.style.padding = "50px";
         notification.style.borderRadius = "5px";
+        notification.style.fontWeight = "bold";  // Hace el texto más notorio
+        notification.style.boxShadow = "0px 4px 6px rgba(0, 0, 0, 0.2)";
+        notification.style.backgroundColor = "orange";  
         notification.innerHTML = mensaje;
         
         document.body.appendChild(notification);
@@ -374,6 +394,29 @@
         }
     });
     
+    let partidoAEliminar = null; // Variable para almacenar la fila a eliminar
+
+function confirmarEliminacion(button) {
+    partidoAEliminar = button.closest("tr"); // Guarda la fila del partido a eliminar
+    
+    // Abre el modal de confirmación
+    let modal = new bootstrap.Modal(document.getElementById('eliminarPartidoModal'));
+    modal.show();
+}
+
+// Solo elimina la fila cuando se presiona "Eliminar" en el modal
+document.getElementById("confirmarEliminar").addEventListener("click", function () {
+    if (partidoAEliminar) {
+        partidoAEliminar.remove(); // Borra el partido solo si el usuario confirma
+        partidoAEliminar = null;
+    }
+
+    // Cierra el modal después de la eliminación
+    let modal = bootstrap.Modal.getInstance(document.getElementById('eliminarPartidoModal'));
+    modal.hide();
+});
+
+
     
 </script>
 

@@ -1315,3 +1315,8 @@ text-align: left;
 padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
 }
 
+
+/*modales*/
+.modal {
+    z-index: 1050 !important; /* Asegura que esté por encima de todo */
+}

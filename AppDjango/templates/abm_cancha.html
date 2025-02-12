@@ -34,27 +34,19 @@
             <a href="{% url 'admin_menu' %}">
                 <button class="login-button peque">MENU</button>
             </a>
+            <hr class="separator">
+
             <a href="{% url 'listado_canchas' %}">
                 <button class="login-button chico">Listado completo</button>
             </a>
             <hr class="separator">
             <h3 class="negro">BUSCAR POR CANCHA</h3>
             <input type="text" placeholder="Buscar por número de cancha" class="input-field"><br>
-            <hr class="separator">
             <a href="{% url 'abm_cancha' %}">
                 <button class="login-button chico">ALTA</button>
             </a>
-            <hr class="separator">
 
-            <!-- Contenedor para los botones -->
-            <div class="buttons-container">
-                <a href="{% url 'admin_menu' %}">
-                    <button class="login-button-gris chico">IMPRIMIR</button>
-                </a>
-                <a href="{% url 'admin_menu' %}">
-                    <button class="login-button-gris chico">PDF</button>
-                </a>
-            </div>
+            
         </div>
 
         <!-- Formulario para cargar la nueva cancha -->
@@ -62,9 +54,12 @@
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="mb-3">
+                    <br> 
                     <label for="id_cancha" class="form-label">Número de Cancha:</label>
                     <input type="number" name="cancha" id="id_cancha" class="form-control" placeholder="Ingrese el número de la cancha" required>
                 </div>
+                <br> 
+
                 <button class="login-button" type="submit">GUARDAR</button>
             </form>
         </div>
