@@ -21,7 +21,10 @@ from torneo import views as torneo_views
 from jugador import views as jugador_views
 from torneo.views import listar_partidos  # ✅ Importa desde torneo, NO desde jugador
 from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada
-from ranking.views import ranking_torneo, ver_ranking
+from ranking.views import ranking_torneo, ver_ranking, ranking_general
+
+
+
 
 
 urlpatterns = [
@@ -69,6 +72,8 @@ urlpatterns = [
     path('historial/', historial_jornada, name='historial_jornada'),
     path('<int:torneo_id>/', ranking_torneo, name='ranking_torneo'),
     path('torneo/<int:torneo_id>/ranking/', ver_ranking, name='ver_ranking'),
+    path('ranking/', ranking_general, name='ranking_general'),
+
     
 
 

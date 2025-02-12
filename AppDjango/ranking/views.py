@@ -100,3 +100,8 @@ def actualizar_ranking(sender, instance, **kwargs):
     ranking_perdedor.save()
 
     print(f"🏆 Ranking actualizado: {ganador.nombre} (+{games_ganador - games_perdedor} Games) | {perdedor.nombre} (-{games_perdedor - games_ganador} Games)")
+
+
+def ranking_general(request):
+    torneos = Torneo.objects.all()  # 🔹 Obtener todos los torneos
+    return render(request, 'ranking_general.html', {'torneos': torneos})
