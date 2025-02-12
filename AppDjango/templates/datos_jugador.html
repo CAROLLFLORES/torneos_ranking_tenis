@@ -41,29 +41,34 @@
                 <p><strong>Sexo:</strong> {{ jugador.sexo }}</p>
             </div>
         </div>
+        
+        
         <p class="p-centrado naranja"><strong>HISTORIAL</strong></p> 
-                            
-            <div class="history-item">
-                <div class="player-data">
-                    {% for torneo in torneos %}
+        <div class="grid-container">
+        {% if torneos %}
+            {% for torneo in torneos %}
+                <div class="history-item">
+                    <div class="player-data">
                         <p><strong>Categoría:</strong> {{ torneo.categorias.first }}</p>
                         <hr>
                         <p><strong>Torneo:</strong> {{ torneo.nombre }}</p>
                     </div>     
                     <div class="player-data">
                         <p class="texto-naranja"><strong>Ranking</strong></p>
-                    <hr>
+                        <hr>
                         <p class="texto-negro">##anterior</p>
-                    {% empty %}
-                        <p style="text-align: center; color: grey;"><strong>No está inscrito en ningún torneo actualmente.</strong></p>
-                    {% endfor %}
-                </div>             
-            </div>
+                    </div>  
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: grey;"><strong>No está inscrito en ningún torneo actualmente.</strong></p>
+        {% endif %}
+
             
 
       <!-- trae torneos que participa de manera dinamica -->
 
-            <p class="p-centrado naranja"><strong>TORNEOS EN CURSO</strong></p>
+        <p class="p-centrado naranja"><strong>TORNEOS EN CURSO</strong></p>
             <div class="torneos-container">
                 {% for torneo in torneos %}
                 <div class="narrow-box torneo-card">
@@ -116,24 +121,6 @@
 
             
 
-            <!--
-            <div class="match izquierda" style="text-align: left;">
-                <p class="jugador">Franco Corva&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;6</p>
-                <p class="jugador">Tomas Servan&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;1</p>
-            </div>
-        </div>
-        
-        <div class="narrow-box largo" style="display: inline-block;">
-            <div class="info-header" style="background-color: black; color: white; padding: 10px; display: flex; justify-content: space-between;">
-                <p><strong>Categoría:</strong> 4° + 30</p>
-                <p><strong>Fecha:</strong> 21/09/2024</p>
-            </div>
-            <div class="match izquierda" style="text-align: left;">
-                <p class="jugador">Juan Perez&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;6</p>
-                <p class="jugador">Pedro Lopez&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;2</p>
-            </div>
-        </div>        
-        -->
         
         <div class="actions" style="margin-bottom: 100px; margin-top: 50px">
             <button class="login-button ">MODIFICAR</button>

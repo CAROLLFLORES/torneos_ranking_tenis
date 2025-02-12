@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block body_class %}fondo-secundario{% endblock %}
+
+{% block content %}
+<div class="container-admin">
+    <div class="text-section">
+        <hr class="separator-line">
+        <h2 class="text-primary text-center">SELECCIONA UN TORNEO PARA VER EL RANKING</h2>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="form-container d-flex gap-4 justify-content-between">
+        <!-- Menú izquierdo con torneos -->
+        <div class="narrow-box flex-grow-1">
+            <div class="title-orange-gris text-center">
+                <h1>TORNEOS</h1>
+            </div>
+            <hr class="separator">
+            <ul class="tournament-list">
+                {% for torneo in torneos %}
+                <li class="tournament-item">
+                    <span class="tournament-name">{{ torneo.nombre|upper }}</span>
+                    <a href="{% url 'ver_ranking' torneo.id %}">
+                        <button class="login-button chico">VER RANKING</button>
+                    </a>
+                    <hr class="separator">
+                </li>
+                {% empty %}
+                <li>No hay torneos disponibles.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Sección derecha en blanco, se actualizará al seleccionar un torneo -->
+        <div class="login-box listados flex-grow-1">
+            <div class="text-center">
+                <h3>Selecciona un torneo para ver su ranking</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

@@ -53,8 +53,9 @@
                     <a class="nav-link" href="#">TORNEOS</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">RANKING</a>
+                    <a class="nav-link" href="{% url 'ranking_general' %}">RANKING</a>
                 </li>
+                
             </ul>
             <a href="{% url 'login' %}">
                 <img src="{% static 'imagenes/logo apur.png' %}" alt="APUR Logo" class="logo-menu"> <!-- Logo a la derecha -->
