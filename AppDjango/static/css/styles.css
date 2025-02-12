@@ -1100,3 +1100,9 @@ table {
 
 
 /*muestra los tornes que participa un jugador dentro de su ficha*/
+.login-button a {
+    color: white !important;  /* Fuerza el color blanco */
+    text-decoration: none;     /* Elimina el subrayado del enlace */
+}
+
+

@@ -1,23 +1,23 @@
 from django.db import models
 from jugador.models import Jugador, Categoria
-from torneo.models import Torneo  # Importa Torneo correctamente
+from torneo.models import Torneo
 
 class Ranking(models.Model):
     id_ranking = models.AutoField(primary_key=True)
-    torneo = models.ForeignKey(Torneo, on_delete=models.CASCADE, related_name="rankings")  # Relación correcta con Torneo
+    torneo = models.ForeignKey(Torneo, on_delete=models.CASCADE, related_name="rankings")
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
-    posicion = models.IntegerField()
-    pj = models.IntegerField()
-    pg = models.IntegerField()
-    games = models.IntegerField()
-    puntaje_total_categoria = models.IntegerField()
-    puntaje_acumulador = models.IntegerField()
-    bimestre = models.IntegerField()
-    anio = models.IntegerField()
+    posicion = models.IntegerField(default=0)
+    pj = models.IntegerField(default=0)  # Partidos Jugados
+    pg = models.IntegerField(default=0)  # Partidos Ganados
+    games = models.IntegerField(default=0)  # Games Totales
+    puntaje_total_categoria = models.IntegerField(default=0)
+    puntaje_acumulador = models.IntegerField(default=0)
+    bimestre = models.IntegerField(default=0)
+    anio = models.IntegerField(default=0)
 
     class Meta:
-        unique_together = ('torneo', 'jugador', 'bimestre', 'anio', 'categoria')  # Asegúrate de que 'torneo' está en el modelo
+        unique_together = ('torneo', 'jugador', 'bimestre', 'anio', 'categoria')
 
     def __str__(self):
         return f'Ranking {self.torneo.nombre} - {self.jugador.nombre} ({self.categoria.nombre})'

@@ -15,12 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from loginAdmin import views as loginadmin_views
 from torneo import views as torneo_views
 from jugador import views as jugador_views
 from torneo.views import listar_partidos  # ✅ Importa desde torneo, NO desde jugador
 from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada
+from ranking.views import ranking_torneo, ver_ranking
+
 
 urlpatterns = [
     path('',loginadmin_views.index, name='index'),
@@ -47,7 +49,7 @@ urlpatterns = [
     path('editar_torneo/<int:id>/', torneo_views.editar_torneo, name='abm_torneo_editar'),
     path('datos_torneo/<int:id>/', torneo_views.ver_caracteristicas_torneo, name='datos_torneo'),
     path('asociar_jugadores/<int:id>/', torneo_views.asociar_jugadores, name='asociar_jugadores'),
-     path('redirigir_partidos/<int:torneo_id>/', torneo_views.redirigir_partidos, name='redirigir_partidos'),
+    path('redirigir_partidos/<int:torneo_id>/', torneo_views.redirigir_partidos, name='redirigir_partidos'),
     path('partido_doble/<int:torneo_id>/', torneo_views.partido_doble, name='partido_doble'),
     path('partido_single/<int:torneo_id>/', torneo_views.partido_single, name='partido_single'),
     path('torneo/<int:id>/', torneo_views.ver_caracteristicas_torneo, name='ver_caracteristicas_torneo'),
@@ -65,6 +67,10 @@ urlpatterns = [
     path('ranking/<int:torneo_id>/', actualizar_ranking, name='ranking_por_torneo'),
     path('guardar_jornada/<int:torneo_id>/', guardar_jornada, name='guardar_jornada'),
     path('historial/', historial_jornada, name='historial_jornada'),
+    path('<int:torneo_id>/', ranking_torneo, name='ranking_torneo'),
+    path('torneo/<int:torneo_id>/ranking/', ver_ranking, name='ver_ranking'),
+    
+
 
 
 
