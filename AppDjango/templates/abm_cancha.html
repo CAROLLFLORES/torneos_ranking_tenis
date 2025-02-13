@@ -1,3 +1,4 @@
+ <!-- SE PUEDE AGREGAR UBICACION O NOMBRE DEL PREDIO QUE CONTIENE LAS CANCHAS POR SI HAY SEDES -->
 {% extends "layout.html" %}
 {% block body_class %}fondo-secundario{% endblock %}
 
@@ -39,13 +40,7 @@
             <a href="{% url 'listado_canchas' %}">
                 <button class="login-button chico">Listado completo</button>
             </a>
-            <hr class="separator">
-            <h3 class="negro">BUSCAR POR CANCHA</h3>
-            <input type="text" placeholder="Buscar por número de cancha" class="input-field"><br>
-            <a href="{% url 'abm_cancha' %}">
-                <button class="login-button chico">ALTA</button>
-            </a>
-
+            
             
         </div>
 
