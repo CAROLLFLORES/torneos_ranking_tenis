@@ -2,6 +2,30 @@
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
+<!-- Modales de eliminación de categoría -->
+{% for categoria in categorias %}
+<div class="modal fade" id="eliminarModal-{{ categoria.id_categoria }}" tabindex="-1" aria-labelledby="eliminarModalLabel-{{ categoria.id_categoria }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: rgba(210, 223, 101, 0.85); color: white; text-align: center;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="eliminarModalLabel-{{ categoria.id_categoria }}">¿Está seguro que desea eliminar la categoría "{{ categoria.nivel }}"?</h3>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x" style="font-size: 1.5rem; color: white;"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Esta acción no se puede deshacer.</p>
+                <hr class="separator">
+                <form method="POST" action="{% url 'eliminar_categoria' categoria.id_categoria %}">
+                    {% csrf_token %}
+                    <button type="submit" class="login-button rojo delete-button">ELIMINAR CATEGORÍA</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
 <div class="container-admin">
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
@@ -23,7 +47,6 @@
             <a href="{% url 'abm_categoria' %}">
                 <button class="login-button chico">ALTA</button>
             </a>
-            <hr class="separator">
           
         </div>
 
@@ -43,6 +66,7 @@
                         <th>Nivel</th>
                         <th>Edad</th>
                         <th>Juego</th>
+                        <th></th>
                         <th>Acciones</th> <!-- Nueva columna para acciones -->
                     </tr>
                 </thead>
@@ -56,9 +80,13 @@
                             <form method="POST" action="{% url 'eliminar_categoria' categoria.id_categoria %}" style="display:inline;"
                             onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta categoría?');">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-danger"  style="color:red">
-                                    <i class="bi bi-trash-fill"></i>
-                                </button>
+                                <td>
+                                    <!-- Botón que abre el modal -->
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ categoria.id_categoria }}">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </td>
+                                
                             </form>
                         </td>
                     </tr>

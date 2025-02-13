@@ -43,13 +43,12 @@
                     <div class="title-orange-box">
                         <h2>RANKING</h2>
                     </div>
-                    <h3>BUSCAR POR CATEGORÍA</h3>
-                    <input type="text" placeholder="Buscar Categorías" class="input-field">
-                    <hr class="separator">
+                   <br>
                     <h3>LISTADO COMPLETO</h3>
                     <a class="nav-link" href="{% url 'ranking_general' %}">
                         <button class="login-button">Aceptar</button>
                     </a>
+                    
                 </div>
             </div>
         </div>
@@ -89,13 +88,13 @@
                         <h2>TORNEOS Y PARTIDOS</h2>
                     </div>
                     <h3>TORNEO</h3>
-                    <a href="{% url 'abm_torneo' %}">
-                        <button class='login-button'>Listado completo TORNEOS</button>
+                    <a href="{% url 'crear_torneo' %}">
+                        <button class='login-button'>CREAR TORNEO</button>
                     </a>
                     <hr class="separator">
                     
                     <a href="{% url 'abm_torneo' %}">
-                        <button class='login-button'>Listado completo PARTIDOS</button>
+                        <button class='login-button'>MODIFICAR TORNEOS Y CARGA PARTIDOS</button>
                     </a>
                 </div>
             </div>
