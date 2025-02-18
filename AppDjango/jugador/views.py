@@ -7,6 +7,13 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from .forms import JugadorForm
 from django.http import JsonResponse
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.platypus import Table, TableStyle, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+from jugador.models import Jugador, Categoria
 
 
 def jugador_detalle(request, dni):
@@ -63,31 +70,37 @@ def modificar_jugador(request, dni):
 def listado_jugadores(request):
     search = request.GET.get('search', '')
     sexo_filter = request.GET.get('sexo', '')
+    categoria_filter = request.GET.get('categoria', '')
 
-    # Filtrar jugadores por nombre o apellido
+    # 🔹 Filtrar jugadores por nombre, apellido, sexo y categoría
     jugadores = Jugador.objects.all()
-    if search:
-        jugadores = jugadores.filter(Q(nombre__icontains=search) | Q(apellido__icontains=search))
 
-    # Filtrar por sexo
+    if search:
+        jugadores = jugadores.filter(
+            Q(nombre__icontains=search) | Q(apellido__icontains=search)
+        )
+
     if sexo_filter:
         jugadores = jugadores.filter(sexo=sexo_filter)
 
-    # Paginación
-    paginator = Paginator(jugadores, 20)  # Muestra 20 jugadores por página
+    if categoria_filter:
+        jugadores = jugadores.filter(categorias__id_categoria=categoria_filter)
+
+    # 🔹 Paginación
+    paginator = Paginator(jugadores, 20)  # 20 jugadores por página
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # Pasar todas las categorías al contexto
+    # 🔹 Obtener todas las categorías para el selector
     todas_categorias = Categoria.objects.all()
 
     return render(request, 'listado_jugadores.html', {
         'jugadores': page_obj,
         'todas_categorias': todas_categorias,
         'search': search,
-        'sexo': sexo_filter
+        'sexo': sexo_filter,
+        'categoria_seleccionada': categoria_filter
     })
-
 
 def datos_jugador(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
@@ -177,4 +190,82 @@ def eliminar_categoria(request, id_categoria):
     categoria.delete()
     return redirect('listados_categorias')
 
+#para generar pdf
 
+
+def exportar_jugadores_pdf(request):
+    # 🟡 1️⃣ Captura los filtros
+    search = request.GET.get('search', '')
+    sexo_filter = request.GET.get('sexo', '')
+    categoria_filter = request.GET.get('categoria', '')
+
+    # 🟡 2️⃣ Filtra los jugadores según los parámetros recibidos
+    jugadores = Jugador.objects.all()
+
+    if search:
+        jugadores = jugadores.filter(
+            Q(nombre__icontains=search) | Q(apellido__icontains=search)
+        )
+    if sexo_filter:
+        jugadores = jugadores.filter(sexo=sexo_filter)
+    if categoria_filter:
+        jugadores = jugadores.filter(categorias__id_categoria=categoria_filter)
+
+    # 🟡 3️⃣ Obtiene la categoría seleccionada
+    categoria_nombre = "Todas"
+    if categoria_filter:
+        categoria_obj = Categoria.objects.filter(id_categoria=categoria_filter).first()
+        if categoria_obj:
+            categoria_nombre = f"{categoria_obj.nivel} - {categoria_obj.tipo_juego} - {categoria_obj.edad} años"
+
+    sexo_nombre = "Todos"
+    if sexo_filter == "M":
+        sexo_nombre = "Masculino"
+    elif sexo_filter == "F":
+        sexo_nombre = "Femenino"
+
+    # 🟡 4️⃣ Genera el PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="listado_jugadores.pdf"'
+
+    c = canvas.Canvas(response, pagesize=A4)
+    c.setTitle('Listado de Jugadores')
+
+    # 🟠 5️⃣ Títulos
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(200, 800, "Listado de Jugadores")
+
+    c.setFont("Helvetica", 11)
+    c.drawString(100, 780, f"Categoría: {categoria_nombre}")
+    c.drawString(100, 765, f"Género: {sexo_nombre}")
+
+    # 🟠 6️⃣ Genera la tabla de jugadores
+    data = [["Apellido", "Nombre", "Sexo"]]
+
+    for jugador in jugadores:
+        data.append([
+            jugador.apellido.upper(),
+            jugador.nombre.capitalize(),
+            "Masculino" if jugador.sexo == "M" else "Femenino"
+        ])
+
+    # 🟠 7️⃣ Estilo de la tabla
+    table = Table(data, colWidths=[100, 100, 100])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.orange),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+
+    # 🟡 8️⃣ Coloca la tabla en el PDF
+    table.wrapOn(c, 400, 600)
+    table.drawOn(c, 100, 650 - len(data) * 20)
+
+    # 🟠 9️⃣ Cierra el PDF
+    c.save()
+
+    return response

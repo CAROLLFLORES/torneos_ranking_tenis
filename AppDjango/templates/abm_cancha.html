@@ -3,6 +3,31 @@
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
+<!-- Modal de Confirmación de Alta de Cancha -->
+<div class="modal fade" id="modalConfirmacionCancha" tabindex="-1" aria-labelledby="modalConfirmacionCanchaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color:rgba(210, 223, 101, 0.85); color: white; text-align: center;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalConfirmacionCanchaLabel">¡Cancha Guardada con Éxito!</h3>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x" style="font-size: 1.5rem; color: white;"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>La nueva cancha ha sido registrada correctamente.</p>
+                <hr class="separator">
+                <button type="button" class="login-button" onclick="window.location.href='{% url 'abm_cancha' %}'">
+                    Cargar Otra Cancha
+                </button>
+                <hr class="separator">
+                <button type="button" class="login-button" onclick="window.location.href='{% url 'admin_menu' %}'">
+                    Ir al Menú Principal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container-admin">
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
@@ -14,16 +39,7 @@
         <h5>CARGA DE NUEVA CANCHA</h5>
     </div>
 
-    <!-- Contenedor de mensajes -->
-    {% if messages %}
-        <div class="messages-container">
-            {% for message in messages %}
-                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+    
 
     <div class="form-container">
         <!-- Rectángulo angosto a la izquierda -->
@@ -60,4 +76,31 @@
         </div>
     </div>
 </div>
+<script>
+    document.querySelector("form").addEventListener("submit", function (event) {
+        event.preventDefault(); // Evita que se recargue la página al enviar el formulario
+
+        let formData = new FormData(this);
+
+        fetch("{% url 'abm_cancha' %}", { // Ajusta la URL según tu backend
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())  // Esperamos una respuesta JSON del backend
+        .then(data => {
+            if (data.success) {
+                // 🟠 Muestra el Modal si la respuesta es exitosa
+                let modal = new bootstrap.Modal(document.getElementById('modalConfirmacionCancha'));
+                modal.show();
+            } else {
+                alert("Hubo un error al guardar la cancha.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Hubo un problema con el servidor.");
+        });
+    });
+</script>
+
 {% endblock %}

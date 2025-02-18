@@ -607,21 +607,20 @@ def tiene_categoria_doble(self):
     return self.categorias.filter(tipo_juego__iexact="Doble").exists()
 
 
+
 def abm_cancha(request):
     if request.method == "POST":
-        try:
-            numero_cancha = request.POST.get("cancha")
-            if Cancha.objects.filter(cancha=numero_cancha).exists():
-                messages.error(request, f"La cancha número {numero_cancha} ya está registrada.")
-            else:
-                nueva_cancha = Cancha(cancha=numero_cancha)
-                nueva_cancha.save()
-                messages.success(request, f"La cancha número {numero_cancha} fue guardada exitosamente.")
-                
-            return redirect('abm_cancha')
-        except Exception as e:
-            messages.error(request, f"Error al intentar guardar la cancha: {e}")
-    return render(request, 'abm_cancha.html')
+        numero_cancha = request.POST.get("cancha")
+
+        # 🟠 Verifica si la cancha ya existe
+        if Cancha.objects.filter(cancha=numero_cancha).exists():
+            return JsonResponse({"success": False, "errors": "La cancha ya existe."})
+
+        # 🟠 Crea la nueva cancha
+        Cancha.objects.create(cancha=numero_cancha)
+        return JsonResponse({"success": True})  # ✅ Respuesta JSON exitosa
+
+    return render(request, "abm_cancha.html")
 
 
 def listado_canchas(request):
