@@ -80,9 +80,11 @@
     <div class="text-center mt-3">
         <button type="button" class="login-button btn btn-success btn-lg" onclick="">
             Guardar Jornada Terminada
-        <button type="button" class="btn btn-danger btn-lg">
-            <i class="bi bi-file-earmark-pdf"></i> PDF
-        </button>
+            <button type="button" class="btn pdf-button" onclick="generarPDF()">
+                <i class="bi bi-file-earmark-pdf"></i> PDF
+            </button>
+            
+            
             
          
         <a href="{% url 'admin_menu' %}">
@@ -229,11 +231,12 @@
         y += 10;
 
          // **Cabecera con líneas separadoras**
-        doc.setFontSize(12);
+        doc.setFontSize(9);
         doc.setLineWidth(0.1);  // 🔹 **LÍNEA MÁS FINA**
         doc.line(15, y + 2, 195, y + 2); // Línea horizontal debajo del título
 
         doc.setFont("helvetica", "bold");
+        
         doc.text("Partido°", 20, y);
         doc.text("Jugador 1", 40, y);
         doc.text("Jugador 2", 80, y);

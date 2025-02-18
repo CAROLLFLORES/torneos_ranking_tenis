@@ -8,7 +8,7 @@
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
         <hr class="separator-line">
-        <h2>CREACIÓN DE TORNEO</h2>
+        <h2>TORNEOS EXISTENTES</h2>
     </div>
 
     <!-- Contenedor Principal -->
@@ -47,6 +47,7 @@
                     <label for="id_tipo" class="form-label">Tipo:</label>
                     {{ form.tipo }}
                 </div>
+                <BR>
                 <div class="text-center">
                     <button class="login-button chico" type="submit">Crear Torneo</button>
                 </div>
@@ -55,10 +56,7 @@
         </div>
 
         <!-- Recuadro DERECHO: TORNEOS GUARDADOS -->
-        <div class="login-box listados flex-grow-1" style="padding: 5px; margin: 0; max-height: 80px; overflow: auto;">            
-                <div class="title-orange-box grande text-center">
-                    <h2>TORNEOS GUARDADOS</h2>
-                </div>          
+        <div class="login-box listados flex-grow-1" style="padding: 5px; margin: 0; max-height: none; overflow: visible;">
             <table class="table table-striped table-light table-bordered table-sm">
                 <thead class="table-success">
                     <tr>
@@ -67,9 +65,9 @@
                         <th>FECHA DE INICIO</th>
                         <th>FECHA DE FIN</th>
                         <th>MODIFICAR</th>
-                        <th>JUGADORES/PARTIDOS</th>
+                        <th>JUGADORES / PARTIDOS</th>
+                        <th>CARGAR PARTIDOS</th>
                         <th>ELIMINAR</th>
-                        
                     </tr>
                 </thead>
                 <tbody>
@@ -78,29 +76,33 @@
                             <tr>
                                 <td>{{ torneo.nombre }}</td>
                                 <td>
-                                    <button class="login-button mas-chico" style="color: white;"  >
-                                            <a href="{% url 'listar_partidos' %}?torneo={{ torneo.id }}&jugador={{ jugador.dni }}" >
-                                             Historial</a>
+                                    <button class="login-button mas-chico" style="color: white;">
+                                        <a href="{% url 'listar_partidos' %}?torneo={{ torneo.id }}&jugador={{ jugador.dni }}">
+                                            HISTORIAL
+                                        </a>
                                     </button>
                                 </td>
-                                <td>{{ torneo.fecha_inicio|date:"d/m/Y" }}</td>
-                                <td>{{ torneo.fecha_fin|date:"d/m/Y" }}</td>
+                                <td>{{ torneo.fecha_inicio|date:"d/m/y" }}</td>
+                                <td>{{ torneo.fecha_fin|date:"d/m/y" }}</td>
                                 <td>
                                     <a href="{% url 'abm_torneo_editar' torneo.id %}" class="btn btn-warning btn-sm text-center align-middle">
-                                        <i class="bi bi-pencil-square"></i>                                   
+                                        <i class="bi bi-pencil-square"></i>
                                     </a>
                                 </td>
                                 <td>
                                     <a href="{% url 'datos_torneo' torneo.id %}" class="btn btn-info btn-sm" style="color:black">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                 </td>
                                 <td>
-                                    <!-- Botón ELIMINAR con clase 'delete-button' -->
+                                    <a href="{% url 'redirigir_partidos' torneo.id %}" class="btn btn-primary">
+                                        <button type="button" class="login-button mas-chico mb-2" >PARTIDOS</button>
+                                    </a>
+                                </td>
+                                <td>
                                     <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ torneo.id }}">
                                         <i class="bi bi-trash-fill"></i>
                                     </button>
-                                    <!-- Incluye el modal de confirmación -->
                                     <div class="modal fade" id="eliminarModal-{{ torneo.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
@@ -109,6 +111,7 @@
                                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                                         <i class="bi bi-x" style="font-size: 1.5rem;"></i>
                                                     </button>
+                                                </div>
                                                 <div class="modal-body">
                                                     ¿Estás seguro de que deseas eliminar el torneo <strong>{{ torneo.nombre }}</strong>?
                                                 </div>
@@ -117,24 +120,22 @@
                                                         {% csrf_token %}
                                                         <button type="submit" class="login-button rojo delete-button">Eliminar</button>
                                                     </form>
-                
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </td>
-                                
-                                
                             </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="4" class="text-center">No hay torneos guardados.</td>
+                            <td colspan="7" class="text-center">No hay torneos guardados.</td>
                         </tr>
                     {% endif %}
                 </tbody>
             </table>
         </div>
+        
     </div>
 </div>
 {% endblock %}

@@ -27,9 +27,7 @@
             <a href="{% url 'listado_jugadores' %}">
                 <button class="login-button chico">Listado completo</button>
             </a>
-            <a href="{% url 'listado_jugadores' %}">
-                <button class="login-button chico">Por Categoría</button>
-            </a>
+            
             <hr class="separator">
             <h3 class="negro">BUSCAR POR JUGADOR</h3>
             <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center mb-3">
@@ -37,15 +35,44 @@
                 <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
             </form>
             <hr class="separator">
+            <!-- Buscador por Categoría -->
+            <h3 class="negro">POR CATEGORIA</h3>
+
+            <!-- FORMULARIO CORRECTO DE BÚSQUEDA -->
+            <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center mb-3">
+                <select name="categoria" id="filtro-categoria" class="input-field me-2">
+                    <option value="">Todas</option>
+                    {% for categoria in todas_categorias %}
+                        <option value="{{ categoria.id_categoria }}" {% if categoria_seleccionada == categoria.id_categoria|slugify %} selected {% endif %}>
+                            {{ categoria.nivel }} - {{ categoria.tipo_juego }} - {{ categoria.edad }} años
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <!-- BOTÓN DE BUSCAR DENTRO DEL FORMULARIO -->
+                <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
+
+                <!-- Mantener los otros filtros (como búsqueda por nombre y género) -->
+                <input type="hidden" name="search" value="{{ search }}">
+                <input type="hidden" name="sexo" value="{{ request.GET.sexo }}">
+            </form>
+
+
+
+            <!-- Input oculto para mantener la búsqueda -->
+            <input type="hidden" name="search" value="{{ search }}">
+            <hr class="separator">
+
             <a href="{% url 'admin_carga_jugador' %}">
                 <button class="login-button chico">ALTA</button>
             </a>
             <hr class="separator">
             <div class="buttons-container">
-                
-                <a href="{% url 'admin_menu' %}">
-                    <button class="login-button-gris chico">PDF</button>
+             
+                <a href="{% url 'exportar_jugadores_pdf' %}?search={{ search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" target="_blank">
+                    <button class="pdf-button"> PDF</button>
                 </a>
+                
             </div>
         </div>
 
@@ -81,15 +108,6 @@
                         <option value="F" {% if request.GET.sexo == "F" %} selected {% endif %}>Femenino</option>
                     </select>
 
-                    <label for="filtro-categoria" class="me-2 fw-bold">Categoría:</label>
-                    <select name="categoria" id="filtro-categoria" class="form-select me-2" onchange="this.form.submit()">
-                        <option value="">Todas</option>
-                        {% for categoria in categorias %}
-                            <option value="{{ categoria.id_categoria }}" {% if request.GET.categoria == categoria.id_categoria|slugify %} selected {% endif %}>
-                                {{ categoria.nombre }}
-                            </option>
-                        {% endfor %}
-                    </select>
 
                     <!-- Input oculto para mantener la búsqueda -->
                     <input type="hidden" name="search" value="{{ request.GET.search }}">
@@ -106,6 +124,7 @@
                         <th>APELLIDO</th>
                         <th>NOMBRE</th>
                         <th>SEXO</th>
+                        <th>CATEGORIA</th>
                         <th>INFO</th>
                         <th>MODIFICAR</th>
                         <th>ELIMINAR</th>
@@ -118,6 +137,14 @@
                                 <th scope="row">{{ jugador.apellido | upper }}</th>
                                 <td>{{ jugador.nombre | capfirst }}</td>
                                 <td>{{ jugador.sexo }}</td>
+                                <td>
+                                    {% for categoria in jugador.categorias.all %}
+                                        <span class="badge bg-primary">{{ categoria.nivel }} - {{ categoria.tipo_juego }}</span>
+                                    {% empty %}
+                                        <span class="text-muted">Sin categoría</span>
+                                    {% endfor %}
+                                </td>
+
                                 <td>
                                     <a href="{% url 'datos_jugador' jugador.dni %}" class="modificar-button">+</a>
                                 </td>
