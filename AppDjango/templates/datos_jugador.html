@@ -49,13 +49,15 @@
             {% for torneo in torneos %}
                 <div class="history-item">
                     <div class="player-data">
-                        <p><strong>Categoría:</strong> {{ torneo.categorias.first }}</p>
-                        <hr>
                         <p><strong>Torneo:</strong> {{ torneo.nombre }}</p>
+                        <hr>
+                        <p><strong>Categoría:</strong> {{ torneo.categorias.first }}</p>
                     </div>     
                     <div class="player-data">
                         <p class="texto-naranja"><strong>Ranking</strong></p>
                         <hr>
+                        <td class="ranking-points">{{ jugador.puntaje_total_categoria }}</td>
+
                         <p class="texto-negro">##anterior</p>
                     </div>  
                 </div>

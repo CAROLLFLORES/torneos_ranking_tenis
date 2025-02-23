@@ -4,6 +4,19 @@
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
+<!-- Modal para Editar Torneo -->
+<div id="editTournamentModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Editar Torneo</h2>
+        <div id="modal-body">
+            <!-- Aquí se cargará el formulario dinámicamente -->
+        </div>
+    </div>
+</div>
+
+
+
 <div class="container-admin">
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
@@ -85,9 +98,13 @@
                                 <td>{{ torneo.fecha_inicio|date:"d/m/y" }}</td>
                                 <td>{{ torneo.fecha_fin|date:"d/m/y" }}</td>
                                 <td>
-                                    <a href="{% url 'abm_torneo_editar' torneo.id %}" class="btn btn-warning btn-sm text-center align-middle">
+                                    <a href="{% url 'abm_torneo_editar' torneo.id %}" 
+                                    class="btn btn-warning btn-sm text-center align-middle openModalBtn" 
+                                    data-url="{% url 'abm_torneo_editar' torneo.id %}">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
+
+
                                 </td>
                                 <td>
                                     <a href="{% url 'datos_torneo' torneo.id %}" class="btn btn-info btn-sm" style="color:black">
@@ -138,4 +155,43 @@
         
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const modal = document.getElementById("editTournamentModal");
+        const modalBody = document.getElementById("modal-body");
+        const closeModalBtn = document.querySelector(".close");
+
+        // Capturar todos los botones de edición
+        document.querySelectorAll(".openModalBtn").forEach(button => {
+            button.addEventListener("click", function(event) {
+                event.preventDefault(); // Evita que se navegue a otra página
+
+                const url = this.getAttribute("data-url"); // Obtener la URL del formulario
+
+                // Hacer la petición AJAX para cargar el formulario dentro del modal
+                fetch(url)
+                    .then(response => response.text()) // Convertir la respuesta en texto HTML
+                    .then(html => {
+                        modalBody.innerHTML = html; // Insertar el formulario en el modal
+                        modal.style.display = "block"; // Mostrar el modal
+                    })
+                    .catch(error => console.error("Error al cargar el formulario:", error));
+            });
+        });
+
+        // Cerrar modal al hacer clic en la "X"
+        closeModalBtn.addEventListener("click", function() {
+            modal.style.display = "none";
+        });
+
+        // Cerrar modal al hacer clic fuera de él
+        window.addEventListener("click", function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+    })
+</script>
+
+
 {% endblock %}

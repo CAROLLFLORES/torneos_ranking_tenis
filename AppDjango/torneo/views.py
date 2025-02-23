@@ -19,9 +19,7 @@ from torneo.models import Partido, HistorialJornada, Torneo
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from ranking.models import Ranking
-
-
-
+from .models import HistorialJornada
 
 # NUEVO import para parsear fechas/horas
 from datetime import datetime, date, time
@@ -486,30 +484,28 @@ def jornada_detalle(request, torneo_id, jornada):
     })
 
 def listar_partidos(request):
-    torneo_id = request.GET.get('torneo')
-    jugador_id = request.GET.get('jugador')
-    search_fecha = request.GET.get('fecha')
+    torneo_id = request.GET.get('torneo', '')  # Captura el torneo seleccionado
+    search_fecha = request.GET.get('fecha', '')  # Captura la fecha seleccionada
 
-    partidos = Partido.objects.all().order_by('-jornada')  # Ordenar por jornada
+    # Obtener todos los partidos
+    partidos = Partido.objects.all()
 
+    # Aplicar filtros si se selecciona un torneo o una fecha
     if torneo_id:
         partidos = partidos.filter(torneo_id=torneo_id)
-    
-    if jugador_id:
-        partidos = partidos.filter(jugador1_id=jugador_id) | partidos.filter(jugador2_id=jugador_id)
 
     if search_fecha:
         partidos = partidos.filter(fecha=search_fecha)
 
-    context = {
-        'page_obj': partidos,
-        'torneos': Torneo.objects.all(),
-        'torneo_id': torneo_id,
-        'jugador_id': jugador_id,
-        'search_fecha': search_fecha,
-    }
+    # Ordenar por fecha de manera descendente
+    partidos = partidos.order_by('-fecha')
 
-    return render(request, 'listar_partidos.html', context)
+    return render(request, 'listar_partidos.html', {
+        'page_obj': partidos,  # Enviar partidos filtrados
+        'torneos': Torneo.objects.all(),  # Enviar la lista de torneos
+        'torneo_id': torneo_id,  # Para mantener el torneo seleccionado en el HTML
+        'search_fecha': search_fecha,  # Para mantener la fecha seleccionada en el HTML
+    })
 
     
 @csrf_exempt
@@ -741,7 +737,6 @@ def guardar_jornada(request, torneo_id):
 
     return JsonResponse({"success": False, "message": "Método no permitido."})
 
-from .models import HistorialJornada
 
 def historial_jornada(request):
     # Asegurar que los partidos están bien relacionados
@@ -789,3 +784,37 @@ def historial_partidos(request):
     }
     
     return render(request, 'historial_partidos.html', context)
+
+
+
+
+@csrf_exempt
+def guardar_partido(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            partido = Partido.objects.get(id=data['partido_id'])
+
+            # Actualizar los datos del partido
+            partido.jugador1 = data['jugador1']
+            partido.jugador2 = data['jugador2']
+            partido.resultado.set1_jugador1 = data['set1_j1']
+            partido.resultado.set2_jugador1 = data['set2_j1']
+            partido.resultado.set3_jugador1 = data['set3_j1']
+            partido.resultado.set1_jugador2 = data['set1_j2']
+            partido.resultado.set2_jugador2 = data['set2_j2']
+            partido.resultado.set3_jugador2 = data['set3_j2']
+            partido.resultado.ganador_jugador = data['ganador']
+
+            # Guardar los cambios en la base de datos
+            partido.resultado.save()
+            partido.save()
+
+            return JsonResponse({'success': True, 'message': 'Partido actualizado correctamente.'})
+        
+        except Partido.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'El partido no existe en la base de datos.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})

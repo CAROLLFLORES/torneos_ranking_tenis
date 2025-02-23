@@ -38,28 +38,25 @@
             </a>
             <hr class="separator">
 
-            <!-- FILTRO POR TORNEO -->
-            <h3 class="negro">FILTRAR POR TORNEO</h3>
+            <h3 class="negro">FILTRAR POR TORNEO Y/O FECHA</h3>
             <form method="GET" action="{% url 'listar_partidos' %}" class="d-flex align-items-center mb-3">
+                <!-- Selector de Torneo -->
                 <select name="torneo" class="input-field me-2">
-                    <option class="negro" value="">Seleccionar Torneo</option>
+                    <option class="negro" value="">Todos los Torneos</option>
                     {% for torneo in torneos %}
                         <option value="{{ torneo.id }}" {% if torneo.id|stringformat:"s" == torneo_id %}selected{% endif %}>
                             {{ torneo.nombre }}
                         </option>
                     {% endfor %}
                 </select>
-                <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
-            </form>
-            <hr class="separator">
-
-            
-            <!-- FILTRO POR FECHA -->
-            <h3 class="negro">FILTRAR POR FECHA</h3>
-            <form method="GET" action="{% url 'listar_partidos' %}" class="d-flex align-items-center mb-3">
+                
+                <!-- Selector de Fecha -->
                 <input class="input-field me-2" type="date" name="fecha" value="{{ search_fecha }}">
+                
+                <!-- Botón de búsqueda -->
                 <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
             </form>
+
             <hr class="separator">
 
             <!-- Botones adicionales -->
@@ -68,6 +65,7 @@
                 <button type="button" class="btn pdf-button" onclick="generarPDF()">
                     <i class="bi bi-file-earmark-pdf"></i> PDF
                 </button>
+                
                 
             </div>
         </div>
@@ -92,14 +90,14 @@
                 <table class="resultado-tabla">
                     <tbody>
                         <!-- Jugador 1 -->
-                        <tr class="{% if partido.resultado.ganador_jugador == partido.jugador1 %} ganador {% endif %}">
+                        <tr class="{% if partido.resultado.ganador_jugador == partido.jugador1 %}  resaltado {% endif %}">
                             <td class="jugador-nombre">{{ partido.jugador1 }}</td>
                             <td class="puntaje">{{ partido.resultado.set1_jugador1 }}</td>
                             <td class="puntaje">{{ partido.resultado.set2_jugador1 }}</td>
                             <td class="puntaje">{{ partido.resultado.set3_jugador1 }}</td>
                         </tr>
                         <!-- Jugador 2 -->
-                        <tr class="{% if partido.resultado.ganador_jugador == partido.jugador2 %} ganador {% endif %}">
+                        <tr class="{% if partido.resultado.ganador_jugador == partido.jugador2 %}  resaltado {% endif %}">
                             <td class="jugador-nombre">{{ partido.jugador2 }}</td>
                             <td class="puntaje">{{ partido.resultado.set1_jugador2 }}</td>
                             <td class="puntaje">{{ partido.resultado.set2_jugador2 }}</td>
@@ -168,15 +166,17 @@
 
 <!-- ESTILOS CSS -->
 <style>
-
+  
     .grid-container {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Ajusta automáticamente */
         gap: 15px;
         align-items: start;
-        margin-left: 20px;
+        margin-left: 320px; /* Ajusta el margen izquierdo para que las tarjetas comiencen al lado derecho del menú */
+        margin-top: -530px; /* Alinea las tarjetas a la parte superior derecha, como en la segunda imagen */
         padding-top: 20px;
         max-width: 80%;
+      
     }
     
     .card-header {
@@ -248,7 +248,7 @@
         display: block;
 
         table-layout: auto;
-        width: 80%;
+        width: 90%;
         display: block;
         text-align: center;
         color: black;
@@ -262,8 +262,8 @@
         overflow: hidden;
         text-overflow: ellipsis;
         font-size: 16px;
-        padding: 10px;
-        max-width: 80px; /* Ajuste de ancho */
+        padding: 5px;
+        max-width: 90px; /* Ajuste de ancho */
         
     }
 
@@ -321,6 +321,13 @@
         justify-content: center;
     }
 
+    /* 🔹 Resaltar el mayor puntaje en cada set */
+    .resaltado {
+        font-weight: bold;
+        color:rgba(255, 215, 0, 0.8);
+        font-size: 18px;
+    }
+
 </style>
 <script>
     $(document).ready(function() {
@@ -332,22 +339,30 @@
         });
     });
 
-    async function generarPDF() {
-        const { jsPDF } = window.jspdf;
-        let doc = new jsPDF('p', 'mm', 'a4');
-
-        // Captura de pantalla del contenedor de la página
-        const contenido = document.querySelector('.container-admin'); 
-        const canvas = await html2canvas(contenido, { scale: 2 }); // Mejor calidad
-        const imgData = canvas.toDataURL('image/png');
-
-        const imgProps = doc.getImageProperties(imgData);
-        const pdfWidth = doc.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-        doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        doc.save('Historial_Partidos.pdf');
-    }
+        async function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            let doc = new jsPDF('p', 'mm', 'a4');
+    
+            // Capturar la sección que contiene los partidos filtrados
+            const contenido = document.querySelector('.grid-container'); 
+    
+            if (!contenido || contenido.innerHTML.trim() === "") {
+                alert("⚠️ No hay resultados en pantalla para exportar.");
+                return;
+            }
+    
+            const canvas = await html2canvas(contenido, { scale: 2 }); // Mejor calidad
+            const imgData = canvas.toDataURL('image/png');
+    
+            const imgProps = doc.getImageProperties(imgData);
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    
+            doc.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
+            doc.save('Historial_Partidos.pdf');
+        }
+    
+    
 
     document.addEventListener("DOMContentLoaded", function() {
         const pdfButton = document.querySelector('.buttons-container .login-button-gris.chico');
