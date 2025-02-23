@@ -38,20 +38,6 @@ def ver_ranking(request, torneo_id):
 
 
 
-def ver_ranking(request, torneo_id):
-    torneo_actual = get_object_or_404(Torneo, id=torneo_id)
-    torneos_en_curso = Torneo.objects.all()  # 🔥 Mostrar todos los torneos disponibles
-
-    ranking = Ranking.objects.filter(torneo=torneo_actual).select_related('jugador').order_by(
-        '-puntaje_total_categoria', '-games'
-    )
-
-    return render(request, 'ranking.html', {
-        'torneo_actual': torneo_actual,
-        'torneos_en_curso': torneos_en_curso,
-        'ranking': ranking
-    })
-    
 
 @receiver(post_save, sender=ResultadoPartido)
 def actualizar_ranking(sender, instance, **kwargs):
