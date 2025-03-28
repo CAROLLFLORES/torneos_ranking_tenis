@@ -790,31 +790,51 @@ def historial_partidos(request):
 
 @csrf_exempt
 def guardar_partido(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        partido = Partido.objects.get(id=data["partido_id"])
+        partido.resultado.set1_jugador1 = data["set1_jugador1"]
+        partido.resultado.set2_jugador1 = data["set2_jugador1"]
+        partido.resultado.set3_jugador1 = data["set3_jugador1"]
+        partido.resultado.set1_jugador2 = data["set1_jugador2"]
+        partido.resultado.set2_jugador2 = data["set2_jugador2"]
+        partido.resultado.set3_jugador2 = data["set3_jugador2"]
+        partido.resultado.save()
+        return JsonResponse({"success": True})
+
+@csrf_exempt
+def borrar_partido(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        Partido.objects.filter(id=data["partido_id"]).delete()
+        return JsonResponse({"success": True})
+    
+    
+def procesar_ascenso(request):
     if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            partido = Partido.objects.get(id=data['partido_id'])
+        cantidad = int(request.POST.get('cantidad_jugadores', 0))
+        aplicar_a = request.POST.get('aplicar_a')
+        torneo_id = request.POST.get('torneo_id')
 
-            # Actualizar los datos del partido
-            partido.jugador1 = data['jugador1']
-            partido.jugador2 = data['jugador2']
-            partido.resultado.set1_jugador1 = data['set1_j1']
-            partido.resultado.set2_jugador1 = data['set2_j1']
-            partido.resultado.set3_jugador1 = data['set3_j1']
-            partido.resultado.set1_jugador2 = data['set1_j2']
-            partido.resultado.set2_jugador2 = data['set2_j2']
-            partido.resultado.set3_jugador2 = data['set3_j2']
-            partido.resultado.ganador_jugador = data['ganador']
+        # Acá podés aplicar la lógica que desees
+        if aplicar_a == 'todos':
+            # Aplica ascenso a todos los torneos
+            # lógica para múltiples torneos...
+            messages.success(request, f'Se ascendieron {cantidad} jugadores en todos los torneos.')
+        else:
+            # Aplica ascenso a uno solo
+            # lógica para torneo_id específico...
+            messages.success(request, f'Se ascendieron {cantidad} jugadores en el torneo seleccionado.')
 
-            # Guardar los cambios en la base de datos
-            partido.resultado.save()
-            partido.save()
+        return redirect('admin_menu')  # o donde quieras redirigir
 
-            return JsonResponse({'success': True, 'message': 'Partido actualizado correctamente.'})
-        
-        except Partido.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'El partido no existe en la base de datos.'})
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+    return redirect('admin_menu')  # por si entran por GET
 
-    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+from .models import Torneo
+
+def vista_admin(request):
+    torneos = Torneo.objects.all().order_by('-fecha_inicio')  # o como prefieras ordenarlos
+    return render(request, 'abm_torneo.html', {
+        'torneos': torneos,
+        # ...otros datos si los necesitás...
+    })

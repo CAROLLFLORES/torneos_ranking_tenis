@@ -27,6 +27,7 @@ from ranking.views import ranking_torneo, ver_ranking, ranking_general
 
 
 
+
 urlpatterns = [
     path('',loginadmin_views.index, name='index'),
     path('admin/', admin.site.urls),    
@@ -78,7 +79,7 @@ urlpatterns = [
     path('torneo/<int:torneo_id>/ranking/', ver_ranking, name='ver_ranking'),
     path('ranking/', ranking_general, name='ranking_general'),
 
-    
+    path('ascenso/', torneo_views.procesar_ascenso, name='procesar_ascenso'),
 
 
 
