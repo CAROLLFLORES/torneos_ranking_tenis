@@ -373,9 +373,85 @@
             });
         }
     });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const editarBotones = document.querySelectorAll(".editar-btn");
+            const guardarBotones = document.querySelectorAll(".guardar-btn");
+            const eliminarBotones = document.querySelectorAll(".eliminar-btn");
     
+            // Activar edición
+            editarBotones.forEach(btn => {
+                btn.addEventListener("click", function() {
+                    let partidoId = this.getAttribute("data-id");
+                    let inputs = document.querySelectorAll(`.card[data-id='${partidoId}'] .editable`);
     
-</script>
+                    inputs.forEach(input => input.disabled = false);
+    
+                    this.style.display = "none";
+                    document.querySelector(`.guardar-btn[data-id='${partidoId}']`).style.display = "inline-block";
+                });
+            });
+    
+            // Guardar cambios
+            guardarBotones.forEach(btn => {
+                btn.addEventListener("click", function() {
+                    let partidoId = this.getAttribute("data-id");
+                    let inputs = document.querySelectorAll(`.card[data-id='${partidoId}'] .editable`);
+                    let formData = new FormData();
+    
+                    inputs.forEach(input => {
+                        formData.append(input.name, input.value);
+                    });
+    
+                    fetch(`/actualizar_partido/${partidoId}/`, {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("✅ Partido actualizado correctamente.");
+                            inputs.forEach(input => input.disabled = true);
+                            this.style.display = "none";
+                            document.querySelector(`.editar-btn[data-id='${partidoId}']`).style.display = "inline-block";
+                        } else {
+                            alert("⚠️ Error al actualizar el partido.");
+                        }
+                    });
+                });
+            });
+    
+            // Eliminar partido
+            let partidoAEliminar = null;
+            eliminarBotones.forEach(btn => {
+                btn.addEventListener("click", function() {
+                    partidoAEliminar = this.getAttribute("data-id");
+                    $("#confirmarEliminarModal").modal("show");
+                });
+            });
+    
+            document.querySelector(".confirmar-eliminar-btn").addEventListener("click", function() {
+                fetch(`/eliminar_partido/${partidoAEliminar}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("✅ Partido eliminado correctamente.");
+                        location.reload();
+                    } else {
+                        alert("⚠️ Error al eliminar el partido.");
+                    }
+                });
+            });
+        });
+    </script>
 
 
 
