@@ -81,6 +81,8 @@ urlpatterns = [
 
     path('ascenso/', torneo_views.procesar_ascenso, name='procesar_ascenso'),
 
+    path('jugadores_ascendentes/', torneo_views.jugadores_ascendentes, name='jugadores_ascendentes'),
+    path('confirmar_ascenso_final/', torneo_views.confirmar_ascenso_final, name='confirmar_ascenso_final'),
 
 
 

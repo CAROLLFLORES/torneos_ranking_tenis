@@ -6,7 +6,7 @@
 {% for categoria in categorias %}
 <div class="modal fade" id="eliminarModal-{{ categoria.id_categoria }}" tabindex="-1" aria-labelledby="eliminarModalLabel-{{ categoria.id_categoria }}" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content" style="background-color: rgba(210, 223, 101, 0.85); color: white; text-align: center;">
+        <div class="modal-content" style="background-color: rgba(196, 194, 194, 0.85); color: white; text-align: center;">
             <div class="modal-header">
                 <h3 class="modal-title" id="eliminarModalLabel-{{ categoria.id_categoria }}">¿Está seguro que desea eliminar la categoría "{{ categoria.nivel }}"?</h3>
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
@@ -18,7 +18,7 @@
                 <hr class="separator">
                 <form method="POST" action="{% url 'eliminar_categoria' categoria.id_categoria %}">
                     {% csrf_token %}
-                    <button type="submit" class="login-button rojo delete-button">ELIMINAR CATEGORÍA</button>
+                    <button type="submit" class="login-button rojo delete-button">ELIMINAR </button>
                 </form>
             </div>
         </div>
@@ -82,9 +82,14 @@
                                 {% csrf_token %}
                                 <td>
                                     <!-- Botón que abre el modal -->
-                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ categoria.id_categoria }}">
-                                        <i class="bi bi-trash-fill"></i>
+                                    <button type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#eliminarModal-{{ categoria.id_categoria }}"
+                                            title="Eliminar categoría"
+                                            style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-trash-fill" style="font-size: 1.5rem; color: red;"></i>
                                     </button>
+
                                 </td>
                                 
                             </form>
