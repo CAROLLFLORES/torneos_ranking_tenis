@@ -14,7 +14,31 @@
         <hr class="separator-line">
         <h2 class="text-primary text-center">RANKING - {{ torneo_actual.nombre|upper }}</h2>
     </div>
-
+    
+    <div class="modal fade" id="modalAscenso" tabindex="-1" aria-labelledby="modalAscensoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalAscensoLabel">Seleccionar Torneo Destino</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <select name="torneo_destino" class="form-select mb-3" required>
+                {% for torneo in torneos_en_curso %}
+                  {% if torneo.id != torneo_actual.id %}
+                    <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              <p>Se ascenderán los jugadores seleccionados a este torneo.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" form="formAscenso" class="login-button btn btn-success">Confirmar Ascenso</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
     <!-- Modal de advertencia -->
     <!-- Modal de advertencia -->
 <!-- Modal de advertencia personalizado -->
@@ -39,12 +63,6 @@
         </div>
     </div>
 </div><!-- Modal de advertencia personalizado -->
-
-
-
-
-
-    
 
     <!-- Contenedor Principal -->
     <div class="form-container d-flex gap-4 justify-content-between">
@@ -82,51 +100,102 @@
             
         </div>
         
-
+        
+        
         <!-- RECUADRO DERECHO: Formulario principal (UN SOLO FORM) -->
         
             <div class="table-responsive ranking-table-container">
-                <table class="table table-dark table-bordered ranking-table">
-                    <thead class="table-success text-center">
-                        <tr>
-                            <th>#</th>
-                            <th>JUGADOR</th>
-                            <th>PJ</th>
-                            <th>PG</th>
-                            <th>GAMES</th>
-                            <th>PUNTOS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for jugador in ranking %}
-                        <tr class="ranking-row">
-                            <td class="ranking-position">{{ forloop.counter }}</td>
-                            <td class="ranking-name">{{ jugador.jugador.nombre }} {{ jugador.jugador.apellido }}</td>
-                            <td class="ranking-data">{{ jugador.pj }}</td>
-                            <td class="ranking-data">{{ jugador.pg }}</td>
-                            <td class="ranking-data">
-                                {% if jugador.games > 0 %}
-                                    +{{ jugador.games }}
-                                {% else %}
-                                    {{ jugador.games }}
-                                {% endif %}
-                            </td>
-                            <td class="ranking-points">{{ jugador.puntaje_total_categoria }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center">❌ No hay jugadores en este torneo aún.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <form method="POST" action="{% url 'confirmar_ascenso_final' %}" id="formAscenso">
+                    {% csrf_token %}
+                    <input type="hidden" name="jugadores_json" id="jugadores_json">
+                    <input type="hidden" name="torneo_origen" value="{{ torneo_actual.id }}">
+                    <table class="table table-dark table-bordered ranking-table">
+                        <thead class="table-success text-center">
+                            <tr>
+                                <th>#</th>
+                                <th>JUGADOR</th>
+                                <th>PJ</th>
+                                <th>PG</th>
+                                <th>PP</th>
+                                <th>SETS</th>
+                                <th>GAMES</th>
+                                <th>PUNTOS</th>
+                                <th>ASCENSO <div class="text-end mb-2">
+                                    <button type="button" id="btnAbrirModalAscenso" class="btn" title="Ascender jugadores"
+                                        title="Ascenso"
+                                        style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi-arrow-up-circle-fill" style="font-size: 1.5rem;color: orange;"></i>
+                                                            
+                                    </button>
+                                </div></th>
+                                <th>DESCENSO <div class="text-end mb-2">
+                                    <button type="button"
+                                        title="Ascenso"
+                                        style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi-arrow-down-circle-fill" style="font-size: 1.5rem;color: red;"></i>
+                                                            
+                                    </button>
+                                </div></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for jugador in ranking %}
+                            <tr class="ranking-row">
+                                <td class="ranking-position">{{ forloop.counter }}</td>
+                                <td class="ranking-name">{{ jugador.jugador.nombre }} {{ jugador.jugador.apellido }}</td>
+                                <td class="ranking-data">{{ jugador.pj }}</td>
+                                <td class="ranking-data">{{ jugador.pg }}</td>
+                                <td > </td>
+                                <td > </td>
+                                <td class="ranking-data">
+                                    {% if jugador.games > 0 %}
+                                        +{{ jugador.games }}
+                                    {% else %}
+                                        {{ jugador.games }}
+                                    {% endif %}
+                                </td>
+                                <td class="ranking-points">{{ jugador.puntaje_total_categoria }}</td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="jugadores_seleccionados" value="{{ jugador.jugador.id }}">
+                                </td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="jugadores_seleccionados" value="{{ jugador.jugador.id }}">
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">❌ No hay jugadores en este torneo aún.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </form>
+
             </div>
             
-     
+        
+
     </div>
 </div>
 
- 
+<script>
+    document.getElementById("btnAbrirModalAscenso").addEventListener("click", function () {
+        const checkboxes = document.querySelectorAll('input[name="jugadores_seleccionados"]:checked');
+        const ids = Array.from(checkboxes).map(cb => cb.value);
+    
+        if (ids.length === 0) {
+            const advertenciaModal = new bootstrap.Modal(document.getElementById("modalAdvertencia"));
+            document.getElementById("modalAdvertenciaMensaje").textContent = "Seleccioná al menos un jugador para ascender.";
+            advertenciaModal.show();
+            return;
+        }
+    
+        document.getElementById("jugadores_json").value = JSON.stringify(ids);
+        const modalAscenso = new bootstrap.Modal(document.getElementById("modalAscenso"));
+        modalAscenso.show();
+    });
+    </script>
+    
     
 
 {% endblock %}

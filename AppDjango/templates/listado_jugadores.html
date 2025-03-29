@@ -149,9 +149,14 @@
                                     <a href="{% url 'datos_jugador' jugador.dni %}" class="modificar-button">+</a>
                                 </td>
                                 <td>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modificarModal-{{ jugador.dni }}">
-                                        <i class="bi bi-pencil-square"></i>
+                                    <button type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modificarModal-{{ jugador.dni }}"
+                                    title="Modificar jugador"
+                                    style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-pencil-square" style="font-size: 1.5rem; color: black;"></i>
                                     </button>
+                            
                                     <!-- Modal para modificar el jugador -->
                                     <div class="modal fade" id="modificarModal-{{ jugador.dni }}" tabindex="-1" aria-labelledby="modificarModalLabel-{{ jugador.dni }}" aria-hidden="true">
                                         <div class="modal-dialog">
@@ -203,9 +208,14 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <button data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ jugador.dni }}">
-                                        <i class="bi bi-trash-fill btn-danger"></i>
+                                    <button type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#eliminarModal-{{ jugador.dni }}"
+                                            title="Eliminar jugador"
+                                            style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-trash-fill" style="font-size: 1.5rem; color: red;"></i>
                                     </button>
+
                                     {% include 'modal_eliminar_jugador.html' %}
                                 </td>
                             </tr>
