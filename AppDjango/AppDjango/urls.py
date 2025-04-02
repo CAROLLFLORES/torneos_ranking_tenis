@@ -19,9 +19,13 @@ from django.urls import path, include
 from loginAdmin import views as loginadmin_views
 from torneo import views as torneo_views
 from jugador import views as jugador_views
+from ranking import views as ranking_views
+
 from torneo.views import listar_partidos  # ✅ Importa desde torneo, NO desde jugador
 from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada
 from ranking.views import ranking_torneo, ver_ranking, ranking_general
+from ranking.views import confirmar_ascenso_final, ascender_jugadores
+
 
 
 
@@ -79,10 +83,10 @@ urlpatterns = [
     path('torneo/<int:torneo_id>/ranking/', ver_ranking, name='ver_ranking'),
     path('ranking/', ranking_general, name='ranking_general'),
 
-    path('ascenso/', torneo_views.procesar_ascenso, name='procesar_ascenso'),
+    path('ascenso/', ranking_views.procesar_ascenso, name='procesar_ascenso'),
 
-    path('jugadores_ascendentes/', torneo_views.jugadores_ascendentes, name='jugadores_ascendentes'),
-    path('confirmar_ascenso_final/', torneo_views.confirmar_ascenso_final, name='confirmar_ascenso_final'),
+    path('jugadores_ascendentes/', ascender_jugadores, name='jugadores_ascendentes'),
+    path('confirmar_ascenso_final/', confirmar_ascenso_final, name='confirmar_ascenso_final'),
 
 
 

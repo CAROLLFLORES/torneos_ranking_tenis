@@ -19,50 +19,46 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="modalAscensoLabel">Seleccionar Torneo Destino</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              <h4 class="modal-title" id="modalAscensoLabel">Seleccionar Torneo Destino</h4>
+              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <i class="bi bi-x" style="font-size: 1.5rem;"></i>
+            </button>
             </div>
             <div class="modal-body">
-              <select name="torneo_destino" class="form-select mb-3" required>
-                {% for torneo in torneos_en_curso %}
+                <select name="torneo_destino" class="form-select mb-3" required>
+                    {% for torneo in torneos_en_curso %}
                   {% if torneo.id != torneo_actual.id %}
                     <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
                   {% endif %}
                 {% endfor %}
               </select>
-              <p>Se ascenderán los jugadores seleccionados a este torneo.</p>
+              <H4>Se ascenderán los jugadores seleccionados a este torneo.</H4>
             </div>
+            
             <div class="modal-footer">
-              <button type="submit" form="formAscenso" class="login-button btn btn-success">Confirmar Ascenso</button>
+              <button type="submit" form="formAscenso" class="login-button btn btn-success">CONFIRMAR ASCENSO</button>
             </div>
           </div>
         </div>
       </div>
       
-    <!-- Modal de advertencia -->
-    <!-- Modal de advertencia -->
-<!-- Modal de advertencia personalizado -->
-
-
+  <!-- MODAL DE ADVERTENCIA PERSONALIZADO -->
 <div class="modal fade" id="modalAdvertencia" tabindex="-1" aria-labelledby="modalAdvertenciaLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header ">
-                <h4 class="modal-title" id="modalAdvertenciaLabel">Advertencia</h4>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="bi bi-x" style="font-size: 1.5rem;"></i>
-                </button>
-            </div>
-            <div class="modal-body text-center" id="modalAdvertenciaMensaje">
-                <!-- Mensaje dinámico de advertencia -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="login-button" id="btnCancelar" data-bs-dismiss="modal">ACEPTAR</button>
-            </div>
-            
+          <div class="modal-header">
+          <h4 class="modal-title " id="modalAdvertenciaLabel">
+            <i class="bi bi-exclamation-triangle-fill me-2" style="font-size: 1.8rem;"></i>
+            ADVERTENCIA
+          </h4>
         </div>
+        <div class="modal-body text-center">
+          <p id="modalAdvertenciaMensaje" class="fw-semibold mb-4" style="font-size: 1.2rem;"></p>
+          <button type="button" class="login-button" data-bs-dismiss="modal">ACEPTAR</button>
+        </div>
+      </div>
     </div>
-</div><!-- Modal de advertencia personalizado -->
+  </div>
 
     <!-- Contenedor Principal -->
     <div class="form-container d-flex gap-4 justify-content-between">
@@ -71,11 +67,14 @@
         <!-- Se ha quitado el onchange para que NO recargue automáticamente -->
         <div class="narrow-box flex-grow-1">
             <div class="title-orange-gris text-center"> <!-- ✅ Centrar título -->
-                <h1>TORNEOS DISPONIBLES</h1>
+                <h1>RANKING DE TORNEOS</h1>
             </div>
             <div class="text-center">
                 <a href="{% url 'admin_menu' %}">
                     <button class="login-button peque">MENU</button>
+                </a>
+                <a href="{% url 'crear_torneo' %}">
+                    <button class='login-button-gris chico'>VOLVER A TORNEO</button>
                 </a>
             </div>
             <hr class="separator">
@@ -84,11 +83,9 @@
             <ul class="tournament-list">
                 {% for torneo in torneos_en_curso %}
                     <li class="tournament-item">
-                        <span class="tournament-name">{{ torneo.nombre|upper }}</span>
                         <a href="{% url 'ver_ranking' torneo.id %}">
-                            <button class="login-button chico">RANKING</button>
+                            <button class="login-button chico">{{ torneo.nombre|upper }}</button>
                         </a>
-                        <hr class="separator">
                     </li>
                 {% empty %}
                     <li>No hay torneos disponibles.</li>
@@ -109,6 +106,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="jugadores_json" id="jugadores_json">
                     <input type="hidden" name="torneo_origen" value="{{ torneo_actual.id }}">
+                    <input type="hidden" name="torneo_destino" id="torneo_destino_hidden">
                     <table class="table table-dark table-bordered ranking-table">
                         <thead class="table-success text-center">
                             <tr>
@@ -145,8 +143,14 @@
                                 <td class="ranking-name">{{ jugador.jugador.nombre }} {{ jugador.jugador.apellido }}</td>
                                 <td class="ranking-data">{{ jugador.pj }}</td>
                                 <td class="ranking-data">{{ jugador.pg }}</td>
-                                <td > </td>
-                                <td > </td>
+                                <td class="ranking-data">{{ jugador.pp }}</td>
+                                <td class="ranking-data">
+                                    {% if jugador.sets > 0 %}
+                                        +{{ jugador.sets }}
+                                    {% else %}
+                                        {{ jugador.sets }}
+                                    {% endif %}
+                                </td>
                                 <td class="ranking-data">
                                     {% if jugador.games > 0 %}
                                         +{{ jugador.games }}
@@ -156,15 +160,15 @@
                                 </td>
                                 <td class="ranking-points">{{ jugador.puntaje_total_categoria }}</td>
                                 <td class="text-center">
-                                    <input type="checkbox" name="jugadores_seleccionados" value="{{ jugador.jugador.id }}">
+                                    <input type="checkbox" name="jugadores_seleccionados" value="{{ jugador.jugador.dni }}">
                                 </td>
                                 <td class="text-center">
-                                    <input type="checkbox" name="jugadores_seleccionados" value="{{ jugador.jugador.id }}">
+                                    <input type="checkbox" name="jugadores_seleccionados" value="{{ jugador.jugador.dni }}">
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="6" class="text-center">❌ No hay jugadores en este torneo aún.</td>
+                                <td colspan="10" class="text-center">❌ No hay jugadores en este torneo aún.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -180,21 +184,28 @@
 
 <script>
     document.getElementById("btnAbrirModalAscenso").addEventListener("click", function () {
-        const checkboxes = document.querySelectorAll('input[name="jugadores_seleccionados"]:checked');
-        const ids = Array.from(checkboxes).map(cb => cb.value);
+    const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
+        .map(input => input.value);
+
+      if (seleccionados.length === 0) {
+         // Mostrar modal con mismo estilo que el de categoría
+            const mensaje = document.getElementById("modalAdvertenciaMensaje");
+            mensaje.textContent = "Debes seleccionar al menos un jugador para poder realizar el ascenso.";
+            new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
+           return;
+     }
+
+    // Setear jugadores y torneo destino al form
+    document.getElementById("jugadores_json").value = JSON.stringify(seleccionados);
+
+    const selectTorneo = document.querySelector("select[name='torneo_destino']");
+    document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
+
+    new bootstrap.Modal(document.getElementById("modalAscenso")).show();
+});
+
     
-        if (ids.length === 0) {
-            const advertenciaModal = new bootstrap.Modal(document.getElementById("modalAdvertencia"));
-            document.getElementById("modalAdvertenciaMensaje").textContent = "Seleccioná al menos un jugador para ascender.";
-            advertenciaModal.show();
-            return;
-        }
-    
-        document.getElementById("jugadores_json").value = JSON.stringify(ids);
-        const modalAscenso = new bootstrap.Modal(document.getElementById("modalAscenso"));
-        modalAscenso.show();
-    });
-    </script>
+</script>
     
     
 
