@@ -10,11 +10,15 @@ class Ranking(models.Model):
     posicion = models.IntegerField(default=0)
     pj = models.IntegerField(default=0)  # Partidos Jugados
     pg = models.IntegerField(default=0)  # Partidos Ganados
+    pp = models.IntegerField(default=0)  # Partidos Perdidos
+    sets = models.IntegerField(default=0)  # Sets ganados - perdidos
     games = models.IntegerField(default=0)  # Games Totales
     puntaje_total_categoria = models.IntegerField(default=0)
     puntaje_acumulador = models.IntegerField(default=0)
     bimestre = models.IntegerField(default=0)
     anio = models.IntegerField(default=0)
+    activo = models.BooleanField(default=True)  # 👈 Nuevo campo para visibilidad del jugador en ese torneo
+
 
     class Meta:
         unique_together = ('torneo', 'jugador', 'bimestre', 'anio', 'categoria')

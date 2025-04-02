@@ -78,11 +78,15 @@
     </div>
 
     <div class="text-center mt-3">
-        <button type="button" class="login-button btn btn-success btn-lg" onclick="">
-            Guardar Jornada Terminada
-            <button type="button" class="btn pdf-button" onclick="generarPDF()">
+        <button type="button" class="login-button chico btn btn-success btn-lg" onclick="">
+            Guardar Jornada Terminada </button>
+            <button type="button" class="btn pdf-button login-button chico" onclick="generarPDF()">
                 <i class="bi bi-file-earmark-pdf"></i> PDF
             </button>
+            <a href="{% url 'abm_torneo' %}">
+                <button type="button" class="login-button-gris chico btn btn-success btn-lg" onclick="">
+                    TORNEOS </button>
+            </a>
             
             
             

@@ -19,6 +19,7 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
+                <i class="bi-arrow-up-circle-fill" style="font-size: 3.5rem; color: orange;  display: inline-flex; align-items: center; justify-content: center;"></i>
               <h4 class="modal-title" id="modalAscensoLabel">Seleccionar Torneo Destino</h4>
               <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                 <i class="bi bi-x" style="font-size: 1.5rem;"></i>
@@ -32,7 +33,7 @@
                   {% endif %}
                 {% endfor %}
               </select>
-              <H4>Se ascenderán los jugadores seleccionados a este torneo.</H4>
+              <H4>ASCENDER los jugadores seleccionados a este torneo.</H4>
             </div>
             
             <div class="modal-footer">
@@ -123,15 +124,13 @@
                                         title="Ascenso"
                                         style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
                                         <i class="bi-arrow-up-circle-fill" style="font-size: 1.5rem;color: orange;"></i>
-                                                            
                                     </button>
                                 </div></th>
                                 <th>DESCENSO <div class="text-end mb-2">
-                                    <button type="button"
+                                    <button type="button" id="btnAbrirModalAscenso" class="btn" title="Ascender jugadores"
                                         title="Ascenso"
                                         style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
                                         <i class="bi-arrow-down-circle-fill" style="font-size: 1.5rem;color: red;"></i>
-                                                            
                                     </button>
                                 </div></th>
                             </tr>
@@ -184,26 +183,26 @@
 
 <script>
     document.getElementById("btnAbrirModalAscenso").addEventListener("click", function () {
-    const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
-        .map(input => input.value);
-
-      if (seleccionados.length === 0) {
-         // Mostrar modal con mismo estilo que el de categoría
+        const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
+            .map(input => input.value);
+    
+        if (seleccionados.length === 0) {
             const mensaje = document.getElementById("modalAdvertenciaMensaje");
             mensaje.textContent = "Debes seleccionar al menos un jugador para poder realizar el ascenso.";
             new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
-           return;
-     }
-
-    // Setear jugadores y torneo destino al form
-    document.getElementById("jugadores_json").value = JSON.stringify(seleccionados);
-
-    const selectTorneo = document.querySelector("select[name='torneo_destino']");
-    document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
-
-    new bootstrap.Modal(document.getElementById("modalAscenso")).show();
-});
-
+            return;
+        }
+    
+        document.getElementById("jugadores_json").value = JSON.stringify(seleccionados);
+    
+        new bootstrap.Modal(document.getElementById("modalAscenso")).show();
+    });
+    
+    // ✅ Al hacer submit, ahora sí toma el torneo elegido
+    document.getElementById("formAscenso").addEventListener("submit", function () {
+        const selectTorneo = document.querySelector("select[name='torneo_destino']");
+        document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
+    });
     
 </script>
     

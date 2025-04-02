@@ -48,11 +48,8 @@ def ver_ranking(request, torneo_id):
 
 
 
-
 @receiver(post_save, sender=ResultadoPartido)
 def actualizar_ranking(sender, instance, **kwargs):
-    """ 🔥 Se ejecuta cuando se guarda un resultado de partido y actualiza el ranking """
-
     partido = instance.partido
     torneo = partido.torneo
     categoria = torneo.categorias.first()
@@ -62,27 +59,24 @@ def actualizar_ranking(sender, instance, **kwargs):
         print(f"⚠ No hay ganador en el resultado del partido {partido.id}")
         return
 
-    # Identificar al perdedor
     perdedor = partido.jugador1 if partido.jugador1 != ganador else partido.jugador2
 
     if not perdedor:
         print(f"⚠ No se identificó al perdedor del partido {partido.id}")
         return
 
-    # 🔸 Calcular sets ganados por cada jugador
-    sets_j1 = sum([
-        instance.set1_jugador1 > instance.set1_jugador2,
-        instance.set2_jugador1 > instance.set2_jugador2,
-        instance.set3_jugador1 > instance.set3_jugador2
-    ])
+    # ✅ ESTO VA FUERA del if
+    sets_j1 = int(instance.set1_jugador1 > instance.set1_jugador2) + \
+              int(instance.set2_jugador1 > instance.set2_jugador2) + \
+              int(instance.set3_jugador1 > instance.set3_jugador2)
 
-    sets_j2 = 3 - sets_j1
+    sets_j2 = int(instance.set1_jugador2 > instance.set1_jugador1) + \
+              int(instance.set2_jugador2 > instance.set2_jugador1) + \
+              int(instance.set3_jugador2 > instance.set3_jugador1)
 
-    # 🔸 Calcular games por jugador
-    games_j1 = instance.set1_jugador1 + instance.set2_jugador1 + instance.set3_jugador1
-    games_j2 = instance.set1_jugador2 + instance.set2_jugador2 + instance.set3_jugador2
+    games_j1 = instance.set1_jugador1 + instance.set2_jugador1
+    games_j2 = instance.set1_jugador2 + instance.set2_jugador2
 
-    # Si el ganador es jugador2, invertimos los valores
     if ganador == partido.jugador2:
         sets_ganador, sets_perdedor = sets_j2, sets_j1
         games_ganador, games_perdedor = games_j2, games_j1
@@ -90,11 +84,8 @@ def actualizar_ranking(sender, instance, **kwargs):
         sets_ganador, sets_perdedor = sets_j1, sets_j2
         games_ganador, games_perdedor = games_j1, games_j2
 
-    # 🔥 ACTUALIZAR RANKING DEL GANADOR
     ranking_ganador, _ = Ranking.objects.get_or_create(
-        jugador=ganador,
-        torneo=torneo,
-        categoria=categoria,
+        jugador=ganador, torneo=torneo, categoria=categoria,
         defaults={"pj": 0, "pg": 0, "pp": 0, "sets": 0, "games": 0, "puntaje_total_categoria": 0}
     )
     ranking_ganador.pj += 1
@@ -104,11 +95,8 @@ def actualizar_ranking(sender, instance, **kwargs):
     ranking_ganador.puntaje_total_categoria += 100
     ranking_ganador.save()
 
-    # 🔥 ACTUALIZAR RANKING DEL PERDEDOR
     ranking_perdedor, _ = Ranking.objects.get_or_create(
-        jugador=perdedor,
-        torneo=torneo,
-        categoria=categoria,
+        jugador=perdedor, torneo=torneo, categoria=categoria,
         defaults={"pj": 0, "pg": 0, "pp": 0, "sets": 0, "games": 0, "puntaje_total_categoria": 0}
     )
     ranking_perdedor.pj += 1
