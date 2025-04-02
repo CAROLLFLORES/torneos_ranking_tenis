@@ -810,25 +810,7 @@ def borrar_partido(request):
         return JsonResponse({"success": True})
     
     
-def procesar_ascenso(request):
-    if request.method == 'POST':
-        cantidad = int(request.POST.get('cantidad_jugadores', 0))
-        aplicar_a = request.POST.get('aplicar_a')
-        torneo_id = request.POST.get('torneo_id')
 
-        # Acá podés aplicar la lógica que desees
-        if aplicar_a == 'todos':
-            # Aplica ascenso a todos los torneos
-            # lógica para múltiples torneos...
-            messages.success(request, f'Se ascendieron {cantidad} jugadores en todos los torneos.')
-        else:
-            # Aplica ascenso a uno solo
-            # lógica para torneo_id específico...
-            messages.success(request, f'Se ascendieron {cantidad} jugadores en el torneo seleccionado.')
-
-        return redirect('admin_menu')  # o donde quieras redirigir
-
-    return redirect('admin_menu')  # por si entran por GET
 
 from .models import Torneo
 
@@ -839,42 +821,3 @@ def vista_admin(request):
         # ...otros datos si los necesitás...
     })
 
-
-def jugadores_ascendentes(request):
-    cantidad = int(request.GET.get("cantidad", 0))
-    torneo_id = request.GET.get("torneo_id")
-
-    if not torneo_id:
-        return JsonResponse({"jugadores": [], "torneos": []})
-
-    # CAMBIO AQUÍ 👇
-    jugadores = Ranking.objects.filter(torneo_id=torneo_id).order_by('-puntaje_total_categoria')[:cantidad]
-
-    jugadores_data = [{"id": j.jugador.id, "nombre": j.jugador.nombre, "puntaje": j.puntaje_total_categoria} for j in jugadores]
-
-    torneos = Torneo.objects.exclude(id=torneo_id)
-    torneos_data = [{"id": t.id, "nombre": t.nombre} for t in torneos]
-
-    return JsonResponse({"jugadores": jugadores_data, "torneos": torneos_data})
-
-
-    
-@csrf_exempt
-def confirmar_ascenso_final(request):
-    if request.method == 'POST':
-        jugadores_ids = json.loads(request.POST.get('jugadores_json', '[]'))
-        torneo_destino_id = request.POST.get('torneo_destino')
-
-        if jugadores_ids and torneo_destino_id:
-            torneo_destino = Torneo.objects.get(id=torneo_destino_id)
-
-            for jugador_id in jugadores_ids:
-                # Evitamos duplicados
-                TorneoJugador.objects.get_or_create(
-                    torneo=torneo_destino,
-                    jugador_id=jugador_id
-                )
-
-        return redirect('admin_menu')  # o donde quieras volver
-
-    return JsonResponse({'error': 'Método no permitido'}, status=405)

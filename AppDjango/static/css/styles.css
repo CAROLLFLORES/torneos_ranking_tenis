@@ -1078,6 +1078,22 @@ table {
     background-color: red;
 }
 
+.boton-negro{
+    background-color: orange;
+    border: none;
+    color: black;
+    padding: 10px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    display: block;
+    width: 80%;
+    margin: 10px auto; /* Cambia 'margin-top' por 'margin' para centrar */
+    text-align: center;
+    text-decoration: none;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); 
+}
 
 /*asociar generar partido torneo*/
 .table {

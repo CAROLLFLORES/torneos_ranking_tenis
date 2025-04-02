@@ -18,18 +18,18 @@
         <table class="table table-striped table-light table-bordered table-sm">
             <thead class="table-success text-center">
                 <tr>
-                    <th>Partido</th>
-                    <th>Cancha</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th >Jugadores</th>
+                    <th>PARTIDO</th>
+                    <th>CANCHA</th>
+                    <th>FECHA</th>
+                    <th>HORA</th>
+                    <th >JUGADORES</th>
                     <th >Set 1</th>
                     <th >Set 2</th>
                     <th >Set 3</th> 
-                    <th>Modificar</th>
+                    <th>MODIFICAR</th>
                     <th></th>   
-                    <th>Ganador</th>                                  
-                    <th>Eliminar</th>
+                    <th>GANADOR</th>                                  
+                    <th>ELIMINAT</th>
                 </tr>
             </thead>
             <tbody>
@@ -45,7 +45,7 @@
                     <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set3_jugador1}}" id="set3-jugador1-{{ partido.id }}" min="0" disabled></td>
                     <td rowspan="2">
                         <button type="button" class="btn btn-primary" onclick="habilitarEdicion({{ partido.id }})">
-                            <i class="bi bi-pencil-square"></i>
+                            <i class="bi bi-pencil-square" style="font-size: 1.5rem; color: black;"></i>
                         </button>
                     </td>
                     <td rowspan="2">
