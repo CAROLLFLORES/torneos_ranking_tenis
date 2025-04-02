@@ -26,13 +26,44 @@
             </button>
             </div>
             <div class="modal-body">
-                <select name="torneo_destino" class="form-select mb-3" required>
+                <select name="torneo_destino" class="form-select mb-3 form-control-lg" required>
+                    <option value="" disabled selected>TORNEOS</option>
                     {% for torneo in torneos_en_curso %}
-                  {% if torneo.id != torneo_actual.id %}
-                    <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
-                  {% endif %}
-                {% endfor %}
-              </select>
+                        {% if torneo.id != torneo_actual.id %}
+                            <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+              <H4>ASCENDER los jugadores seleccionados a este torneo.</H4>
+            </div>
+            
+            <div class="modal-footer">
+              <button type="submit" form="formAscenso" class="login-button btn btn-success">CONFIRMAR ASCENSO</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="modalDescenso" tabindex="-1" aria-labelledby="modalDescensoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+                <i class="bi-arrow-down-circle-fill" style="font-size: 3.5rem; color: red;  display: inline-flex; align-items: center; justify-content: center;"></i>
+              <h4 class="modal-title" id="modalDescensoLabel">TORNEOS</h4>
+              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <i class="bi bi-x" style="font-size: 1.5rem;"></i>
+            </button>
+            </div>
+            <div class="modal-body">
+                <select name="torneo_destino" class="form-select mb-3 form-control-lg" required>
+                    <option value="" disabled selected>Seleccione un torneo destino</option>
+                    {% for torneo in torneos_en_curso %}
+                        {% if torneo.id != torneo_actual.id %}
+                            <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                
               <H4>ASCENDER los jugadores seleccionados a este torneo.</H4>
             </div>
             
@@ -127,8 +158,8 @@
                                     </button>
                                 </div></th>
                                 <th>DESCENSO <div class="text-end mb-2">
-                                    <button type="button" id="btnAbrirModalAscenso" class="btn" title="Ascender jugadores"
-                                        title="Ascenso"
+                                    <!-- BOTÓN DESCENSO -->
+                                    <button type="button" class="btn-modal-ascenso" title="Descenso"
                                         style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
                                         <i class="bi-arrow-down-circle-fill" style="font-size: 1.5rem;color: red;"></i>
                                     </button>
@@ -203,6 +234,36 @@
         const selectTorneo = document.querySelector("select[name='torneo_destino']");
         document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
     });
+
+
+        // ✅ DESCENSO
+    document.querySelectorAll(".btn-modal-ascenso").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
+                .map(input => input.value);
+    
+            if (seleccionados.length === 0) {
+                const mensaje = document.getElementById("modalAdvertenciaMensaje");
+                mensaje.textContent = "Debes seleccionar al menos un jugador para continuar.";
+                new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
+                return;
+            }
+    
+            // Setear jugadores seleccionados
+            document.getElementById("jugadores_json").value = JSON.stringify(seleccionados);
+    
+            // Obtener torneo destino seleccionado
+            const selectTorneo = document.querySelector("select[name='torneo_destino']");
+            if (selectTorneo) {
+                document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
+            }
+    
+            // Abrir modal de confirmación
+            new bootstrap.Modal(document.getElementById("modalDescenso")).show();
+        });
+    });
+            
+        
     
 </script>
     
