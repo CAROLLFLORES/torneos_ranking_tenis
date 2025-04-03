@@ -56,7 +56,7 @@
             </div>
             <div class="modal-body">
                 <select name="torneo_destino" class="form-select mb-3 form-control-lg" required>
-                    <option value="" disabled selected>Seleccione un torneo destino</option>
+                    <option value="" disabled selected>TORNEOS</option>
                     {% for torneo in torneos_en_curso %}
                         {% if torneo.id != torneo_actual.id %}
                             <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
@@ -64,11 +64,11 @@
                     {% endfor %}
                 </select>
                 
-              <H4>ASCENDER los jugadores seleccionados a este torneo.</H4>
+              <H4>DESCENDER los jugadores seleccionados a este torneo.</H4>
             </div>
             
             <div class="modal-footer">
-              <button type="submit" form="formAscenso" class="login-button btn btn-success">CONFIRMAR ASCENSO</button>
+                <button type="button" class="login-button btn btn-success" id="btnConfirmarDescenso">CONFIRMAR DESCENSO</button>
             </div>
           </div>
         </div>
@@ -260,8 +260,23 @@
     
             // Abrir modal de confirmación
             new bootstrap.Modal(document.getElementById("modalDescenso")).show();
+
+            
         });
     });
+
+// ✅ Confirmar DESCENSO (envía form con torneo destino)
+document.getElementById("btnConfirmarDescenso").addEventListener("click", function () {
+    const selectTorneo = document.querySelector("#modalDescenso select[name='torneo_destino']");
+    if (selectTorneo && selectTorneo.value) {
+        document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
+        document.getElementById("formAscenso").submit();
+    } else {
+        const mensaje = document.getElementById("modalAdvertenciaMensaje");
+        mensaje.textContent = "Seleccioná un torneo destino antes de continuar.";
+        new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
+    }
+});
             
         
     
