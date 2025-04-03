@@ -11,6 +11,7 @@
 html, body {
     margin: 0;
     font-family: 'Oswald', sans-serif; /* Aplica la fuente Oswald */
+    font-style: bold;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;

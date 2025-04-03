@@ -29,7 +29,7 @@
                     <th>MODIFICAR</th>
                     <th></th>   
                     <th>GANADOR</th>                                  
-                    <th>ELIMINAT</th>
+                    <th>ELIMINAR</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,11 +40,11 @@
                     <td rowspan="2"><input type="date" class="form-control hora" value="{{ partido.fecha|date:'Y-m-d' }}" id="fecha-{{ partido.id }}" disabled></td>
                     <td rowspan="2"><input type="time" class="form-control hora" value="{{ partido.hora|time:'H:i' }}" id="hora-{{ partido.id }}" disabled></td>
                     <td><input type="text" class="form-control" value="{{ partido.jugador1 }}" data-dni="{{ partido.jugador1.dni }}" id="jugador1-{{ partido.id }}" disabled></td>
-                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set1_jugador1 }}" id="set1-jugador1-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set2_jugador1}}" id="set2-jugador1-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="number" min="0" max="9" class="form-control set-input" value="{{ partido.resultado.set1_jugador1 }}" id="set1-jugador1-{{ partido.id }}" min="0" disabled></td>
+                    <td><input type="number" min="0" max="9" class="form-control set-input" value="{{ partido.resultado.set2_jugador1}}" id="set2-jugador1-{{ partido.id }}" min="0" disabled></td>
                     <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set3_jugador1}}" id="set3-jugador1-{{ partido.id }}" min="0" disabled></td>
                     <td rowspan="2">
-                        <button type="button" class="btn btn-primary" onclick="habilitarEdicion({{ partido.id }})">
+                        <button type="button" class="btn btn-primary" style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="habilitarEdicion({{ partido.id }})">
                             <i class="bi bi-pencil-square" style="font-size: 1.5rem; color: black;"></i>
                         </button>
                     </td>
@@ -62,9 +62,8 @@
                     
                     
                     <td rowspan="2">
-                        <button class="btn btn-primary" onclick="mostrarModalEliminar({{ partido.id }})">
-                            <i class="bi bi-trash-fill btn-danger"></i>                        </button>
-                    </td>
+                        <button class="btn btn-primary" style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="mostrarModalEliminar({{ partido.id }})">
+                            <i class="bi bi-trash-fill" style="font-size: 1.5rem; color: red;"></i>                    </td>
                 </tr>
                 <tr>
                     <td><input type="text" class="form-control" value="{{ partido.jugador2 }}" data-dni="{{ partido.jugador2.dni }}" id="jugador2-{{ partido.id }}" disabled></td>
@@ -521,6 +520,14 @@ function actualizarGanador(partidoId) {
     }
 }
 
+/*ASEGURA 1 DIGITO EN SET 1 Y 2*/
+document.querySelectorAll('.set-input').forEach(input => {
+    input.addEventListener('input', () => {
+        if (input.value.length > 1) {
+            input.value = input.value.slice(0, 1);
+        }
+    });
+});
 
 
 </script>

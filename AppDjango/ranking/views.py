@@ -50,63 +50,102 @@ def ver_ranking(request, torneo_id):
 
 @receiver(post_save, sender=ResultadoPartido)
 def actualizar_ranking(sender, instance, **kwargs):
+    from ranking.models import Ranking  # por si no está arriba
+
     partido = instance.partido
     torneo = partido.torneo
     categoria = torneo.categorias.first()
+    
+    jugador1 = partido.jugador1
+    jugador2 = partido.jugador2
+
+    # Obtengo ranking de ambos jugadores
+    ranking_j1, _ = Ranking.objects.get_or_create(jugador=jugador1, torneo=torneo, categoria=categoria)
+    ranking_j2, _ = Ranking.objects.get_or_create(jugador=jugador2, torneo=torneo, categoria=categoria)
+
+    # 🔄 Revertir resultado anterior si existe
+    try:
+        resultado_anterior = ResultadoPartido.objects.get(partido=partido)
+        if resultado_anterior and resultado_anterior.id == instance.id and resultado_anterior.ganador_jugador:
+            ganador_ant = resultado_anterior.ganador_jugador
+            perdedor_ant = jugador2 if ganador_ant == jugador1 else jugador1
+
+            sets_ganados_ant = sum([
+                resultado_anterior.set1_jugador1 > resultado_anterior.set1_jugador2,
+                resultado_anterior.set2_jugador1 > resultado_anterior.set2_jugador2,
+                resultado_anterior.set3_jugador1 > resultado_anterior.set3_jugador2,
+            ])
+            sets_perdidos_ant = 3 - sets_ganados_ant
+
+            games_j1_ant = resultado_anterior.set1_jugador1 + resultado_anterior.set2_jugador1
+            games_j2_ant = resultado_anterior.set1_jugador2 + resultado_anterior.set2_jugador2
+
+            # El set 3 no suma en games
+            if resultado_anterior.set3_jugador1 > 0 or resultado_anterior.set3_jugador2 > 0:
+                pass  # No sumar games del set 3
+
+            # Ranking del ganador anterior
+            ranking_ganador_ant = Ranking.objects.get(jugador=ganador_ant, torneo=torneo)
+            ranking_perdedor_ant = Ranking.objects.get(jugador=perdedor_ant, torneo=torneo)
+
+            # Revertir cambios
+            ranking_ganador_ant.pg -= 1
+            ranking_ganador_ant.sets -= (sets_ganados_ant - sets_perdidos_ant)
+            ranking_ganador_ant.games -= (games_j1_ant - games_j2_ant)
+            ranking_ganador_ant.puntaje_total_categoria -= 100
+            ranking_ganador_ant.save()
+
+            ranking_perdedor_ant.pp -= 1
+            ranking_perdedor_ant.sets -= (sets_perdidos_ant - sets_ganados_ant)
+            ranking_perdedor_ant.games -= (games_j2_ant - games_j1_ant)
+            ranking_perdedor_ant.puntaje_total_categoria += 50
+            ranking_perdedor_ant.save()
+    except ResultadoPartido.DoesNotExist:
+        pass
+
+    # ✅ Calcular nuevo resultado
     ganador = instance.ganador_jugador
+    perdedor = jugador2 if ganador == jugador1 else jugador1
 
-    if not ganador:
-        print(f"⚠ No hay ganador en el resultado del partido {partido.id}")
-        return
-
-    perdedor = partido.jugador1 if partido.jugador1 != ganador else partido.jugador2
-
-    if not perdedor:
-        print(f"⚠ No se identificó al perdedor del partido {partido.id}")
-        return
-
-    # ✅ ESTO VA FUERA del if
-    sets_j1 = int(instance.set1_jugador1 > instance.set1_jugador2) + \
-              int(instance.set2_jugador1 > instance.set2_jugador2) + \
-              int(instance.set3_jugador1 > instance.set3_jugador2)
-
-    sets_j2 = int(instance.set1_jugador2 > instance.set1_jugador1) + \
-              int(instance.set2_jugador2 > instance.set2_jugador1) + \
-              int(instance.set3_jugador2 > instance.set3_jugador1)
+    sets_j1 = sum([
+        instance.set1_jugador1 > instance.set1_jugador2,
+        instance.set2_jugador1 > instance.set2_jugador2,
+        instance.set3_jugador1 > instance.set3_jugador2,
+    ])
+    sets_j2 = 3 - sets_j1
 
     games_j1 = instance.set1_jugador1 + instance.set2_jugador1
     games_j2 = instance.set1_jugador2 + instance.set2_jugador2
+    # No sumar set 3 en games
+    # if instance.set3_jugador1 > 0 or instance.set3_jugador2 > 0:
+    #     (no se suman los games del set 3)
 
-    if ganador == partido.jugador2:
+    if ganador == jugador2:
         sets_ganador, sets_perdedor = sets_j2, sets_j1
         games_ganador, games_perdedor = games_j2, games_j1
+        ranking_ganador = ranking_j2
+        ranking_perdedor = ranking_j1
     else:
         sets_ganador, sets_perdedor = sets_j1, sets_j2
         games_ganador, games_perdedor = games_j1, games_j2
+        ranking_ganador = ranking_j1
+        ranking_perdedor = ranking_j2
 
-    ranking_ganador, _ = Ranking.objects.get_or_create(
-        jugador=ganador, torneo=torneo, categoria=categoria,
-        defaults={"pj": 0, "pg": 0, "pp": 0, "sets": 0, "games": 0, "puntaje_total_categoria": 0}
-    )
-    ranking_ganador.pj += 1
+    # ✅ Aplicar nuevo resultado
     ranking_ganador.pg += 1
     ranking_ganador.sets += (sets_ganador - sets_perdedor)
     ranking_ganador.games += (games_ganador - games_perdedor)
     ranking_ganador.puntaje_total_categoria += 100
     ranking_ganador.save()
 
-    ranking_perdedor, _ = Ranking.objects.get_or_create(
-        jugador=perdedor, torneo=torneo, categoria=categoria,
-        defaults={"pj": 0, "pg": 0, "pp": 0, "sets": 0, "games": 0, "puntaje_total_categoria": 0}
-    )
-    ranking_perdedor.pj += 1
     ranking_perdedor.pp += 1
     ranking_perdedor.sets += (sets_perdedor - sets_ganador)
     ranking_perdedor.games += (games_perdedor - games_ganador)
     ranking_perdedor.puntaje_total_categoria -= 50
     ranking_perdedor.save()
 
-    print(f"✅ Ranking actualizado: {ganador.nombre} (sets: +{sets_ganador - sets_perdedor}, games: +{games_ganador - games_perdedor})")
+    print(f"♻️ Ranking modificado - {ganador.nombre} ganó. Cambios aplicados correctamente.")
+
 
 def ranking_general(request):
     torneos = Torneo.objects.all()  # 🔹 Obtener todos los torneos
