@@ -45,20 +45,21 @@
         
         <p class="p-centrado naranja"><strong>HISTORIAL</strong></p> 
         <div class="grid-container">
-        {% if torneos %}
-            {% for torneo in torneos %}
+        {% if torneos_data %}
+            {% for torneo in torneos_data %}
                 <div class="history-item">
                     <div class="player-data">
                         <p><strong>Torneo:</strong> {{ torneo.nombre }}</p>
-                        <hr>
-                        <p><strong>Categoría:</strong> {{ torneo.categorias.first }}</p>
+                        <p><strong>Categoría:</strong> {{ torneo.categoria }}</p>
                     </div>     
                     <div class="player-data">
-                        <p class="texto-naranja"><strong>Ranking</strong></p>
-                        <hr>
-                        <td class="ranking-points">{{ jugador.puntaje_total_categoria }}</td>
-
-                        <p class="texto-negro">##anterior</p>
+                        
+                        {% if torneo.ranking %}
+                            <p class="ranking-points">Ranking:  {{ torneo.ranking }}</p>
+                            <p class="texto-negro">Puntaje: {{ torneo.puntaje }}</p>
+                        {% else %}
+                            <p class="texto-negro">No tiene ranking aún</p>
+                        {% endif %}
                     </div>  
                 </div>
             {% endfor %}
@@ -66,67 +67,68 @@
             <p style="text-align: center; color: grey;"><strong>No está inscrito en ningún torneo actualmente.</strong></p>
         {% endif %}
 
+
             
 
       <!-- trae torneos que participa de manera dinamica -->
 
-        <p class="p-centrado naranja"><strong>TORNEOS EN CURSO</strong></p>
+        <p class="p-centrado naranja"><strong>HISTORIAL INSCRIPTO TORNEOS</strong></p>
             <div class="torneos-container">
                 {% for torneo in torneos %}
                 <div class="narrow-box torneo-card">
                     <div class="info-header">
-                        <p><strong></strong> {{ torneo.categorias.first }}</p>
+                        
                         <p><strong>FECHA</strong> {{ torneo.fecha_inicio|date:"d/m/Y" }}</p>
                     </div>
                     <div class="match izquierda">
-                        <p><strong>TORENO</strong> <BR>
+                        <p><strong>TORNEO</strong> <BR>
                             {{ torneo.nombre }}</p>
                     </div>
                 </div>
                 {% endfor %}
             </div>
             
-
             <p class="p-centrado naranja"><strong>HISTORIAL DE PARTIDOS</strong></p> 
-
-            {% regroup partidos by torneo as partidos_por_torneo %}
-
-            {% for grupo in partidos_por_torneo %}
-            <div class="info-header" style="background-color: orange; color: white; margin: 20px 0px; padding: 10px; display: flex; justify-content: space-between;">
-                <P ><strong>{{ grupo.grouper.nombre }}</strong></P>
-            </DIV>
-                {% for partido in grupo.list %}
-                    <div class="narrow-box largo" style="display: inline-block; margin-bottom: 10px;">
-                        <div class="info-header" style="background-color: black; color: white; padding: 10px; display: flex; justify-content: space-between;">
-                            <p><strong>Torneo:</strong> {{ partido.torneo.nombre }}</p>
-                            <p><strong>Fecha:</strong> {{ partido.fecha|date:"d/m/Y" }}</p>
-                        </div>
-                        <div class="match izquierda" style="text-align: left; size: 5px">
-                            <p class="jugador">
-                                {{ partido.jugador1 }}&nbsp;&nbsp;&nbsp;&nbsp;
-                                {{ partido.resultado.set1_jugador1 }}&nbsp;&nbsp;&nbsp;&nbsp;
-                                {{ partido.resultado.set2_jugador1 }}&nbsp;&nbsp;&nbsp;&nbsp;
-                                {{ partido.resultado.set3_jugador1 }}
-                            </p>
-                            <p class="jugador">
-                                {{ partido.jugador2 }}&nbsp;&nbsp;&nbsp;&nbsp;
-                                {{ partido.resultado.set1_jugador2 }}&nbsp;&nbsp;&nbsp;&nbsp;
-                                {{ partido.resultado.set2_jugador2 }}&nbsp;&nbsp;&nbsp;&nbsp;
-                                {{ partido.resultado.set3_jugador2 }}
-                            </p>
+            {% if partidos_agrupados %}
+            {% for nombre_torneo, partidos in partidos_agrupados %}
+                <div class="info-header" style="background-color: orange; color: white; margin: 20px 0px; padding: 10px; display: flex; justify-content: space-between;">
+                    <p><strong>{{ nombre_torneo }}</strong></p>
+                </div>
+                <div class="partidos-carrusel">
+                    {% for partido in partidos %}
+                    <div class="partido-tarjeta">
+                        <div class="partido-header">Fecha: {{ partido.fecha|date:"d/m/Y" }}</div>
+                        <div class="partido-body">
+                            <div class="fila">
+                                <div class="nombre">{{ partido.jugador1 }}</div>
+                                <div class="sets">
+                                    <span>{{ partido.resultado.set1_jugador1 }}</span>
+                                    <span>{{ partido.resultado.set2_jugador1 }}</span>
+                                    <span>{{ partido.resultado.set3_jugador1 }}</span>
+                                </div>
+                            </div>
+                            <div class="fila">
+                                <div class="nombre">{{ partido.jugador2 }}</div>
+                                <div class="sets">
+                                    <span>{{ partido.resultado.set1_jugador2 }}</span>
+                                    <span>{{ partido.resultado.set2_jugador2 }}</span>
+                                    <span>{{ partido.resultado.set3_jugador2 }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                {% endfor %}
-            {% empty %}
-                <p style="text-align: center; color: grey;"><strong>No ha jugado ningún partido aún.</strong></p>
+                    
+                    {% endfor %}
+                </div>
+                
             {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: grey;"><strong>No ha jugado ningún partido aún.</strong></p>
+            {% endif %}
 
-            
 
         
         <div class="actions" style="margin-bottom: 100px; margin-top: 50px">
-            <button class="login-button ">MODIFICAR</button>
-            <br>
             <td>
                 <!-- Botón BORRAR con clase 'delete-button' -->
                 <button class="login-button rojo" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ jugador.dni }}">
@@ -143,7 +145,93 @@
             </div>
     </main>
 </div>
+<style>
+    .torneos-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px; /* Espacio entre las fichas */
+        justify-content: center; /* Centra horizontalmente */
+    }
+    
+    .partidos-carrusel {
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+        padding-bottom: 10px;
+        scroll-snap-type: x mandatory;
+    }
+    
+    .partidos-carrusel::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    .partidos-carrusel::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 4px;
+    }
+    
+    
+    .partido-tarjeta {
+        flex: 0 0 230px;
+        background: rgba(100, 100, 100, 0.6); /* gris translúcido */
+        border-radius: 10px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        margin:2px;
+    }
 
+    
+    .partido-header {
+        background: #111;
+        color: #fff;
+        padding: 6px 10px;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .partido-body {
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .fila {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .nombre {
+        font-weight: bold;
+        max-width: 120px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    
+    .sets {
+        display: flex;
+        gap: 6px;
+
+    }
+    
+    .sets span {
+        background: #ddd;
+        padding: 2px 6px;
+        border-radius: 4px;
+        min-width: 20px;
+        text-align: center;
+        font-weight: 500;
+        color: black;
+
+    }
+   
+    
+    </style>
+    
     
 
 {% endblock %}

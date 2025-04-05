@@ -92,16 +92,18 @@
                         <!-- Jugador 1 -->
                         <tr class="{% if partido.resultado.ganador_jugador == partido.jugador1 %}  resaltado {% endif %}">
                             <td class="jugador-nombre">{{ partido.jugador1 }}</td>
-                            <td class="puntaje">{{ partido.resultado.set1_jugador1 }}</td>
-                            <td class="puntaje">{{ partido.resultado.set2_jugador1 }}</td>
-                            <td class="puntaje">{{ partido.resultado.set3_jugador1 }}</td>
+                            <td><span class="set-cuadro">{{ partido.resultado.set1_jugador1 }}</span></td>
+                            <td><span class="set-cuadro">{{ partido.resultado.set2_jugador1 }}</span></td>
+                            <td><span class="set-cuadro">{{ partido.resultado.set3_jugador1 }}</span></td>
+
                         </tr>
                         <!-- Jugador 2 -->
                         <tr class="{% if partido.resultado.ganador_jugador == partido.jugador2 %}  resaltado {% endif %}">
                             <td class="jugador-nombre">{{ partido.jugador2 }}</td>
-                            <td class="puntaje">{{ partido.resultado.set1_jugador2 }}</td>
-                            <td class="puntaje">{{ partido.resultado.set2_jugador2 }}</td>
-                            <td class="puntaje">{{ partido.resultado.set3_jugador2 }}</td>
+                            <td><span class="set-cuadro">{{ partido.resultado.set1_jugador2 }}</span></td>
+                            <td><span class="set-cuadro">{{ partido.resultado.set2_jugador2 }}</span></td>
+                            <td><span class="set-cuadro">{{ partido.resultado.set3_jugador2 }}</span></td>
+
                         </tr>
                         
                     </tbody>
@@ -327,6 +329,20 @@
         color:rgba(255, 215, 0, 0.8);
         font-size: 18px;
     }
+
+
+    .set-cuadro {
+        display: inline-block;
+        background-color: #ddd;
+        color: black;
+        padding: 8px 4px;
+        border-radius: 5px;
+        min-width: 10px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 12px;
+    }
+    
 
 </style>
 <script>
