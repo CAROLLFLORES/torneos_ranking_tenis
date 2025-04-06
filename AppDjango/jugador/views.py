@@ -108,11 +108,10 @@ def listado_jugadores(request):
     })
 
 from collections import defaultdict
-
 def datos_jugador(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
 
-    # 🔹 Obtener torneos en los que está inscrito
+    # 🔹 Torneos en los que está inscrito
     torneos = Torneo.objects.filter(torneo_jugadores__jugador=jugador).distinct()
     from ranking.models import Ranking
 
@@ -125,45 +124,44 @@ def datos_jugador(request, dni):
             activo=True
         ).first()
 
-    if ranking:
-        # Obtener todos los rankings activos de esa categoría
-        todos_rankings = Ranking.objects.filter(
-            torneo=torneo,
-            bimestre=ranking.bimestre,
-            anio=ranking.anio,
-            categoria=ranking.categoria,
-            activo=True
-        ).order_by('-puntaje_total_categoria')
+        if ranking:
+            todos_rankings = Ranking.objects.filter(
+                torneo=torneo,
+                bimestre=ranking.bimestre,
+                anio=ranking.anio,
+                categoria=ranking.categoria,
+                activo=True
+            ).order_by('-puntaje_total_categoria')
 
-        # Calcular posición
-        posicion = None
-        for i, r in enumerate(todos_rankings, start=1):
-            if r.jugador == jugador:
-                posicion = i
-                break
+            posicion = None
+            for i, r in enumerate(todos_rankings, start=1):
+                if r.jugador == jugador:
+                    posicion = i
+                    break
 
-        torneos_data.append({
-            'nombre': torneo.nombre,
-            'categoria': ranking.categoria,
-            'fecha': torneo.fecha_inicio,
-            'ranking': posicion,
-            'puntaje': ranking.puntaje_total_categoria,
-        })
-    else:
-        torneos_data.append({
-            'nombre': torneo.nombre,
-            'categoria': torneo.categorias.first(),
-            'fecha': torneo.fecha_inicio,
-            'ranking': None,
-            'puntaje': None,
-        })
+            torneos_data.append({
+                'nombre': torneo.nombre,
+                'categoria': ranking.categoria,
+                'fecha': torneo.fecha_inicio,
+                'ranking': posicion,
+                'puntaje': ranking.puntaje_total_categoria,
+            })
+        else:
+            torneos_data.append({
+                'nombre': torneo.nombre,
+                'categoria': torneo.categorias.first(),  # fallback si no tiene ranking
+                'fecha': torneo.fecha_inicio,
+                'ranking': None,
+                'puntaje': None,
+            })
 
-    # 🔹 Obtener todos los partidos del jugador
+    # 🔹 Partidos jugados por el jugador
     partidos = Partido.objects.filter(
         Q(jugador1=jugador) | Q(jugador2=jugador)
     ).select_related('torneo').order_by('-fecha')
 
     # 🔸 Agrupar los partidos por nombre del torneo
+    from collections import defaultdict
     partidos_por_nombre = defaultdict(list)
     for partido in partidos:
         nombre = partido.torneo.nombre
@@ -171,10 +169,11 @@ def datos_jugador(request, dni):
 
     return render(request, 'datos_jugador.html', {
         'jugador': jugador,
-        'torneos': torneos,  # lo que ya usabas
-        'torneos_data': torneos_data,  # solo para mostrar ranking
+        'torneos': torneos,
+        'torneos_data': torneos_data,
         'partidos_agrupados': partidos_por_nombre.items(),
     })
+
 
 
     
