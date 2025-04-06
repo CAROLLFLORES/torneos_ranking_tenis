@@ -1,3 +1,5 @@
+<!--05/04/2025 Nuevo HTML partido Doble 106-->
+
 {% extends "layout.html" %}
 {% load static %}
 
@@ -125,9 +127,9 @@
                     <table class="table table-striped table-light table-bordered table-sm">
                         <thead class="table-success text-center">
                             <tr>
-                                <th>Jugador 1</th>
+                                <th>Equipo 1</th>
                                 <th>VS</th>
-                                <th>Jugador 2</th>
+                                <th>Equipo 2</th>
                                 <th>Fecha</th>
                                 <th>Hora</th>
                                 <th>Cancha</th>
@@ -139,18 +141,18 @@
                             <tr>
                                 <td>
                                     <select name="jugador1[]" class="form-select form-select-sm" required onchange="validarEnfrentamiento({{ torneo.id }}, this)">
-                                        <option value="" selected>-- Seleccione Jugador 1 --</option>
-                                        {% for jugador in jugadores %}
-                                            <option value="{{ jugador.dni }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                                        <option value="" selected>-- Seleccione Equipo 1 --</option>
+                                        {% for equipo in equipos %}
+                                            <option value="{{ equipo.id }}">{{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} - {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}</option>
                                         {% endfor %}
                                     </select>
                                 </td>
                                 <td class="text-center">VS</td>
                                 <td>
                                     <select name="jugador2[]" class="form-select form-select-sm" required onchange="validarEnfrentamiento({{ torneo.id }}, this)">
-                                        <option value="" selected>-- Seleccione Jugador 2 --</option>
-                                        {% for jugador in jugadores %}
-                                            <option value="{{ jugador.dni }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                                        <option value="" selected>-- Seleccione Equipo 2 --</option>
+                                        {% for equipo in equipos %}
+                                            <option value="{{ equipo.id }}">{{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} - {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}</option>
                                         {% endfor %}
                                     </select>
                                 </td>
@@ -198,22 +200,20 @@
 </div>
 
 <script>
-
+    const tipoTorneo = "{{ torneo.tipo|lower }}";
     /**
      * Esta función SOLO se llama si el usuario da clic en "Cargar Jornada".
      * Si nunca le da clic, NO se recarga la página.
      */
-    function redirigirJornada() {
+     function redirigirJornada() {
         const selectJornada = document.getElementById('jornada_seleccionada');
         const jornada = selectJornada.value;
         const torneoId = {{ torneo.id }};
+        
         if (jornada) {
-            // Esto recarga la página, haciéndote perder datos si ya llenaste Jugador1/Jugador2.
-            // Por eso, idealmente cambiar la jornada ANTES de llenar Jugador1/Jugador2.
             window.location.href = `/torneo/${torneoId}/jornada/${jornada}/`;
         }
     }
-
     document.getElementById('addRowButton').addEventListener('click', function () {
         const tableBody = document.getElementById('partidosTable');
         const firstRow = tableBody.firstElementChild.cloneNode(true);
@@ -240,13 +240,13 @@
     
     function validarPartido(button) {
         let row = button.closest("tr");
-        let jugador1 = row.querySelector("select[name='jugador1[]']").value;
-        let jugador2 = row.querySelector("select[name='jugador2[]']").value;
+        let equipo1 = row.querySelector("select[name='jugador1[]']").value;
+        let equipo2 = row.querySelector("select[name='jugador2[]']").value;
         let fecha = row.querySelector("input[name='fecha[]']").value;
         let hora = row.querySelector("input[name='hora[]']").value;
         let cancha = row.querySelector("select[name='cancha[]']").value;
     
-        if (!jugador1 || !jugador2 || !fecha || !hora || !cancha) {
+        if (!equipo1 || !equipo2 || !fecha || !hora || !cancha) {
             alert("Por favor, completa todos los campos antes de guardar.");
             return;
         }
@@ -258,8 +258,8 @@
                 'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({
-                jugador1: jugador1,
-                jugador2: jugador2,
+                equipo1: equipo1,
+                equipo2: equipo2,
                 fecha: fecha,
                 hora: hora,
                 cancha: cancha
@@ -270,7 +270,7 @@
             if (data.success) {
                 mostrarNotificacion("Validación exitosa. El partido es válido.");
             } else {
-                mostrarAdvertencia("Estos jugadores YA HAN JUGADO en este torneo. ¿Desea continuar?");
+                mostrarAdvertencia("Estos equipos YA HAN JUGADO en este torneo. ¿Desea continuar?");
             }
         })
         .catch(error => {
@@ -313,11 +313,11 @@
         let hayDuplicados = false;
     
         filas.forEach(fila => {
-            let jugador1 = fila.querySelector("select[name='jugador1[]']").value;
-            let jugador2 = fila.querySelector("select[name='jugador2[]']").value;
+            let equipo1 = fila.querySelector("select[name='jugador1[]']").value;
+            let equipo2 = fila.querySelector("select[name='jugador2[]']").value;
     
-            if (jugador1 && jugador2) {
-                let combinacion = jugador1 < jugador2 ? `${jugador1}-${jugador2}` : `${jugador2}-${jugador1}`;
+            if (equipo1 && equipo2) {
+                let combinacion = equipo1 < equipo2 ? `${equipo1}-${equipo2}` : `${equipo2}-${equipo1}`;
     
                 if (combinaciones.has(combinacion)) {
                     hayDuplicados = true;
@@ -330,7 +330,7 @@
         });
     
         if (hayDuplicados) {
-            mostrarModalAdvertencia("Existen partidos duplicados en la jornada. Modifique los jugadores.");
+            mostrarModalAdvertencia("Existen partidos duplicados en la jornada. Modifique los equipos.");
             return false;
         }
     
@@ -357,11 +357,11 @@
         let hayDuplicados = false;
     
         filas.forEach(fila => {
-            let jugador1 = fila.querySelector("select[name='jugador1[]']").value;
-            let jugador2 = fila.querySelector("select[name='jugador2[]']").value;
+            let equipo1 = fila.querySelector("select[name='jugador1[]']").value;
+            let equipo2 = fila.querySelector("select[name='jugador2[]']").value;
     
-            if (jugador1 && jugador2) {
-                let combinacion = jugador1 < jugador2 ? `${jugador1}-${jugador2}` : `${jugador2}-${jugador1}`;
+            if (equipo1 && equipo2) {
+                let combinacion = equipo1 < equipo2 ? `${equipo1}-${equipo2}` : `${equipo2}-${equipo1}`;
     
                 if (combinaciones.has(combinacion)) {
                     hayDuplicados = true;
@@ -374,7 +374,7 @@
         });
     
         if (hayDuplicados) {
-            mostrarModalAdvertencia("Existen partidos duplicados en la jornada. Modifique los jugadores.");
+            mostrarModalAdvertencia("Existen partidos duplicados en la jornada. Modifique los equipos.");
             return false;
         }
     

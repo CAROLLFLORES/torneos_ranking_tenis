@@ -1,3 +1,5 @@
+<!-- 05/04/2025 - funcionamiento el doble y mixto 104-->
+<!-- 05/04/2025 - Agrego un boton para que vaya Informacion de torneo  105-->
 {% extends "layout.html" %}
 {% load static %}
 
@@ -19,6 +21,11 @@
             <a href="{% url 'admin_menu' %}" class="d-flex justify-content-center">
                 <button class="login-button peque">MENU</button>
             </a>
+<!-- Inicio Informacion de torneo  105-->
+            <a href="{% url 'datos_torneo' torneo.id %}" class="d-flex justify-content-center">
+                <button class="login-button peque">INFO</button>
+            </a>
+<!-- Fin Informacion de torneo  105-->
         </div>
 
         <form id="createTeamForm" method="POST" action="" style="width: 100%; max-width: 900px;">
@@ -177,59 +184,95 @@
 
 <!-- JavaScript para funcionalidad del botón y el modal -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const crearEquipoButton = document.getElementById('crearEquipoButton');
-        const checkboxes = document.querySelectorAll('.jugador-checkbox');
-        const form = document.getElementById('createTeamForm');
-        const modal = document.getElementById('messageModal');
-        const modalMessage = document.getElementById('modal-message');
-        const closeModalButton = document.getElementById('closeModalButton');
+// Inicio funcionamiento el doble y mixto 104
+document.addEventListener('DOMContentLoaded', function () {
+    const crearEquipoButton = document.getElementById('crearEquipoButton');
+    const jugadoresLista = document.getElementById('jugadoresLista');
+    const equiposBox = document.getElementById('selectedTeamsBox{{ torneo.id }}');
+    const form = document.getElementById('createTeamForm');
 
-        closeModalButton.addEventListener('click', function () {
-            modal.style.display = 'none';
-        });
+    crearEquipoButton.addEventListener('click', function () {
+        const checkboxes = jugadoresLista.querySelectorAll('.jugador-checkbox:checked');
+        if (checkboxes.length !== 2) {
+            alert("Selecciona exactamente dos jugadores.");
+            return;
+        }
 
-        crearEquipoButton.addEventListener('click', function () {
-            const seleccionados = Array.from(checkboxes).filter(cb => cb.checked);
+        const jugador1 = checkboxes[0];
+        const jugador2 = checkboxes[1];
 
-            if (seleccionados.length !== 2) {
-                modalMessage.innerHTML = 'Debes seleccionar exactamente dos jugadores para crear un equipo.';
-                modal.style.display = 'block';
-                return;
-            }
+        const formData = new FormData();
+        formData.append('action', 'crear_equipo');
+        formData.append('jugador1', jugador1.value);
+        formData.append('jugador2', jugador2.value);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
 
-            // Crear inputs para jugadores seleccionados y enviarlos al formulario
-            const jugador1Input = document.createElement('input');
-            jugador1Input.type = 'hidden';
-            jugador1Input.name = 'jugador1';
-            jugador1Input.value = seleccionados[0].value;
+        fetch("", { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    jugador1.closest('.form-check').remove();
+                    jugador2.closest('.form-check').remove();
 
-            const jugador2Input = document.createElement('input');
-            jugador2Input.type = 'hidden';
-            jugador2Input.name = 'jugador2';
-            jugador2Input.value = seleccionados[1].value;
+                    const div = document.createElement("div");
+                    div.className = "form-check";
+                    div.innerHTML = `
+                        <input type="checkbox" class="form-check-input equipo-checkbox" value="${data.equipo_id}">
+                        <label class="form-check-label">
+                            Equipo ${data.equipo_numero}: ${data.jugador1_nombre} y ${data.jugador2_nombre}
+                        </label>
+                    `;
+                    equiposBox.appendChild(div);
 
-            form.appendChild(jugador1Input);
-            form.appendChild(jugador2Input);
-
-            // Configurar la acción para crear equipo
-            const actionInput = document.createElement('input');
-            actionInput.type = 'hidden';
-            actionInput.name = 'action';
-            actionInput.value = 'crear_equipo';
-
-            form.appendChild(actionInput);
-
-            // Enviar el formulario
-            form.submit();
-        });
-         // Mostrar mensajes de Django en el modal
-         const messages = JSON.parse('{{ all_messages|escapejs|safe }}');
-         if (messages.length > 0) {
-             modalMessage.innerHTML = messages.join('<br>');
-             modal.style.display = 'block';
-         }
+                    document.getElementById("equiposCount{{ torneo.id }}").textContent = data.total_equipos;
+                } else {
+                    alert(data.error);
+                }
+            });
     });
+
+    const desasociarBtn = document.querySelector('button[name="action"][value="desasociar"]');
+    desasociarBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const seleccionados = equiposBox.querySelectorAll('.equipo-checkbox:checked');
+        if (seleccionados.length === 0) {
+            alert("Selecciona equipos a eliminar.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('action', 'desasociar');
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        seleccionados.forEach(cb => formData.append('equipos[]', cb.value));
+
+        fetch("", { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    // Eliminar equipos del DOM
+                    seleccionados.forEach(cb => cb.closest('.form-check').remove());
+
+                    // Volver a agregar jugadores
+                    data.jugadores_reintegrados.forEach(jugador => {
+                        const div = document.createElement("div");
+                        div.className = "form-check";
+                        div.innerHTML = `
+                            <input class="form-check-input jugador-checkbox" type="checkbox" value="${jugador.dni}" id="jugador${jugador.dni}">
+                            <label class="form-check-label" for="jugador${jugador.dni}">
+                                ${jugador.nombre}
+                            </label>`;
+                        jugadoresLista.appendChild(div);
+                    });
+
+                    alert("Equipos eliminados y jugadores reintegrados.");
+                } else {
+                    alert(data.error || "Error al eliminar.");
+                }
+            });
+    });
+});
+// Inicio funcionamiento el doble y mixto 104
 </script>
 
 {% endblock %}

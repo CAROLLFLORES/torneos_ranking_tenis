@@ -996,6 +996,9 @@ select.input-field {
     text-align: left;
 }
 
+
+
+
 /* Ajustar el padding de las celdas para reducir espacio entre filas */
 .table tbody tr td {
     padding: 5px 10px; /* Ajustar el padding para que las filas estén más juntas */

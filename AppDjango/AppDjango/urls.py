@@ -87,6 +87,10 @@ urlpatterns = [
 
     path('jugadores_ascendentes/', ascender_jugadores, name='jugadores_ascendentes'),
     path('confirmar_ascenso_final/', confirmar_ascenso_final, name='confirmar_ascenso_final'),
+    path('categorias/carga-masiva/', jugador_views.carga_masiva_categoria, name='carga_masiva_categoria'),
+    path('canchas/carga-masiva/', torneo_views.carga_masiva_cancha, name='carga_masiva_cancha'),
+    path('jugadores/carga-masiva/', jugador_views.carga_masiva_jugadores, name='carga_masiva_jugadores'),
+    path('torneos/carga-masiva/', torneo_views.carga_masiva_torneos, name='carga_masiva_torneos'),
 
 
 

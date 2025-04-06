@@ -1,4 +1,8 @@
- <!-- SE PUEDE AGREGAR UBICACION O NOMBRE DEL PREDIO QUE CONTIENE LAS CANCHAS POR SI HAY SEDES -->
+<!-- En el dia de hoy 5/04/2025 Agrega la carga masiva de cancha  id  Inicio CARGAGA MASIVA - 100 -->
+
+
+
+<!-- SE PUEDE AGREGAR UBICACION O NOMBRE DEL PREDIO QUE CONTIENE LAS CANCHAS POR SI HAY SEDES -->
 {% extends "layout.html" %}
 {% block body_class %}fondo-secundario{% endblock %}
 
@@ -56,7 +60,22 @@
             <a href="{% url 'listado_canchas' %}">
                 <button class="login-button-gris chico">Listado completo</button>
             </a>
+            <hr class="separator">
+<!--Inicio CARGAGA MASIVA - 100 -->
+            <form id="form-carga-masiva-cancha" enctype="multipart/form-data" style="display: none;">
+                {% csrf_token %}
+                <input type="file" id="input-cancha" name="archivo_excel" accept=".xlsx">
+            </form>
             
+            <button class="login-button-gris chico" onclick="document.getElementById('input-cancha').click();">
+                Carga Masiva Canchas
+            </button>
+            
+            <div id="mensaje-carga-cancha" style="margin-top: 10px; display: none; color: green; font-weight: bold;">
+                ¡Canchas cargadas con éxito!
+            </div>
+
+<!--Fin CARGAGA MASIVA  - 100 -->            
             
         </div>
 
@@ -101,6 +120,35 @@
             alert("Hubo un problema con el servidor.");
         });
     });
+
+// Inicio Carga Masiva - 100
+document.getElementById('input-cancha').addEventListener('change', function () {
+    const archivo = this.files[0];
+    const formData = new FormData();
+    formData.append('archivo_excel', archivo);
+
+    fetch("{% url 'carga_masiva_cancha' %}", {
+        method: "POST",
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.exito) {
+            document.getElementById('mensaje-carga-cancha').style.display = 'block';
+        } else {
+            alert('❌ Error al cargar canchas:\n' + (data.error || ''));
+        }
+    })
+    .catch(error => {
+        alert('❌ Error al procesar el archivo de canchas.');
+        console.error(error);
+    });
+});
+// Fin Carga Masiva - 100
+
 </script>
 
 {% endblock %}
