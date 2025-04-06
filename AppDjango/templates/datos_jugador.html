@@ -94,33 +94,34 @@
                 <div class="info-header" style="background-color: orange; color: white; margin: 20px 0px; padding: 10px; display: flex; justify-content: space-between;">
                     <p><strong>{{ nombre_torneo }}</strong></p>
                 </div>
-                <div class="partidos-carrusel">
-                    {% for partido in partidos %}
-                    <div class="partido-tarjeta">
-                        <div class="partido-header">Fecha: {{ partido.fecha|date:"d/m/Y" }}</div>
-                        <div class="partido-body">
-                            <div class="fila">
-                                <div class="nombre">{{ partido.jugador1 }}</div>
-                                <div class="sets">
-                                    <span>{{ partido.resultado.set1_jugador1 }}</span>
-                                    <span>{{ partido.resultado.set2_jugador1 }}</span>
-                                    <span>{{ partido.resultado.set3_jugador1 }}</span>
+                <div class="carrusel-wrapper">
+                    <div class="partidos-carrusel">
+                        {% for partido in partidos %}
+                        <div class="partido-tarjeta">
+                            <div class="partido-header">Fecha: {{ partido.fecha|date:"d/m/Y" }}</div>
+                            <div class="partido-body">
+                                <div class="fila">
+                                    <div class="nombre">{{ partido.jugador1 }}</div>
+                                    <div class="sets">
+                                        <span>{{ partido.resultado.set1_jugador1 }}</span>
+                                        <span>{{ partido.resultado.set2_jugador1 }}</span>
+                                        <span>{{ partido.resultado.set3_jugador1 }}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="fila">
-                                <div class="nombre">{{ partido.jugador2 }}</div>
-                                <div class="sets">
-                                    <span>{{ partido.resultado.set1_jugador2 }}</span>
-                                    <span>{{ partido.resultado.set2_jugador2 }}</span>
-                                    <span>{{ partido.resultado.set3_jugador2 }}</span>
+                                <div class="fila">
+                                    <div class="nombre">{{ partido.jugador2 }}</div>
+                                    <div class="sets">
+                                        <span>{{ partido.resultado.set1_jugador2 }}</span>
+                                        <span>{{ partido.resultado.set2_jugador2 }}</span>
+                                        <span>{{ partido.resultado.set3_jugador2 }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
+                        {% endfor %}
                     </div>
-                    
-                    {% endfor %}
                 </div>
-                
             {% endfor %}
             {% else %}
                 <p style="text-align: center; color: grey;"><strong>No ha jugado ningún partido aún.</strong></p>
@@ -152,13 +153,20 @@
         gap: 10px; /* Espacio entre las fichas */
         justify-content: center; /* Centra horizontalmente */
     }
+    .carrusel-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 10px 0;
+    }
     
     .partidos-carrusel {
         display: flex;
-        overflow-x: auto;
-        gap: 10px;
-        padding-bottom: 10px;
+        flex-wrap: nowrap;
+        gap: 12px;
         scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        min-width: max-content;
     }
     
     .partidos-carrusel::-webkit-scrollbar {
