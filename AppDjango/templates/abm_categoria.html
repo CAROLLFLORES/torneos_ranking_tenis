@@ -1,3 +1,5 @@
+<!-- En el dia de hoy 5/04/2025 Agrega la carga masiva de Categorias   id  Inicio CARGA MASIVA - 101 -->
+
 {% extends "layout.html" %}    
 {% block body_class %}fondo-secundario{% endblock %}
 
@@ -57,6 +59,21 @@
             <a href="{% url 'listados_categorias' %}">
                 <button class="login-button-gris chico">Listado completo</button>
             </a>
+            <hr class="separator">
+<!-- Inicio CARGA MASIVA - 101 -->
+            <form id="form-carga-masiva" enctype="multipart/form-data" style="display: none;">
+                {% csrf_token %}
+                <input type="file" id="input-archivo" name="archivo_excel" accept=".xlsx">
+            </form>
+            
+            <button class="login-button-gris chico" onclick="document.getElementById('input-archivo').click();">
+                Carga Masiva
+            </button>
+            
+            <div id="mensaje-carga" style="margin-top: 10px; display: none; color: green; font-weight: bold;">
+                ¡Categorías cargadas con éxito!
+            </div>
+<!--  Fin CARGA MASIVA - 101 -->           
             
             <!-- Contenedor para los botones -->
             
@@ -125,6 +142,33 @@
         });
     });
 
+// Inicio CARGA MASIVA - 101
+    document.getElementById('input-archivo').addEventListener('change', function () {
+        const archivo = this.files[0];
+        const formData = new FormData();
+        formData.append('archivo_excel', archivo);
+    
+        fetch("{% url 'carga_masiva_categoria' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exito) {
+                document.getElementById('mensaje-carga').style.display = 'block';
+            } else {
+                alert('❌ Error al cargar:\n' + (data.error || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            alert('❌ Error al procesar el archivo.');
+            console.error(error);
+        });
+    });    
+// Fin  CARGA MASIVA - 101
 </script>
 
 {% endblock %}

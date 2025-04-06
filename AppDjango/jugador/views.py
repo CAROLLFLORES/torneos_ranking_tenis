@@ -1,3 +1,6 @@
+#  5/04/2025 se realizo el agregar el id Carga masiva categoria 101 y Carga Masiva de Jugadores 102
+
+
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Jugador,Categoria,JugadorCategoria
 from torneo.models import TorneoJugador, Partido, Torneo
@@ -14,6 +17,8 @@ from reportlab.lib import colors
 from reportlab.platypus import Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 from jugador.models import Jugador, Categoria
+from django.http import JsonResponse
+import pandas as pd
 
 
 def jugador_detalle(request, dni):
@@ -323,3 +328,68 @@ def exportar_jugadores_pdf(request):
     c.save()
 
     return response
+
+#--------------------------------------------------------------------------------------------------------------
+#Carga masiva categoria 101
+
+def carga_masiva_categoria(request):
+    if request.method == 'POST' and request.FILES.get('archivo_excel'):
+        print(" Archivos recibidos:", request.FILES)
+        try:
+            excel_file = request.FILES['archivo_excel']
+            df = pd.read_excel(excel_file, engine='openpyxl')
+
+            print("🧩 Columnas detectadas:", df.columns.tolist())
+
+            for _, row in df.iterrows():
+                Categoria.objects.create(
+                    nivel=row['nivel'],
+                    edad=int(row['edad']),
+                    tipo_juego=row['tipo_juego']
+                )
+
+            return JsonResponse({'exito': True})
+        except Exception as e:
+            print("❌ Error al procesar archivo:", str(e))
+            return JsonResponse({'exito': False, 'error': str(e)})
+
+    return JsonResponse({'exito': False, 'error': 'Método no permitido'})
+#--------------------------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------------------
+#Carga Masiva de Jugadores 102
+def carga_masiva_jugadores(request):
+    if request.method == 'POST' and request.FILES.get('archivo_excel'):
+        try:
+            excel_file = request.FILES['archivo_excel']
+            df = pd.read_excel(excel_file, engine='openpyxl')
+
+            for _, row in df.iterrows():
+                nombre = row['nombre']
+                apellido = row['apellido']
+                sexo = row['sexo']
+
+                # Verificar si ya existe
+                jugador, creado = Jugador.objects.get_or_create(
+                    nombre=nombre,
+                    apellido=apellido,
+                    sexo=sexo
+                )
+
+                # Procesar categorías (separadas por ;)
+                categorias_str = str(row['categorias'])  # Asegurar string
+                for cat_str in categorias_str.split(';'):
+                    try:
+                        nivel, edad, tipo_juego = cat_str.strip().split('-')
+                        categoria = Categoria.objects.get(nivel=nivel, edad=int(edad), tipo_juego=tipo_juego)
+                        JugadorCategoria.objects.get_or_create(jugador=jugador, categoria=categoria)
+                    except Exception as e:
+                        print(f"❌ Categoría inválida para jugador {nombre} {apellido}: {cat_str} ({e})")
+
+            return JsonResponse({'exito': True})
+        except Exception as e:
+            print("❌ Error general al procesar jugadores:", str(e))
+            return JsonResponse({'exito': False, 'error': str(e)})
+
+    return JsonResponse({'exito': False, 'error': 'Método no permitido'})
+#--------------------------------------------------------------------------------------------------------------

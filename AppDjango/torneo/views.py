@@ -1,3 +1,9 @@
+
+# 05/04/2025 - Agrego ID Carga masiva Cancha 100 y Carga Masiva de Torneo 103
+# 05/04/2025 - Se esta poniendo en funcionamiento el doble y mixto 104
+# 05/04/2025 - Se crear partido Doble 106
+
+
 # views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -20,6 +26,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from ranking.models import Ranking
 from .models import HistorialJornada
+import pandas as pd
 
 # NUEVO import para parsear fechas/horas
 from datetime import datetime, date, time
@@ -90,20 +97,34 @@ def eliminar_torneo(request, id):
     return redirect('abm_torneo')
 
 
+from django.db import transaction
+
 def editar_torneo(request, id):
     torneo = get_object_or_404(Torneo, id=id)
+
     if request.method == 'POST':
         form = TorneoForms(request.POST, instance=torneo)
+
         if form.is_valid():
             categorias = form.cleaned_data['categorias']
+
             try:
                 with transaction.atomic():
-                    torneo = form.save()
-                    torneo.categorias.clear()
+                    # Solo actualizás los campos del torneo, NO categorías
+                    torneo.nombre = form.cleaned_data['nombre']
+                    torneo.fecha_inicio = form.cleaned_data['fecha_inicio']
+                    torneo.fecha_fin = form.cleaned_data['fecha_fin']
+                    torneo.tipo = form.cleaned_data['tipo']
+                    torneo.save()
+
+                    # Limpiar y actualizar las categorías
+                    TorneoCategoria.objects.filter(torneo=torneo).delete()
                     for categoria in categorias:
-                        TorneoCategoria.objects.get_or_create(torneo=torneo, categoria=categoria)
+                        TorneoCategoria.objects.create(torneo=torneo, categoria=categoria)
+
                 messages.success(request, 'Torneo actualizado exitosamente.')
                 return redirect('abm_torneo')
+
             except IntegrityError:
                 messages.error(request, 'Error: Ya existe una relación entre este torneo y una de las categorías seleccionadas.')
             except Exception as e:
@@ -112,8 +133,9 @@ def editar_torneo(request, id):
             messages.error(request, 'Por favor, corrige los errores en el formulario.')
     else:
         form = TorneoForms(instance=torneo)
-    
+
     return render(request, 'editar_torneo.html', {'form': form, 'torneo': torneo})
+
 
 
 def ver_caracteristicas_torneo(request, id):
@@ -187,97 +209,103 @@ def asociar_jugadores(request, id):
         'jugadores_asociados': jugadores_asociados,
     })
 
-
+#--------------------------------------------------------------------------------------------------------------
+#funcionamiento el doble y mixto 104
+@csrf_exempt
 def asociar_equipos(request, id):
     torneo = get_object_or_404(Torneo, id=id)
+
     jugadores_disponibles = Jugador.objects.none()
     if torneo.tipo == 'F':
-        jugadores_disponibles = Jugador.objects.filter(sexo='F').order_by('apellido', 'nombre')
+        jugadores_disponibles = Jugador.objects.filter(sexo='F')
     elif torneo.tipo == 'M':
-        jugadores_disponibles = Jugador.objects.filter(sexo='M').order_by('apellido', 'nombre')
+        jugadores_disponibles = Jugador.objects.filter(sexo='M')
     elif torneo.tipo == 'Mixto':
-        jugadores_disponibles = Jugador.objects.filter(sexo__in=['F', 'M']).order_by('apellido', 'nombre')
+        jugadores_disponibles = Jugador.objects.filter(sexo__in=['F', 'M'])
+
+    # Filtrar jugadores que NO están en un equipo ya creado
+    jugadores_en_equipo = Equipo.objects.filter(torneo=torneo).values_list('jugador1__dni', 'jugador2__dni')
+    dnis_en_equipo = [dni for par in jugadores_en_equipo for dni in par]
+    jugadores_disponibles = jugadores_disponibles.exclude(dni__in=dnis_en_equipo).order_by('apellido', 'nombre')
 
     equipos_asociados = Equipo.objects.filter(torneo=torneo).select_related('jugador1', 'jugador2')
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        equipos_seleccionados = request.POST.getlist('equipos')
-        jugador1_id = request.POST.get('jugador1')
-        jugador2_id = request.POST.get('jugador2')
 
-        try:
-            with transaction.atomic():
-                if action == "crear_equipo":
-                    if jugador1_id and jugador2_id and jugador1_id != jugador2_id:
-                        jugador1 = Jugador.objects.get(dni=jugador1_id)
-                        jugador2 = Jugador.objects.get(dni=jugador2_id)
+        if action == "crear_equipo":
+            jugador1_id = request.POST.get('jugador1')
+            jugador2_id = request.POST.get('jugador2')
 
-                        # VALIDACIÓN: Evitar equipos repetidos
-                        equipo_existente = Equipo.objects.filter(
-                            torneo=torneo,
-                            jugador1=jugador1,
-                            jugador2=jugador2
-                        ).exists() or Equipo.objects.filter(
-                            torneo=torneo,
-                            jugador1=jugador2,
-                            jugador2=jugador1
-                        ).exists()
+            if jugador1_id and jugador2_id and jugador1_id != jugador2_id:
+                jugador1 = get_object_or_404(Jugador, dni=jugador1_id)
+                jugador2 = get_object_or_404(Jugador, dni=jugador2_id)
 
-                        if equipo_existente:
-                            messages.error(request, 'Este equipo ya fue creado.')
-                        else:
-                            Equipo.objects.create(
-                                jugador1=jugador1,
-                                jugador2=jugador2,
-                                torneo=torneo
-                            )
-                            messages.success(request, 'Equipo creado exitosamente.')
-                    else:
-                        messages.error(request, 'Selecciona dos jugadores distintos para crear un equipo.')
+                equipo_existente = Equipo.objects.filter(
+                    torneo=torneo
+                ).filter(
+                    Q(jugador1=jugador1, jugador2=jugador2) |
+                    Q(jugador1=jugador2, jugador2=jugador1)
+                ).exists()
 
-                elif action == "asociar":
-                    if equipos_seleccionados:
-                        for equipo_str in equipos_seleccionados:
-                            jugador1_id, jugador2_id = equipo_str.split('-')
-                            jugador1 = Jugador.objects.get(dni=jugador1_id)
-                            jugador2 = Jugador.objects.get(dni=jugador2_id)
-                            Equipo.objects.get_or_create(
-                                jugador1=jugador1,
-                                jugador2=jugador2,
-                                torneo=torneo
-                            )
-                        messages.success(request, 'Equipos guardados exitosamente en la base de datos.')
+                if equipo_existente:
+                    return JsonResponse({'success': False, 'error': 'Este equipo ya existe.'})
 
-                elif action == "desasociar":
-                    if equipos_seleccionados:
-                        equipos = Equipo.objects.filter(id__in=equipos_seleccionados, torneo=torneo)
-                        equipos.delete()
-                        messages.success(request, 'Equipos desasociados exitosamente del torneo.')
+                nuevo_equipo = Equipo.objects.create(
+                    torneo=torneo,
+                    jugador1=jugador1,
+                    jugador2=jugador2
+                )
 
-            return redirect('asociar_equipos', id=torneo.id)
+                total_equipos = Equipo.objects.filter(torneo=torneo).count()
 
-        except IntegrityError:
-            messages.error(request, 'Ocurrió un error con la base de datos.')
-        except Exception as e:
-            messages.error(request, f'Error al procesar la solicitud: {e}')
-            
-    # Pasar mensajes como contexto para el modal
+                return JsonResponse({
+                    'success': True,
+                    'equipo_id': nuevo_equipo.id,
+                    'jugador1_dni': jugador1.dni,
+                    'jugador2_dni': jugador2.dni,
+                    'jugador1_nombre': f"{jugador1.apellido} {jugador1.nombre}",
+                    'jugador2_nombre': f"{jugador2.apellido} {jugador2.nombre}",
+                    'equipo_numero': total_equipos,
+                    'total_equipos': total_equipos
+                })
+
+        elif action == "desasociar":
+            equipos_ids = request.POST.getlist('equipos[]')
+
+            jugadores_reintegrados = []
+            for equipo_id in equipos_ids:
+                equipo = get_object_or_404(Equipo, id=equipo_id, torneo=torneo)
+                jugadores_reintegrados.append({
+                    'dni': equipo.jugador1.dni,
+                    'nombre': f"{equipo.jugador1.apellido} {equipo.jugador1.nombre}"
+                })
+                jugadores_reintegrados.append({
+                    'dni': equipo.jugador2.dni,
+                    'nombre': f"{equipo.jugador2.apellido} {equipo.jugador2.nombre}"
+                })
+                equipo.delete()
+
+            return JsonResponse({
+                'success': True,
+                'jugadores_reintegrados': jugadores_reintegrados,
+                'equipos_eliminados': equipos_ids
+            })
+
     all_messages = [m.message for m in messages.get_messages(request)]
-
     return render(request, 'asociar_equipos.html', {
         'torneo': torneo,
         'jugadores_disponibles': jugadores_disponibles,
         'equipos_asociados': equipos_asociados,
-        'all_messages': all_messages,  # Pasamos los mensajes al contexto
+        'all_messages': all_messages
     })
-
+#-------------------------------------------------------------------------------------------------------------- 
 
 def redirigir_inscripcion(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
     categorias = torneo.categorias.all()
     es_doble = any("doble" in categoria.tipo_juego.lower() for categoria in categorias)
-    if es_doble:
+    if es_doble or torneo_id == 'Mixto':
         return redirect('asociar_equipos', id=torneo.id)
     else:
         return redirect('asociar_jugadores', id=torneo.id)
@@ -286,21 +314,86 @@ def redirigir_inscripcion(request, torneo_id):
 def redirigir_partidos(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
     es_doble = torneo.categorias.filter(tipo_juego__iexact="Doble").exists()
-    if es_doble:
+    if es_doble or torneo.tipo == 'Mixto':
         return redirect('partido_doble', torneo_id=torneo.id)
     else:
         return redirect('partido_single', torneo_id=torneo.id)
 
-
+#--------------------------------------------------------------------------------------------------------------
+#partido Doble 106
 def partido_doble(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
-    equipos = Equipo.objects.filter(torneo=torneo).select_related('jugador1', 'jugador2')
     
+    if request.method == 'POST':
+        numero_jornada = request.POST.get('numero_jornada')
+        equipos1 = request.POST.getlist('jugador1[]')  # Ahora representa equipo1
+        equipos2 = request.POST.getlist('jugador2[]')  # Ahora representa equipo2
+        fechas = request.POST.getlist('fecha[]')
+        horas = request.POST.getlist('hora[]')
+        canchas = request.POST.getlist('cancha[]')
+
+        if not equipos1 or not equipos2 or not fechas or not horas or not canchas:
+            messages.error(request, "No se recibieron todos los datos necesarios desde el formulario.")
+            return redirect('partido_doble', torneo_id=torneo_id)
+
+        advertencias = []
+        partidos_creados = []
+
+        for equipo1, equipo2, fecha_str, hora_str, cancha_id in zip(equipos1, equipos2, fechas, horas, canchas):
+            try:
+                fecha_obj = date.fromisoformat(fecha_str)
+                hora_obj = datetime.strptime(hora_str, '%H:%M').time()
+            except ValueError as e:
+                messages.warning(request, f"Error en fecha/hora: {e}")
+                continue
+
+            if Partido.objects.filter(
+                torneo=torneo,
+                jornada=numero_jornada,
+                jugador1_id=equipo1,
+                jugador2_id=equipo2
+            ).exists():
+                advertencias.append(f"El partido entre equipo {equipo1} y equipo {equipo2} ya existe.")
+                continue
+
+            partido = Partido(
+                torneo=torneo,
+                jornada=numero_jornada,
+                jugador1_id=equipo1,
+                jugador2_id=equipo2,
+                fecha=fecha_obj,
+                hora=hora_obj,
+                cancha_id=cancha_id
+            )
+            partido.save()
+            partidos_creados.append(partido)
+
+        if advertencias:
+            for adv in advertencias:
+                messages.warning(request, adv)
+        if partidos_creados:
+            messages.success(
+                request,
+                f"Se han creado {len(partidos_creados)} partidos para la jornada {numero_jornada}."
+            )
+
+        return redirect('partido_doble', torneo_id=torneo_id)
+
+    # Render GET
+    jornadas = Partido.objects.filter(torneo=torneo).values('jornada').distinct().order_by('jornada')
+    numero_jornada = jornadas.count() + 1
+    equipos = Equipo.objects.filter(torneo=torneo).select_related('jugador1', 'jugador2').order_by('jugador1__apellido')
+    canchas = Cancha.objects.all()
+
     return render(request, 'partido_doble.html', {
         'torneo': torneo,
+        'numero_jornada': numero_jornada,
         'equipos': equipos,
+        'canchas': canchas,
+        'jornadas': jornadas,
     })
 
+#--------------------------------------------------------------------------------------------------------------
 
 from datetime import datetime, date
 
@@ -349,6 +442,9 @@ def guardar_fecha(request, torneo_id):
         return redirect('partido_single', torneo_id=torneo.id)
 
     return redirect('partido_single', torneo_id=torneo.id)
+
+
+
 
 #esto agregrue para el guardado de resultaultado por partidofrom django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -543,8 +639,8 @@ def partido_single(request, torneo_id):
         'jornadas': jornadas,
     })
 
-
-
+#-----------------------------------------------------------------------------------
+#partido Doble 106
 def jornada_detalle(request, torneo_id, jornada):
     torneo = get_object_or_404(Torneo, id=torneo_id)
     partidos = Partido.objects.filter(torneo=torneo, jornada=jornada).select_related('jugador1', 'jugador2', 'cancha')
@@ -555,6 +651,7 @@ def jornada_detalle(request, torneo_id, jornada):
         'partidos': partidos,
     })
 
+#-----------------------------------------------------------------------------------
 def listar_partidos(request):
     torneo_id = request.GET.get('torneo', '')  # Captura el torneo seleccionado
     search_fecha = request.GET.get('fecha', '')  # Captura la fecha seleccionada
@@ -1106,3 +1203,82 @@ def vista_admin(request):
         # ...otros datos si los necesitás...
     })
 
+
+
+#--------------------------------------------------------------------------------------------------------------
+# Inicio Carga masiva Cancha 100
+def carga_masiva_cancha(request):
+    if request.method == 'POST' and request.FILES.get('archivo_excel'):
+        print("📥 Archivos recibidos:", request.FILES)
+        try:
+            excel_file = request.FILES['archivo_excel']
+            df = pd.read_excel(excel_file, engine='openpyxl')
+
+            print("🧩 Columnas detectadas:", df.columns.tolist())
+
+            for _, row in df.iterrows():
+                numero_cancha = int(row['cancha'])
+
+                # Verificar si ya existe
+                if not Cancha.objects.filter(cancha=numero_cancha).exists():
+                    Cancha.objects.create(cancha=numero_cancha)
+
+            return JsonResponse({'exito': True})
+        except Exception as e:
+            print("❌ Error al procesar archivo:", str(e))
+            return JsonResponse({'exito': False, 'error': str(e)})
+
+    return JsonResponse({'exito': False, 'error': 'Método no permitido'})
+
+# Fin Carga masiva 100
+#--------------------------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------------------
+# Inicio Carga Masiva de Torneo 103
+def carga_masiva_torneos(request):
+    if request.method == 'POST' and request.FILES.get('archivo_excel'):
+        try:
+            excel_file = request.FILES['archivo_excel']
+            df = pd.read_excel(excel_file, engine='openpyxl')
+
+            for _, row in df.iterrows():
+                nombre = row['nombre']
+                fecha_inicio = pd.to_datetime(row['fecha_inicio']).date()
+                fecha_fin = pd.to_datetime(row['fecha_fin']).date() if not pd.isna(row['fecha_fin']) else None
+                tipo = row['tipo']
+
+                torneo, creado = Torneo.objects.get_or_create(
+                    nombre=nombre,
+                    fecha_inicio=fecha_inicio,
+                    defaults={
+                        'fecha_fin': fecha_fin,
+                        'tipo': tipo
+                    }
+                )
+
+                # Si ya existía, actualiza
+                if not creado:
+                    torneo.fecha_fin = fecha_fin
+                    torneo.tipo = tipo
+                    torneo.save()
+
+                # Procesar categorías
+                categorias_str = str(row['categorias'])
+                for cat_str in categorias_str.split(';'):
+                    try:
+                        nivel, edad, tipo_juego = cat_str.strip().split('-')
+                        categoria = Categoria.objects.get(nivel=nivel, edad=int(edad), tipo_juego=tipo_juego)
+                        TorneoCategoria.objects.get_or_create(torneo=torneo, categoria=categoria)
+                    except Exception as e:
+                        print(f"❌ Error con categoría '{cat_str}' en torneo '{nombre}': {e}")
+
+            return JsonResponse({'exito': True})
+        except Exception as e:
+            print("❌ Error general al procesar torneos:", str(e))
+            return JsonResponse({'exito': False, 'error': str(e)})
+
+    return JsonResponse({'exito': False, 'error': 'Método no permitido'})
+
+
+# Inicio Carga Masiva de Torneo 103
+#--------------------------------------------------------------------------------------------------------------

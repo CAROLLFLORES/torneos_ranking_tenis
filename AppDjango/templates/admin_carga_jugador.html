@@ -1,3 +1,5 @@
+<!-- 05/04/2025 - Se agregar carga masivos de jugadores- ID Carga Masivos Jugadores 102-->
+
 {% extends "layout.html" %}    
 {% block body_class %}fondo-secundario{% endblock %}
 
@@ -51,6 +53,22 @@
             <a href="{% url 'listado_jugadores' %}">
                 <button class="login-button-gris chico">Listado completo</button>
             </a>
+            <hr class="separator">
+<!-- Inicio Carga Masiva de Jugadores 102-->     
+            <form id="form-carga-masiva-jugadores" enctype="multipart/form-data" style="display: none;">
+                {% csrf_token %}
+                <input type="file" id="input-jugadores" name="archivo_excel" accept=".xlsx">
+            </form>
+
+            <button class="login-button-gris chico" onclick="document.getElementById('input-jugadores').click();">
+                Carga Masiva Jugadores
+            </button>
+
+            <div id="mensaje-carga-jugadores" style="margin-top: 10px; display: none; color: green; font-weight: bold;">
+                ¡Jugadores cargados con éxito!
+            </div>
+<!-- Fin Carga Masiva de Jugadores 102-->
+
             
         </div>
 
@@ -113,6 +131,32 @@
             errorDiv.remove();
         }, 4000); // El mensaje desaparece después de 4 segundos
     }
+// Inicio Carga Masiva de Jugadores 102
+    document.getElementById('input-jugadores').addEventListener('change', function () {
+        const archivo = this.files[0];
+        const formData = new FormData();
+        formData.append('archivo_excel', archivo);
     
+        fetch("{% url 'carga_masiva_jugadores' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exito) {
+                document.getElementById('mensaje-carga-jugadores').style.display = 'block';
+            } else {
+                alert('❌ Error al cargar jugadores:\n' + (data.error || ''));
+            }
+        })
+        .catch(error => {
+            alert('❌ Error al procesar el archivo de jugadores.');
+            console.error(error);
+        });
+    });
+// Fin Carga Masiva de Jugadores 102
 </script>
 {% endblock %}
