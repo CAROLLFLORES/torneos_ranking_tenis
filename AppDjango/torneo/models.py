@@ -169,3 +169,18 @@ class HistorialJornada(models.Model):
 
     def __str__(self):
         return f"Jornada {self.fecha} - {self.torneo.nombre}"
+
+
+
+class MasterJugador(models.Model):
+    torneo = models.ForeignKey(Torneo, on_delete=models.CASCADE)
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    posicion = models.IntegerField()
+
+    class Meta:
+        unique_together = ('torneo', 'jugador', 'categoria')
+        ordering = ['posicion']
+
+    def __str__(self):
+        return f"{self.posicion} - {self.jugador} ({self.torneo.nombre})"

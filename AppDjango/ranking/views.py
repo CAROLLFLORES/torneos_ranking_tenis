@@ -3,16 +3,18 @@ from django.shortcuts import render, get_object_or_404, redirect
 # Create your views here.
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from torneo.models import ResultadoPartido
+from torneo.models import ResultadoPartido, MasterJugador
 from ranking.models import Ranking, Torneo, Jugador
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Sum, F
-from torneo.models import TorneoJugador
+from torneo.models import TorneoJugador, MasterJugador
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.contrib import messages
+from django.http import HttpResponseBadRequest
+
 
 
 
@@ -27,17 +29,30 @@ def ranking_torneo(request, torneo_id):
     return render(request, 'ranking.html', {'torneo': torneo, 'ranking': ranking})
 
 
-
 def ver_ranking(request, torneo_id):
     torneo_actual = get_object_or_404(Torneo, id=torneo_id)
-    torneos_en_curso = Torneo.objects.all()  # 🔥 Mostrar todos los torneos disponibles
+    torneos_en_curso = Torneo.objects.all()
 
     ranking = Ranking.objects.filter(
-    torneo=torneo_actual,
-    activo=True  # 👈 Solo jugadores visibles
+        torneo=torneo_actual,
+        activo=True
     ).select_related('jugador').order_by(
         '-puntaje_total_categoria', '-games'
     )
+
+   
+    master_creado = MasterJugador.objects.filter(torneo=torneo_actual).exists()
+    master_cantidad = MasterJugador.objects.filter(torneo=torneo_actual).count()
+
+    return render(request, 'ranking.html', {
+        'torneo_actual': torneo_actual,
+        'torneos_en_curso': torneos_en_curso,
+        'ranking': ranking,
+        'master_creado': master_creado,
+        'master_cantidad': master_cantidad
+    })
+
+
 
 
     return render(request, 'ranking.html', {
@@ -228,3 +243,75 @@ def confirmar_ascenso_final(request):
         return redirect('admin_menu')  # fallback por si algo falla
 
     return redirect('admin_menu')
+
+
+from django.views.decorators.http import require_POST
+
+@require_POST
+def seleccionar_master(request):
+    jugadores_ids = json.loads(request.POST.get('jugadores_json', '[]'))
+    torneo_id = request.POST.get('torneo_origen')
+    cantidad = len(jugadores_ids)
+
+    if not jugadores_ids or not torneo_id:
+        messages.error(request, "Debes seleccionar jugadores y un torneo.")
+        return redirect('ver_ranking', torneo_id=torneo_id)
+
+    torneo = get_object_or_404(Torneo, id=torneo_id)
+
+    MasterJugador.objects.filter(torneo=torneo).delete()
+
+    for pos, dni in enumerate(jugadores_ids, start=1):
+        jugador = get_object_or_404(Jugador, dni=dni)
+        ranking = Ranking.objects.filter(torneo=torneo, jugador=jugador).first()
+        if ranking:
+            MasterJugador.objects.create(
+                torneo=torneo,
+                jugador=jugador,
+                categoria=ranking.categoria,
+                posicion=pos
+            )
+
+    seleccionados = MasterJugador.objects.filter(torneo=torneo).select_related('jugador')
+
+    return render(request, 'master_torneos.html', {
+        'torneo': torneo,
+        'seleccionados': seleccionados,
+        'cantidad': cantidad
+    })
+
+
+def master_torneos(request, torneo_id, cantidad):
+    torneo = get_object_or_404(Torneo, id=torneo_id)
+    cantidad = int(cantidad)
+
+    rankings = Ranking.objects.filter(torneo=torneo).order_by('-puntaje_total_categoria')[:cantidad]
+
+    MasterJugador.objects.filter(torneo=torneo).delete()
+
+    for idx, ranking in enumerate(rankings, start=1):
+        MasterJugador.objects.create(
+            torneo=torneo,
+            jugador=ranking.jugador,
+            categoria=ranking.categoria,
+            posicion=idx
+        )
+
+    seleccionados = MasterJugador.objects.filter(torneo=torneo).select_related('jugador')
+
+    return render(request, 'master_torneos.html', {
+        'torneo': torneo,
+        'seleccionados': seleccionados,
+        'cantidad': cantidad
+    })
+
+def listado_masters(request):
+    from torneo.models import MasterJugador, Torneo
+
+    # Trae solo torneos que tengan al menos un MasterJugador
+    torneos = Torneo.objects.filter(masterjugador__isnull=False).distinct()
+
+    return render(request, 'listado_masters.html', {
+        'torneos': torneos
+    })
+
