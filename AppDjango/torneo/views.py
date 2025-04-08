@@ -21,7 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from datetime import datetime, date, time
 from django.http import JsonResponse
-from torneo.models import Partido, HistorialJornada, Torneo
+from torneo.models import Partido, HistorialJornada, Torneo, MasterJugador
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from ranking.models import Ranking
@@ -30,6 +30,9 @@ import pandas as pd
 
 # NUEVO import para parsear fechas/horas
 from datetime import datetime, date, time
+
+from django.http import HttpResponseBadRequest
+
 
 def abm_torneo(request):
     categoria_id = request.GET.get('categoria')

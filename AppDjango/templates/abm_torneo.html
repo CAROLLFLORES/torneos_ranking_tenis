@@ -2,7 +2,9 @@
 
     05/04/2025 - Agrego Carga Masiva de Torneo 103
     05/04/2025 - Pude arreglar Editar el problema que salio del modal debo agregar en el modal.
--->
+
+    6/04/2025 - Agregado de modal para master
+    -->
 
 
 
@@ -22,7 +24,6 @@
         </div>
     </div>
 </div>
-
 
 <div class="container-admin">
     <h4>ADMINISTRADOR</h4>
@@ -113,18 +114,18 @@
                         
                             <tr>
                                 <td>
-                                    <a href="{% url 'listar_partidos' %}?torneo={{ torneo.id }}&jugador={{ jugador.dni }}" 
-                                       title="Ver historial"
-                                       style="padding: 2px; width: 50px; height: 24px; display: inline-flex; align-items: center; justify-content: center;">
-                                       <i style="display: inline-block; width: 24px; height: 24px; background-color: #bada55; border-radius: 50%; border: 2px solid white;" title="Pelota de tenis"></i>
+                                    <a href="{% url 'ver_ranking' torneo.id %}" 
+                                       title="Ver ranking"
+                                       style="padding: 2px; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i style="display: inline-block; width: 24px; height: 24px; background-color: #bada55; border-radius: 50%; border: 2px solid white;" title="Master"></i>
                                     </a>
                                 </td>
                                 <td>{{ torneo.nombre }}</td>
                                 <td>
                                     <a href="{% url 'ver_ranking' torneo.id %}" 
                                        title="Ver ranking"
-                                       style="padding: 2px; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi bi-trophy-fill" style="font-size: 1.5rem;  color:orange"></i>
+                                       style="padding: 2px; width: 50px; height: 24px; display: inline-flex; align-items: center; justify-content: center;">
+                                       <i class="bi bi-trophy-fill" style="font-size: 1.5rem;  color:orange"></i>
                                     </a>
                                 </td>
                                 
@@ -291,8 +292,11 @@
     });
 
     // Fin Carga Masiva de Torneo 103
-    </script>
+
+   
     
+
+</script>  
 
 
 {% endblock %}

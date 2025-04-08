@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container-admin" style="background-color: rgba(0, 128, 0, 0.3);">
+    <h1 class="text-primary text-center" >TORNEOS MASTER</h1>
+    <table class="table table-striped table-bordered" >
+        <thead class="table-success text-center" >
+            <tr>
+                <th>MASTER</th>
+                <th>FECHA</th>
+                <th>CANTIDAD JUGADORES</th>
+                <th>VER DETALLE</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for torneo in torneos %}
+            <tr style="background-color:black;">
+                <td>{{ torneo.nombre }}</td>
+                <td>{{ torneo.fecha_inicio|date:"d/m/Y" }}</td>
+                <td>{{ torneo.masterjugador_set.count }}</td>
+                <td>
+                    <a href="{% url 'ver_master' torneo.id torneo.masterjugador_set.count %}" class="btn btn-primary">
+                        Ver Master
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+    <div class="text-center mt-3">
+        <a href="{% url 'admin_menu' %}" class="login-button-gris">Volver</a>
+    </div>
+</div>
+{% endblock %}

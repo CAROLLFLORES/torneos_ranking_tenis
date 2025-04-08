@@ -14,7 +14,8 @@
         <hr class="separator-line">
         <h2 class="text-primary text-center">RANKING - {{ torneo_actual.nombre|upper }}</h2>
     </div>
-    
+
+    <!-- MODAL ASCENSO -->
     <div class="modal fade" id="modalAscenso" tabindex="-1" aria-labelledby="modalAscensoLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -36,14 +37,13 @@
                 </select>
               <H4>ASCENDER los jugadores seleccionados a este torneo.</H4>
             </div>
-            
             <div class="modal-footer">
               <button type="submit" form="formAscenso" class="login-button btn btn-success">CONFIRMAR ASCENSO</button>
             </div>
           </div>
         </div>
       </div>
-
+ <!-- MODAL DESCENSO -->
       <div class="modal fade" id="modalDescenso" tabindex="-1" aria-labelledby="modalDescensoLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -63,12 +63,29 @@
                         {% endif %}
                     {% endfor %}
                 </select>
-                
               <H4>DESCENDER los jugadores seleccionados a este torneo.</H4>
             </div>
-            
             <div class="modal-footer">
                 <button type="button" class="login-button btn btn-success" id="btnConfirmarDescenso">CONFIRMAR DESCENSO</button>
+            </div>
+          </div>
+        </div>
+      </div>
+ <!-- MODAL MASTER -->
+      <div class="modal fade" id="modalMaster" tabindex="-1" aria-labelledby="modalMasterLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+                <i class="bi bi-trophy-fill" style="font-size: 1.5rem; color:white"></i>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <i class="bi bi-x" style="font-size: 1.5rem;"></i>
+            </button>
+            </div>
+            <div class="modal-body">
+              <H4>CREAR MASTER</H4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="login-button btn btn-success" id="btnConfirmarMaster">ACEPTAR</button>
             </div>
           </div>
         </div>
@@ -164,6 +181,22 @@
                                         <i class="bi-arrow-down-circle-fill" style="font-size: 1.5rem;color: red;"></i>
                                     </button>
                                 </div></th>
+                                <th style="background-color:green;">MASTER
+                                    {% if master_creado %}
+                                        <a href="{% url 'ver_master' torneo_actual.id master_cantidad %}" 
+                                           title="Ver Master de este torneo"
+                                           style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-check-circle-fill" style="font-size: 1.5rem; color:red;"></i>
+                                        </a>
+                                    {% else %}
+                                        <button type="button" class="btn-modal-master" id="btnAbrirModalMaster" title="Crear Master" 
+                                            style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-trophy-fill" style="font-size: 1.5rem; color:white;"></i>
+                                        </button>
+                                    {% endif %}
+                                </th>
+                                
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -195,6 +228,9 @@
                                 <td class="text-center">
                                     <input type="checkbox" name="jugadores_seleccionados" value="{{ jugador.jugador.dni }}">
                                 </td>
+                                <td class="text-center"  style="background-color:green;">
+                                    <input type="checkbox" name="jugadores_seleccionados" value="{{ jugador.jugador.dni }}" {% if master_creado %}disabled{% endif %}>
+                                </td>
                             </tr>
                             {% empty %}
                             <tr>
@@ -204,10 +240,7 @@
                         </tbody>
                     </table>
                 </form>
-
             </div>
-            
-        
 
     </div>
 </div>
@@ -278,7 +311,63 @@ document.getElementById("btnConfirmarDescenso").addEventListener("click", functi
     }
 });
             
-        
+//PARA MASTER
+document.getElementById("btnAbrirModalMaster").addEventListener("click", function () {
+    const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
+        .map(input => input.value);
+
+    if (seleccionados.length === 0) {
+        const mensaje = document.getElementById("modalAdvertenciaMensaje");
+        mensaje.textContent = "Seleccioná al menos un jugador para el Master.";
+        new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
+        return;
+    }
+
+    document.getElementById("jugadores_json").value = JSON.stringify(seleccionados);
+    new bootstrap.Modal(document.getElementById("modalMaster")).show();
+});
+
+
+document.getElementById("btnConfirmarMaster").addEventListener("click", function () {
+    const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
+        .map(input => input.value);
+
+    if (seleccionados.length === 0) {
+        const mensaje = document.getElementById("modalAdvertenciaMensaje");
+        mensaje.textContent = "Seleccioná al menos un jugador para el Master.";
+        new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
+        return;
+    }
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "{% url 'master_torneos' %}";
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    const csrfInput = document.createElement("input");
+    csrfInput.type = "hidden";
+    csrfInput.name = "csrfmiddlewaretoken";
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+
+    const jugadoresInput = document.createElement("input");
+    jugadoresInput.type = "hidden";
+    jugadoresInput.name = "jugadores_json";
+    jugadoresInput.value = JSON.stringify(seleccionados);
+    form.appendChild(jugadoresInput);
+
+    const torneoInput = document.createElement("input");
+    torneoInput.type = "hidden";
+    torneoInput.name = "torneo_origen";
+    torneoInput.value = "{{ torneo_actual.id }}";
+    form.appendChild(torneoInput);
+
+    document.body.appendChild(form);
+    form.submit();
+});
+
+
     
 </script>
     
