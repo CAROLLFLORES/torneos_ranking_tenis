@@ -3,7 +3,7 @@
     05/04/2025 - Agrego Carga Masiva de Torneo 103
     05/04/2025 - Pude arreglar Editar el problema que salio del modal debo agregar en el modal.
 
-    6/04/2025 - Agregado de modal para master
+
     -->
 
 
@@ -44,6 +44,7 @@
             <a href="{% url 'admin_menu' %}">
                 <button class="login-button peque">MENU</button>
             </a>
+           
             
             <hr class="separator">
             <form method="POST" action="{% url 'crear_torneo' %}">
@@ -114,7 +115,7 @@
                         
                             <tr>
                                 <td>
-                                    <a href="{% url 'ver_ranking' torneo.id %}" 
+                                   <a href="{% url 'listado_jugadores_master' torneo.id %}" 
                                        title="Ver ranking"
                                        style="padding: 2px; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;">
                                         <i style="display: inline-block; width: 24px; height: 24px; background-color: #bada55; border-radius: 50%; border: 2px solid white;" title="Master"></i>
@@ -159,6 +160,7 @@
                                     <a href="{% url 'redirigir_partidos' torneo.id %}" class="btn btn-primary">
                                         <button type="button" class="login-button mas-chico mb-2" >PARTIDOS</button>
                                     </a>
+
                                 </td>
                                 
                                 <td>

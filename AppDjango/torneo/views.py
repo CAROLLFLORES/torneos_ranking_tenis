@@ -21,12 +21,15 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from datetime import datetime, date, time
 from django.http import JsonResponse
-from torneo.models import Partido, HistorialJornada, Torneo, MasterJugador
+from torneo.models import Partido, HistorialJornada, Torneo
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from ranking.models import Ranking
 from .models import HistorialJornada
 import pandas as pd
+from django.db.models import F, Value
+from django.db.models.functions import Coalesce
+
 
 # NUEVO import para parsear fechas/horas
 from datetime import datetime, date, time
@@ -316,11 +319,12 @@ def redirigir_inscripcion(request, torneo_id):
 
 def redirigir_partidos(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
-    es_doble = torneo.categorias.filter(tipo_juego__iexact="Doble").exists()
-    if es_doble or torneo.tipo == 'Mixto':
+
+    if torneo.tipo in ['Doble', 'Mixto']:
         return redirect('partido_doble', torneo_id=torneo.id)
     else:
         return redirect('partido_single', torneo_id=torneo.id)
+
 
 #--------------------------------------------------------------------------------------------------------------
 #partido Doble 106
@@ -353,8 +357,8 @@ def partido_doble(request, torneo_id):
             if Partido.objects.filter(
                 torneo=torneo,
                 jornada=numero_jornada,
-                jugador1_id=equipo1,
-                jugador2_id=equipo2
+                equipo1_id=equipo1,
+                equipo2_id=equipo2
             ).exists():
                 advertencias.append(f"El partido entre equipo {equipo1} y equipo {equipo2} ya existe.")
                 continue
@@ -362,8 +366,8 @@ def partido_doble(request, torneo_id):
             partido = Partido(
                 torneo=torneo,
                 jornada=numero_jornada,
-                jugador1_id=equipo1,
-                jugador2_id=equipo2,
+                equipo1_id=equipo1,  # ✅ BIEN
+                equipo2_id=equipo2,  # ✅ BIEN
                 fecha=fecha_obj,
                 hora=hora_obj,
                 cancha_id=cancha_id
@@ -404,49 +408,60 @@ def guardar_fecha(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
 
     if request.method == 'POST':
-        print("Datos recibidos en POST:", request.POST)  # Depuración
-        
+        print("📥 Datos recibidos en POST:", request.POST)
+
         numero_jornada = request.POST.get('numero_jornada')
-        jugadores1 = request.POST.getlist('jugador1[]')
+        jugadores1 = request.POST.getlist('jugador1[]')  # Pueden ser jugadores o equipos según el tipo
         jugadores2 = request.POST.getlist('jugador2[]')
         fechas = request.POST.getlist('fecha[]')
         horas = request.POST.getlist('hora[]')
         canchas = request.POST.getlist('cancha[]')
 
-        print("Jugadores 1:", jugadores1)  # Depuración
-        print("Jugadores 2:", jugadores2)  # Depuración
-        print("Fechas:", fechas)           # Depuración
-        print("Horas:", horas)             # Depuración
-        print("Canchas:", canchas)         # Depuración
+        print("🧍‍♂️ Jugadores/Equipos 1:", jugadores1)
+        print("🧍‍♂️ Jugadores/Equipos 2:", jugadores2)
+        print("📅 Fechas:", fechas)
+        print("⏰ Horas:", horas)
+        print("🎾 Canchas:", canchas)
 
         partidos_creados = []
 
         for i in range(len(fechas)):
             try:
-                # Crear el partido
                 partido = Partido(
                     torneo=torneo,
                     jornada=numero_jornada,
-                    jugador1_id=jugadores1[i],
-                    jugador2_id=jugadores2[i],
                     fecha=date.fromisoformat(fechas[i]),
                     hora=datetime.strptime(horas[i], '%H:%M').time(),
                     cancha_id=canchas[i]
                 )
+
+                if torneo.tipo in ['Doble', 'Mixto']:
+                    partido.equipo1_id = jugadores1[i]
+                    partido.equipo2_id = jugadores2[i]
+                else:
+                    partido.jugador1_id = jugadores1[i]
+                    partido.jugador2_id = jugadores2[i]
+
                 partido.save()
                 partidos_creados.append(partido)
 
             except Exception as e:
-                print(f"Error al guardar el partido en la fila {i + 1}: {str(e)}")  # Depuración
+                print(f"❌ Error al guardar el partido en la fila {i + 1}: {str(e)}")
 
         if partidos_creados:
-            messages.success(request, f"Se guardaron {len(partidos_creados)} partidos correctamente.")
+            messages.success(request, f"✅ Se guardaron {len(partidos_creados)} partidos correctamente.")
 
+        # Redirige según el tipo de torneo
+        if torneo.tipo in ['Doble', 'Mixto']:
+            return redirect('partido_doble', torneo_id=torneo.id)
+        else:
+            return redirect('partido_single', torneo_id=torneo.id)
+
+    # Redirección por método incorrecto
+    if torneo.tipo in ['Doble', 'Mixto']:
+        return redirect('partido_doble', torneo_id=torneo.id)
+    else:
         return redirect('partido_single', torneo_id=torneo.id)
-
-    return redirect('partido_single', torneo_id=torneo.id)
-
-
 
 
 #esto agregrue para el guardado de resultaultado por partidofrom django.http import JsonResponse
@@ -628,9 +643,10 @@ def partido_single(request, torneo_id):
     jornadas = Partido.objects.filter(torneo=torneo).values('jornada').distinct().order_by('jornada')
     numero_jornada = jornadas.count() + 1
     jugadores = Jugador.objects.filter(
-    ranking__torneo=torneo,
-    ranking__activo=True
-        ).distinct().order_by('apellido', 'nombre')
+        ranking__torneo=torneo,
+        ranking__activo=True
+    ).distinct().order_by('apellido', 'nombre')
+
 
     canchas = Cancha.objects.all()
 
@@ -646,7 +662,17 @@ def partido_single(request, torneo_id):
 #partido Doble 106
 def jornada_detalle(request, torneo_id, jornada):
     torneo = get_object_or_404(Torneo, id=torneo_id)
-    partidos = Partido.objects.filter(torneo=torneo, jornada=jornada).select_related('jugador1', 'jugador2', 'cancha')
+    if torneo.tipo in ['Mixto', 'Doble']:
+        partidos = Partido.objects.filter(torneo=torneo, jornada=jornada).select_related(
+              'equipo1__jugador1', 'equipo1__jugador2',
+            'equipo2__jugador1', 'equipo2__jugador2',
+            'cancha'
+        )
+    else:
+        partidos = Partido.objects.filter(torneo=torneo, jornada=jornada).select_related(
+            'jugador1', 'jugador2', 'cancha'
+        )
+
     
     return render(request, 'jornada_detalle.html', {
         'torneo': torneo,
@@ -1285,3 +1311,19 @@ def carga_masiva_torneos(request):
 
 # Inicio Carga Masiva de Torneo 103
 #--------------------------------------------------------------------------------------------------------------
+
+
+def listado_jugadores_master(request, torneo_id):
+    torneo = get_object_or_404(Torneo, id=torneo_id)
+
+    jugadores = Jugador.objects.filter(
+        ranking__torneo=torneo
+    ).annotate(
+        puntaje=Coalesce(F('ranking__puntaje_total_categoria'), Value(0)),
+        activo=Coalesce(F('ranking__activo'), Value(False))
+    ).distinct().order_by('-puntaje')
+
+    return render(request, 'listado_jugadores_master.html', {
+        'torneo': torneo,
+        'jugadores': jugadores,
+    })

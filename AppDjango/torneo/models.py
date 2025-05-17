@@ -29,6 +29,7 @@ class Torneo(models.Model):
     
     anio = models.PositiveIntegerField(default=date.today().year, editable=False)
     
+ 
     def save(self, *args, **kwargs):
         self.anio = self.fecha_inicio.year
         super().save(*args, **kwargs)

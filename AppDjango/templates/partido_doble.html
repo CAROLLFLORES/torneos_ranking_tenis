@@ -78,6 +78,9 @@
                 <a href="{% url 'admin_menu' %}">
                     <button class="login-button peque">MENU</button>
                 </a>
+                 <a href="{% url 'crear_torneo' %}">
+                        <button class='login-button-gris chico'>VOLVER A TORNEO</button>
+                    </a>
                 <h5 class="info-title">Jornadas Disponibles</h5>
                 <div class="info-content">
                     <label for="jornada_seleccionada" class="form-label">Seleccionar Jornada:</label>
@@ -93,6 +96,7 @@
                         Cargar RESULTADOS
                     </button>
                     <hr class="separator-line"> <!-- Línea separadora -->
+                   
                     <br>
                     <a href="{% url 'historial_jornada' %}">
                         <button class="login-button ">HISTORIAL JORNADAS</button>
@@ -140,19 +144,31 @@
                         <tbody id="partidosTable">
                             <tr>
                                 <td>
-                                    <select name="jugador1[]" class="form-select form-select-sm" required onchange="validarEnfrentamiento({{ torneo.id }}, this)">
+                                    <select style="width: 180px; height:40PX;" name="jugador1[]" class="form-select form-select-sm" required onchange="validarEnfrentamiento({{ torneo.id }}, this)">
                                         <option value="" selected>-- Seleccione Equipo 1 --</option>
-                                        {% for equipo in equipos %}
-                                            <option value="{{ equipo.id }}">{{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} - {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}</option>
+                                         {% for equipo in equipos %}
+                                            <option value="{{ equipo.id }}"
+                                                    data-jugador1="{{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }}"
+                                                    data-jugador2="{{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}">
+                                                {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} 
+                                                <BR>
+                                                    / {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                            </option>
                                         {% endfor %}
                                     </select>
                                 </td>
                                 <td class="text-center">VS</td>
+                                
                                 <td>
-                                    <select name="jugador2[]" class="form-select form-select-sm" required onchange="validarEnfrentamiento({{ torneo.id }}, this)">
+                                    <select style="width: 180px; height:40PX;" name="jugador2[]" class="form-select form-select-sm" required onchange="validarEnfrentamiento({{ torneo.id }}, this)">
                                         <option value="" selected>-- Seleccione Equipo 2 --</option>
-                                        {% for equipo in equipos %}
-                                            <option value="{{ equipo.id }}">{{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} - {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}</option>
+                                         {% for equipo in equipos %}
+                                            <option value="{{ equipo.id }}"
+                                                    data-jugador1="{{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }}"
+                                                    data-jugador2="{{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}">
+                                                {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} 
+                                                    / {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                            </option>
                                         {% endfor %}
                                     </select>
                                 </td>
@@ -397,13 +413,13 @@
     
     let partidoAEliminar = null; // Variable para almacenar la fila a eliminar
 
-function confirmarEliminacion(button) {
-    partidoAEliminar = button.closest("tr"); // Guarda la fila del partido a eliminar
-    
-    // Abre el modal de confirmación
-    let modal = new bootstrap.Modal(document.getElementById('eliminarPartidoModal'));
-    modal.show();
-}
+    function confirmarEliminacion(button) {
+        partidoAEliminar = button.closest("tr"); // Guarda la fila del partido a eliminar
+        
+        // Abre el modal de confirmación
+        let modal = new bootstrap.Modal(document.getElementById('eliminarPartidoModal'));
+        modal.show();
+    }
 
 // Solo elimina la fila cuando se presiona "Eliminar" en el modal
 document.getElementById("confirmarEliminar").addEventListener("click", function () {
@@ -415,8 +431,17 @@ document.getElementById("confirmarEliminar").addEventListener("click", function 
     // Cierra el modal después de la eliminación
     let modal = bootstrap.Modal.getInstance(document.getElementById('eliminarPartidoModal'));
     modal.hide();
-});
+    });
 
+    function actualizarNombresEquipo(select, claseEquipo) {
+        const selected = select.options[select.selectedIndex];
+        const jugador1 = selected.getAttribute("data-jugador1") || "---";
+        const jugador2 = selected.getAttribute("data-jugador2") || "---";
+
+        const contenedor = select.closest("td");
+        contenedor.querySelector(`.${claseEquipo}-jugador1`).textContent = jugador1;
+        contenedor.querySelector(`.${claseEquipo}-jugador2`).textContent = jugador2;
+    }
 
     
 </script>
@@ -485,6 +510,17 @@ document.getElementById("confirmarEliminar").addEventListener("click", function 
 
     .table-danger {
         background-color: #f8d7da !important;
+    }
+
+    .equipo-display {
+    background-color: rgba(255,255,255,0.8);
+    border-radius: 5px;
+    padding: 2px;
+    font-size: 0.75rem;
+    }
+    .jugador-nombre {
+        font-size: 0.75rem;
+        color: black;
     }
     
 </style>

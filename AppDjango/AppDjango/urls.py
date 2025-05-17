@@ -22,9 +22,9 @@ from jugador import views as jugador_views
 from ranking import views as ranking_views
 
 from torneo.views import listar_partidos  # ✅ Importa desde torneo, NO desde jugador
-from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada
+from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada, listado_jugadores_master
 from ranking.views import ranking_torneo, ver_ranking, ranking_general
-from ranking.views import confirmar_ascenso_final, ascender_jugadores, seleccionar_master
+from ranking.views import confirmar_ascenso_final, ascender_jugadores
 
 
 urlpatterns = [
@@ -86,10 +86,7 @@ urlpatterns = [
     path('canchas/carga-masiva/', torneo_views.carga_masiva_cancha, name='carga_masiva_cancha'),
     path('jugadores/carga-masiva/', jugador_views.carga_masiva_jugadores, name='carga_masiva_jugadores'),
     path('torneos/carga-masiva/', torneo_views.carga_masiva_torneos, name='carga_masiva_torneos'),
+    path('master/listado_jugadores/<int:torneo_id>/', torneo_views.listado_jugadores_master, name='listado_jugadores_master'),
 
-    path('master/torneos/', ranking_views.seleccionar_master, name='master_torneos'),
-    path('ver_master/<int:torneo_id>/<int:cantidad>/', ranking_views.master_torneos, name='ver_master'),
-    path('torneos/master/', ranking_views.listado_masters, name='listado_masters'),
-
-
+   
 ]
