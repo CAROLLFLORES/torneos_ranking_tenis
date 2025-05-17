@@ -13,7 +13,10 @@
     <h4 class="text-center">ADMINISTRADOR</h4>
     <div class="text-section">
         <hr class="separator-line">
-        <h2 class="text-primary text-center">Torneo: {{ torneo.nombre|upper }}</h2>
+        <h2 class="text-primary text-center">
+            {% if torneo.es_master %}MASTER - {% endif %}{{ torneo.nombre|upper }}
+        </h2>
+        
     </div>
 
     <!-- Modal de advertencia -->
@@ -76,9 +79,8 @@
                 <a href="{% url 'admin_menu' %}">
                     <button class="login-button peque">MENU</button>
                 </a>
-                <h5 class="info-title">Jornadas Disponibles</h5>
+                <h5 class="info-title"> Selecciona Jornada</h5>
                 <div class="info-content">
-                    <label for="jornada_seleccionada" class="form-label">Seleccionar Jornada:</label>
                     <!-- Sin onchange -->
                     <select id="jornada_seleccionada" name="jornada_seleccionada" class="form-select">
                         <option value="" selected>-- Elige una jornada --</option>
@@ -92,9 +94,10 @@
                     </button>
                     <hr class="separator-line"> <!-- Línea separadora -->
                     <br>
-                    <a href="{% url 'historial_jornada' %}">
-                        <button class="login-button ">HISTORIAL JORNADAS</button>
+                    <a href="{% url 'crear_torneo' %}">
+                        <button class='login-button-gris chico'>VOLVER A TORNEO</button>
                     </a>
+                   
                 </div>
             </div>
         </div>
