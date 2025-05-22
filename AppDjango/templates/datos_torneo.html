@@ -23,7 +23,11 @@
             <a href="{% url 'admin_menu' %}">
                 <button class="login-button peque">MENU</button>
             </a>
-            <hr class="separator-line">
+             <a href="{% url 'crear_torneo' %}">
+                    <button class='login-button-gris chico'>VOLVER A TORNEO</button>
+            </a>
+            <hr class="separator-line"> <!-- Línea separadora -->
+         
             <div class="card-body p-2">
                 <p class="fs-6 mb-1"><strong>Torneo</strong> <br>{{ torneo.nombre | upper}}</p>
                 <hr class="separator-line">

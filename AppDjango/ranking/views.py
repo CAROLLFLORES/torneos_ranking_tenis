@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from torneo.models import ResultadoPartido, MasterJugador
-from ranking.models import Ranking, Torneo, Jugador
+from ranking.models import Ranking, Torneo, Jugador, RankingEquipo
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Sum, F
@@ -33,14 +33,21 @@ def ver_ranking(request, torneo_id):
     torneo_actual = get_object_or_404(Torneo, id=torneo_id)
     torneos_en_curso = Torneo.objects.all()
 
-    ranking = Ranking.objects.filter(
-        torneo=torneo_actual,
-        activo=True
-    ).select_related('jugador').order_by(
-        '-puntaje_total_categoria', '-games'
-    )
+    if torneo_actual.tipo in ["Doble", "Mixto"]:
+        ranking = RankingEquipo.objects.filter(
+            torneo=torneo_actual,
+            activo=True
+        ).select_related('equipo__jugador1', 'equipo__jugador2').order_by(
+            '-puntaje_total_categoria'
+        )
+    else:
+        ranking = Ranking.objects.filter(
+            torneo=torneo_actual,
+            activo=True
+        ).select_related('jugador').order_by(
+            '-puntaje_total_categoria', '-games'
+        )
 
-   
     master_creado = MasterJugador.objects.filter(torneo=torneo_actual).exists()
     master_cantidad = MasterJugador.objects.filter(torneo=torneo_actual).count()
 
@@ -54,16 +61,6 @@ def ver_ranking(request, torneo_id):
 
 
 
-
-    return render(request, 'ranking.html', {
-        'torneo_actual': torneo_actual,  # ✅ Asegura que este contexto esté en la plantilla
-        'torneos_en_curso': torneos_en_curso,
-        'ranking': ranking
-    })
-
-
-
-@receiver(post_save, sender=ResultadoPartido)
 def actualizar_ranking(sender, instance, **kwargs):
     from ranking.models import Ranking  # por si no está arriba
 
