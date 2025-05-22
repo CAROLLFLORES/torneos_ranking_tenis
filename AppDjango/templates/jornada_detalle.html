@@ -68,20 +68,32 @@
 
 
                     <td rowspan="2">
-                    {% if torneo.tipo == "Doble" or torneo.tipo == "Mixto" %}
-                        {% with ganador=partido.resultado.ganador_equipo %}
-                        <input type="text" class="form-control"
+                    {% if partido.resultado %}
+                        {% if partido.resultado.ganador_equipo %}
+                            <input type="text" class="form-control"
                                 id="ganador-{{ partido.id }}"
-                                value="{% if ganador %}{{ ganador.jugador1.apellido }}  / {{ ganador.jugador2.apellido }} {% endif %}"
+                                value="{{ partido.resultado.ganador_equipo.jugador1.apellido }} {{ partido.resultado.ganador_equipo.jugador1.nombre }} / {{ partido.resultado.ganador_equipo.jugador2.apellido }} {{ partido.resultado.ganador_equipo.jugador2.nombre }}"
                                 readonly>
-                        {% endwith %}
+                        {% elif partido.resultado.ganador_jugador %}
+                            <input type="text" class="form-control"
+                                id="ganador-{{ partido.id }}"
+                                value="{{ partido.resultado.ganador_jugador.apellido }} {{ partido.resultado.ganador_jugador.nombre }}"
+                                readonly>
+                        {% else %}
+                            <input type="text" class="form-control"
+                                id="ganador-{{ partido.id }}"
+                                value="No definido"
+                                readonly>
+                        {% endif %}
                     {% else %}
                         <input type="text" class="form-control"
                             id="ganador-{{ partido.id }}"
-                            value="{% if partido.resultado.ganador_jugador %}{{ partido.resultado.ganador_jugador }}{% endif %}"
+                            value="{{ partido.resultado.ganador_equipo.jugador1.apellido }} {{ partido.resultado.ganador_equipo.jugador1.nombre }} / {{ partido.resultado.ganador_equipo.jugador2.apellido }} {{ partido.resultado.ganador_equipo.jugador2.nombre }}"
+                            data-id="{{ partido.resultado.ganador_equipo.id }}"
                             readonly>
                     {% endif %}
-                    </td>
+                </td>
+
 
 
                     <td rowspan="2">
@@ -466,27 +478,38 @@ function guardarPartido(partidoId) {
     let set3Jugador2 = document.getElementById(`set3-jugador2-${partidoId}`).value.trim() || "0";
 
     let ganadorInput = document.getElementById(`ganador-${partidoId}`).value.trim();
-    
-    // ✅ Obtener el DNI del jugador ganador como número
+
+    // 📌 Obtener el tipo de torneo desde Django
+    let torneoTipo = "{{ torneo.tipo|lower }}";
+    let torneoEsDobleOMixto = torneoTipo === "doble" || torneoTipo === "mixto";
+
+    // 👤 Opción para single
     let jugador1DNI = parseInt(document.getElementById(`jugador1-${partidoId}`).getAttribute("data-dni"), 10);
     let jugador2DNI = parseInt(document.getElementById(`jugador2-${partidoId}`).getAttribute("data-dni"), 10);
 
     let ganadorDNI = null;
-    if (ganadorInput === document.getElementById(`jugador1-${partidoId}`).value) {
-        ganadorDNI = jugador1DNI;
-    } else if (ganadorInput === document.getElementById(`jugador2-${partidoId}`).value) {
-        ganadorDNI = jugador2DNI;
+    let ganadorEquipoID = null;
+
+    if (torneoEsDobleOMixto) {
+        // 👫 En dobles/mixto, el input tiene el ID del equipo
+        ganadorEquipoID = document.getElementById(`jugador1-${partidoId}`).getAttribute("data-dni");
+        // ⚠️ Solo un equipo puede ser ganador, no se compara por nombre
+    } else {
+        // 🧍 En single se compara por nombre completo
+        if (ganadorInput === document.getElementById(`jugador1-${partidoId}`).value) {
+            ganadorDNI = jugador1DNI;
+        } else if (ganadorInput === document.getElementById(`jugador2-${partidoId}`).value) {
+            ganadorDNI = jugador2DNI;
+        }
     }
 
-    console.log("🔍 Enviando datos a la API:");
-    console.log("Partido ID:", partidoId);
-    console.log("Sets Jugador 1:", set1Jugador1, set2Jugador1, set3Jugador1);
-    console.log("Sets Jugador 2:", set1Jugador2, set2Jugador2, set3Jugador2);
-    console.log("Ganador DNI:", ganadorDNI);
-
+    // 🚀 Enviar al servidor
     fetch('/guardar_resultados/', {
         method: 'POST',
-        headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
             partido_id: partidoId,
             set1_jugador1: parseInt(set1Jugador1, 10),
@@ -495,16 +518,17 @@ function guardarPartido(partidoId) {
             set1_jugador2: parseInt(set1Jugador2, 10),
             set2_jugador2: parseInt(set2Jugador2, 10),
             set3_jugador2: parseInt(set3Jugador2, 10),
-            ganador_dni: ganadorDNI  // 👈 Ahora se envía como número
+            ganador_dni: ganadorDNI,
+            ganador_equipo_id: ganadorEquipoID
         })
     })
     .then(response => response.json())
     .then(data => {
-        console.log("🔍 Respuesta del servidor:", data);
         if (data.success) {
             alert('✅ Partido guardado correctamente.');
+            location.reload();
         } else {
-            alert('❌ Error al guardar el resultado.');
+            alert('❌ Error al guardar el resultado: ' + data.message);
         }
     })
     .catch(error => {
@@ -512,6 +536,7 @@ function guardarPartido(partidoId) {
         alert('❌ Hubo un problema al guardar.');
     });
 }
+
 
 
 
@@ -561,7 +586,7 @@ function actualizarGanador(partidoId) {
 document.querySelectorAll('.set-input').forEach(input => {
     input.addEventListener('input', () => {
         if (input.value.length > 1) {
-            input.value = input.value.slice(0, 1);
+            input.value = input.value.slice(0, 2);
         }
     });
 });

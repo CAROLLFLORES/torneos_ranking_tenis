@@ -170,7 +170,13 @@
                             {% for jugador in ranking %}
                             <tr class="ranking-row">
                                 <td class="ranking-position">{{ forloop.counter }}</td>
-                                <td class="ranking-name">{{ jugador.jugador.nombre }} {{ jugador.jugador.apellido }}</td>
+                                <td class="ranking-name">
+                                    {% if torneo_actual.tipo in "Doble Mixto" %}
+                                        {{ jugador.equipo.jugador1.apellido }} / {{ jugador.equipo.jugador2.apellido }}
+                                    {% else %}
+                                        {{ jugador.jugador.nombre }} {{ jugador.jugador.apellido }}
+                                    {% endif %}
+                                </td>
                                 <td class="ranking-data">{{ jugador.pj }}</td>
                                 <td class="ranking-data">{{ jugador.pg }}</td>
                                 <td class="ranking-data">{{ jugador.pp }}</td>

@@ -18,7 +18,7 @@
     </div>
     <div class="text-section">
         <hr class="separator-line">
-        <h5>TORNEO</h5>
+        <h5>TORNEO </h5>
     </div>
   
 
@@ -89,35 +89,58 @@
             <div class="card-body">
                 <table class="resultado-tabla">
                     <tbody>
-                        <!-- Jugador 1 -->
-                        <tr class="{% if partido.resultado.ganador_jugador == partido.jugador1 %}  resaltado {% endif %}">
-                            <td class="jugador-nombre">{{ partido.jugador1 }}</td>
-                            <td><span class="set-cuadro">{{ partido.resultado.set1_jugador1 }}</span></td>
-                            <td><span class="set-cuadro">{{ partido.resultado.set2_jugador1 }}</span></td>
-                            <td><span class="set-cuadro">{{ partido.resultado.set3_jugador1 }}</span></td>
-
-                        </tr>
-                        <!-- Jugador 2 -->
-                        <tr class="{% if partido.resultado.ganador_jugador == partido.jugador2 %}  resaltado {% endif %}">
-                            <td class="jugador-nombre">{{ partido.jugador2 }}</td>
-                            <td><span class="set-cuadro">{{ partido.resultado.set1_jugador2 }}</span></td>
-                            <td><span class="set-cuadro">{{ partido.resultado.set2_jugador2 }}</span></td>
-                            <td><span class="set-cuadro">{{ partido.resultado.set3_jugador2 }}</span></td>
-
-                        </tr>
-                        
+                        {% if partido.torneo.tipo == "Doble" or partido.torneo.tipo == "Mixto" %}
+                            <!-- Equipo 1 -->
+                            <tr class="{% if partido.resultado.ganador_equipo == partido.equipo1 %}  resaltado {% endif %}">
+                                <td class="jugador-nombre">
+                                    {{ partido.equipo1.jugador1.apellido }} / {{ partido.equipo1.jugador2.apellido }}
+                                </td>
+                                <td><span class="set-cuadro">{{ partido.resultado.set1_jugador1 }}</span></td>
+                                <td><span class="set-cuadro">{{ partido.resultado.set2_jugador1 }}</span></td>
+                                <td><span class="set-cuadro">{{ partido.resultado.set3_jugador1 }}</span></td>
+                            </tr>
+                            <!-- Equipo 2 -->
+                            <tr class="{% if partido.resultado.ganador_equipo == partido.equipo2 %}  resaltado {% endif %}">
+                                <td class="jugador-nombre">
+                                    {{ partido.equipo2.jugador1.apellido }} / {{ partido.equipo2.jugador2.apellido }}
+                                </td>
+                                <td><span class="set-cuadro">{{ partido.resultado.set1_jugador2 }}</span></td>
+                                <td><span class="set-cuadro">{{ partido.resultado.set2_jugador2 }}</span></td>
+                                <td><span class="set-cuadro">{{ partido.resultado.set3_jugador2 }}</span></td>
+                            </tr>
+                        {% else %}
+                            <!-- Jugador 1 -->
+                            <tr class="{% if partido.resultado.ganador_jugador == partido.jugador1 %}  resaltado {% endif %}">
+                                <td class="jugador-nombre">{{ partido.jugador1 }}</td>
+                                <td><span class="set-cuadro">{{ partido.resultado.set1_jugador1 }}</span></td>
+                                <td><span class="set-cuadro">{{ partido.resultado.set2_jugador1 }}</span></td>
+                                <td><span class="set-cuadro">{{ partido.resultado.set3_jugador1 }}</span></td>
+                            </tr>
+                            <!-- Jugador 2 -->
+                            <tr class="{% if partido.resultado.ganador_jugador == partido.jugador2 %}  resaltado {% endif %}">
+                                <td class="jugador-nombre">{{ partido.jugador2 }}</td>
+                                <td><span class="set-cuadro">{{ partido.resultado.set1_jugador2 }}</span></td>
+                                <td><span class="set-cuadro">{{ partido.resultado.set2_jugador2 }}</span></td>
+                                <td><span class="set-cuadro">{{ partido.resultado.set3_jugador2 }}</span></td>
+                            </tr>
+                        {% endif %}
                     </tbody>
-                    
                 </table>
+
                 <div class="col text-center">
                     <p><strong>Cancha:</strong> {{ partido.cancha }}</p>
                     <p class="ganador">
                         🏅 <strong>Ganador:</strong>
                         {% if partido.resultado.ganador_jugador %}
                             {{ partido.resultado.ganador_jugador }}
+                        {% elif partido.resultado.ganador_equipo %}
+                            {{ partido.resultado.ganador_equipo.jugador1.apellido }} / {{ partido.resultado.ganador_equipo.jugador2.apellido }}
                         {% else %}
+                            Sin definir
                         {% endif %}
                     </p>
+
+
                 </div>
             </div>
         </div>

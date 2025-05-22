@@ -80,8 +80,9 @@
                 </a>
                  <a href="{% url 'crear_torneo' %}">
                         <button class='login-button-gris chico'>VOLVER A TORNEO</button>
-                    </a>
-                <h5 class="info-title">Jornadas Disponibles</h5>
+                </a>
+                 <hr class="separator-line"> <!-- Línea separadora -->
+                 <br>
                 <div class="info-content">
                     <label for="jornada_seleccionada" class="form-label">Seleccionar Jornada:</label>
                     <!-- Sin onchange -->
@@ -95,12 +96,8 @@
                     <button type="button" class="login-button chico" onclick="redirigirJornada()">
                         Cargar RESULTADOS
                     </button>
-                    <hr class="separator-line"> <!-- Línea separadora -->
                    
-                    <br>
-                    <a href="{% url 'historial_jornada' %}">
-                        <button class="login-button ">HISTORIAL JORNADAS</button>
-                    </a>
+                   
                 </div>
             </div>
         </div>
