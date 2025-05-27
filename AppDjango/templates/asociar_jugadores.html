@@ -10,7 +10,11 @@
         <hr class="separator-line">
         <h2 class="text-primary">Asociar Jugadores al Torneo: {{ torneo.nombre }}</h2>
     </div>
-      
+        <form method="GET" action="" class="d-flex align-items-center mb-3" style="gap: 10px;">
+            <input class="input-field form-control" type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
+            <button class="login-button-gris chico" type="submit">Buscar</button>
+        </form>
+
     <div class="form-container">
         <div class="narrow-box">
             <div class="title-orange-gris">
@@ -30,9 +34,10 @@
                 <!-- Recuadro Izquierdo: Jugadores Disponibles -->
                 <div class="jugadores-box jugadores-disponibles">
                     <h4 class="text-center">Jugadores Disponibles</h4>
+                    
                     <div class="card-body" id="availableBox">
                         {% for jugador in jugadores_disponibles %}
-                            <div class="form-check">
+                            <div class="form-check" style="text-align:left;">
                                 <input class="form-check-input" type="checkbox" value="{{ jugador.dni }}" id="jugador{{ jugador.dni }}" name="jugadores">
                                 <label class="form-check-label" for="jugador{{ jugador.dni }}">
                                     {{ jugador.apellido | upper}}  {{ jugador.nombre |capfirst }}
@@ -68,9 +73,13 @@
             </div>
 
             <!-- Botón para Guardar Asociaciones -->
-            <div class="text-center mt-2" style="display: flex; justify-content: center; align-items: center; gap: 20px;">
-                <button type="submit" name="action" value="asociar" class="login-button chico mb-2" style="margin: 0; padding=30px">Guardar Asociaciones</button>
-                <button type="submit" name="action" value="desasociar" class="login-button chico fondo-boton-eliminar" style="margin: 0;">Eliminar Jugadores Seleccionados</button>
+             <div class="text-center mt-4" style="margin-top: 10px; margin-bottom:30px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                <button type="submit" name="action" value="asociar" class="login-button chico mb-2" style="margin: 0; padding: 10px 30px;">
+                    Guardar Asociaciones
+                </button>
+                <button type="submit" name="action" value="desasociar" class="login-button chico fondo-boton-eliminar" style="margin: 0; padding: 10px 30px;">
+                    Eliminar Jugadores Seleccionados
+                </button>
             </div>
             
         </form>
