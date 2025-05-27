@@ -155,18 +155,29 @@ def ver_caracteristicas_torneo(request, id):
 
 def asociar_jugadores(request, id):
     torneo = get_object_or_404(Torneo, id=id)
+    search = request.GET.get('search', '')  # ✅ Captura el texto de búsque
     
     if torneo.tipo == 'F':
-        jugadores_disponibles = Jugador.objects.filter(sexo='F').exclude(jugador_torneos__torneo=torneo).order_by('apellido', 'nombre')
+        jugadores_disponibles = Jugador.objects.filter(sexo='F').exclude(jugador_torneos__torneo=torneo)
     elif torneo.tipo == 'M':
-        jugadores_disponibles = Jugador.objects.filter(sexo='M').exclude(jugador_torneos__torneo=torneo).order_by('apellido', 'nombre')
+        jugadores_disponibles = Jugador.objects.filter(sexo='M').exclude(jugador_torneos__torneo=torneo)
     elif torneo.tipo == 'Mixto':
-        jugadores_disponibles = Jugador.objects.filter(sexo__in=['F', 'M']).exclude(jugador_torneos__torneo=torneo).order_by('apellido', 'nombre')
+        jugadores_disponibles = Jugador.objects.filter(sexo__in=['F', 'M']).exclude(jugador_torneos__torneo=torneo)
     else:
         jugadores_disponibles = Jugador.objects.none()
+        
+        
+    # ✅ Filtrar si hay búsqueda
+    if search:
+        jugadores_disponibles = jugadores_disponibles.filter(
+            Q(nombre__icontains=search) | Q(apellido__icontains=search)
+        )
 
+    # ✅ Excluir ya asociados y ordenar
+   
+    jugadores_disponibles = jugadores_disponibles.order_by('apellido', 'nombre')  # ✅ solo una vez
     jugadores_asociados = Jugador.objects.filter(jugador_torneos__torneo=torneo).order_by('apellido', 'nombre')
-
+    
     if request.method == 'POST':
         action = request.POST.get('action')
         jugadores_dni = request.POST.getlist('jugadores')
@@ -217,13 +228,14 @@ def asociar_jugadores(request, id):
         'torneo': torneo,
         'jugadores_disponibles': jugadores_disponibles,
         'jugadores_asociados': jugadores_asociados,
+        'search': search
     })
 
 #--------------------------------------------------------------------------------------------------------------
-#funcionamiento el doble y mixto 104
 @csrf_exempt
 def asociar_equipos(request, id):
     torneo = get_object_or_404(Torneo, id=id)
+    search = request.GET.get('search', '')  # Captura la búsqueda
 
     jugadores_disponibles = Jugador.objects.none()
     if torneo.tipo == 'F':
@@ -233,10 +245,19 @@ def asociar_equipos(request, id):
     elif torneo.tipo == 'Mixto':
         jugadores_disponibles = Jugador.objects.filter(sexo__in=['F', 'M'])
 
-    # Filtrar jugadores que NO están en un equipo ya creado
+    # Excluir jugadores ya en equipos del torneo
     jugadores_en_equipo = Equipo.objects.filter(torneo=torneo).values_list('jugador1__dni', 'jugador2__dni')
     dnis_en_equipo = [dni for par in jugadores_en_equipo for dni in par]
-    jugadores_disponibles = jugadores_disponibles.exclude(dni__in=dnis_en_equipo).order_by('apellido', 'nombre')
+    jugadores_disponibles = jugadores_disponibles.exclude(dni__in=dnis_en_equipo)
+
+    # ✅ Aplicar búsqueda si hay texto ingresado
+    if search:
+        jugadores_disponibles = jugadores_disponibles.filter(
+            Q(nombre__icontains=search) | Q(apellido__icontains=search)
+        )
+
+    # Ordenar por apellido y nombre
+    jugadores_disponibles = jugadores_disponibles.order_by('apellido', 'nombre')
 
     equipos_asociados = Equipo.objects.filter(torneo=torneo).select_related('jugador1', 'jugador2')
 
@@ -307,8 +328,10 @@ def asociar_equipos(request, id):
         'torneo': torneo,
         'jugadores_disponibles': jugadores_disponibles,
         'equipos_asociados': equipos_asociados,
-        'all_messages': all_messages
+        'all_messages': all_messages,
+        'search': search  # ✅ Asegurate de devolverlo al template
     })
+
 #-------------------------------------------------------------------------------------------------------------- 
 
 def redirigir_inscripcion(request, torneo_id):
