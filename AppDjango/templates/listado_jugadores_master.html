@@ -37,25 +37,43 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for jugador in jugadores %}
-                    <tr class="text-center">
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ jugador.apellido }}, {{ jugador.nombre }}</td>
-                        <td>{{ jugador.puntaje }}</td>
-                        <td>
-                            {% if jugador.activo %}
-                                <span class="text-success fw-bold">✔️</span>
-                            {% else %}
-                                <span class="text-danger fw-bold">✖️</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="text-center">❌ No hay jugadores disponibles.</td>
-                    </tr>
-                    {% endfor %}
+                    {% if es_doble %}
+                        {% for equipo in equipos %}
+                        <tr class="text-center">
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ equipo.jugador1.apellido }}, {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido }}, {{ equipo.jugador2.nombre }}</td>
+                            <td>{{ equipo.puntaje }}</td>
+                            <td>
+                                {% if equipo.activo %}
+                                    <span class="text-success fw-bold">✔️</span>
+                                {% else %}
+                                    <span class="text-danger fw-bold">✖️</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center">❌ No hay equipos disponibles.</td></tr>
+                        {% endfor %}
+                    {% else %}
+                        {% for jugador in jugadores %}
+                        <tr class="text-center">
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ jugador.apellido }}, {{ jugador.nombre }}</td>
+                            <td>{{ jugador.puntaje }}</td>
+                            <td>
+                                {% if jugador.activo %}
+                                    <span class="text-success fw-bold">✔️</span>
+                                {% else %}
+                                    <span class="text-danger fw-bold">✖️</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center">❌ No hay jugadores disponibles.</td></tr>
+                        {% endfor %}
+                    {% endif %}
                 </tbody>
+
             </table>
         </div>
 

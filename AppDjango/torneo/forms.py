@@ -8,7 +8,7 @@ from .models import Partido
 class TorneoForms(forms.ModelForm):
     categorias = forms.ModelMultipleChoiceField(
         queryset=Categoria.objects.all(),
-        widget=forms.SelectMultiple(attrs={'class': 'form-control'}),  # Cambia a Select si quieres que sea un solo seleccionable
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
         label="Categorías"
     )
     tipo = forms.ChoiceField(
@@ -16,16 +16,20 @@ class TorneoForms(forms.ModelForm):
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    
+    tipo_juego = forms.ChoiceField(  # ✅ AGREGADO
+        choices=Torneo.TIPO_JUEGO_CHOICES,
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Tipo de Juego"
+    )
+
     class Meta:
         model = Torneo
-        fields = ['nombre', 'fecha_inicio', 'fecha_fin', 'categorias', 'tipo']
+        fields = ['nombre', 'fecha_inicio', 'fecha_fin', 'categorias', 'tipo', 'tipo_juego']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Torneo'}),
             'fecha_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'fecha_fin': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            #'categorias': forms.Select(attrs={'class': 'form-control'}),
-            'tipo': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class PartidoForm(forms.ModelForm):

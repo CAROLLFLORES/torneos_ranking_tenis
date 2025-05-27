@@ -33,16 +33,18 @@
                 </tr>
             </thead>
             <tbody>
-                {% for partido in partidos %}
-                <tr>
-                    <td rowspan="2" class="partido-numero">{{ partido.numero }}</td>
-                    <td rowspan="2"><input type="text" class="form-control hora" value="{{ partido.cancha }}" id="cancha-{{ partido.id }}" disabled></td>
-                    <td rowspan="2"><input type="date" class="form-control hora" value="{{ partido.fecha|date:'Y-m-d' }}" id="fecha-{{ partido.id }}" disabled></td>
-                    <td rowspan="2"><input type="time" class="form-control hora" value="{{ partido.hora|time:'H:i' }}" id="hora-{{ partido.id }}" disabled></td>
-                    <td>
-                    {% if torneo.tipo == "Doble" or torneo.tipo == "Mixto" %}
-                        <input style="height: 30px; weight: 300px;" type="text" class="form-control"
-                            value="{{ partido.equipo1.jugador1.apellido }}  / {{ partido.equipo1.jugador2.apellido }} "
+            {% for partido in partidos %}
+            <tr>
+                <td rowspan="2" class="partido-numero">{{ partido.numero }}</td>
+                <td rowspan="2"><input type="text" class="form-control hora" value="{{ partido.cancha }}" id="cancha-{{ partido.id }}" disabled></td>
+                <td rowspan="2"><input type="date" class="form-control hora" value="{{ partido.fecha|date:'Y-m-d' }}" id="fecha-{{ partido.id }}" disabled></td>
+                <td rowspan="2"><input type="time" class="form-control hora" value="{{ partido.hora|time:'H:i' }}" id="hora-{{ partido.id }}" disabled></td>
+                
+                <!-- Jugador/Equipo 1 -->
+                <td>
+                    {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
+                        <input type="text" class="form-control"
+                            value="{{ partido.equipo1.jugador1.apellido }} / {{ partido.equipo1.jugador2.apellido }}"
                             data-dni="{{ partido.equipo1.id }}"
                             id="jugador1-{{ partido.id }}"
                             disabled>
@@ -53,21 +55,34 @@
                             id="jugador1-{{ partido.id }}"
                             disabled>
                     {% endif %}
-                    </td>
-                    <td><input type="number" min="0" max="9" class="form-control set-input" value="{{ partido.resultado.set1_jugador1 }}" id="set1-jugador1-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" min="0" max="9" class="form-control set-input" value="{{ partido.resultado.set2_jugador1}}" id="set2-jugador1-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set3_jugador1}}" id="set3-jugador1-{{ partido.id }}" min="0" disabled></td>
-                    <td rowspan="2">
-                        <button type="button" class="btn btn-primary" style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="habilitarEdicion({{ partido.id }})">
-                            <i class="bi bi-pencil-square" style="font-size: 1.5rem; color: black;"></i>
-                        </button>
-                    </td>
-                    <td rowspan="2">
-                        <button type="button" class="login-button mas-chico " onclick="guardarPartido({{ partido.id }})">Guardar</button>
-                    </td>
+                </td>
 
+                <!-- Set 1 -->
+                <td><input type="number" class="form-control set-input" min="0" max="9"
+                    value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set1_equipo1 }}{% else %}{{ partido.resultado.set1_jugador1 }}{% endif %}"
+                    id="set1-jugador1-{{ partido.id }}" disabled></td>
+                <!-- Set 2 -->
+                <td><input type="number" class="form-control set-input" min="0" max="9"
+                    value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set2_equipo1 }}{% else %}{{ partido.resultado.set2_jugador1 }}{% endif %}"
+                    id="set2-jugador1-{{ partido.id }}" disabled></td>
+                <!-- Set 3 -->
+                <td><input type="number" class="form-control set-input" min="0" max="9"
+                    value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set3_equipo1 }}{% else %}{{ partido.resultado.set3_jugador1 }}{% endif %}"
+                    id="set3-jugador1-{{ partido.id }}" disabled></td>
 
-                    <td rowspan="2">
+                <!-- Botón MODIFICAR -->
+                <td rowspan="2">
+                    <button type="button" class="btn btn-primary" style="all: unset; cursor: pointer;" onclick="habilitarEdicion({{ partido.id }})">
+                        <i class="bi bi-pencil-square" style="font-size: 1.5rem; color: black;"></i>
+                    </button>
+                </td>
+                <!-- Botón GUARDAR -->
+                <td rowspan="2">
+                    <button type="button" class="login-button mas-chico" onclick="guardarPartido({{ partido.id }})">GUARDAR</button>
+                </td>
+
+                <!-- GANADOR -->
+                <td rowspan="2">
                     {% if partido.resultado %}
                         {% if partido.resultado.ganador_equipo %}
                             <input type="text" class="form-control"
@@ -88,23 +103,25 @@
                     {% else %}
                         <input type="text" class="form-control"
                             id="ganador-{{ partido.id }}"
-                            value="{{ partido.resultado.ganador_equipo.jugador1.apellido }} {{ partido.resultado.ganador_equipo.jugador1.nombre }} / {{ partido.resultado.ganador_equipo.jugador2.apellido }} {{ partido.resultado.ganador_equipo.jugador2.nombre }}"
-                            data-id="{{ partido.resultado.ganador_equipo.id }}"
+                            value=""
                             readonly>
                     {% endif %}
                 </td>
 
+                <!-- ELIMINAR -->
+                <td rowspan="2">
+                    <button class="btn btn-primary" style="all: unset; cursor: pointer;" onclick="mostrarModalEliminar({{ partido.id }})">
+                        <i class="bi bi-trash-fill" style="font-size: 1.5rem; color: red;"></i>
+                    </button>
+                </td>
+            </tr>
 
-
-                    <td rowspan="2">
-                        <button class="btn btn-primary" style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="mostrarModalEliminar({{ partido.id }})">
-                            <i class="bi bi-trash-fill" style="font-size: 1.5rem; color: red;"></i>                    </td>
-                </tr>
-                <tr>
-                    <td>
-                    {% if torneo.tipo == "Doble" or torneo.tipo == "Mixto" %}
-                        <input style="height: 30px; weight: 300px;" type="text" class="form-control"
-                            value="{{ partido.equipo2.jugador1.apellido }}  / {{ partido.equipo2.jugador2.apellido }} "
+            <tr>
+                <!-- Jugador/Equipo 2 -->
+                <td>
+                    {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
+                        <input type="text" class="form-control"
+                            value="{{ partido.equipo2.jugador1.apellido }} / {{ partido.equipo2.jugador2.apellido }}"
                             data-dni="{{ partido.equipo2.id }}"
                             id="jugador2-{{ partido.id }}"
                             disabled>
@@ -115,14 +132,22 @@
                             id="jugador2-{{ partido.id }}"
                             disabled>
                     {% endif %}
-                    </td>
-                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set1_jugador2 }}" id="set1-jugador2-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set2_jugador2 }}" id="set2-jugador2-{{ partido.id }}" min="0" disabled></td>
-                    <td><input type="number" class="form-control set-input " value="{{ partido.resultado.set3_jugador2 }}" id="set3-jugador2-{{ partido.id }}" min="0" disabled></td>
-                </tr>
-                
-                {% endfor %}
+                </td>
+
+                <!-- Sets jugador/equipo 2 -->
+                <td><input type="number" class="form-control set-input" min="0" max="9"
+                    value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set1_equipo2 }}{% else %}{{ partido.resultado.set1_jugador2 }}{% endif %}"
+                    id="set1-jugador2-{{ partido.id }}" disabled></td>
+                <td><input type="number" class="form-control set-input" min="0" max="9"
+                    value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set2_equipo2 }}{% else %}{{ partido.resultado.set2_jugador2 }}{% endif %}"
+                    id="set2-jugador2-{{ partido.id }}" disabled></td>
+                <td><input type="number" class="form-control set-input" min="0" max="9"
+                    value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set3_equipo2 }}{% else %}{{ partido.resultado.set3_jugador2 }}{% endif %}"
+                    id="set3-jugador2-{{ partido.id }}" disabled></td>
+            </tr>
+            {% endfor %}
             </tbody>
+
     </div>
 
     <div class="text-center mt-3">
@@ -133,7 +158,7 @@
             </button>
             <a href="{% url 'abm_torneo' %}">
                 <button type="button" class="login-button-gris chico btn btn-success btn-lg" onclick="">
-                    TORNEOS </button>
+                    VOLVER A TORNEOS </button>
             </a>
             
             
@@ -480,7 +505,7 @@ function guardarPartido(partidoId) {
     let ganadorInput = document.getElementById(`ganador-${partidoId}`).value.trim();
 
     // 📌 Obtener el tipo de torneo desde Django
-    let torneoTipo = "{{ torneo.tipo|lower }}";
+    let torneoTipo = "{{ torneo.tipo_juego|lower }}";
     let torneoEsDobleOMixto = torneoTipo === "doble" || torneoTipo === "mixto";
 
     // 👤 Opción para single

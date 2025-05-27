@@ -25,16 +25,20 @@ from torneo.models import Partido, HistorialJornada, Torneo
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from ranking.models import Ranking, RankingEquipo
-from .models import HistorialJornada
+from .models import HistorialJornada, Partido, ResultadoPartido
 import pandas as pd
 from django.db.models import F, Value
 from django.db.models.functions import Coalesce
-
-
+from ranking.views import actualizar_ranking_manual_equipos, actualizar_ranking
+#esto agregrue para el guardado de resultaultado por partidofrom django.http import JsonResponse
+import json
 # NUEVO import para parsear fechas/horas
 from datetime import datetime, date, time
-
 from django.http import HttpResponseBadRequest
+from ranking.views import actualizar_ranking_manual, revertir_ranking_doble, revertir_ranking_single
+
+
+
 
 
 def abm_torneo(request):
@@ -309,18 +313,23 @@ def asociar_equipos(request, id):
 
 def redirigir_inscripcion(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
+
     categorias = torneo.categorias.all()
-    es_doble = any("doble" in categoria.tipo_juego.lower() for categoria in categorias)
-    if es_doble or torneo_id == 'Mixto':
+    tiene_doble = categorias.filter(tipo_juego__iexact='Doble').exists()
+    tiene_mixto = categorias.filter(tipo_juego__iexact='Mixto').exists()
+
+    if tiene_doble or tiene_mixto:
         return redirect('asociar_equipos', id=torneo.id)
     else:
         return redirect('asociar_jugadores', id=torneo.id)
 
 
+
 def redirigir_partidos(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
+    es_doble = torneo.categorias.filter(tipo_juego__iexact='Doble').exists()
 
-    if torneo.tipo in ['Doble', 'Mixto']:
+    if es_doble:
         return redirect('partido_doble', torneo_id=torneo.id)
     else:
         return redirect('partido_single', torneo_id=torneo.id)
@@ -403,25 +412,21 @@ def partido_doble(request, torneo_id):
 #--------------------------------------------------------------------------------------------------------------
 
 from datetime import datetime, date
-
 def guardar_fecha(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
 
     if request.method == 'POST':
-        print("📥 Datos recibidos en POST:", request.POST)
-
         numero_jornada = request.POST.get('numero_jornada')
-        jugadores1 = request.POST.getlist('jugador1[]')  # Pueden ser jugadores o equipos según el tipo
-        jugadores2 = request.POST.getlist('jugador2[]')
         fechas = request.POST.getlist('fecha[]')
         horas = request.POST.getlist('hora[]')
         canchas = request.POST.getlist('cancha[]')
 
-        print("🧍‍♂️ Jugadores/Equipos 1:", jugadores1)
-        print("🧍‍♂️ Jugadores/Equipos 2:", jugadores2)
-        print("📅 Fechas:", fechas)
-        print("⏰ Horas:", horas)
-        print("🎾 Canchas:", canchas)
+        if torneo.tipo_juego in ['Doble', 'Mixto']:
+            jugadores1 = request.POST.getlist('jugador1[]')  # estos son en realidad equipos
+            jugadores2 = request.POST.getlist('jugador2[]')
+        else:
+            jugadores1 = request.POST.getlist('jugador1[]')
+            jugadores2 = request.POST.getlist('jugador2[]')
 
         partidos_creados = []
 
@@ -435,7 +440,7 @@ def guardar_fecha(request, torneo_id):
                     cancha_id=canchas[i]
                 )
 
-                if torneo.tipo in ['Doble', 'Mixto']:
+                if torneo.tipo_juego in ['Doble', 'Mixto']:
                     partido.equipo1_id = jugadores1[i]
                     partido.equipo2_id = jugadores2[i]
                 else:
@@ -451,25 +456,13 @@ def guardar_fecha(request, torneo_id):
         if partidos_creados:
             messages.success(request, f"✅ Se guardaron {len(partidos_creados)} partidos correctamente.")
 
-        # Redirige según el tipo de torneo
-        if torneo.tipo in ['Doble', 'Mixto']:
+        if torneo.tipo_juego in ['Doble', 'Mixto']:
             return redirect('partido_doble', torneo_id=torneo.id)
         else:
             return redirect('partido_single', torneo_id=torneo.id)
 
-    # Redirección por método incorrecto
-    if torneo.tipo in ['Doble', 'Mixto']:
-        return redirect('partido_doble', torneo_id=torneo.id)
-    else:
-        return redirect('partido_single', torneo_id=torneo.id)
+    return redirect('partido_doble' if torneo.tipo_juego in ['Doble', 'Mixto'] else 'partido_single', torneo_id=torneo.id)
 
-
-#esto agregrue para el guardado de resultaultado por partidofrom django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
-from .models import Partido, ResultadoPartido
-
-from ranking.views import actualizar_ranking  # Asegurate de importar el signal
 
 @csrf_exempt
 def guardar_resultados(request):
@@ -478,65 +471,106 @@ def guardar_resultados(request):
             data = json.loads(request.body)
             partido_id = data.get('partido_id')
             partido = Partido.objects.get(id=partido_id)
+            torneo = partido.torneo
+            es_doble = torneo.tipo_juego in ['Doble', 'Mixto']
 
             resultado = ResultadoPartido.objects.filter(partido=partido).first()
             es_edicion = resultado is not None
 
-            if es_edicion:
-                set1_j1_old = resultado.set1_jugador1
-                set2_j1_old = resultado.set2_jugador1
-                set3_j1_old = resultado.set3_jugador1
-                set1_j2_old = resultado.set1_jugador2
-                set2_j2_old = resultado.set2_jugador2
-                set3_j2_old = resultado.set3_jugador2
-                ganador_anterior = resultado.ganador_jugador
-            else:
+            if not resultado:
                 resultado = ResultadoPartido(partido=partido)
-                set1_j1_old = set2_j1_old = set3_j1_old = 0
-                set1_j2_old = set2_j2_old = set3_j2_old = 0
-                ganador_anterior = None
 
-            resultado.set1_jugador1 = int(data.get('set1_jugador1') or 0)
-            resultado.set2_jugador1 = int(data.get('set2_jugador1') or 0)
-            resultado.set3_jugador1 = int(data.get('set3_jugador1') or 0)
-            resultado.set1_jugador2 = int(data.get('set1_jugador2') or 0)
-            resultado.set2_jugador2 = int(data.get('set2_jugador2') or 0)
-            resultado.set3_jugador2 = int(data.get('set3_jugador2') or 0)
+            # Copia del resultado anterior para comparar
+            resultado_original = ResultadoPartido.objects.filter(partido=partido).first()
+            datos_anteriores = (
+                resultado_original.set1_jugador1,
+                resultado_original.set2_jugador1,
+                resultado_original.set3_jugador1,
+                resultado_original.set1_jugador2,
+                resultado_original.set2_jugador2,
+                resultado_original.set3_jugador2,
+                resultado_original.ganador_jugador_id
+            ) if resultado_original and not es_doble else (
+                resultado_original.set1_equipo1,
+                resultado_original.set2_equipo1,
+                resultado_original.set3_equipo1,
+                resultado_original.set1_equipo2,
+                resultado_original.set2_equipo2,
+                resultado_original.set3_equipo2,
+                resultado_original.ganador_equipo_id
+            ) if resultado_original else None
 
-            # Distinción entre partidos de single y doble/mixto
-            if partido.torneo.tipo in ['Doble', 'Mixto']:
+            # 🟡 Guardar nuevo resultado
+            if es_doble:
+                resultado.set1_equipo1 = int(data.get('set1_jugador1') or 0)
+                resultado.set2_equipo1 = int(data.get('set2_jugador1') or 0)
+                resultado.set3_equipo1 = int(data.get('set3_jugador1') or 0)
+                resultado.set1_equipo2 = int(data.get('set1_jugador2') or 0)
+                resultado.set2_equipo2 = int(data.get('set2_jugador2') or 0)
+                resultado.set3_equipo2 = int(data.get('set3_jugador2') or 0)
+
                 ganador_equipo_id = data.get('ganador_equipo_id')
-                if ganador_equipo_id:
-                    resultado.ganador_equipo = Equipo.objects.get(id=int(ganador_equipo_id))
-                    resultado.ganador_jugador = None  # limpiar en caso de haberlo seteado antes
-                else:
-                    resultado.ganador_equipo = None
+                resultado.ganador_equipo = Equipo.objects.get(id=int(ganador_equipo_id)) if ganador_equipo_id else None
+                resultado.ganador_jugador = None
             else:
+                resultado.set1_jugador1 = int(data.get('set1_jugador1') or 0)
+                resultado.set2_jugador1 = int(data.get('set2_jugador1') or 0)
+                resultado.set3_jugador1 = int(data.get('set3_jugador1') or 0)
+                resultado.set1_jugador2 = int(data.get('set1_jugador2') or 0)
+                resultado.set2_jugador2 = int(data.get('set2_jugador2') or 0)
+                resultado.set3_jugador2 = int(data.get('set3_jugador2') or 0)
+
                 ganador_dni = data.get('ganador_dni')
-                if ganador_dni:
-                    resultado.ganador_jugador = Jugador.objects.get(dni=int(ganador_dni))
-                    resultado.ganador_equipo = None  # limpiar en caso de haberlo seteado antes
+                resultado.ganador_jugador = Jugador.objects.get(dni=int(ganador_dni)) if ganador_dni else None
+                resultado.ganador_equipo = None
+
+            # Comparar con los valores anteriores antes de guardar y actualizar ranking
+            datos_nuevos = (
+                resultado.set1_jugador1,
+                resultado.set2_jugador1,
+                resultado.set3_jugador1,
+                resultado.set1_jugador2,
+                resultado.set2_jugador2,
+                resultado.set3_jugador2,
+                resultado.ganador_jugador_id
+            ) if not es_doble else (
+                resultado.set1_equipo1,
+                resultado.set2_equipo1,
+                resultado.set3_equipo1,
+                resultado.set1_equipo2,
+                resultado.set2_equipo2,
+                resultado.set3_equipo2,
+                resultado.ganador_equipo_id
+            )
+
+            if datos_anteriores != datos_nuevos:
+                # Desconectar signal para evitar doble ejecución
+                from django.db.models.signals import post_save
+                post_save.disconnect(actualizar_ranking, sender=ResultadoPartido)
+
+                resultado.save()
+
+                post_save.connect(actualizar_ranking, sender=ResultadoPartido)
+
+                # ✅ Revertir si es edición
+                if es_edicion:
+                    if es_doble:
+                        revertir_ranking_doble(resultado_original)
+                    else:
+                        revertir_ranking_single(resultado_original)
+
+                # ✅ Aplicar resultado nuevo
+                if es_doble:
+                    actualizar_ranking_manual_equipos(resultado)
                 else:
-                    resultado.ganador_jugador = None
+                    actualizar_ranking_manual(resultado)
 
+                return JsonResponse({'success': True, 'message': '✅ Resultado actualizado correctamente.'})
+            else:
+                return JsonResponse({'success': True, 'message': '⚠️ No hubo cambios en el resultado.'})
 
-            # ⚠️ Desconectar el signal para evitar doble actualización
-            post_save.disconnect(actualizar_ranking, sender=ResultadoPartido)
-            resultado.save()
-            post_save.connect(actualizar_ranking, sender=ResultadoPartido)
-
-            if es_edicion and ganador_anterior:
-                revertir_ranking(partido, ganador_anterior,
-                                 set1_j1_old, set2_j1_old, set3_j1_old,
-                                 set1_j2_old, set2_j2_old, set3_j2_old)
-
-            # ✅ Actualizar correctamente el ranking
-            actualizar_ranking_manual(resultado)
-
-            return JsonResponse({'success': True, 'message': 'Resultado guardado correctamente.'})
         except Exception as e:
             import traceback
-            print("🔴 ERROR AL GUARDAR RESULTADO:")
             traceback.print_exc()
             return JsonResponse({'success': False, 'message': str(e)})
 
@@ -673,166 +707,61 @@ def partido_single(request, torneo_id):
 #partido Doble 106
 def jornada_detalle(request, torneo_id, jornada):
     torneo = get_object_or_404(Torneo, id=torneo_id)
-    if torneo.tipo in ['Mixto', 'Doble']:
+
+    if torneo.tipo_juego in ['Doble', 'Mixto']:  # <- corregido aquí
         partidos = Partido.objects.filter(torneo=torneo, jornada=jornada).select_related(
-              'equipo1__jugador1', 'equipo1__jugador2',
+            'equipo1__jugador1', 'equipo1__jugador2',
             'equipo2__jugador1', 'equipo2__jugador2',
-            'cancha'
+            'cancha', 'resultado'
         )
     else:
         partidos = Partido.objects.filter(torneo=torneo, jornada=jornada).select_related(
-            'jugador1', 'jugador2', 'cancha'
+            'jugador1', 'jugador2', 'cancha', 'resultado'
         )
 
-    
     return render(request, 'jornada_detalle.html', {
         'torneo': torneo,
         'jornada': jornada,
         'partidos': partidos,
     })
 
+
 #-----------------------------------------------------------------------------------
+from django.core.paginator import Paginator
+
 def listar_partidos(request):
-    torneo_id = request.GET.get('torneo', '')  # Captura el torneo seleccionado
-    search_fecha = request.GET.get('fecha', '')  # Captura la fecha seleccionada
+    torneo_id = request.GET.get('torneo', '')
+    search_fecha = request.GET.get('fecha', '')
 
-    # Obtener todos los partidos
-    partidos = Partido.objects.all()
+    # Carga optimizada con select_related para evitar problemas con None
+    partidos = Partido.objects.select_related(
+        'torneo', 'cancha',
+        'jugador1', 'jugador2',
+        'equipo1__jugador1', 'equipo1__jugador2',
+        'equipo2__jugador1', 'equipo2__jugador2',
+        'resultado__ganador_jugador', 'resultado__ganador_equipo'
+    ).all()
 
-    # Aplicar filtros si se selecciona un torneo o una fecha
     if torneo_id:
         partidos = partidos.filter(torneo_id=torneo_id)
 
     if search_fecha:
         partidos = partidos.filter(fecha=search_fecha)
 
-    # Ordenar por fecha de manera descendente
-    partidos = partidos.order_by('-fecha')
+    partidos = partidos.order_by('-fecha', '-hora')
+
+    # Paginación (si la estás usando, ajustá si querés más por página)
+    paginator = Paginator(partidos, 20)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
     return render(request, 'listar_partidos.html', {
-        'page_obj': partidos,  # Enviar partidos filtrados
-        'torneos': Torneo.objects.all(),  # Enviar la lista de torneos
-        'torneo_id': torneo_id,  # Para mantener el torneo seleccionado en el HTML
-        'search_fecha': search_fecha,  # Para mantener la fecha seleccionada en el HTML
+        'page_obj': page_obj,
+        'torneos': Torneo.objects.all(),
+        'torneo_id': torneo_id,
+        'search_fecha': search_fecha,
     })
 
-
-def actualizar_ranking_manual(resultado):
-    partido = resultado.partido
-    torneo = partido.torneo
-    categoria = torneo.categorias.first()
-    anio = torneo.fecha_inicio.year
-    bimestre = 1  # Podés ajustarlo según tu lógica
-
-    if torneo.tipo in ['Doble', 'Mixto']:
-        ganador = resultado.ganador_equipo
-        if not ganador:
-            return
-
-        perdedor = partido.equipo2 if ganador == partido.equipo1 else partido.equipo1
-
-        sets_ganador = sum([
-            resultado.set1_jugador1 > resultado.set1_jugador2,
-            resultado.set2_jugador1 > resultado.set2_jugador2,
-            resultado.set3_jugador1 > resultado.set3_jugador2,
-        ])
-        sets_perdedor = 3 - sets_ganador
-
-        games_ganador = resultado.set1_jugador1 + resultado.set2_jugador1
-        games_perdedor = resultado.set1_jugador2 + resultado.set2_jugador2
-
-        ranking_ganador, _ = RankingEquipo.objects.get_or_create(
-            torneo=torneo,
-            equipo=ganador,
-            categoria=categoria,
-            bimestre=bimestre,
-            anio=anio,
-            defaults={'pj': 0, 'pg': 0, 'pp': 0, 'sets': 0, 'games': 0,
-                      'puntaje_total_categoria': 0, 'puntaje_acumulador': 0,
-                      'activo': True}
-        )
-
-        ranking_perdedor, _ = RankingEquipo.objects.get_or_create(
-            torneo=torneo,
-            equipo=perdedor,
-            categoria=categoria,
-            bimestre=bimestre,
-            anio=anio,
-            defaults={'pj': 0, 'pg': 0, 'pp': 0, 'sets': 0, 'games': 0,
-                      'puntaje_total_categoria': 0, 'puntaje_acumulador': 0,
-                      'activo': True}
-        )
-
-        ranking_ganador.pj += 1
-        ranking_ganador.pg += 1
-        ranking_ganador.sets += (sets_ganador - sets_perdedor)
-        ranking_ganador.games += (games_ganador - games_perdedor)
-        ranking_ganador.puntaje_total_categoria += 100
-
-        ranking_perdedor.pj += 1
-        ranking_perdedor.pp += 1
-        ranking_perdedor.sets += (sets_perdedor - sets_ganador)
-        ranking_perdedor.games += (games_perdedor - games_ganador)
-        ranking_perdedor.puntaje_total_categoria -= 50
-
-        ranking_ganador.save()
-        ranking_perdedor.save()
-
-    else:
-        jugador1 = partido.jugador1
-        jugador2 = partido.jugador2
-        ganador = resultado.ganador_jugador
-        if not ganador:
-            return
-
-        perdedor = jugador2 if ganador == jugador1 else jugador1
-
-        sets_j1 = sum([
-            resultado.set1_jugador1 > resultado.set1_jugador2,
-            resultado.set2_jugador1 > resultado.set2_jugador2,
-            resultado.set3_jugador1 > resultado.set3_jugador2,
-        ])
-        sets_j2 = 3 - sets_j1
-
-        games_j1 = resultado.set1_jugador1 + resultado.set2_jugador1
-        games_j2 = resultado.set1_jugador2 + resultado.set2_jugador2
-
-        ranking_j1, _ = Ranking.objects.get_or_create(
-            jugador=jugador1, torneo=torneo, categoria=categoria,
-            bimestre=bimestre, anio=anio,
-            defaults={'pj': 0, 'pg': 0, 'pp': 0, 'sets': 0, 'games': 0,
-                      'puntaje_total_categoria': 0, 'puntaje_acumulador': 0,
-                      'activo': True}
-        )
-        ranking_j2, _ = Ranking.objects.get_or_create(
-            jugador=jugador2, torneo=torneo, categoria=categoria,
-            bimestre=bimestre, anio=anio,
-            defaults={'pj': 0, 'pg': 0, 'pp': 0, 'sets': 0, 'games': 0,
-                      'puntaje_total_categoria': 0, 'puntaje_acumulador': 0,
-                      'activo': True}
-        )
-
-        ranking_j1.pj += 1
-        ranking_j2.pj += 1
-
-        if ganador == jugador1:
-            ranking_j1.pg += 1
-            ranking_j2.pp += 1
-            ranking_j1.puntaje_total_categoria += 100
-            ranking_j2.puntaje_total_categoria -= 50
-        else:
-            ranking_j2.pg += 1
-            ranking_j1.pp += 1
-            ranking_j2.puntaje_total_categoria += 100
-            ranking_j1.puntaje_total_categoria -= 50
-
-        ranking_j1.sets += (sets_j1 - sets_j2)
-        ranking_j2.sets += (sets_j2 - sets_j1)
-        ranking_j1.games += (games_j1 - games_j2)
-        ranking_j2.games += (games_j2 - games_j1)
-
-        ranking_j1.save()
-        ranking_j2.save()
 
 
     
@@ -1382,19 +1311,147 @@ def carga_masiva_torneos(request):
 
 # Inicio Carga Masiva de Torneo 103
 #--------------------------------------------------------------------------------------------------------------
-
+from django.db.models import F, Value
+from django.db.models.functions import Coalesce
 
 def listado_jugadores_master(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
 
-    jugadores = Jugador.objects.filter(
-        ranking__torneo=torneo
-    ).annotate(
-        puntaje=Coalesce(F('ranking__puntaje_total_categoria'), Value(0)),
-        activo=Coalesce(F('ranking__activo'), Value(False))
-    ).distinct().order_by('-puntaje')
+    if torneo.tipo_juego in ['Doble', 'Mixto']:
+        # Mostrar equipos
+        equipos = Equipo.objects.filter(
+            rankingequipo__torneo=torneo
+        ).annotate(
+            puntaje=Coalesce(F('rankingequipo__puntaje_total_categoria'), Value(0)),
+            activo=Coalesce(F('rankingequipo__activo'), Value(False))
+        ).select_related('jugador1', 'jugador2').distinct().order_by('-puntaje')
 
-    return render(request, 'listado_jugadores_master.html', {
-        'torneo': torneo,
-        'jugadores': jugadores,
-    })
+        return render(request, 'listado_jugadores_master.html', {
+            'torneo': torneo,
+            'equipos': equipos,
+            'es_doble': True
+        })
+
+    else:
+        # Mostrar jugadores
+        jugadores = Jugador.objects.filter(
+            ranking__torneo=torneo
+        ).annotate(
+            puntaje=Coalesce(F('ranking__puntaje_total_categoria'), Value(0)),
+            activo=Coalesce(F('ranking__activo'), Value(False))
+        ).distinct().order_by('-puntaje')
+
+        return render(request, 'listado_jugadores_master.html', {
+            'torneo': torneo,
+            'jugadores': jugadores,
+            'es_doble': False
+        })
+
+@csrf_exempt
+def modificar_partido_doble(request, partido_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            partido = get_object_or_404(Partido, id=partido_id)
+            resultado = get_object_or_404(ResultadoPartido, partido=partido)
+            torneo = partido.torneo
+            categoria = torneo.categorias.first()
+
+            equipo1 = partido.equipo1
+            equipo2 = partido.equipo2
+
+            # Revertir ranking anterior
+            ranking1 = RankingEquipo.objects.get(torneo=torneo, equipo=equipo1, categoria=categoria)
+            ranking2 = RankingEquipo.objects.get(torneo=torneo, equipo=equipo2, categoria=categoria)
+
+            sets_ant_1 = sum([
+                resultado.set1_equipo1 > resultado.set1_equipo2,
+                resultado.set2_equipo1 > resultado.set2_equipo2,
+                resultado.set3_equipo1 > resultado.set3_equipo2,
+            ])
+            sets_ant_2 = 3 - sets_ant_1
+
+            games_1 = resultado.set1_equipo1 + resultado.set2_equipo1
+            games_2 = resultado.set1_equipo2 + resultado.set2_equipo2
+
+            if resultado.ganador_equipo == equipo1:
+                ranking1.pg -= 1
+                ranking2.pp -= 1
+                ranking1.puntaje_total_categoria -= 100
+                ranking2.puntaje_total_categoria += 50
+            elif resultado.ganador_equipo == equipo2:
+                ranking2.pg -= 1
+                ranking1.pp -= 1
+                ranking2.puntaje_total_categoria -= 100
+                ranking1.puntaje_total_categoria += 50
+
+            ranking1.pj -= 1
+            ranking2.pj -= 1
+            ranking1.sets -= (sets_ant_1 - sets_ant_2)
+            ranking2.sets -= (sets_ant_2 - sets_ant_1)
+            ranking1.games -= (games_1 - games_2)
+            ranking2.games -= (games_2 - games_1)
+
+            ranking1.save()
+            ranking2.save()
+
+            # Guardar nuevos sets
+            resultado.set1_equipo1 = int(data.get('set1_equipo1') or 0)
+            resultado.set2_equipo1 = int(data.get('set2_equipo1') or 0)
+            resultado.set3_equipo1 = int(data.get('set3_equipo1') or 0)
+            resultado.set1_equipo2 = int(data.get('set1_equipo2') or 0)
+            resultado.set2_equipo2 = int(data.get('set2_equipo2') or 0)
+            resultado.set3_equipo2 = int(data.get('set3_equipo2') or 0)
+
+            ganador_equipo_id = data.get('ganador_equipo_id')
+            if ganador_equipo_id:
+                resultado.ganador_equipo = Equipo.objects.get(id=ganador_equipo_id)
+            else:
+                resultado.ganador_equipo = None
+
+            resultado.save()
+
+            # Aplicar ranking nuevo
+            nuevo_ganador = resultado.ganador_equipo
+            nuevo_perdedor = equipo2 if nuevo_ganador == equipo1 else equipo1
+
+            sets_ganador = sum([
+                resultado.set1_equipo1 > resultado.set1_equipo2,
+                resultado.set2_equipo1 > resultado.set2_equipo2,
+                resultado.set3_equipo1 > resultado.set3_equipo2,
+            ]) if nuevo_ganador == equipo1 else sum([
+                resultado.set1_equipo2 > resultado.set1_equipo1,
+                resultado.set2_equipo2 > resultado.set2_equipo1,
+                resultado.set3_equipo2 > resultado.set3_equipo1,
+            ])
+            sets_perdedor = 3 - sets_ganador
+
+            games_ganador = (resultado.set1_equipo1 + resultado.set2_equipo1) if nuevo_ganador == equipo1 else (
+                            resultado.set1_equipo2 + resultado.set2_equipo2)
+            games_perdedor = (resultado.set1_equipo2 + resultado.set2_equipo2) if nuevo_ganador == equipo1 else (
+                            resultado.set1_equipo1 + resultado.set2_equipo1)
+
+            ranking_ganador = RankingEquipo.objects.get(torneo=torneo, equipo=nuevo_ganador, categoria=categoria)
+            ranking_perdedor = RankingEquipo.objects.get(torneo=torneo, equipo=nuevo_perdedor, categoria=categoria)
+
+            ranking_ganador.pj += 1
+            ranking_ganador.pg += 1
+            ranking_ganador.sets += (sets_ganador - sets_perdedor)
+            ranking_ganador.games += (games_ganador - games_perdedor)
+            ranking_ganador.puntaje_total_categoria += 100
+
+            ranking_perdedor.pj += 1
+            ranking_perdedor.pp += 1
+            ranking_perdedor.sets += (sets_perdedor - sets_ganador)
+            ranking_perdedor.games += (games_perdedor - games_ganador)
+            ranking_perdedor.puntaje_total_categoria -= 50
+
+            ranking_ganador.save()
+            ranking_perdedor.save()
+
+            return JsonResponse({'success': True})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
