@@ -81,8 +81,9 @@
                         <p><strong>FECHA</strong> {{ torneo.fecha_inicio|date:"d/m/Y" }}</p>
                     </div>
                     <div class="match izquierda">
-                        <p><strong>TORNEO</strong> <BR>
+                         <p><strong>TORNEO</strong> <br>
                             {{ torneo.nombre }}</p>
+                        <p><strong>Tipo de juego:</strong> {{ torneo.tipo_juego }}</p>
                     </div>
                 </div>
                 {% endfor %}

@@ -10,7 +10,12 @@ class Torneo(models.Model):
         ('M', 'Masculino'),
         ('Mixto', 'Mixto'),
     ]
-    
+
+    TIPO_JUEGO_CHOICES = [
+        ('Single', 'Single'),
+        ('Doble', 'Doble'),
+    ]
+
     nombre = models.CharField(max_length=150)
     fecha_inicio = models.DateField(default=date(2024, 1, 1))
     fecha_fin = models.DateField(null=True, blank=True)
@@ -19,23 +24,28 @@ class Torneo(models.Model):
         through='TorneoCategoria',
         related_name='torneos'
     )
-    
     tipo = models.CharField(
         max_length=6,
         choices=TIPO_CHOICES,
         default='Mixto',
         editable=True
     )
-    
+    tipo_juego = models.CharField(  # <- este es el campo nuevo
+        max_length=10,
+        choices=TIPO_JUEGO_CHOICES,
+        default='Single'
+    )
     anio = models.PositiveIntegerField(default=date.today().year, editable=False)
-    
- 
+
     def save(self, *args, **kwargs):
         self.anio = self.fecha_inicio.year
         super().save(*args, **kwargs)
-    
+
     def __str__(self):
         return f'{self.nombre} ({self.anio})'
+
+
+
 
 class TorneoCategoria(models.Model):
     torneo = models.ForeignKey(

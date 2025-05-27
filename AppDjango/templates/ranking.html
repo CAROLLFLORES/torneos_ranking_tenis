@@ -131,9 +131,9 @@
         <!-- RECUADRO DERECHO: Formulario principal (UN SOLO FORM) -->
         
             <div class="table-responsive ranking-table-container">
-                <form method="POST" action="{% url 'confirmar_ascenso_final' %}" id="formAscenso">
+                <form method="POST" action="{% if torneo_actual.tipo in 'DobleMixto' %}{% url 'confirmar_ascenso_final' %}{% else %}{% url 'confirmar_ascenso_final' %}{% endif %}" id="formAscenso">
                     {% csrf_token %}
-                    <input type="hidden" name="jugadores_json" id="jugadores_json">
+                    <input type="hidden" name="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}equipos_json{% else %}jugadores_json{% endif %}" id="seleccionados_json">
                     <input type="hidden" name="torneo_origen" value="{{ torneo_actual.id }}">
                     <input type="hidden" name="torneo_destino" id="torneo_destino_hidden">
                     <table class="table table-dark table-bordered ranking-table">
@@ -156,7 +156,7 @@
                                 </div></th>
                                 <th>DESCENSO <div class="text-end mb-2">
                                     <!-- BOTÓN DESCENSO -->
-                                    <button type="button" class="btn-modal-ascenso" title="Descenso"
+                                    <button type="button" id="btnAbrirModalDescenso" class="btn-modal-descenso" title="Descenso"
                                         style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
                                         <i class="bi-arrow-down-circle-fill" style="font-size: 1.5rem;color: red;"></i>
                                     </button>
@@ -171,7 +171,7 @@
                             <tr class="ranking-row">
                                 <td class="ranking-position">{{ forloop.counter }}</td>
                                 <td class="ranking-name">
-                                    {% if torneo_actual.tipo in "Doble Mixto" %}
+                                    {% if torneo_actual.tipo_juego == "Doble" or torneo_actual.tipo_juego == "Mixto" %}
                                         {{ jugador.equipo.jugador1.apellido }} / {{ jugador.equipo.jugador2.apellido }}
                                     {% else %}
                                         {{ jugador.jugador.nombre }} {{ jugador.jugador.apellido }}
@@ -196,10 +196,20 @@
                                 </td>
                                 <td class="ranking-points">{{ jugador.puntaje_total_categoria }}</td>
                                 <td class="text-center">
-                                    <input type="checkbox" name="jugadores_seleccionados" value="{{ jugador.jugador.dni }}">
+                                    <input type="checkbox" name="jugadores_seleccionados"
+                                        value="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}
+                                                {{ jugador.equipo.id }}
+                                            {% else %}
+                                                {{ jugador.jugador.dni }}
+                                            {% endif %}">
                                 </td>
                                 <td class="text-center">
-                                    <input type="checkbox" name="jugadores_seleccionados" value="{{ jugador.jugador.dni }}">
+                                    <input type="checkbox" name="jugadores_seleccionados"
+                                        value="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}
+                                                {{ jugador.equipo.id }}
+                                            {% else %}
+                                                {{ jugador.jugador.dni }}
+                                            {% endif %}">
                                 </td>
                                 
                             </tr>
@@ -228,7 +238,8 @@
             return;
         }
     
-        document.getElementById("jugadores_json").value = JSON.stringify(seleccionados);
+        document.getElementById("seleccionados_json").value = JSON.stringify(seleccionados);
+
     
         new bootstrap.Modal(document.getElementById("modalAscenso")).show();
     });
@@ -239,37 +250,32 @@
         document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
     });
 
+// ✅ DESCENSO
+document.getElementById("btnAbrirModalDescenso").addEventListener("click", function () {
+    const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
+        .map(input => input.value);
 
-        // ✅ DESCENSO
-    document.querySelectorAll(".btn-modal-ascenso").forEach(btn => {
-        btn.addEventListener("click", function () {
-            const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
-                .map(input => input.value);
-    
-            if (seleccionados.length === 0) {
-                const mensaje = document.getElementById("modalAdvertenciaMensaje");
-                mensaje.textContent = "Debes seleccionar al menos un jugador para continuar.";
-                new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
-                return;
-            }
-    
-            // Setear jugadores seleccionados
-            document.getElementById("jugadores_json").value = JSON.stringify(seleccionados);
-    
-            // Obtener torneo destino seleccionado
-            const selectTorneo = document.querySelector("select[name='torneo_destino']");
-            if (selectTorneo) {
-                document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
-            }
-    
-            // Abrir modal de confirmación
-            new bootstrap.Modal(document.getElementById("modalDescenso")).show();
+    if (seleccionados.length === 0) {
+        const mensaje = document.getElementById("modalAdvertenciaMensaje");
+        mensaje.textContent = "Debes seleccionar al menos un jugador para continuar.";
+        new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
+        return;
+    }
 
-            
-        });
-    });
+    // Setear seleccionados
+    document.getElementById("seleccionados_json").value = JSON.stringify(seleccionados);
 
-// ✅ Confirmar DESCENSO (envía form con torneo destino)
+    // Obtener torneo destino
+    const selectTorneo = document.querySelector("#modalDescenso select[name='torneo_destino']");
+    if (selectTorneo) {
+        document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
+    }
+
+    // Abrir modal
+    new bootstrap.Modal(document.getElementById("modalDescenso")).show();
+});
+
+// ✅ Confirmar DESCENSO (envía el form)
 document.getElementById("btnConfirmarDescenso").addEventListener("click", function () {
     const selectTorneo = document.querySelector("#modalDescenso select[name='torneo_destino']");
     if (selectTorneo && selectTorneo.value) {
@@ -281,8 +287,6 @@ document.getElementById("btnConfirmarDescenso").addEventListener("click", functi
         new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
     }
 });
- 
-
 
     
 </script>
