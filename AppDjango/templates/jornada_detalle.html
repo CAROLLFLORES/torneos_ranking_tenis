@@ -415,18 +415,25 @@
     });
 
     function habilitarEdicion(partidoId) {
-        document.getElementById(`jugador1-${partidoId}`).disabled = false;
-        document.getElementById(`jugador2-${partidoId}`).disabled = false;
-        document.getElementById(`fecha-${partidoId}`).disabled = false;
-        document.getElementById(`hora-${partidoId}`).disabled = false;
-        document.getElementById(`cancha-${partidoId}`).disabled = false;
-        document.getElementById(`set1-jugador1-${partidoId}`).disabled = false;
-        document.getElementById(`set2-jugador1-${partidoId}`).disabled = false;
-        document.getElementById(`set3-jugador1-${partidoId}`).disabled = false;
-        document.getElementById(`set1-jugador2-${partidoId}`).disabled = false;
-        document.getElementById(`set2-jugador2-${partidoId}`).disabled = false;
-        document.getElementById(`set3-jugador2-${partidoId}`).disabled = false;
+        const campos = [
+            `jugador1-${partidoId}`,
+            `jugador2-${partidoId}`,
+            `fecha-${partidoId}`,
+            `hora-${partidoId}`,
+            `set1-jugador1-${partidoId}`,
+            `set2-jugador1-${partidoId}`,
+            `set3-jugador1-${partidoId}`,
+            `set1-jugador2-${partidoId}`,
+            `set2-jugador2-${partidoId}`,
+            `set3-jugador2-${partidoId}`
+        ];
+
+        campos.forEach(id => {
+            const campo = document.getElementById(id);
+            if (campo) campo.disabled = false;
+        });
     }
+
 
     //esto es cuando termina la jornada y guarda para pasar a historial//
 
