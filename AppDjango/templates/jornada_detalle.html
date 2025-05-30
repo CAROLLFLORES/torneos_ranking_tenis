@@ -151,8 +151,6 @@
     </div>
 
     <div class="text-center mt-3">
-        <button type="button" class="login-button chico btn btn-success btn-lg" onclick="">
-            Guardar Jornada Terminada </button>
             <button type="button" class="btn pdf-button login-button chico" onclick="generarPDF()">
                 <i class="bi bi-file-earmark-pdf"></i> PDF
             </button>
@@ -160,16 +158,95 @@
                 <button type="button" class="login-button-gris chico btn btn-success btn-lg" onclick="">
                     VOLVER A TORNEOS </button>
             </a>
-            
-            
-            
-         
+                    
         <a href="{% url 'admin_menu' %}">
             <button class="login-button peque">MENU</button>
         </a>
     </div>
-        
+   
     
+    <div class="login-box listados flex-grow-1">
+    <h5 class="mt-4 text-center text-success">Agregar nuevo partido a la jornada {{ jornada }}</h5>
+
+            <form method="post" action="{% url 'guardar_fecha' torneo.id %}" class="p-3 bg-light border rounded mt-3">
+                {% csrf_token %}
+                <input type="hidden" name="numero_jornada" value="{{ jornada }}">
+
+                <div class="row g-3 justify-content-center align-items-center">
+                    <!-- Jugador/Equipo 1 -->
+                    <div class="col-md-3">
+                        {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
+                            <select name="jugador1[]" class="form-select" required>
+                                <option value="">-- Equipo 1 --</option>
+                                {% for equipo in equipos %}
+                                    <option value="{{ equipo.id }}">{{ equipo.jugador1.apellido }} / {{ equipo.jugador2.apellido }}</option>
+                                {% endfor %}
+                            </select>
+                        {% else %}
+                            <select name="jugador1[]" class="form-select" required>
+                                <option value="">-- Jugador 1 --</option>
+                                {% for jugador in jugadores %}
+                                    <option value="{{ jugador.dni }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-1 text-center fw-bold">VS</div>
+
+                    <!-- Jugador/Equipo 2 -->
+                    <div class="col-md-3">
+                        {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
+                            <select name="jugador2[]" class="form-select" required>
+                                <option value="">-- Equipo 2 --</option>
+                                {% for equipo in equipos %}
+                                    <option value="{{ equipo.id }}">{{ equipo.jugador1.apellido }} / {{ equipo.jugador2.apellido }}</option>
+                                {% endfor %}
+                            </select>
+                        {% else %}
+                            <select name="jugador2[]" class="form-select" required>
+                                <option value="">-- Jugador 2 --</option>
+                                {% for jugador in jugadores %}
+                                    <option value="{{ jugador.dni }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
+                    </div>
+
+                    <!-- Fecha -->
+                    <div class="col-md-2">
+                        <input type="date" name="fecha[]" class="form-control" required>
+                    </div>
+
+                    <!-- Hora -->
+                    <div class="col-md-1">
+                        <input type="time" name="hora[]" class="form-control" required>
+                    </div>
+
+                    <!-- Cancha -->
+                    <div class="col-md-2">
+                        <select name="cancha[]" class="form-select" required>
+                            {% for cancha in canchas %}
+                                <option value="{{ cancha.id }}">{{ cancha.sede.nombre }} - Cancha {{ cancha.cancha }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn pdf-button login-button chico">Agregar Partido</button>
+                </div>
+                <div class="text-center mt-4">
+                    <button type="button" class="login-button mas-chico" onclick="validarFormularioPartido()">
+                        VALIDAR
+                    </button>
+
+                </div>
+            </form>
+        </div>
+
+
+
 </div>
 
 <div id="deleteModal" class="modal fade" >
@@ -190,6 +267,68 @@
 </div>
 
 <style>
+
+    .login-box {
+        background-color: rgba(255, 255, 255, 0.92);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(4px);
+    }
+
+    .formulario-jornada select,
+    .formulario-jornada input[type="date"],
+    .formulario-jornada input[type="time"] {
+        font-size: 0.95rem;
+        border-radius: 6px;
+        padding: 6px 10px;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        color: #000;
+    }
+
+    .formulario-jornada select:focus,
+    .formulario-jornada input:focus {
+        outline: none;
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+
+    .formulario-jornada .btn,
+    .formulario-jornada button {
+        margin-top: 10px;
+    }
+
+    .formulario-jornada .form-label {
+        font-weight: bold;
+        color: #000;
+    }
+
+    .row.g-3.justify-content-center.align-items-center {
+        margin-top: 10px;
+    }
+
+    .container-admin {
+        padding-bottom: 80px; /* espacio extra abajo del todo */
+    }
+
+    form.bg-white {
+        max-width: 95%;
+        margin: 0 auto;
+    }
+
+    form select,
+    form input {
+        font-size: 0.95rem;
+    }
+
+    .form-select:focus,
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem rgba(0, 128, 0, 0.25);
+        border-color: #198754;
+    }
+
     .hora{
         width: 70px;
         text-align: center;
@@ -272,6 +411,8 @@
     .btn-sm {
         padding: 5px 10px;
     }
+
+    
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -633,6 +774,65 @@ document.querySelectorAll('.set-input').forEach(input => {
     });
 });
 
+
+function validarFormularioPartido() {
+    const tipoTorneo = "{{ torneo.tipo_juego|lower }}";
+    const esDoble = tipoTorneo === "doble" || tipoTorneo === "mixto";
+
+    const jugador1 = document.querySelector("select[name='jugador1[]']").value;
+    const jugador2 = document.querySelector("select[name='jugador2[]']").value;
+    const fecha = document.querySelector("input[name='fecha[]']").value;
+    const hora = document.querySelector("input[name='hora[]']").value;
+    const cancha = document.querySelector("select[name='cancha[]']").value;
+
+    if (!jugador1 || !jugador2 || !fecha || !hora || !cancha) {
+        alert("❌ Todos los campos son obligatorios.");
+        return;
+    }
+
+    if (jugador1 === jugador2) {
+        alert("❌ No se puede enfrentar un mismo jugador o equipo contra sí mismo.");
+        return;
+    }
+
+    // Validar enfrentamientos ya cargados en tabla
+    const enfrentamientos = document.querySelectorAll("tbody tr:nth-child(odd)");
+    for (let fila of enfrentamientos) {
+        const j1 = fila.querySelector("[id^='jugador1']");
+        const j2 = fila.nextElementSibling?.querySelector("[id^='jugador2']");
+        if (!j1 || !j2) continue;
+
+        const val1 = j1.getAttribute("data-dni");
+        const val2 = j2.getAttribute("data-dni");
+
+        if ((jugador1 === val1 && jugador2 === val2) || (jugador1 === val2 && jugador2 === val1)) {
+            alert("⚠️ Este enfrentamiento ya existe en esta jornada.");
+            return;
+        }
+    }
+
+    // Validar solapamiento de cancha + fecha + hora
+    for (let fila of enfrentamientos) {
+        const f = fila.querySelector("[id^='fecha']");
+        const h = fila.querySelector("[id^='hora']");
+        const canchaTexto = fila.querySelector("td:nth-child(2) input");
+
+        if (!f || !h || !canchaTexto) continue;
+
+        const fechaTabla = f.value;
+        const horaTabla = h.value;
+        const canchaTabla = canchaTexto.value.trim().toLowerCase();
+
+        const canchaActual = document.querySelector("select[name='cancha[]'] option:checked").textContent.trim().toLowerCase();
+
+        if (fechaTabla === fecha && horaTabla === hora && canchaTabla === canchaActual) {
+            alert("⚠️ Ya existe un partido en esa fecha, hora y cancha.");
+            return;
+        }
+    }
+
+    alert("✅ Validación exitosa. Ya podés apretar 'Agregar Partido'.");
+}
 
 </script>
 
