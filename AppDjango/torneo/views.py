@@ -458,7 +458,7 @@ def guardar_fecha(request, torneo_id):
         canchas = request.POST.getlist('cancha[]')
 
         if torneo.tipo_juego in ['Doble', 'Mixto']:
-            jugadores1 = request.POST.getlist('jugador1[]')  # estos son en realidad equipos
+            jugadores1 = request.POST.getlist('jugador1[]')  # en realidad, equipos
             jugadores2 = request.POST.getlist('jugador2[]')
         else:
             jugadores1 = request.POST.getlist('jugador1[]')
@@ -492,13 +492,9 @@ def guardar_fecha(request, torneo_id):
         if partidos_creados:
             messages.success(request, f"✅ Se guardaron {len(partidos_creados)} partidos correctamente.")
 
-        if torneo.tipo_juego in ['Doble', 'Mixto']:
-            return redirect('partido_doble', torneo_id=torneo.id)
-        else:
-            return redirect('partido_single', torneo_id=torneo.id)
+        return redirect('jornada_detalle', torneo_id=torneo.id, jornada=numero_jornada)
 
-    return redirect('partido_doble' if torneo.tipo_juego in ['Doble', 'Mixto'] else 'partido_single', torneo_id=torneo.id)
-
+    return redirect('jornada_detalle', torneo_id=torneo.id, jornada=request.POST.get('numero_jornada'))
 
 @csrf_exempt
 def guardar_resultados(request):
@@ -744,23 +740,37 @@ def partido_single(request, torneo_id):
 def jornada_detalle(request, torneo_id, jornada):
     torneo = get_object_or_404(Torneo, id=torneo_id)
 
-    if torneo.tipo_juego in ['Doble', 'Mixto']:  # <- corregido aquí
+    if torneo.tipo_juego in ['Doble', 'Mixto']:
         partidos = Partido.objects.filter(torneo=torneo, jornada=jornada).select_related(
             'equipo1__jugador1', 'equipo1__jugador2',
             'equipo2__jugador1', 'equipo2__jugador2',
             'cancha', 'resultado'
         )
+        equipos = Equipo.objects.filter(torneo=torneo).select_related('jugador1', 'jugador2').order_by('jugador1__apellido')
+        canchas = Cancha.objects.all()
+
+        return render(request, 'jornada_detalle.html', {
+            'torneo': torneo,
+            'jornada': jornada,
+            'partidos': partidos,
+            'equipos': equipos,
+            'canchas': canchas,
+        })
+
     else:
         partidos = Partido.objects.filter(torneo=torneo, jornada=jornada).select_related(
             'jugador1', 'jugador2', 'cancha', 'resultado'
         )
+        jugadores = Jugador.objects.filter(ranking__torneo=torneo, ranking__activo=True).distinct().order_by('apellido', 'nombre')
+        canchas = Cancha.objects.all()
 
-    return render(request, 'jornada_detalle.html', {
-        'torneo': torneo,
-        'jornada': jornada,
-        'partidos': partidos,
-    })
-
+        return render(request, 'jornada_detalle.html', {
+            'torneo': torneo,
+            'jornada': jornada,
+            'partidos': partidos,
+            'jugadores': jugadores,
+            'canchas': canchas,
+        })
 
 #-----------------------------------------------------------------------------------
 from django.core.paginator import Paginator
