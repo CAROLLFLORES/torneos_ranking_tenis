@@ -23,6 +23,10 @@
             <a href="{% url 'crear_torneo' %}">
                 <button class="login-button-gris chico">VOLVER A TORNEO</button>
             </a>
+            <hr class="separator">
+            <button type="button" class="btn pdf-button login-button chico" onclick="generarPDF()">
+                <i class="bi bi-file-earmark-pdf"></i> PDF
+            </button>
         </div>
 
         <!-- DERECHA: Tabla de jugadores -->
@@ -79,4 +83,67 @@
 
     </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+async function generarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const torneoNombre = "{{ torneo.nombre|escapejs }}";
+    const logoUrl = "{% static 'imagenes/apur.png' %}";
+
+    const logoImg = new Image();
+    logoImg.crossOrigin = "anonymous";
+    logoImg.src = logoUrl;
+
+    logoImg.onload = async function () {
+        doc.addImage(logoImg, 'PNG', 90, 10, 30, 15);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.text(`SELECCIÓN PARA MASTER - ${torneoNombre}`, 105, 30, { align: 'center' });
+
+        const tabla = document.querySelector(".ranking-table-container");
+
+        // Ajustes visuales para el PDF
+        const originalBg = tabla.style.backgroundColor;
+        tabla.style.backgroundColor = "#ffffff";
+
+        tabla.querySelectorAll("td, th, span, strong").forEach(el => {
+            el.style.color = "#000000";
+        });
+
+        // Ocultar columna "ACTIVO"
+        tabla.querySelectorAll("th:last-child, td:last-child").forEach(el => {
+            el.style.display = "none";
+        });
+
+        const canvas = await html2canvas(tabla, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+
+        const pdfWidth = doc.internal.pageSize.getWidth() - 20;
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+        doc.addImage(imgData, 'PNG', 10, 40, pdfWidth, pdfHeight);
+        doc.save(`Seleccion_MASTER_${torneoNombre.replace(/\s+/g, "_")}.pdf`);
+
+        // Restaurar estilos originales
+        tabla.style.backgroundColor = originalBg;
+        tabla.querySelectorAll("td, th, span, strong").forEach(el => {
+            el.style.color = "";
+        });
+
+        tabla.querySelectorAll("th:last-child, td:last-child").forEach(el => {
+            el.style.display = "";
+        });
+    };
+
+    logoImg.onerror = () => alert("❌ No se pudo cargar el logo.");
+}
+
+</script>
+
+
+
 {% endblock %}

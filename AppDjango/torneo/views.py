@@ -14,12 +14,11 @@ from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
 from django.db import transaction, IntegrityError
 import random
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 import json
-from datetime import datetime, date, time
 from django.http import JsonResponse
 from torneo.models import Partido, HistorialJornada, Torneo
 from django.db.models.signals import post_save
@@ -36,35 +35,45 @@ import json
 from datetime import datetime, date, time
 from django.http import HttpResponseBadRequest
 from ranking.views import actualizar_ranking_manual, revertir_ranking_doble, revertir_ranking_single
-
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import cm
+from reportlab.platypus import Table, TableStyle
+from reportlab.lib import colors
+from .models import Sede
+from django.db import transaction
 
 
 
 
 def abm_torneo(request):
+    all_categorias = Categoria.objects.all()
     categoria_id = request.GET.get('categoria')
-    search_query = request.GET.get('search', '')
+    search_query = request.GET.get('search')
     
+
+    torneos = Torneo.objects.all().order_by('-id')
+
     if categoria_id:
-        torneos = Torneo.objects.filter(categorias__id=categoria_id).distinct().prefetch_related('categorias')
-    elif search_query:
-        torneos = Torneo.objects.filter(nombre__icontains=search_query).prefetch_related('categorias')
-    else:
-        torneos = Torneo.objects.all().order_by('-fecha_inicio').prefetch_related('categorias')
-    
+        torneos = torneos.filter(categorias__id=categoria_id)
+
+    if search_query:
+        torneos = torneos.filter(nombre__icontains=search_query)
+
     paginator = Paginator(torneos, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    all_categorias = Categoria.objects.all()
-    
+    sedes = Sede.objects.all()  # 🔥 ESTA LÍNEA CREA LA VARIABLE
+
+
     return render(request, 'abm_torneo.html', {
         'page_obj': page_obj,
         'all_categorias': all_categorias,
         'categoria_id': categoria_id,
         'search': search_query,
-    })
+        'sedes': sedes,  # 👈 este es el que faltaba antes
 
+    })
 
 def crear_torneo(request):
     if request.method == 'POST':
@@ -92,10 +101,15 @@ def crear_torneo(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     all_categorias = Categoria.objects.all()
+    sedes = Sede.objects.all()
+
+
     return render(request, 'abm_torneo.html', {
         'form': form,
         'page_obj': page_obj,
         'all_categorias': all_categorias,
+        'sedes': sedes,
+
     })
 
 
@@ -107,7 +121,6 @@ def eliminar_torneo(request, id):
     return redirect('abm_torneo')
 
 
-from django.db import transaction
 
 def editar_torneo(request, id):
     torneo = get_object_or_404(Torneo, id=id)
@@ -758,7 +771,7 @@ def listar_partidos(request):
 
     # Carga optimizada con select_related para evitar problemas con None
     partidos = Partido.objects.select_related(
-        'torneo', 'cancha',
+        'torneo', 'cancha__sede',
         'jugador1', 'jugador2',
         'equipo1__jugador1', 'equipo1__jugador2',
         'equipo2__jugador1', 'equipo2__jugador2',
@@ -884,19 +897,35 @@ def tiene_categoria_doble(self):
 
 
 
+from .models import Cancha, Sede
+@csrf_exempt
 def abm_cancha(request):
-    if request.method == "POST":
-        numero_cancha = request.POST.get("cancha")
+    if request.method == 'GET':
+        sedes = Sede.objects.all()
+        return render(request, 'abm_cancha.html', {'sedes': sedes})
 
-        # 🟠 Verifica si la cancha ya existe
-        if Cancha.objects.filter(cancha=numero_cancha).exists():
-            return JsonResponse({"success": False, "errors": "La cancha ya existe."})
+    elif request.method == 'POST':
+        cancha_num = request.POST.get('cancha')
+        sede_id = request.POST.get('sede')
 
-        # 🟠 Crea la nueva cancha
-        Cancha.objects.create(cancha=numero_cancha)
-        return JsonResponse({"success": True})  # ✅ Respuesta JSON exitosa
+        if not cancha_num or not sede_id:
+            return JsonResponse({'success': False, 'error': 'Faltan datos'})
 
-    return render(request, "abm_cancha.html")
+        # 💥 Verificar si ya existe la combinación número + sede
+        if Cancha.objects.filter(cancha=cancha_num, sede_id=sede_id).exists():
+            return JsonResponse({
+                'success': False,
+                'error': 'Ya existe una cancha con ese número en la misma sede.'
+            })
+
+        try:
+            Cancha.objects.create(
+                cancha=cancha_num,
+                sede_id=sede_id
+            )
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
 
 
 def listado_canchas(request):
@@ -1478,3 +1507,167 @@ def modificar_partido_doble(request, partido_id):
             return JsonResponse({'success': False, 'error': str(e)})
 
     return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
+
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from io import BytesIO
+from reportlab.platypus import Table, TableStyle, Paragraph, SimpleDocTemplate, Spacer, Image
+from reportlab.lib.enums import TA_CENTER
+
+def generar_pdf_partidos_por_fecha(request):
+    fecha_str = request.GET.get("fecha")
+    sede_id = request.GET.get("sede_id")
+    sede = Sede.objects.get(id=sede_id)
+
+    if not fecha_str or not sede_id:
+        return HttpResponse("Fecha o sede no proporcionada", status=400)
+
+    try:
+        fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+        sede_id = int(sede_id)
+    except ValueError:
+        return HttpResponse("Parámetros inválidos", status=400)
+
+    partidos_qs = Partido.objects.select_related(
+        'torneo', 'cancha__sede',
+        'jugador1', 'jugador2',
+        'equipo1__jugador1', 'equipo1__jugador2',
+        'equipo2__jugador1', 'equipo2__jugador2'
+    ).filter(
+        fecha=fecha,
+        cancha__sede__id=sede_id
+    ).order_by('hora')
+
+    if not partidos_qs.exists():
+        return HttpResponse("No hay partidos para la fecha y sede seleccionadas", status=404)
+
+    styles = getSampleStyleSheet()
+    estilo_celda = ParagraphStyle(
+        'CeldaTabla',
+        parent=styles['Normal'],
+        alignment=TA_CENTER,
+        fontSize=9,
+        leading=11,
+    )
+
+    partidos = []
+    for p in partidos_qs:
+        torneo = p.torneo
+        tipo = torneo.tipo_juego
+
+        if tipo == 'Single':
+            nombres = f"{p.jugador1.apellido} vs {p.jugador2.apellido}"
+        else:
+            nombres = f"{p.equipo1.jugador1.apellido}/{p.equipo1.jugador2.apellido} vs {p.equipo2.jugador1.apellido}/{p.equipo2.jugador2.apellido}"
+
+        detalle = Paragraph(
+            f"<font size=12><b>{nombres}</b></font><br/><font size=9>{torneo.nombre} - {tipo}</font>",
+            estilo_celda
+        )
+
+        partidos.append({
+            'hora': p.hora,
+            'cancha': p.cancha.cancha,
+            'detalle': detalle,
+        })
+
+    canchas = sorted(set(p['cancha'] for p in partidos))
+    horarios = sorted(set(p['hora'] for p in partidos))
+
+    data = [['HORA'] + [f'Cancha {c}' for c in canchas]]
+    for hora in horarios:
+        fila = [hora.strftime('%H:%M')]
+        for cancha in canchas:
+            partido = next((p['detalle'] for p in partidos if p['hora'] == hora and p['cancha'] == cancha), '')
+            fila.append(partido)
+        data.append(fila)
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A4),
+        leftMargin=1 * cm,
+        rightMargin=1 * cm,
+        topMargin=2 * cm,
+        bottomMargin=1.5 * cm
+    )
+
+    story = []
+
+    # Logo
+    try:
+        logo = Image("static/imagenes/apur.png", width=4 * cm, height=2 * cm)
+        story.append(logo)
+    except:
+        story.append(Paragraph("[LOGO NO ENCONTRADO]", styles["Normal"]))
+
+    story.append(Spacer(1, 0.3 * cm))
+    story.append(Paragraph("LIGA", styles["Title"]))
+    story.append(Paragraph(f'<para align="center"><font size=20>Fecha: {fecha.strftime("%d/%m/%Y")}</font></para>', styles["Normal"]))
+    story.append(Spacer(1, 0.5 * cm))
+    story.append(Paragraph(f'<para align="center"><font size=20><b>Sede: {sede.nombre}</b></font></para>', styles["Normal"]))
+    story.append(Spacer(1, 0.5 * cm))
+
+    row_heights = [1.5 * cm] + [2.5 * cm for _ in horarios]
+    table = Table(data, colWidths=[3.5 * cm] + [6 * cm for _ in canchas], rowHeights=row_heights)
+
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+
+    story.append(table)
+    doc.build(story)
+
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="liga_{fecha}.pdf"'
+    response.write(pdf)
+    return response
+
+def abm_sede(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        if nombre:
+            Sede.objects.create(nombre=nombre)
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'error': 'Nombre vacío'})
+    
+    return render(request, 'abm_sede.html')
+
+def listado_sedes(request):
+    search = request.GET.get('search', '')
+    sedes = Sede.objects.filter(nombre__icontains=search).order_by('nombre')
+    return render(request, 'listado_sedes.html', {'sedes': sedes})
+
+
+
+def formulario_pdf_fecha_sede(request):
+    sedes = Sede.objects.all()
+    return render(request, "torneo/pdf_seleccion_fecha.html", {
+        'sedes': sedes
+    })
+    
+
+@csrf_exempt
+def validar_partido_fecha_hora_cancha(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        fecha = data.get('fecha')
+        hora = data.get('hora')
+        cancha_id = data.get('cancha_id')
+
+        conflicto = Partido.objects.filter(
+            fecha=fecha,
+            hora=hora,
+            cancha_id=cancha_id
+        ).exists()
+
+        return JsonResponse({'ocupado': conflicto})

@@ -63,17 +63,17 @@
             <table class="table table-striped-columns table-light table-bordered table-sm">
                 <thead class="table-success">
                     <tr class="title-container">
-                        <th>Nivel</th>
-                        <th>Edad</th>
-                        <th>Juego</th>
+                        <th>NIVEL</th>
+                        <th>EDAD</th>
+                        <th>JUEGO</th>
                         <th></th>
-                        <th>Acciones</th> <!-- Nueva columna para acciones -->
+                        <th>ELIMINAR</th> <!-- Nueva columna para acciones -->
                     </tr>
                 </thead>
                 <tbody>
                     {% for categoria in categorias %}
                     <tr>
-                        <td>{{ categoria.nivel }}</td>
+                        <td style="text-align:left;">{{ categoria.nivel }}</td>
                         <td>{{ categoria.edad }}</td>
                         <td>{{ categoria.tipo_juego }}</td>
                         <td>

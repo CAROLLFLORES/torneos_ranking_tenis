@@ -40,17 +40,19 @@
                     </tr>
                 </thead>
                 <tbody class="login-box listados">
-                    
-                    {% for cancha in canchas %}
-                        <tr>
-                            <td class="text-center">N° - {% if cancha.cancha %}{{ cancha.cancha }}{% else %}Sin nombre{% endif %} </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="1" class="text-center">No hay canchas registradas.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
+                {% for cancha in canchas %}
+                    <tr>
+                        <td class="text-center">
+                            N° {{ cancha.cancha }} –  {{ cancha.sede.nombre }}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="1" class="text-center">No hay canchas registradas.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+
             </table>
         </div>
         

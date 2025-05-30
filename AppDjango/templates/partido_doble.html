@@ -174,9 +174,12 @@
                                 <td>
                                     <select name="cancha[]" class="form-select form-select-sm" required>
                                         {% for c in canchas %}
-                                            <option value="{{ c.id }}">Cancha {{ c.cancha }}</option>
+                                            <option value="{{ c.id }}">
+                                                {{ c.sede.nombre }} - Cancha {{ c.cancha }}
+                                            </option>
                                         {% endfor %}
                                     </select>
+
                                 </td>
                                 <td>
                                     <button type="button" class="login-button mas-chico" onclick="validarPartido(this)">
@@ -213,6 +216,49 @@
 </div>
 
 <script>
+    async function validarFechaHoraCanchaUnicos() {
+        const filas = document.querySelectorAll("#partidosTable tr");
+        let conflictos = [];
+
+        for (let fila of filas) {
+            const fecha = fila.querySelector("input[name='fecha[]']").value;
+            const hora = fila.querySelector("input[name='hora[]']").value;
+            const cancha = fila.querySelector("select[name='cancha[]']").value;
+
+            if (!fecha || !hora || !cancha) continue;
+
+            const response = await fetch("/validar_partido_fecha_hora_cancha/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    fecha: fecha,
+                    hora: hora,
+                    cancha_id: cancha
+                })
+            });
+
+            const data = await response.json();
+            if (data.ocupado) {
+                conflictos.push(`${fecha} ${hora} - Cancha ID ${cancha}`);
+                fila.classList.add("table-danger");
+            } else {
+                fila.classList.remove("table-danger");
+            }
+        }
+
+        if (conflictos.length > 0) {
+            mostrarModalAdvertencia(
+                "Ya existe al menos un partido en la misma fecha, hora y cancha:\n" + conflictos.join("\n")
+            );
+            return false;
+        }
+
+        return true;
+    }
+
     const tipoTorneo = "{{ torneo.tipo|lower }}";
     /**
      * Esta función SOLO se llama si el usuario da clic en "Cargar Jornada".
@@ -358,11 +404,17 @@
     }
     
     // Agregar validación antes de guardar
-    document.getElementById("guardarFechaButton").addEventListener("click", function(event) {
-        if (!validarDuplicadosEnJornada()) {
-            event.preventDefault();  // Previene el envío del formulario si hay duplicados
+    document.getElementById("guardarFechaButton").addEventListener("click", async function(event) {
+        event.preventDefault();
+
+        const duplicadosOK = validarDuplicadosEnJornada();
+        const canchaLibreOK = await validarFechaHoraCanchaUnicos();
+
+        if (duplicadosOK && canchaLibreOK) {
+            document.getElementById("formPartidos").submit();
         }
     });
+
     
     function validarDuplicadosEnJornada() {
         let filas = document.querySelectorAll("#partidosTable tr");
@@ -402,11 +454,7 @@
     }
     
     // Agregar validación antes de guardar
-    document.getElementById("guardarFechaButton").addEventListener("click", function(event) {
-        if (!validarDuplicadosEnJornada()) {
-            event.preventDefault();  // Previene el envío del formulario si hay duplicados
-        }
-    });
+   
     
     let partidoAEliminar = null; // Variable para almacenar la fila a eliminar
 

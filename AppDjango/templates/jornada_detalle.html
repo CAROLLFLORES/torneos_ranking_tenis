@@ -36,7 +36,7 @@
             {% for partido in partidos %}
             <tr>
                 <td rowspan="2" class="partido-numero">{{ partido.numero }}</td>
-                <td rowspan="2"><input type="text" class="form-control hora" value="{{ partido.cancha }}" id="cancha-{{ partido.id }}" disabled></td>
+                <td rowspan="2"><input type="text" class="form-control hora" value="{{ partido.cancha.sede.nombre }} - {{ partido.cancha.cancha }}" disabled></td>
                 <td rowspan="2"><input type="date" class="form-control hora" value="{{ partido.fecha|date:'Y-m-d' }}" id="fecha-{{ partido.id }}" disabled></td>
                 <td rowspan="2"><input type="time" class="form-control hora" value="{{ partido.hora|time:'H:i' }}" id="hora-{{ partido.id }}" disabled></td>
                 
@@ -280,79 +280,89 @@
 
     async function generarPDF() {
     const { jsPDF } = window.jspdf;
-    let doc = new jsPDF('p', 'mm', 'a4');
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const logoUrl = "{% static 'imagenes/apur.png' %}";
+    const torneoNombre = "{{ torneo.nombre|escapejs }}";
 
+    // Cargar logo
+    const cargarLogo = () => new Promise((resolve) => {
+        const img = new Image();
+        img.src = logoUrl;
+        img.onload = () => resolve(img);
+    });
+
+    const logoImg = await cargarLogo();
+
+    // Agregar logo
+    doc.addImage(logoImg, 'PNG', 10, 10, 30, 15);
+
+    // Título centrado
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text(`Torneo: {{ torneo.nombre|upper }}`, 70, 20);
+    doc.setFontSize(16);
+    doc.text(`TORNEO: ${torneoNombre}`, 105, 20, { align: "center" });
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
+    let y = 40;
 
     let partidosPorFecha = {};
     document.querySelectorAll("tbody tr:nth-child(odd)").forEach(row => {
         let fechaInput = row.querySelector(`[id^='fecha']`);
         let fecha = fechaInput ? fechaInput.value : "Fecha desconocida";
-
-        if (!partidosPorFecha[fecha]) {
-            partidosPorFecha[fecha] = [];
-        }
+        if (!partidosPorFecha[fecha]) partidosPorFecha[fecha] = [];
         partidosPorFecha[fecha].push(row);
     });
 
-    let y = 50;
-
     Object.keys(partidosPorFecha).sort().forEach(fecha => {
+        doc.setFontSize(12);
         doc.setFont("helvetica", "bold");
-        doc.text(`Fecha: ${fecha}`, 20, y);
-        y += 10;
-
-         // **Cabecera con líneas separadoras**
-        doc.setFontSize(9);
-        doc.setLineWidth(0.1);  // 🔹 **LÍNEA MÁS FINA**
-        doc.line(15, y + 2, 195, y + 2); // Línea horizontal debajo del título
-
-        doc.setFont("helvetica", "bold");
-        
-        doc.text("Partido°", 20, y);
-        doc.text("Jugador 1", 40, y);
-        doc.text("Jugador 2", 80, y);
-        doc.text("Set 1", 120, y);
-        doc.text("Set 2", 140, y);
-        doc.text("Set 3", 160, y);
-        doc.text("Ganador", 180, y);
+        doc.text(`Fecha: ${fecha}`, 15, y);
         y += 8;
 
+        doc.setFontSize(8);
+        doc.text("Partido", 15, y);
+        doc.text("Jugador 1", 30, y);
+        doc.text("Jugador 2", 70, y);
+        doc.text("Set 1", 115, y);
+        doc.text("Set 2", 135, y);
+        doc.text("Set 3", 155, y);
+        doc.text("Ganador", 175, y);
+        y += 6;
+
         partidosPorFecha[fecha].forEach(row => {
-            let partido = row.querySelector(".partido-numero")?.textContent.trim() || "-";
-            let jugador1 = row.querySelector(`[id^='jugador1']`)?.value || "-";
-            let jugador2 = row.nextElementSibling?.querySelector(`[id^='jugador2']`)?.value || "-";
+            const partido = row.querySelector(".partido-numero")?.textContent.trim() || "-";
+            const jugador1 = row.querySelector(`[id^='jugador1']`)?.value || "-";
+            const jugador2 = row.nextElementSibling?.querySelector(`[id^='jugador2']`)?.value || "-";
+            const s1j1 = row.querySelector(`[id^='set1-jugador1']`)?.value || '0';
+            const s2j1 = row.querySelector(`[id^='set2-jugador1']`)?.value || '0';
+            const s3j1 = row.querySelector(`[id^='set3-jugador1']`)?.value || '0';
+            const s1j2 = row.nextElementSibling?.querySelector(`[id^='set1-jugador2']`)?.value || '0';
+            const s2j2 = row.nextElementSibling?.querySelector(`[id^='set2-jugador2']`)?.value || '0';
+            const s3j2 = row.nextElementSibling?.querySelector(`[id^='set3-jugador2']`)?.value || '0';
+            const ganador = row.querySelector(`[id^='ganador']`)?.value || "-";
 
-            let set1_j1 = row.querySelector(`[id^='set1-jugador1']`)?.value || '0';
-            let set2_j1 = row.querySelector(`[id^='set2-jugador1']`)?.value || '0';
-            let set3_j1 = row.querySelector(`[id^='set3-jugador1']`)?.value || '0';
+            doc.setFont("helvetica", "normal");
+            doc.text(partido, 15, y);
+            doc.text(jugador1, 35, y);
+            doc.text(jugador2, 75, y);
+            doc.text(`${s1j1}-${s1j2}`, 115, y);
+            doc.text(`${s2j1}-${s2j2}`, 135, y);
+            doc.text(`${s3j1}-${s3j2}`, 155, y);
+            doc.text(ganador, 175, y);
+            y += 6;
 
-            let set1_j2 = row.nextElementSibling?.querySelector(`[id^='set1-jugador2']`)?.value || '0';
-            let set2_j2 = row.nextElementSibling?.querySelector(`[id^='set2-jugador2']`)?.value || '0';
-            let set3_j2 = row.nextElementSibling?.querySelector(`[id^='set3-jugador2']`)?.value || '0';
-
-            let ganador = row.querySelector(`[id^='ganador']`)?.value || "-";
-
-            doc.text(partido, 20, y);
-            doc.text(jugador1, 40, y);
-            doc.text(jugador2, 80, y);
-            doc.text(`${set1_j1} - ${set1_j2}`, 120, y);
-            doc.text(`${set2_j1} - ${set2_j2}`, 140, y);
-            doc.text(`${set3_j1} - ${set3_j2}`, 160, y);
-            doc.text(ganador, 180, y);
-            y += 8;
+            // Salto de página
+            if (y > 270) {
+                doc.addPage();
+                y = 20;
+            }
         });
 
-        y += 10;  // Espacio entre fechas
+        y += 10;
     });
 
-    doc.save(`Resultados_Torneo_{{ torneo.nombre|upper }}.pdf`);
+    doc.save(`Resultados_Torneo_${torneoNombre.replace(/\s+/g, "_")}.pdf`);
 }
+
+
 
     
     

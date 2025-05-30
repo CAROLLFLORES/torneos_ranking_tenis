@@ -13,17 +13,18 @@
         <!-- Menú izquierdo con torneos -->
         <div class="narrow-box flex-grow-1">
             <div class="title-orange-gris text-center">
-                <h1>TORNEOS</h1>
+                <h1>RANKING TORNEOS</h1>
+                
             </div>
-            <hr class="separator">
+          
             <ul class="tournament-list">
                 {% for torneo in torneos %}
                 <li class="tournament-item">
-                    <span class="tournament-name">{{ torneo.nombre|upper }}</span>
+                    <span class="tournament-name"></span>
                     <a href="{% url 'ver_ranking' torneo.id %}">
-                        <button class="login-button chico">VER RANKING</button>
+                        <button class="login-button chico">{{ torneo.nombre|upper }}</button>
                     </a>
-                    <hr class="separator">
+                    
                 </li>
                 {% empty %}
                 <li>No hay torneos disponibles.</li>

@@ -1,6 +1,3 @@
-<!-- En el dia de hoy 5/04/2025 Agrega la carga masiva de cancha  id  Inicio CARGAGA MASIVA - 100 -->
-
-
 
 <!-- SE PUEDE AGREGAR UBICACION O NOMBRE DEL PREDIO QUE CONTIENE LAS CANCHAS POR SI HAY SEDES -->
 {% extends "layout.html" %}
@@ -8,9 +5,10 @@
 
 {% block content %}
 <!-- Modal de Confirmación de Alta de Cancha -->
+<!-- Modal de Confirmación de Alta de Cancha -->
 <div class="modal fade" id="modalConfirmacionCancha" tabindex="-1" aria-labelledby="modalConfirmacionCanchaLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content" style="background-color:rgba(210, 223, 101, 0.85); color: white; text-align: center;">
+        <div class="modal-content" style="background-color: rgba(210, 223, 101, 0.85); color: white; text-align: center;">
             <div class="modal-header">
                 <h3 class="modal-title" id="modalConfirmacionCanchaLabel">¡Cancha Guardada con Éxito!</h3>
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
@@ -80,8 +78,10 @@
         </div>
 
         <!-- Formulario para cargar la nueva cancha -->
+        <!-- Formulario para cargar la nueva cancha -->
         <div class="login-box">
-            <form method="POST" enctype="multipart/form-data">
+            <form id="form-nueva-cancha" method="POST" enctype="multipart/form-data">
+
                 {% csrf_token %}
                 <div class="mb-3">
                     <br> 
@@ -89,35 +89,49 @@
                     <input type="number" name="cancha" id="id_cancha" class="form-control" placeholder="Ingrese el número de la cancha" required>
                 </div>
                 <br> 
+                <div class="mb-3">
+                <label for="id_sede" class="form-label">Sede:</label>
+                <select name="sede" id="id_sede" class="form-select" required>
+                    <option value="">-- Seleccione una sede --</option>
+                    {% for sede in sedes %}
+                        <option value="{{ sede.id }}">{{ sede.nombre }}</option>
+                    {% endfor %}
+                </select>
+                </div>
+
 
                 <button class="login-button" type="submit">GUARDAR</button>
             </form>
+            
         </div>
     </div>
 </div>
 <script>
-    document.querySelector("form").addEventListener("submit", function (event) {
-        event.preventDefault(); // Evita que se recargue la página al enviar el formulario
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("form-nueva-cancha");
 
-        let formData = new FormData(this);
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
 
-        fetch("{% url 'abm_cancha' %}", { // Ajusta la URL según tu backend
-            method: "POST",
-            body: formData
-        })
-        .then(response => response.json())  // Esperamos una respuesta JSON del backend
-        .then(data => {
-            if (data.success) {
-                // 🟠 Muestra el Modal si la respuesta es exitosa
-                let modal = new bootstrap.Modal(document.getElementById('modalConfirmacionCancha'));
-                modal.show();
-            } else {
-                alert("Hubo un error al guardar la cancha.");
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("Hubo un problema con el servidor.");
+            let formData = new FormData(form);
+
+            fetch("{% url 'abm_cancha' %}", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let modal = new bootstrap.Modal(document.getElementById('modalConfirmacionCancha'));
+                    modal.show();
+                } else {
+                    alert("❌ Error al guardar la cancha:\n" + (data.error || "Desconocido"));
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Hubo un problema con el servidor.");
+            });
         });
     });
 

@@ -31,7 +31,13 @@ def ranking_torneo(request, torneo_id):
 
 def ver_ranking(request, torneo_id):
     torneo_actual = get_object_or_404(Torneo, id=torneo_id)
-    torneos_en_curso = Torneo.objects.all()
+    #esta parte se anulo, ya que lo de abajo lo que hace es agrupar por mismo estilo de torneo
+    #torneos_en_curso = Torneo.objects.all()
+    torneos_en_curso = Torneo.objects.filter(
+        tipo_juego=torneo_actual.tipo_juego,
+        categorias__in=torneo_actual.categorias.all()
+    ).exclude(id=torneo_actual.id).distinct()
+
 
     if torneo_actual.tipo_juego == "Doble":
 
