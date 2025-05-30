@@ -22,7 +22,7 @@ from jugador import views as jugador_views
 from ranking import views as ranking_views
 
 from torneo.views import listar_partidos  # ✅ Importa desde torneo, NO desde jugador
-from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada, listado_jugadores_master
+from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada, listado_jugadores_master, generar_pdf_partidos_por_fecha
 from ranking.views import ranking_torneo, ver_ranking, ranking_general
 from ranking.views import confirmar_ascenso_final, ascender_jugadores
 
@@ -87,6 +87,13 @@ urlpatterns = [
     path('jugadores/carga-masiva/', jugador_views.carga_masiva_jugadores, name='carga_masiva_jugadores'),
     path('torneos/carga-masiva/', torneo_views.carga_masiva_torneos, name='carga_masiva_torneos'),
     path('master/listado_jugadores/<int:torneo_id>/', torneo_views.listado_jugadores_master, name='listado_jugadores_master'),
+    path('generar_pdf_partidos_por_fecha', generar_pdf_partidos_por_fecha, name='generar_pdf_partidos_por_fecha'),
 
-   
+    path('sedes/nueva/', torneo_views.abm_sede, name='abm_sede'),
+    path('sedes/listado/', torneo_views.listado_sedes, name='listado_sedes'),
+    path("formulario_pdf/", torneo_views.formulario_pdf_fecha_sede, name="formulario_pdf"),
+
+    path('validar_partido_fecha_hora_cancha/', torneo_views.validar_partido_fecha_hora_cancha, name='validar_partido_fecha_hora_cancha'),
+
+
 ]

@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+{% block body_class %}fondo-secundario{% endblock %}
+
+{% block content %}
+<!-- Modal de Confirmación de Alta de Sede -->
+<div class="modal fade" id="modalConfirmacionSede" tabindex="-1" aria-labelledby="modalConfirmacionSedeLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color:rgba(210, 223, 101, 0.85); color: white; text-align: center;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalConfirmacionSedeLabel">¡Sede Guardada con Éxito!</h3>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x" style="font-size: 1.5rem; color: white;"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>La nueva sede ha sido registrada correctamente.</p>
+                <hr class="separator">
+                <button type="button" class="login-button" onclick="window.location.href='{% url 'abm_sede' %}'">
+                    Cargar Otra Sede
+                </button>
+                <hr class="separator">
+                <button type="button" class="login-button" onclick="window.location.href='{% url 'admin_menu' %}'">
+                    Ir al Menú Principal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-admin">
+    <h4>ADMINISTRADOR</h4>
+    <div class="text-section">
+        <hr class="separator-line">
+        <h2>ALTA</h2>
+    </div>
+    <div class="text-section">
+        <hr class="separator-line">
+        <h5>CARGA DE NUEVA SEDE</h5>
+    </div>
+
+    <div class="form-container">
+        <!-- Lado izquierdo -->
+        <div class="narrow-box">
+            <div class="title-orange-gris">
+                <h1>SEDES</h1>
+                <h3 class="negro chico">OPCIONES</h3>
+            </div>
+            <a href="{% url 'admin_menu' %}">
+                <button class="login-button peque">MENU</button>
+            </a>
+            <hr class="separator">
+            <a href="{% url 'listado_sedes' %}">
+                <button class="login-button-gris chico">Listado completo</button>
+            </a>
+        </div>
+
+        <!-- Formulario de sede -->
+        <div class="login-box">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <br> 
+                    <label for="id_nombre" class="form-label">Nombre de la Sede:</label>
+                    <input type="text" name="nombre" id="id_nombre" class="form-control" placeholder="Ejemplo: Palos Verdes" required>
+                </div>
+                <br> 
+                <button class="login-button" type="submit">GUARDAR</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelector("form").addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        let formData = new FormData(this);
+
+        fetch("{% url 'abm_sede' %}", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let modal = new bootstrap.Modal(document.getElementById('modalConfirmacionSede'));
+                modal.show();
+            } else {
+                alert("Hubo un error al guardar la sede.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Hubo un problema con el servidor.");
+        });
+    });
+</script>
+{% endblock %}

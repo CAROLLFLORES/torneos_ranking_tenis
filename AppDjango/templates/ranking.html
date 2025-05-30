@@ -105,22 +105,12 @@
                 <a href="{% url 'crear_torneo' %}">
                     <button class='login-button-gris chico'>VOLVER A TORNEO</button>
                 </a>
-            </div>
-            <hr class="separator">
+                <hr class="separator">
+                <button type="button" class="btn pdf-button login-button chico" onclick="generarPDF()">
+                    <i class="bi bi-file-earmark-pdf"></i> PDF
+                </button>
+            </div>           
 
-        
-            <ul class="tournament-list">
-                {% for torneo in torneos_en_curso %}
-                    <li class="tournament-item">
-                        <a href="{% url 'ver_ranking' torneo.id %}">
-                            <button class="login-button chico">{{ torneo.nombre|upper }}</button>
-                        </a>
-                    </li>
-                {% empty %}
-                    <li>No hay torneos disponibles.</li>
-                {% endfor %}
-            </ul>
-            
         
             <!-- ✅ Botón alineado correctamente -->
             
@@ -287,9 +277,70 @@ document.getElementById("btnConfirmarDescenso").addEventListener("click", functi
         new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
     }
 });
+</script>
+
+
+
+<!-- Librerías para exportar a PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+async function generarPDF() {
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        const torneoNombre = "{{ torneo_actual.nombre|escapejs }}";
+        const logoUrl = "{% static 'imagenes/apur.png' %}";  // ✅ RUTA CORRECTA
+
+        const logoImg = await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = logoUrl;
+            img.onload = () => resolve(img);
+            img.onerror = () => reject("❌ No se pudo cargar el logo.");
+        });
+
+        const tablaOriginal = document.querySelector('.ranking-table-container');
+        const tablaClon = tablaOriginal.cloneNode(true);
+
+        const columnasOcultas = tablaClon.querySelectorAll(
+            'th:nth-child(9), th:nth-child(10), td:nth-child(9), td:nth-child(10)'
+        );
+        columnasOcultas.forEach(col => col.style.display = 'none');
+
+        const contenedorOculto = document.createElement('div');
+        contenedorOculto.style.position = 'absolute';
+        contenedorOculto.style.left = '-9999px';
+        contenedorOculto.appendChild(tablaClon);
+        document.body.appendChild(contenedorOculto);
+
+        const canvas = await html2canvas(tablaClon, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const imgProps = doc.getImageProperties(imgData);
+        const pdfWidth = doc.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        doc.addImage(logoImg, 'PNG', 90, 10, 30, 15);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`RANKING - ${torneoNombre}`, 105, 30, { align: 'center' });
+
+        doc.addImage(imgData, 'PNG', 0, 40, pdfWidth, pdfHeight);
+        doc.save(`Ranking_${torneoNombre.replace(/\s+/g, '_')}.pdf`);
+
+        document.body.removeChild(contenedorOculto);
+    } catch (error) {
+        console.error("❌ Error al generar PDF:", error);
+        alert("No se pudo generar el PDF. Verificá que el logo esté disponible.");
+    }
+}
+
+
+</script>
+
 
     
-</script>
+
     
     
 

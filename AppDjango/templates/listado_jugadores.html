@@ -77,8 +77,6 @@
         </div>
 
         <div class="login-box listados">
-            <!-- Nueva barra de color que contiene la paginación y el filtro -->
-            <!-- Nueva barra de color que contiene la paginación y el filtro -->
             <!-- Nueva barra de color que contiene la paginación y los filtros -->
         <div class="barra-titulo">
             <div class="barra-titulo-contenido d-flex justify-content-between align-items-center">
@@ -134,7 +132,7 @@
                     {% if jugadores %}
                         {% for jugador in jugadores %}
                             <tr>
-                                <th scope="row">{{ jugador.apellido | upper }}</th>
+                                <th scope="row" style="text-align:left;">{{ jugador.apellido | upper }}</th>
                                 <td>{{ jugador.nombre | capfirst }}</td>
                                 <td>{{ jugador.sexo }}</td>
                                 <td>
