@@ -1556,14 +1556,45 @@ def generar_pdf_partidos_por_fecha(request):
         tipo = torneo.tipo_juego
 
         if tipo == 'Single':
-            nombres = f"{p.jugador1.apellido} vs {p.jugador2.apellido}"
+            jugador1 = p.jugador1.apellido if p.jugador1 else "Sin asignar"
+            jugador2 = p.jugador2.apellido if p.jugador2 else "Sin asignar"
+            nombres = f"{jugador1} vs {jugador2}"
         else:
-            nombres = f"{p.equipo1.jugador1.apellido}/{p.equipo1.jugador2.apellido} vs {p.equipo2.jugador1.apellido}/{p.equipo2.jugador2.apellido}"
+            equipo1_j1 = p.equipo1.jugador1.apellido if p.equipo1 and p.equipo1.jugador1 else "?"
+            equipo1_j2 = p.equipo1.jugador2.apellido if p.equipo1 and p.equipo1.jugador2 else "?"
+            equipo2_j1 = p.equipo2.jugador1.apellido if p.equipo2 and p.equipo2.jugador1 else "?"
+            equipo2_j2 = p.equipo2.jugador2.apellido if p.equipo2 and p.equipo2.jugador2 else "?"
+
+            nombres = f"{equipo1_j1}/{equipo1_j2} vs {equipo2_j1}/{equipo2_j2}"
+
+
+        # Buscar resultado si existe
+        resultado = ResultadoPartido.objects.filter(partido=p).first()
+        resultado_texto = ""
+
+        if resultado:
+            if tipo == 'Single':
+                sets = [
+                    f"{resultado.set1_jugador1}-{resultado.set1_jugador2}",
+                    f"{resultado.set2_jugador1}-{resultado.set2_jugador2}",
+                    f"{resultado.set3_jugador1}-{resultado.set3_jugador2}"
+                ]
+            else:
+                sets = [
+                    f"{resultado.set1_equipo1}-{resultado.set1_equipo2}",
+                    f"{resultado.set2_equipo1}-{resultado.set2_equipo2}",
+                    f"{resultado.set3_equipo1}-{resultado.set3_equipo2}"
+                ]
+
+            sets_filtrados = [s for s in sets if s not in ("0-0", "None-None", "None-0", "0-None", "None-None")]
+            if any("-" in s and s != "0-0" for s in sets_filtrados):
+                resultado_texto = "<br/><font size=10 color='red'><b>Resultado:</b> " + " / ".join(sets_filtrados) + "</font>"
 
         detalle = Paragraph(
-            f"<font size=12><b>{nombres}</b></font><br/><font size=9>{torneo.nombre} - {tipo}</font>",
+            f"<font size=12><b>{nombres}</b></font><br/><font size=9>{torneo.nombre} - {tipo}</font>{resultado_texto}",
             estilo_celda
         )
+
 
         partidos.append({
             'hora': p.hora,
