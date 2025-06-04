@@ -14,6 +14,111 @@
         <h4 class="text-center">Jornada: {{ jornada }}</h4>
     </div>
 
+    <div class="text-center mt-3">
+            <button type="button" class="btn pdf-button login-button chico" onclick="generarPDF()">
+                <i class="bi bi-file-earmark-pdf"></i> PDF
+            </button>
+            <a href="{% url 'abm_torneo' %}">
+                <button type="button" class="login-button-gris chico btn btn-success btn-lg" onclick="">
+                    VOLVER A TORNEOS </button>
+            </a>
+                    
+        <a href="{% url 'admin_menu' %}">
+            <button class="login-button peque">MENU</button>
+        </a>
+    </div>
+    
+    <div class="table-responsive ">
+    <h4 class="text-center " style="font-size: 1rem;">
+        Agregar nuevo partido a la jornada {{ jornada }}
+    </h4>
+
+
+        <form method="post" action="{% url 'guardar_fecha' torneo.id %}" class="p-3 bg-light border rounded mt-3">
+            {% csrf_token %}
+            <input type="hidden" name="numero_jornada" value="{{ jornada }}">
+
+                <table class="table table-striped table-light table-bordered table-sm">
+                <thead class="table-success text-center">
+                    <tr>
+                        <th>#</th>
+                        <th>Jugador 1 / Equipo 1</th>
+                        <th>VS</th>
+                        <th>Jugador 2 / Equipo 2</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Cancha</th>
+                        <th>Agregar</th>
+                        <th>Validar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-center align-middle">1</td>
+                        <td style="min-width: 180px;">
+                            {% if torneo.tipo_juego|lower == "doble" or torneo.tipo_juego|lower == "mixto" %}
+                                <select name="jugador1[]" class="form-select" required>
+                                    <option value="">-- Equipo 1 --</option>
+                                    {% for equipo in equipos %}
+                                        <option value="{{ equipo.id }}">{{ equipo.jugador1.apellido }} / {{ equipo.jugador2.apellido }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <select name="jugador1[]" class="form-select" required>
+                                    <option value="">-- Jugador 1 --</option>
+                                    {% for jugador in jugadores %}
+                                        <option value="{{ jugador.dni }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center fw-bold align-middle">VS</td>
+
+                        <td>
+                            {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
+                                <select name="jugador2[]" class="form-select" required>
+                                    <option value="">-- Equipo 2 --</option>
+                                    {% for equipo in equipos %}
+                                        <option value="{{ equipo.id }}">{{ equipo.jugador1.apellido }} / {{ equipo.jugador2.apellido }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <select name="jugador2[]" class="form-select" required>
+                                    <option value="">-- Jugador 2 --</option>
+                                    {% for jugador in jugadores %}
+                                        <option value="{{ jugador.dni }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% endif %}
+                        </td>
+
+                        <td><input type="date" name="fecha[]" class="form-control" required></td>
+                        <td><input type="time" name="hora[]" class="form-control" required></td>
+                        <td>
+                            <select name="cancha[]" class="form-select" required>
+                                {% for cancha in canchas %}
+                                    <option value="{{ cancha.id }}">{{ cancha.sede.nombre }} - Cancha {{ cancha.cancha }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <button type="submit" class="login-button mas-chico">AGREGAR</button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn pdf-button" onclick="validarFormularioPartido()">VALIDAR</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+        </form>
+    </div>
+
+    <br>
+
+    <h4 class="text-center">RESULTADOS o MODIFICACIONES</h4>
     <div class="table-responsive">
         <table class="table table-striped table-light table-bordered table-sm">
             <thead class="table-success text-center">
@@ -150,104 +255,12 @@
 
     </div>
 
-    <div class="text-center mt-3">
-            <button type="button" class="btn pdf-button login-button chico" onclick="generarPDF()">
-                <i class="bi bi-file-earmark-pdf"></i> PDF
-            </button>
-            <a href="{% url 'abm_torneo' %}">
-                <button type="button" class="login-button-gris chico btn btn-success btn-lg" onclick="">
-                    VOLVER A TORNEOS </button>
-            </a>
-                    
-        <a href="{% url 'admin_menu' %}">
-            <button class="login-button peque">MENU</button>
-        </a>
-    </div>
+    
    
     
-    <div class="login-box listados flex-grow-1">
-    <h5 class="mt-4 text-center text-success">Agregar nuevo partido a la jornada {{ jornada }}</h5>
-
-            <form method="post" action="{% url 'guardar_fecha' torneo.id %}" class="p-3 bg-light border rounded mt-3">
-                {% csrf_token %}
-                <input type="hidden" name="numero_jornada" value="{{ jornada }}">
-
-                <div class="row g-3 justify-content-center align-items-center">
-                    <!-- Jugador/Equipo 1 -->
-                    <div class="col-md-3">
-                        {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
-                            <select name="jugador1[]" class="form-select" required>
-                                <option value="">-- Equipo 1 --</option>
-                                {% for equipo in equipos %}
-                                    <option value="{{ equipo.id }}">{{ equipo.jugador1.apellido }} / {{ equipo.jugador2.apellido }}</option>
-                                {% endfor %}
-                            </select>
-                        {% else %}
-                            <select name="jugador1[]" class="form-select" required>
-                                <option value="">-- Jugador 1 --</option>
-                                {% for jugador in jugadores %}
-                                    <option value="{{ jugador.dni }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
-                                {% endfor %}
-                            </select>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-1 text-center fw-bold">VS</div>
-
-                    <!-- Jugador/Equipo 2 -->
-                    <div class="col-md-3">
-                        {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
-                            <select name="jugador2[]" class="form-select" required>
-                                <option value="">-- Equipo 2 --</option>
-                                {% for equipo in equipos %}
-                                    <option value="{{ equipo.id }}">{{ equipo.jugador1.apellido }} / {{ equipo.jugador2.apellido }}</option>
-                                {% endfor %}
-                            </select>
-                        {% else %}
-                            <select name="jugador2[]" class="form-select" required>
-                                <option value="">-- Jugador 2 --</option>
-                                {% for jugador in jugadores %}
-                                    <option value="{{ jugador.dni }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
-                                {% endfor %}
-                            </select>
-                        {% endif %}
-                    </div>
-
-                    <!-- Fecha -->
-                    <div class="col-md-2">
-                        <input type="date" name="fecha[]" class="form-control" required>
-                    </div>
-
-                    <!-- Hora -->
-                    <div class="col-md-1">
-                        <input type="time" name="hora[]" class="form-control" required>
-                    </div>
-
-                    <!-- Cancha -->
-                    <div class="col-md-2">
-                        <select name="cancha[]" class="form-select" required>
-                            {% for cancha in canchas %}
-                                <option value="{{ cancha.id }}">{{ cancha.sede.nombre }} - Cancha {{ cancha.cancha }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <br>
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn pdf-button login-button chico">Agregar Partido</button>
-                </div>
-                <div class="text-center mt-4">
-                    <button type="button" class="login-button mas-chico" onclick="validarFormularioPartido()">
-                        VALIDAR
-                    </button>
-
-                </div>
-            </form>
-        </div>
+    
 
 
-
-</div>
 
 <div id="deleteModal" class="modal fade" >
     <div class="modal-dialog">
