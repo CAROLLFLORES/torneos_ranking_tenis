@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-admin">
+    <h4>GESTOR DE TORNEOS</h4>
+    <div class="text-section">
+        <hr class="separator-line">
+        <p>HERAs</p>
+    </div>
+
+    <!-- Logo principal -->
+    <div class="text-center mb-5 fade-in">
+        <img src="{% static 'imagenes/logo apur.png' %}" alt="Logo" class="img-fluid" style="max-width: 300px;">
+    </div>
+
+    <br>
+    <!-- Botón personalizado grande -->
+    <div class="box-section fade-in slide-up">
+        <a href="{% url 'listado_jugadores' %}">
+            <button class="boton-grande">JUGADORES</button>
+        </a>
+    </div>
+    <!-- Botón personalizado grande -->
+    <div class="box-section fade-in slide-up">
+        <a href="{% url 'listado_jugadores' %}">
+            <button class="boton-grande">HISTORIAL</button>
+        </a>
+    </div>
+
+    <!-- Botón personalizado grande -->
+    <div class="box-section fade-in slide-up">
+        <a href="{% url 'listado_jugadores' %}">
+            <button class="boton-grande">RANKING</button>
+        </a>
+    </div>
+
+</div>
+
+<style>
+
+.box-section{
+    background-color: rgba(0, 0, 0, 0.3); /* Negro con 50% de transparencia */
+    margin-bottom: 5px; /* Reducí este valor */
+    padding: 15px;
+
+}
+
+.boton-grande {
+    width: 250px;
+    height: 60px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 10px;
+    padding: 5px 10px;
+    text-align: center;
+    background-color: orange;
+    color: white;
+    border: none;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.boton-grande:hover {
+    background-color: rgb(165, 83, 15);
+    transform: scale(1.03);
+}
+
+</style>
+{% endblock %}

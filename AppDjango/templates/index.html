@@ -1,16 +1,331 @@
-{% extends "layout.html" %}
-
-{% load static %}  <!-- Asegúrate de cargar el módulo estático -->
+{% extends "layout_inicio.html" %}
+{% load static %}
 
 {% block content %}
 <div class="container-admin">
-    <h4>GESTOR DE TORNEOS</h4>
-    <div class="text-section">
-        <hr class="separator-line"> <!-- Línea separadora -->
-        <p>ONN</p>
+    
+    
+<!-- ✅ SACAMOS el container-admin de esta parte -->
+<section class="hero-section" style="background-image: url('{% static "imagenes/fondo1.jpeg" %}');">
+    <div class="logo-izquierda fade-in">
+        <img src="{% static 'imagenes/logo apur.png' %}" alt="Logo" class="img-fluid">
     </div>
-    <div>
-        <img src="{% static 'imagenes/logo apur.png' %}" alt="Logo"/>
+
+    <div class="hero-overlay">
+        <h1 class="hero-title">Complejo de TENIS</h1>
+        <p class="hero-subtitle">alquileres / clases / torneos / reparaciones</p>
+        <a href="#" class="hero-button">LIGA</a>
     </div>
+</section>
+
+<!-- ✅ AHORA envolvemos las cards en un container si querés centrarlo -->
+<div class="container-admin">
+    <section class="cards-container">
+        <div class="card-box">
+            <img src="{% static 'imagenes/boton_pelota.jpeg' %}" alt="Icono 1">
+            <h5>ALQUILERES</h5>
+        </div>
+        <div class="card-box">
+            <img src="{% static 'imagenes/boton_pelota.jpeg' %}" alt="Icono 2">
+            <h5>CANCHAS</h5>
+        </div>
+        <div class="card-box">
+            <img src="{% static 'imagenes/boton_pelota.jpeg' %}" alt="Icono 3">
+            <h5>REPARACIONES</h5>
+        </div>
+    </section>
+
+    <section class="imagen-texto-section">
+    <div class="imagen-texto-container">
+        <div class="imagen-lado foto-flash">
+        <div class="flash-img zoom-flash" id="img-cambio-canchas"></div>
+        <div class="flash-overlay"></div>
+        </div>
+
+        <div class="texto-lado animar-aparecer">
+        <h2>Alquileres de Canchas</h2>
+        <p>Este es un texto descriptivo que acompaña la imagen. Podés escribir aquí lo que quieras destacar del club, la liga o lo que desees promocionar.</p>
+        </div>
+    </div>
+    </section>
+
+    <section class="imagen-texto-section fondo-negro ">
+    <div class="imagen-texto-container">
+        <div class="texto-lado animar-aparecer">
+        <h2>Clases individuales y grupales</h2>
+        <p>Este es un texto descriptivo que acompaña la imagen. Podés escribir aquí lo que quieras destacar del club, la liga o lo que desees promocionar.</p>
+        </div>
+        <div class="imagen-lado">
+        <img src="{% static 'imagenes/raqueta.png' %}" alt="Descripción" />
+        </div>
+    </div>
+    </section>
+
 </div>
+
+
+<style>
+
+.foto-flash {
+  position: relative;
+}
+
+.flash-img {
+  width: 400px;
+  height: 280px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  transition: transform 0.2s ease, background-image 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.flash-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 280px;
+  background: white;
+  opacity: 0;
+  border-radius: 10px;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.zoom-flash.en-zoom {
+  transform: scale(1.15);
+}
+
+
+/* animacion */
+.animar-aparecer {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease-in-out;
+}
+
+.animar-aparecer.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Imagen de fondo con texto encima */
+.hero-section {
+    
+    position: relative;
+    width: 105%; /* ✅ correcto */
+    height: 80vh;
+    background-image: url('/static/imagenes/fondo-gris.jpg'); /* tu imagen gris */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -100px;  /* ✅ Más superpuesto */
+
+}
+
+.hero-overlay {
+    color: white;
+    text-align: left;
+    background: rgba(0,0,0,0.5);
+    padding: 40px;
+    border-radius: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 45%; /* o lo que necesites */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: -10px;
+    text-align: right;
+    margin-left: auto;
+
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    text-align: right;
+    margin-left: auto;
+}
+
+.hero-button {
+    background-color:rgb(65, 64, 64);
+    color: black;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    text-align: right;
+    margin-left: auto;
+}
+
+.hero-button:hover {
+    background-color:rgb(153, 153, 153);
+}
+
+/* Cards que se superponen un poco a la imagen */
+.cards-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: -120px;  /* ✅ Más superpuesto */
+    padding: 20px;
+    z-index: 10;
+    position: relative;
+}
+
+
+.card-box {
+    background: white;
+    text-align: center;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    width: 250px;
+    transition: transform 0.3s ease;
+
+}
+
+.card-box:hover {
+    transform: translateY(-10px);
+}
+
+.card-box img {
+    width: 50px;
+    margin-bottom: 15px;
+}
+
+.logo-izquierda {
+    position: absolute;
+    top: 150px;
+    left: 150px;
+    z-index: 50;
+}
+
+.logo-izquierda img {
+    max-width: 280px; /* o el tamaño que prefieras */
+}
+
+.card-box h5 {
+    color: black;
+}
+
+
+.imagen-texto-section {
+  width: 100vw;
+  padding: 120px 0 160px 0; /* más espacio arriba y abajo */
+  background-color: #f5f5f5;
+  margin-top: 100px;
+}
+
+.imagen-texto-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+  padding: 0 80px; /* Espaciado interno horizontal */
+  max-width: 100%; /* ✅ Ocupa todo el ancho disponible */
+  margin: 0 auto; /* ✅ Centrado vertical
+  box-sizing: border-box; /* ✅ evita desbordes */
+
+}
+
+
+.imagen-lado img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  width: 400px;
+}
+
+.texto-lado {
+  max-width: 600px;
+  color: black;
+
+}
+
+.texto-lado h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.texto-lado p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.fondo-negro {
+  background-color: #000;
+  color: white;
+}
+
+.fondo-negro .texto-lado h2,
+.fondo-negro .texto-lado p {
+  color: white;
+}
+
+</style>
+
+<script>
+  const animar = document.querySelectorAll('.animar-aparecer');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  });
+
+  animar.forEach(el => observer.observe(el));
+
+
+  const imagenesCanchas = [
+    "{% static 'imagenes/raqueta.png' %}",
+    "{% static 'imagenes/fondoPelotas.jpeg' %}",
+    "{% static 'imagenes/raqueta.png' %}"
+  ];
+
+  let indexCanchas = 0;
+  const imgCanchas = document.getElementById("img-cambio-canchas");
+  const flashCanchas = imgCanchas.nextElementSibling;
+
+  function cambiarImagenCanchas() {
+    // Flash y zoom in
+    flashCanchas.style.opacity = 1;
+    imgCanchas.classList.add("en-zoom");
+
+    setTimeout(() => {
+      indexCanchas = (indexCanchas + 1) % imagenesCanchas.length;
+      imgCanchas.style.backgroundImage = `url('${imagenesCanchas[indexCanchas]}')`;
+    }, 150);
+
+    setTimeout(() => {
+      flashCanchas.style.opacity = 0;
+      imgCanchas.classList.remove("en-zoom");
+    }, 400);
+  }
+
+  // Inicializar imagen
+  imgCanchas.style.backgroundImage = `url('${imagenesCanchas[0]}')`;
+
+  // Cambiar cada 3 segundos
+  setInterval(cambiarImagenCanchas, 3000);
+
+</script>
+
 {% endblock %}

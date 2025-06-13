@@ -536,6 +536,18 @@ document.getElementById("confirmarEliminar").addEventListener("click", function 
     .table-danger {
         background-color: #f8d7da !important;
     }
+
+@media (max-width: 768px) {
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    min-width: 800px; /* Ajustalo si tenés muchas columnas */
+  }
+}
+
     
 </style>
 

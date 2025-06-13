@@ -1357,3 +1357,215 @@ padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
     background-color: #0d1802; /* Rojo más oscuro al pasar el mouse */
     transform: scale(1.05); /* Efecto de zoom suave */
 }
+
+/* Boxes visuales */
+.box-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(0, 0, 0, 0.6); /* negro semi-transparente */
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    gap: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    flex-wrap: wrap; /* para que en pantallas chicas se acomode */
+}
+
+.box-img {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.box-text {
+    flex: 1;
+    min-width: 200px;
+    color: white;
+    text-align: left;
+}
+
+
+
+/* Animaciones */
+.fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 1s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Retrasos opcionales */
+.fade-in:nth-of-type(1) { animation-delay: 0.2s; }
+.fade-in:nth-of-type(2) { animation-delay: 0.4s; }
+.fade-in:nth-of-type(3) { animation-delay: 0.6s; }
+
+
+
+
+/* =================== ESTILOS RESPONSIVOS =================== */
+@media (max-width: 768px) {
+
+    .box-section {
+    flex-direction: column;
+    text-align: center;
+}
+
+    .box-text {
+    max-width: 100%;
+}
+
+    .box-img {
+    max-width: 80%;
+}
+
+  .listados, 
+  .ranking-table-container, 
+  .table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .listados table,
+  .ranking-table,
+  .table {
+    min-width: 900px !important; /* Asegura que la tabla sea más ancha que el viewport */
+    width: max-content !important;
+  }
+
+  table.table {
+    display: block;
+    overflow-x: auto !important;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch !important;
+    
+  }
+
+  /* Para mantener bordes redondeados y padding si usás Bootstrap */
+  table.table thead, table.table tbody {
+    display: table;
+    width: 100%;
+    table-layout: auto;
+  }
+
+
+  .login-box, .narrow-box, .largo, .form-container, .recuadro {
+    width: 90% !important;
+    max-width: 90% !important;
+    padding: 5px !important;
+  }
+
+  body  {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 5px !important;
+    box-sizing: border-box !important;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .listados{
+    width: 80% !important;
+    max-width: 80% !important;
+    padding: 5px !important;
+    box-sizing: border-box !important;
+    
+  }
+
+  .listados table {
+    min-width: 900px; /* O más si tenés muchas columnas */
+  }
+
+  .listados thead {
+    font-size: 0.7rem;
+  }
+
+  .listados td, .listados th {
+    white-space: nowrap;
+    padding: 2px 3px;
+  }
+
+  .box-container, .form-container, .recuadros-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .menu-principal {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    height: auto;
+    text-align: center;
+    padding: 2px 7px;
+  }
+
+  .nav-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+  }
+
+  .nav-item {
+    margin: 0;
+    padding: 3px 5px;
+    font-size: 12px;
+  }
+
+  .nav-item::after {
+    content: none;
+  }
+
+
+  .titulos {
+    font-size: 3rem;
+  }
+
+  .ranking-table, .barra-titulos {
+    font-size: 10px;
+    overflow-x: auto;
+    display: block;
+  }
+
+  .player-item, .barra-titulos {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .table-container {
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .ranking-button {
+    width: 100%;
+  }
+
+  .modal-content {
+    width: 95%;
+  }
+
+  .ranking-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ranking-table {
+    min-width: 900px; /* O el ancho necesario para evitar colapso */
+  }
+
+}

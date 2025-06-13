@@ -32,7 +32,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),    
     # URLs para la app 
     path('login/', loginadmin_views.admin_login, name='login'),
-    path('admin_menu/', loginadmin_views.admin_menu, name='admin_menu'),    
+    path('admin_menu/', loginadmin_views.admin_menu, name='admin_menu'), 
+    path('liga_publico/', torneo_views.liga_publico, name='liga_publico'),    
+   
     path('jugador/<str:dni>/', jugador_views.datos_jugador, name='listado_jugador'),  # Cambiado a dni
     path('menu/', loginadmin_views.menu, name='menu'),
     path('admin_carga_jugador/', jugador_views.CrearJugador, name='admin_carga_jugador'),

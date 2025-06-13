@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIGA TENIS 2024 - Inicio</title>
+
+    <!-- CSS y JS iguales a layout.html -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+
+    <script src="{% static 'js/script.js' %}" defer></script>
+</head>
+
+<body style="background-color: black">
+    <div class="menu-principal">
+            <button class="hamburguesa" id="menu-toggle">≡</button> <!-- Botón de menú a la izquierda -->
+
+    <!-- ✅ MENÚ EXCLUSIVO DE INICIO -->
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'liga_publico' %}">LIGA</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">🛒 Tienda</a>
+                </li>
+                
+            </ul>
+            <a href="{% url 'login' %}">
+                <img src="{% static 'imagenes/logo apur.png' %}" alt="APUR Logo" class="logo-menu"> <!-- Logo a la derecha -->
+            </a>
+        </div>
+
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>

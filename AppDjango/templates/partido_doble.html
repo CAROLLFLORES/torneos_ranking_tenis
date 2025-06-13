@@ -568,6 +568,17 @@ document.getElementById("confirmarEliminar").addEventListener("click", function 
         color: black;
     }
     
+@media (max-width: 768px) {
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    min-width: 900px; /* Ajustá este valor si hay más o menos columnas */
+  }
+}
+
 </style>
 
 {% endblock %}
