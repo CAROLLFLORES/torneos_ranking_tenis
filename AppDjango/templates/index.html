@@ -1,16 +1,536 @@
-{% extends "layout.html" %}
-
-{% load static %}  <!-- Asegúrate de cargar el módulo estático -->
+{% extends "layout_inicio.html" %}
+{% load static %}
 
 {% block content %}
+<!-- Usa esta línea UNA VEZ en el <head> -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
 <div class="container-admin">
-    <h4>GESTOR DE TORNEOS</h4>
-    <div class="text-section">
-        <hr class="separator-line"> <!-- Línea separadora -->
-        <p>ONN</p>
+    
+    
+<!-- ✅ SACAMOS el container-admin de esta parte -->
+<section class="hero-section" style="background-image: url('{% static "imagenes/fondo1.jpeg" %}');">
+    <div class="logo-izquierda fade-in">
+        <img src="{% static 'imagenes/logo apur.png' %}" alt="Logo" class="img-fluid">
     </div>
-    <div>
-        <img src="{% static 'imagenes/logo apur.png' %}" alt="Logo"/>
+
+    <div class="hero-overlay">
+        <h1 class="hero-title">Bienvenidos al Complejo de Tenis Apur</h1>
+        <p class="hero-subtitle">Te ofrecemos mucho más que canchas.
+          <br>
+          Te damos una experiencia completa para que disfrutes del tenis en todas sus formas.
+          </p>
+        <a href="{% url 'liga_publico' %}" class="hero-button">LIGA</a>
     </div>
+</section>
+
+<!-- ✅ AHORA envolvemos las cards en un container si querés centrarlo -->
+<div class="container-admin">
+    <section class="cards-container">
+        <div class="card-box">
+            <img src="{% static 'imagenes/boton_pelota.jpeg' %}" alt="Icono 1">
+            <h5>ALQUILERES</h5>
+            <p class="animar-aparecer">¿Querés jugar con amigos o entrenar por tu cuenta? 
+          Te ofrecemos alquiler de canchas de tenis de excelente calidad, 
+          con disponibilidad flexible y atención personalizada.</p>
+        </div>
+        <div class="card-box">
+            <img src="{% static 'imagenes/boton_pelota.jpeg' %}" alt="Icono 2">
+            <h5>CLASES</h5>
+            <p class="animar-aparecer">Contamos con clases grupales y particulares para adultos, 
+          adaptadas a todos los niveles. Ya sea que estés dando tus primeros pasos o 
+          busques perfeccionar tu técnica, nuestros profesores te guiarán en un 
+          ambiente dinámico y personalizado.</p>
+        </div>
+        <div class="card-box">
+            <img src="{% static 'imagenes/boton_pelota.jpeg' %}" alt="Icono 3">
+            <h5>REPARACIONES</h5>
+            <p class="animar-aparecer">En Apur confiamos en Cancha Lista Reparaciones,
+           un servicio profesional especializado en el mantenimiento y 
+           reparación de canchas de polvo de ladrillo, 
+           con amplia trayectoria en Rosario y zonas aledañas.</p>
+        </div>
+    </section>
+
+    <section class="imagen-texto-section angosto">
+    <div class="imagen-texto-container imagen-lado">
+        <div class="imagen-lado foto-flash">
+        <div class="flash-img zoom-flash" id="img-cambio-canchas"></div>
+        <div class="flash-overlay"></div>
+        </div>
+
+        <div class="texto-lado">
+        <h2 class="animate-from-left">Liga</h2>
+        <p class="animar-aparecer">Participá de nuestras ligas abiertas de Singles y 
+          Dobles, con categorías para Damas y Caballeros, además de emocionantes 
+          encuentros de Dobles Mixtos. Competí, conocé gente y viví el tenis con 
+          intensidad.
+    </p>
+        </div>
+    </div>
+    </section>
+
+    <section class="imagen-texto-section angosto fondo-negro ">
+    <div class="imagen-texto-container">
+        <div class="texto-lado ">
+        <h2 class="animate-from-left">Interclubes ART</h2>
+        <p class="animar-aparecer">Apur compite activamente desde hace años 
+          en los torneos interclubes organizados por la ART, 
+          siendo protagonista temporada tras temporada. 
+          Nuestro complejo ha logrado destacarse ubicándose 
+          entre los primeros puestos en la Copa General, y ha sido 
+          ganador en múltiples ocasiones de la Copa Average, 
+          demostrando el compromiso, el nivel y la pasión de nuestros jugadores.</p>
+        </div>
+        <div class="imagen-lado">
+        <img src="{% static 'imagenes/raqueta.png' %}" alt="Descripción" />
+        </div>
+    </div>
+    </section>
+
+    <section class="imagen-texto-section ">
+    
+    <div class="imagen-texto-container">
+        <div class="texto-lado ">
+        <h2 class="animate-from-left">Cancha Lista</h2>
+        <p class="animar-aparecer">En Apur confiamos en Cancha Lista Reparaciones, un servicio profesional especializado en el mantenimiento y reparación de canchas de polvo de ladrillo, con amplia trayectoria en Rosario y zonas aledañas.
+
+        <br><br>Servicios que ofrecemos:
+        <br> - Picado y compactación de polvo de ladrillo
+
+        <br> - Reparación y reemplazo de flejes
+
+        <br> - Desmalezamiento y limpieza profunda
+
+        <br> - Venta de polvo de ladrillo bayo de alta calidad
+        </p>
+        </div>
+        <div class="imagen-lado">
+        <img src="{% static 'imagenes/raqueta.png' %}" alt="Descripción" />
+        </div>
+    </div>
+    <div class="imagen-texto-container reverse">
+        <div class="texto-lado ">
+        <h2>Presencia profesional</h2>
+        <p class="animar-aparecer">
+        Cancha Lista ha trabajado en importantes clubes y eventos, 
+        como el Jockey Club de Rosario y el prestigioso Challenger de 
+        Rosario, garantizando resultados de nivel competitivo.
+
+        Nos destacamos por llevar nuestras soluciones a clubes y 
+        complejos de toda la región, no solo dentro de Rosario, 
+        sino también en localidades cercanas.
+        </p>
+        </div>
+        <div class="imagen-lado">
+        <img src="{% static 'imagenes/raqueta.png' %}" alt="Descripción" />
+        </div>
+    </div>
+    </section>
+
 </div>
+
+   <footer>    
+        <div class="footer-content" id="contacto"></div>
+        <h3 class="margin-izquierdo title animate-from-left" id="cubregrip" style="font-family:'Gill Sans', 'Gill Sans MT', Calibri; font-size: 14px;     color:rgb(76, 131, 32);
+  ">SEGUINOS</h3> 
+        <div class="envelope">
+            <div class="social-icons">
+                <!-- Reemplaza las URL de los enlaces con tus perfiles sociales -->
+                <a href="https://wa.me/5493416830332?text=Hola,%20estoy%20interesado%20en%20sus%20productos" target="_blank" rel="noopener noreferrer">  <i class="fab fa-instagram"></i></i></a>
+                <a href="https://wa.me/5493416830332?text=Hola,%20estoy%20interesado%20en%20sus%20productos" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                <a href="https://www.facebook.com/tu_pagina" target="_blank">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+
+            </div> 
+        </div>
+        <br><br>
+        <div class="footer-content">
+            <div class="footer-section">
+                
+                <h3 class="margin-izquierdo title animate-from-left" id="cubregrip" style="font-family:'Gill Sans', 'Gill Sans MT', Calibri; font-size: 14px;     color:rgb(76, 131, 32);
+  ">CONTACTANOS</h3> 
+                <p><i class="fas fa-phone-alt"  ></i> Teléfono: +54 341 6830332</p>
+                <p><i class="fas fa-map-marker-alt"></i> Dirección: Av. Belgrano 2182, Rosario, Santa Fe, Argentina</p>
+            </div>
+        </div>  
+        <p class="parrafo-centrado">&copy; 2025 HERAAS. Todos los derechos reservados.</p>
+        
+        <button onclick="scrollToTop()" class="scroll-button">
+            <i class="bi bi-arrow-up"></i>
+        </button>
+    </footer>
+       
+<style>
+
+  /* Estado inicial fuera de pantalla */
+.animate-from-left {
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: all 0.8s ease-out;
+}
+
+/* Al entrar en pantalla */
+.animate-from-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.imagen-texto-container.reverse {
+  flex-direction: row-reverse;
+}
+
+.foto-flash {
+  position: relative;
+}
+
+.flash-img {
+  width: 400px;
+  height: 280px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  transition: transform 0.2s ease, background-image 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.flash-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 280px;
+  background: white;
+  opacity: 0;
+  border-radius: 10px;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.zoom-flash.en-zoom {
+  transform: scale(1.15);
+}
+
+
+/* animacion */
+.animar-aparecer {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease-in-out;
+}
+
+.animar-aparecer.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.angosto{
+  height: 40vh;
+}
+/* Imagen de fondo con texto encima */
+.hero-section {
+    
+    position: relative;
+    width: 100%; /* ✅ correcto */
+    height: 90vh;
+    background-image: url('/static/imagenes/fondo-gris.jpg'); /* tu imagen gris */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -100px;  /* ✅ Más superpuesto */
+
+}
+
+.hero-overlay {
+    color: white;
+    text-align: left;
+    background: rgba(0,0,0,0.5);
+    padding: 40px;
+    border-radius: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 45%; /* o lo que necesites */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: -10px;
+    text-align: left;
+    margin-left: auto;
+
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    text-align: left;
+    margin-left: auto;
+}
+
+.hero-button {
+    background-color:rgb(76, 131, 32);
+    color: black;
+    padding: 10px 40px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    text-align: left;
+    /* eliminamos alineación derecha */
+    margin-left: 0;
+    align-self: flex-start;  /* clave para alinear el botón a la izquierda del bloque */
+}
+
+.hero-button:hover {
+    background-color:rgb(153, 153, 153);
+}
+
+/* Cards que se superponen un poco a la imagen */
+.cards-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: -120px;  /* ✅ Más superpuesto */
+    padding: 20px;
+    z-index: 10;
+    position: relative;
+}
+
+
+.card-box {
+    background: rgb(76, 131, 32);
+    text-align: center;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    width: 250px;
+    transition: transform 0.3s ease;
+
+}
+
+.card-box:hover {
+    transform: translateY(-10px);
+}
+
+.card-box img {
+    width: 50px;
+    margin-bottom: 15px;
+}
+
+.logo-izquierda {
+    position: absolute;
+    top: 150px;
+    left: 150px;
+    z-index: 50;
+}
+
+.logo-izquierda img {
+    max-width: 280px; /* o el tamaño que prefieras */
+}
+
+.card-box h5 {
+    color: black;
+}
+
+
+.imagen-texto-section {
+  width: 100vw;
+  padding: 120px 0 160px 0; /* más espacio arriba y abajo */
+  background-color:rgb(76, 131, 32);
+  margin-top: 80px;
+}
+
+.imagen-texto-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+  padding: 0 80px; /* Espaciado interno horizontal */
+  max-width: 100%; /* ✅ Ocupa todo el ancho disponible */
+  margin: 0 auto; /* ✅ Centrado vertical
+  box-sizing: border-box; /* ✅ evita desbordes */
+
+}
+
+
+.imagen-lado img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  width: 600px;
+}
+
+.texto-lado {
+  max-width: 400px;
+  color: black;
+
+}
+
+.texto-lado h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.texto-lado p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.fondo-negro {
+  background-color: #000;
+  color: white;
+}
+
+.fondo-negro .texto-lado h2,
+.fondo-negro .texto-lado p {
+  color: white;
+}
+
+
+/* Estilos Footer-------------------------------------------------------- */
+footer {
+    background-color: #000000;
+    color: rgb(75, 75, 75);
+    text-align: center;
+    position: relative;
+    margin-top: 100px;
+    width: 100%;
+    padding-top: 50px;
+   
+}  
+footer h2 {
+    display: flex; /* Establece el contenedor como flex */
+    justify-content: center; 
+    height: 280px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 20px; /* Ajusta el relleno según sea necesario */
+    color: rgb(0, 0, 0); /* Cambia el color del texto para que sea legible en la imagen de fondo */
+    align-items: flex-end;
+}
+   
+.social-icons a {
+    color: rgb(75, 75, 75);
+    text-decoration: none;
+    margin: -50px 10px; /* Eliminado uno de los margin-top */
+    font-size: 40px !important;
+    padding: 15px;
+}
+.envelope {
+    width: 100%; /* Ancho del sobre */
+    height: 100px; /* Altura del sobre */
+    background-color: rgb(0, 0, 0);
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 10px 20px rgba(243, 242, 242, 0.3); /* Sombra */
+    position: relative;
+    align-items: center;
+    margin: 0 auto;
+    
+ }   
+
+footer .envelope {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente los elementos */
+    align-items: center; /* Centra verticalmente los elementos */
+    
+}
+.social-icons {
+    position: absolute;
+    top: 50%; /* Posiciona los iconos en el centro verticalmente */
+    left: 50%; /* Posiciona los iconos en el centro horizontalmente */
+    transform: translate(-50%, -50%); /* Centra los iconos */
+}
+.social-icons a:hover {
+    color:rgb(76, 131, 32);
+}
+
+
+.footer-section p,
+.footer-section a {
+    color: #ccc; /* Color gris claro */
+    font-size: 14px;
+    text-decoration: none;
+    justify-content: center; /* Centra horizontalmente los elementos */
+}
+
+</style>
+
+<script>
+  const animar = document.querySelectorAll('.animar-aparecer');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  });
+
+  animar.forEach(el => observer.observe(el));
+
+
+  const imagenesCanchas = [
+    "{% static 'imagenes/IMG_6911.jpg' %}",
+    "{% static 'imagenes/IMG_3262.jpg' %}",
+    "{% static 'imagenes/IMG_8595.jpg' %}"
+  ];
+
+  let indexCanchas = 0;
+  const imgCanchas = document.getElementById("img-cambio-canchas");
+  const flashCanchas = imgCanchas.nextElementSibling;
+
+  function cambiarImagenCanchas() {
+    // Flash y zoom in
+    flashCanchas.style.opacity = 1;
+    imgCanchas.classList.add("en-zoom");
+
+    setTimeout(() => {
+      indexCanchas = (indexCanchas + 1) % imagenesCanchas.length;
+      imgCanchas.style.backgroundImage = `url('${imagenesCanchas[indexCanchas]}')`;
+    }, 150);
+
+    setTimeout(() => {
+      flashCanchas.style.opacity = 0;
+      imgCanchas.classList.remove("en-zoom");
+    }, 400);
+  }
+
+  // Inicializar imagen
+  imgCanchas.style.backgroundImage = `url('${imagenesCanchas[0]}')`;
+
+  // Cambiar cada 3 segundos
+  setInterval(cambiarImagenCanchas, 3000);
+
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const elementos = document.querySelectorAll('.animate-from-left');
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.2
+    });
+
+    elementos.forEach(el => observer.observe(el));
+  });
+
+</script>
+
 {% endblock %}

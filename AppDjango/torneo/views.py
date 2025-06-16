@@ -44,6 +44,10 @@ from .models import Sede
 from django.db import transaction
 
 
+def liga_publico(request):
+    return render(request, 'liga_publico.html')
+
+
 def contar_sets_ganados(set1_a, set1_b, set2_a, set2_b, set3_a, set3_b):
     sets_ganados = 0
     if set1_a != 0 or set1_b != 0:
