@@ -465,14 +465,20 @@
     doc.text(`TORNEO: ${torneoNombre}`, 105, 20, { align: "center" });
 
     let y = 40;
-
     let partidosPorFecha = {};
-    document.querySelectorAll("tbody tr:nth-child(odd)").forEach(row => {
+
+    // Filtramos solo las filas de resultados (excluye formulario)
+    const filasResultados = Array.from(document.querySelectorAll("tbody tr"))
+        .filter(row => row.querySelector(".partido-numero"));
+
+    // Agrupar por fecha
+    for (let i = 0; i < filasResultados.length; i += 2) {
+        let row = filasResultados[i];
         let fechaInput = row.querySelector(`[id^='fecha']`);
         let fecha = fechaInput ? fechaInput.value : "Fecha desconocida";
         if (!partidosPorFecha[fecha]) partidosPorFecha[fecha] = [];
         partidosPorFecha[fecha].push(row);
-    });
+    }
 
     Object.keys(partidosPorFecha).sort().forEach(fecha => {
         doc.setFontSize(12);
@@ -512,7 +518,6 @@
             doc.text(ganador, 175, y);
             y += 6;
 
-            // Salto de página
             if (y > 270) {
                 doc.addPage();
                 y = 20;

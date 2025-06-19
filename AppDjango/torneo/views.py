@@ -42,6 +42,11 @@ from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 from .models import Sede
 from django.db import transaction
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import user_passes_test
+
+def es_admin(user):
+    return user.is_authenticated and user.is_staff
 
 
 def liga_publico(request):
@@ -63,7 +68,7 @@ def contar_sets_ganados(set1_a, set1_b, set2_a, set2_b, set3_a, set3_b):
 
 
 
-
+@user_passes_test(es_admin)
 def abm_torneo(request):
     all_categorias = Categoria.objects.all()
     categoria_id = request.GET.get('categoria')
@@ -1602,3 +1607,17 @@ def validar_partido_fecha_hora_cancha(request):
         ).exists()
 
         return JsonResponse({'ocupado': conflicto})
+    
+
+
+def eliminar_sede(request, sede_id):
+    sede = get_object_or_404(Sede, id=sede_id)
+    sede.delete()
+    messages.success(request, f'Sede "{sede.nombre}" eliminada correctamente.')
+    return redirect('listado_sedes')
+
+
+def eliminar_cancha(request, cancha_id):
+    cancha = get_object_or_404(Cancha, id=cancha_id)
+    cancha.delete()
+    return redirect('listado_canchas')  # Cambiá esto si tu vista se llama diferente

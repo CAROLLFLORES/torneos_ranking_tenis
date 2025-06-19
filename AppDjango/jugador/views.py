@@ -78,7 +78,8 @@ def listado_jugadores(request):
     categoria_filter = request.GET.get('categoria', '')
 
     # 🔹 Filtrar jugadores por nombre, apellido, sexo y categoría
-    jugadores = Jugador.objects.all()
+    jugadores = Jugador.objects.all().order_by('apellido', 'nombre')
+
 
     if search:
         jugadores = jugadores.filter(
@@ -297,14 +298,17 @@ def exportar_jugadores_pdf(request):
     c.drawString(100, 780, f"Categoría: {categoria_nombre}")
     c.drawString(100, 765, f"Género: {sexo_nombre}")
 
-    # 🟠 6️⃣ Genera la tabla de jugadores
-    data = [["Apellido", "Nombre", "Sexo"]]
+    # 🟠 6️⃣ Genera la tabla de jugadores con categorías
+    jugadores = jugadores.prefetch_related('categorias')
+    data = [["Apellido", "Nombre", "Sexo", "Categorías"]]
 
     for jugador in jugadores:
+        categorias = ", ".join([f"{c.nivel}-{c.tipo_juego}" for c in jugador.categorias.all()])
         data.append([
             jugador.apellido.upper(),
             jugador.nombre.capitalize(),
-            "Masculino" if jugador.sexo == "M" else "Femenino"
+            "Masculino" if jugador.sexo == "M" else "Femenino",
+            categorias if categorias else "Sin categoría"
         ])
 
     # 🟠 7️⃣ Estilo de la tabla
