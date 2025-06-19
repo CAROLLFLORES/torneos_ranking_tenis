@@ -47,6 +47,7 @@
                     <tr class="title-container">
                         <th>ID</th>
                         <th>NOMBRE</th>
+                        <th>ELIMINAR</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -54,8 +55,43 @@
                         {% for sede in sedes %}
                             <tr>
                                 <td>{{ sede.id }}</td>
-                                <td>{{ sede.nombre }}</td>
+                                <td style="text-align: left;">{{ sede.nombre }}</td>
+                            
+                                <td>
+                                    <button type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#eliminarModal-{{ sede.id }}"
+                                            title="Eliminar sede"
+                                            style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-trash-fill" style="font-size: 1.5rem; color: red;"></i>
+                                    </button>
+
+                                    <!-- Modal eliminar sede -->
+                                    <div class="modal fade" id="eliminarModal-{{ sede.id }}" tabindex="-1" aria-labelledby="eliminarModalLabel-{{ sede.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                        <form method="POST" action="{% url 'eliminar_sede' sede.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-header">
+                                            <h5 class="modal-title" id="eliminarModalLabel-{{ sede.id }}">¿Eliminar sede "{{ sede.nombre }}"?</h5>
+                                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                <i class="bi bi-x" style="font-size: 1.5rem;"></i>
+                                            </button>
+                                            </div>
+                                            <div class="modal-body">
+                                            Esta acción eliminará permanentemente la sede del sistema.
+                                            </div>
+                                            <div class="modal-footer">
+                                            <button type="submit"class="login-button rojo delete-button">ELIMINAR</button>
+                                            
+                                            </div>
+                                        </form>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </td>
                             </tr>
+
                         {% endfor %}
                     {% else %}
                         <tr>

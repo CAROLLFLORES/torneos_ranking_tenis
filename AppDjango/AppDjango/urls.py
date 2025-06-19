@@ -97,5 +97,7 @@ urlpatterns = [
 
     path('validar_partido_fecha_hora_cancha/', torneo_views.validar_partido_fecha_hora_cancha, name='validar_partido_fecha_hora_cancha'),
 
+    path('sedes/eliminar/<int:sede_id>/', torneo_views.eliminar_sede, name='eliminar_sede'),
+    path('eliminar_cancha/<int:cancha_id>/', torneo_views.eliminar_cancha, name='eliminar_cancha'),
 
 ]
