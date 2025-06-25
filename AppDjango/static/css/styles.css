@@ -314,7 +314,7 @@ a {
     position: absolute;
     right: 0;
     color: gray;
-    font-size: 20px;
+    font-size: 15px;
     top: 50%;
     transform: translateY(-50%);
 }
@@ -322,7 +322,7 @@ a {
 .nav-link {
     color: gray;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 12px;
     letter-spacing: 1px;
     font-weight: 300;
 }
@@ -481,6 +481,15 @@ header {
     min-height: 100vh;
     padding: 0;
     background-color: #f0f0f0;
+}
+
+.container-sinfondo{
+background-color: transparent; /* 'none' no es válido */
+  width: 100%;
+  text-align: center;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .recuadros-container {
@@ -1390,7 +1399,9 @@ padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
 
 
 
+
 /* Animaciones */
+
 .fade-in {
     opacity: 0;
     transform: translateY(30px);
@@ -1409,9 +1420,436 @@ padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
 .fade-in:nth-of-type(2) { animation-delay: 0.4s; }
 .fade-in:nth-of-type(3) { animation-delay: 0.6s; }
 
+/* =================== grid pinterclubes copas =================== */
+.feature-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 40px;
+  padding: 40px 0;
+  text-align: center;
+}
+
+.feature-item {
+  max-width: 300px;
+}
+
+.feature-icon-svg {
+  width: 70px;
+  height: 70px;
+  background-color: #2c2c2c;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  transition: transform 0.4s ease;
+}
+
+.feature-icon-svg:hover {
+  transform: scale(2.15); /* ¡más suave! */
+}
+
+.copa-svg {
+  width: 28px;
+  height: 28px;
+  fill: white;
+  transition: fill 0.3s ease;
+}
+
+.feature-icon-svg:hover .copa-svg {
+  fill: rgb(76, 131, 32);
+}
+
+
+.feature-title {
+  color: rgb(76, 131, 32);
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.feature-item p {
+  color: #777;
+  font-size: 0.95rem;
+}
+
+/* =================== INDEX =================== */
+/* Wrapper */
 
 
 
+	.wrapper {
+        width: 120vw;
+		position: relative;
+        padding: 0; 
+        text-align: center;
+        margin-left: 0; /* estira la sección fuera del contenedor */
+	}
+
+       	.wrapper .title {
+			position: absolute;
+			top: 0;
+			left: 50%;
+			text-align: center;
+			text-transform: uppercase;
+			display: block;
+			font-weight: 700;
+			letter-spacing: 0.25em;
+			font-size: 1em;
+			width: 25em;
+			height: 3.25em;
+			top: -3.25em;
+			line-height: 3.25em;
+			margin-bottom: -3.25em;
+			margin-left: -12.5em;
+			padding-top: 0.5em;
+            color:black;
+		}
+
+			.wrapper .title:before {
+				content: '';
+				position: absolute;
+				bottom: -38px;
+				left: -35px;
+				width: 35px;
+				height: 38px;
+				background: url("../imagenes/shadow.png");
+			}
+
+			.wrapper .title:after {
+				-moz-transform: scaleX(-1);
+				-webkit-transform: scaleX(-1);
+				-ms-transform: scaleX(-1);
+				transform: scaleX(-1);
+				content: '';
+				position: absolute;
+				bottom: -38px;
+				right: -35px;
+				width: 35px;
+				height: 38px;
+				background: url("../imagenes/shadow.png");
+			}
+
+		.wrapper.style1 {
+			background: linear-gradient(to bottom, #5f5e5e, #3e3e3e);
+			color: #eee;
+			color: rgba(255, 255, 255, 0.75);
+            background-size: cover;
+            width: 100vw;
+            margin-left: 0;
+            padding: 0;
+		}
+
+			.wrapper.style1 .title {
+				 background: linear-gradient(to bottom, #3e3e3e , #5f5e5e);
+				color:black;
+			}
+
+			.wrapper.style1 h1, .wrapper.style1 h2, .wrapper.style1 h3, .wrapper.style1 h4, .wrapper.style1 h5, .wrapper.style1 h6, .wrapper.style1 strong, .wrapper.style1 b, .wrapper.style1 a {
+				color: #fff;
+			}
+
+		.wrapper.style2 {
+            margin-top: -60px; /* 🔥 este es el ajuste clave */
+			background: #fff;
+            width: 100vw;
+            padding: 0;
+		}
+
+			.wrapper.style2 .title {
+				background: #fff;
+				color: #484d55;
+			}
+
+		.wrapper.style3 {
+            margin-top: -40px;
+			background: #f3f3f3 url("../imagenes/overlay.png");
+            width: 100vw;
+            padding: 0;
+		}
+
+			.wrapper.style3 .title {
+				background: #f3f3f3 url("../imagenes/overlay.png");
+				color: #484d55;
+			}
+
+			.wrapper.style3 .image {
+				border: solid 10px #fff;
+			}
+
+/* Page Wrapper */
+
+	#page-wrapper > section {
+		margin-bottom: 0;
+	}
+
+
+    
+	header.style1 {
+		text-align: center;
+		padding: 3em 0 3em 0;
+	}
+
+		header.style1 h2 {
+			font-weight: 700;
+			font-size: 2em;
+			letter-spacing: 0.075em;
+			line-height: 1.5em;
+		}
+
+		header.style1 p {
+			color: #b1b4b9;
+			display: block;
+			margin: 1.15em 0 0 0;
+			font-size: 1.3em;
+			letter-spacing: 0.075em;
+			line-height: 1.5em;
+		}
+
+
+/* Container */
+
+	.container {
+		margin: 0 auto;
+		max-width: 100%;
+		width: 68em;
+	}
+
+		@media screen and (max-width: 1680px) {
+
+			.container {
+				width: 70em;
+			}
+
+		}
+
+		@media screen and (max-width: 1280px) {
+
+			.container {
+				width: calc(100% - 100px);
+			}
+
+		}
+
+		@media screen and (max-width: 980px) {
+
+			.container {
+				width: calc(100% - 100px);
+			}
+
+		}
+
+		@media screen and (max-width: 736px) {
+
+			.container {
+				width: calc(100% - 40px);
+			}
+
+		}
+
+
+        
+/* Form */
+
+	form label {
+		display: block;
+		font-weight: 700;
+		color: #484d55;
+		margin: 0.25em 0 0.5em 0;
+	}
+
+	form input[type="text"],
+	form input[type="email"],
+	form input[type="password"],
+	form select,
+	form textarea {
+		-moz-transition: all .25s ease-in-out;
+		-webkit-transition: all .25s ease-in-out;
+		-ms-transition: all .25s ease-in-out;
+		transition: all .25s ease-in-out;
+		appearance: none;
+			-webkit-appearance: none;
+			-moz-appearance: none;
+		display: block;
+		border: 0;
+		background: #eee;
+		box-shadow: inset 0px 0px 1px 0px #a0a1a7;
+		border-radius: 0.35em;
+		width: 100%;
+		padding: 0.75em 1em 0.75em 1em;
+	}
+
+		form input[type="text"]:focus,
+		form input[type="email"]:focus,
+		form input[type="password"]:focus,
+		form select:focus,
+		form textarea:focus {
+			background: #f8f8f8;
+		}
+
+	form input[type="text"],
+	form input[type="email"]
+	input[type="password"] {
+		line-height: 1em;
+	}
+
+	form select {
+		line-height: 1em;
+	}
+
+	form textarea {
+		min-height: 8em;
+	}
+
+	form ul.actions {
+		margin-top: 0;
+        list-style: none; 
+	}
+
+	form ::-webkit-input-placeholder {
+		color: #555 !important;
+		font-style: italic;
+		line-height: 1.35em;
+	}
+
+	form :-moz-placeholder {
+		color: #555 !important;
+		font-style: italic;
+	}
+
+	form ::-moz-placeholder {
+		color: #555 !important;
+		font-style: italic;
+	}
+
+	form :-ms-input-placeholder {
+		color: #555 !important;
+		font-style: italic;
+	}
+
+	form ::-moz-focus-inner {
+		border: 0;
+	}
+
+
+    
+/* Section/Article */
+
+	section,
+	article {
+		margin: 0 0 4em 0;
+	}
+
+	section > :last-child,
+	article > :last-child,
+	section:last-child,
+	article:last-child {
+		margin-bottom: 0;
+	}
+
+	header.style1 {
+		text-align: center;
+		padding: 3em 0 3em 0;
+	}
+
+		header.style1 h2 {
+			font-weight: 700;
+			font-size: 2em;
+			letter-spacing: 0.075em;
+			line-height: 1.5em;
+		}
+
+		header.style1 p {
+			color: #b1b4b9;
+			display: block;
+			margin: 1.15em 0 0 0;
+			font-size: 1.3em;
+			letter-spacing: 0.075em;
+			line-height: 1.5em;
+		}
+
+
+        /* Estilo general del fondo coral */
+.custom-intro {
+  background-color: #e26c64; /* mismo tono coral */
+  color: white;
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+/* Subtítulo arriba del recuadro */
+.intro-sub {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.8;
+}
+
+/* Recuadro blanco con borde fino */
+.intro-box {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Título destacado dentro del recuadro */
+.intro-title {
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 1.5;
+}
+
+/* Texto informativo debajo */
+.intro-info {
+  font-size: 0.95rem;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  position: relative;
+  z-index: 10;
+  color: #f7f7f7; /* valor por defecto claro */
+}
+
+.intro-info--negro {
+  color: #000000; /* solo cambia esto */
+}
+
+.intro-info--gris {
+  color: #525252; /* solo cambia esto */
+}
+
+/* Botón */
+.actions .button.style3 {
+  list-style: none; 
+  background: white;
+  color: #e26c64;
+  font-weight: bold;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.actions .button.style3:hover {
+  background: #ffdfdf;
+  display: flex;              /* coloca los <li> en línea */
+  justify-content: center;   /* centra horizontalmente */
+  gap: 20px;             
+}
+
+.actions {
+  list-style: none;           /* elimina los puntos de lista */
+  padding: 0;
+  margin: 2rem 0;
+  display: flex;              /* coloca los <li> en línea */
+  justify-content: center;   /* centra horizontalmente */
+  gap: 20px; 
+  color:#000;                 /* espacio entre botones */
+}
+
+.actions li {
+  margin: 0;
+}
 /* =================== ESTILOS RESPONSIVOS =================== */
 @media (max-width: 768px) {
 
@@ -1569,3 +2007,5 @@ padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
   }
 
 }
+
+

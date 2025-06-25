@@ -4,6 +4,7 @@
 {% block content %}
 <!-- Usa esta línea UNA VEZ en el <head> -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <div class="container-admin">
     
@@ -15,35 +16,36 @@
     </div>
 
     <div class="hero-overlay">
-        <h1 class="hero-title">Bienvenidos al Complejo de Tenis Apur</h1>
+        <h1 class="hero-title">Bienvenidos </h1>
         <p class="hero-subtitle">Te ofrecemos mucho más que canchas.
           <br>
           Te damos una experiencia completa para que disfrutes del tenis en todas sus formas.
           </p>
         <a href="{% url 'liga_publico' %}" class="hero-button">LIGA</a>
     </div>
+    
 </section>
 
 <!-- ✅ AHORA envolvemos las cards en un container si querés centrarlo -->
 <div class="container-admin">
     <section class="cards-container">
-        <div class="card-box">
-            <img src="{% static 'imagenes/boton_pelota.jpeg' %}" alt="Icono 1">
+        <div class="card-box card">
+            <img src="{% static 'imagenes/pelota.png.png' %}" alt="Icono 1" id="canchas">
             <h5>ALQUILERES</h5>
             <p class="animar-aparecer">¿Querés jugar con amigos o entrenar por tu cuenta? 
           Te ofrecemos alquiler de canchas de tenis de excelente calidad, 
           con disponibilidad flexible y atención personalizada.</p>
         </div>
-        <div class="card-box">
-            <img src="{% static 'imagenes/boton_pelota.jpeg' %}" alt="Icono 2">
+        <div class="card-box card">
+            <img src="{% static 'imagenes/pelota.png.png' %}" alt="Icono 2">
             <h5>CLASES</h5>
             <p class="animar-aparecer">Contamos con clases grupales y particulares para adultos, 
           adaptadas a todos los niveles. Ya sea que estés dando tus primeros pasos o 
           busques perfeccionar tu técnica, nuestros profesores te guiarán en un 
           ambiente dinámico y personalizado.</p>
         </div>
-        <div class="card-box">
-            <img src="{% static 'imagenes/boton_pelota.jpeg' %}" alt="Icono 3">
+        <div class="card-box card">
+            <img src="{% static 'imagenes/pelota.png.png' %}" alt="Icono 3">
             <h5>REPARACIONES</h5>
             <p class="animar-aparecer">En Apur confiamos en Cancha Lista Reparaciones,
            un servicio profesional especializado en el mantenimiento y 
@@ -52,93 +54,212 @@
         </div>
     </section>
 
-    <section class="liga-banner">
-      <div class="liga-image">
-        <div class="imagen-lado foto-flash">
-          <div class="flash-img zoom-flash" id="img-cambio-canchas"></div>
-          <div class="flash-overlay"></div>
+    <!-- liga -->
+  <section id="intro" class="wrapper style1 ">
+    <div class="title">LIGA</div>
+    <div class="container-sinfondo intro-container">
+      <p class="intro-sub ">¡Competí, divertite y viví el tenis con intensidad!</p>
+
+      <div class="intro-box ">
+        <p class="intro-title animar-aparecer">Participá de nuestras <strong>ligas abiertas</strong>...
+       </p>
+       <p class="intro-info ">
+       <strong>Singles</strong> y <strong>Dobles</strong> para Damas 
+          y Caballeros, además de encuentros de Dobles Mixtos.
+      </p>
+      </div>
+
+      
+
+      <ul class="actions">
+        <li><a href="{% url 'liga_publico' %}" class="hero-button style3 large">LIGA</a></li>
+        <li>
+            <a href="https://wa.me/5493413006495" target="_blank" class="hero-button style3 large">INSCRIBITE</a>
+          </li>
+      </ul>
+    </div>
+    <br>
+    <div class="img-duo">
+      <div class="img-box" style="background-image: url('{% static "imagenes/IMG_3262.jpg" %}');">
+        <div class="img-overlay">DAMAS</div>
+      </div>
+      <div class="img-box" style="background-image: url('{% static "imagenes/IMG_6911.jpg" %}');">
+        <div class="img-overlay">CABALLEROS</div>
+      </div>
+    </div>
+    <div class="img-duo">
+      <div class="img-box" style="background-image: url('{% static "imagenes/IMG_8595.jpg" %}');">
+        
+      </div>
+      
+    </div>
+  </section>
+
+  <section id="intro" class="wrapper style2 ">
+    <div class="title">INTERCLUBES</div>
+    <div class="container-sinfondo">
+
+						
+      <div class="intro-box ">
+        <p class="intro-title animar-aparecer intro-info--negro"><strong>Apur </strong>compite activamente desde hace años 
+       </p>
+       <p class="intro-info intro-info--gris">
+       en los torneos interclubes organizados por la <strong>ART</strong>
+      </p>
+      </div>
+     
+      <!-- Image -->
+			<div class="imagen-detalle">
+        <img src="{% static 'imagenes/IMG_8663.jpg' %}" alt="Detalle imagen">
+      </div>
+
+      <p class="intro-title animar-aparecer intro-info--negro"><strong></strong>Participaciones
+       </p>
+
+     
+       <p class="intro-info intro-info--gris">Somos protagonista temporada tras temporada. 
+          <br>Nuestro complejo ha logrado destacarse ubicándose 
+          entre los primeros puestos 
+       </p>   
+      <div class="feature-grid">
+        <div class="feature-item">
+          <div class="feature-icon-svg">
+            <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="copa-svg">
+              <path fill="white" d="M458 64h-42V48c0-8.8-7.2-16-16-16H112c-8.8 0-16 7.2-16 16v16H54c-6.6 0-12 5.4-12 12v60c0 54.3 39.7 99.3 91.6 106.9 6.2 30.2 25.2 55.6 51.3 69.7v44.1c0 17.8-11.6 33.7-28.6 39.3l-45.6 15.2c-6.6 2.2-11.2 8.4-11.2 15.5V464c0 8.8 7.2 16 16 16h256c8.8 0 16-7.2 16-16v-13.3c0-7.1-4.5-13.3-11.2-15.5l-45.6-15.2c-17-5.7-28.6-21.5-28.6-39.3v-44.1c26.1-14.1 45.1-39.5 51.3-69.7 51.9-7.6 91.6-52.6 91.6-106.9V76c0-6.6-5.4-12-12-12zM70 136v-44h26v81.6C80 166.8 70 152.6 70 136zm372 0c0 16.6-10 30.8-26 37.6V92h26v44z"/>
+            </svg>
+          </div>
+          <h4 class="feature-title">Copa Average</h4>
+          <p>Ganador por 4 veces consecutivas de la copa para clubes de menos de 10 canchas</p>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon-svg">
+            <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="copa-svg">
+              <path fill="white" d="M458 64h-42V48c0-8.8-7.2-16-16-16H112c-8.8 0-16 7.2-16 16v16H54c-6.6 0-12 5.4-12 12v60c0 54.3 39.7 99.3 91.6 106.9 6.2 30.2 25.2 55.6 51.3 69.7v44.1c0 17.8-11.6 33.7-28.6 39.3l-45.6 15.2c-6.6 2.2-11.2 8.4-11.2 15.5V464c0 8.8 7.2 16 16 16h256c8.8 0 16-7.2 16-16v-13.3c0-7.1-4.5-13.3-11.2-15.5l-45.6-15.2c-17-5.7-28.6-21.5-28.6-39.3v-44.1c26.1-14.1 45.1-39.5 51.3-69.7 51.9-7.6 91.6-52.6 91.6-106.9V76c0-6.6-5.4-12-12-12zM70 136v-44h26v81.6C80 166.8 70 152.6 70 136zm372 0c0 16.6-10 30.8-26 37.6V92h26v44z"/>
+            </svg>
+          </div>
+
+          <h4 class="feature-title">Campeon Copa Federación</h4>
+          <p>Al club de mayor puntaje obtenido en los equipos de primera</p>
         </div>
       </div>
-      <div class="liga-texto">
-        <h2 class="animate-from-left">LIGA</h2>
-        <p  class="animar-aparecer">
-          Participá de nuestras ligas abiertas de Singles y Dobles para Damas 
-          y Caballeros, además de encuentros de Dobles Mixtos. <br>
-          ¡Competí, divertite y viví el tenis con intensidad!
-        </p>
-        <a href="#" class="liga-boton">INSCRIBITE</a>
+
+      
+    </div>
+
+    <hr class="linea-separadora">
+
+    <div class="feature-grid">
+        <div class="feature-item">
+          <div class="feature-icon-svg">
+            <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="copa-svg">
+              <path fill="white" d="M458 64h-42V48c0-8.8-7.2-16-16-16H112c-8.8 0-16 7.2-16 16v16H54c-6.6 0-12 5.4-12 12v60c0 54.3 39.7 99.3 91.6 106.9 6.2 30.2 25.2 55.6 51.3 69.7v44.1c0 17.8-11.6 33.7-28.6 39.3l-45.6 15.2c-6.6 2.2-11.2 8.4-11.2 15.5V464c0 8.8 7.2 16 16 16h256c8.8 0 16-7.2 16-16v-13.3c0-7.1-4.5-13.3-11.2-15.5l-45.6-15.2c-17-5.7-28.6-21.5-28.6-39.3v-44.1c26.1-14.1 45.1-39.5 51.3-69.7 51.9-7.6 91.6-52.6 91.6-106.9V76c0-6.6-5.4-12-12-12zM70 136v-44h26v81.6C80 166.8 70 152.6 70 136zm372 0c0 16.6-10 30.8-26 37.6V92h26v44z"/>
+            </svg>
+          </div>
+          <h4 class="feature-title">Mejor Anfitrion</h4>
+          <p>Ganador de placa al mejor anfitrion del torneo</p>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon-svg">
+            <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="copa-svg">
+              <path fill="white" d="M458 64h-42V48c0-8.8-7.2-16-16-16H112c-8.8 0-16 7.2-16 16v16H54c-6.6 0-12 5.4-12 12v60c0 54.3 39.7 99.3 91.6 106.9 6.2 30.2 25.2 55.6 51.3 69.7v44.1c0 17.8-11.6 33.7-28.6 39.3l-45.6 15.2c-6.6 2.2-11.2 8.4-11.2 15.5V464c0 8.8 7.2 16 16 16h256c8.8 0 16-7.2 16-16v-13.3c0-7.1-4.5-13.3-11.2-15.5l-45.6-15.2c-17-5.7-28.6-21.5-28.6-39.3v-44.1c26.1-14.1 45.1-39.5 51.3-69.7 51.9-7.6 91.6-52.6 91.6-106.9V76c0-6.6-5.4-12-12-12zM70 136v-44h26v81.6C80 166.8 70 152.6 70 136zm372 0c0 16.6-10 30.8-26 37.6V92h26v44z"/>
+            </svg>
+          </div>
+
+          <h4 class="feature-title">Campeon Copa General</h4>
+          <p>Copa general de todo el torneo</p>
+        </div>
       </div>
-    </section>
+
+       <hr class="linea-separadora">
+
+    <p class="intro-info intro-info--gris">Demostrando el compromiso, el nivel 
+          <br>
+          y la pasión de nuestros jugadores.
+       </p> 
+       <br>
+       <br>
+      
+    </div>
+  
+   <!-- cancha -->
+  <section id="intro" class="wrapper style3 ">
+    <div class="title">CANCHAS LISTAS</div>
+    <div class="container-sinfondo intro-container">
+      
+      <div class="intro-box ">
+        <p class="intro-title animar-aparecer intro-info--negro">Reparación de canchas 
+       </p>
+       <p class="intro-info intro-info--negro">
+       En Apur confiamos en Cancha Lista Reparaciones, 
+       <br>un servicio profesional especializado en el mantenimiento y reparación 
+       <br>de canchas de polvo de ladrillo, 
+       <br>con amplia trayectoria en Rosario y zonas aledañas.
 
 
-    <section class="cancha-lista-section fondo-negro">
-   
-  <!-- Encabezado con fondo -->
-      <div class="cancha-encabezado-con-fondo fondo-negro">
-        <div class="cancha-overlay">
-          <h2 class="animar-aparecer">Interclubes ART</h2>
-          <p>Apur compite activamente desde hace años 
-          en los torneos interclubes organizados por la ART</p>
-        </div>
+      </p>
       </div>
-    </section>
 
+      
 
-    <section class="imagen-texto-section angosto fondo-negro ">
-    <div class="imagen-texto-container ">
-        <div class="texto-lado ">
-        <h2 class="animate-from-left">Participaciones</h2>
-        <p class="animar-aparecer">
-          Somos protagonista temporada tras temporada. 
-          Nuestro complejo ha logrado destacarse ubicándose 
-          entre los primeros puestos en la Copa General, y ha sido 
-          ganador en múltiples ocasiones de la Copa Average, 
-          demostrando el compromiso, el nivel y la pasión de nuestros jugadores.</p>
-        </div>
-        <div class="imagen-lado">
-        <img src="{% static 'imagenes/interclubes.jpg' %}" alt="Descripción" />
-        </div>
+      <ul class="actions">
+        <li>
+            <a href="https://wa.me/5493413006495" target="_blank" class="hero-button style3 large">CONTACTANOS</a>
+          </li>
+      </ul>
     </div>
-    </section>
+    <br>
+    <div class="intro-title intro-info--gris animar-aparecer">Servicios que ofrecemos</div>
+    <br>
+    <br>
+    <br>
+    <br>
+  </section>
 
-    <section class="imagen-texto-section ">    
-    <div class="imagen-texto-container">
-        <div class="texto-lado ">
-        <h2 class="animate-from-left">Cancha Lista</h2>
-        <p class="animar-aparecer">En Apur confiamos en Cancha Lista Reparaciones, un servicio profesional especializado en el mantenimiento y reparación de canchas de polvo de ladrillo, con amplia trayectoria en Rosario y zonas aledañas.
 
-        <br><br>Servicios que ofrecemos:
-        <br> - Picado y compactación de polvo de ladrillo
-
-        <br> - Reparación y reemplazo de flejes
-
-        <br> - Desmalezamiento y limpieza profunda
-
-        <br> - Venta de polvo de ladrillo bayo de alta calidad
-        </p>
-        </div>
-        <div class="imagen-lado">
-        <img src="{% static 'imagenes/raqueta.png' %}" alt="Descripción" />
-        </div>
+  <section class="cards-container">
+    <div class="card-box card">
+      <img src="{% static 'imagenes/pelota.png.png' %}" alt="Picado">
+      <p class="intro-sub ">Picado y compactación</p>
+      <p>Picamos y compactamos polvo de ladrillo para preparar superficies niveladas y firmes.</p>
     </div>
-    <div class="imagen-texto-container reverse">
-        <div class="texto-lado ">
-        <h2>Presencia profesional</h2>
-        <p class="animar-aparecer">
-        Cancha Lista ha trabajado en importantes clubes y eventos, 
-        como el Jockey Club de Rosario y el prestigioso Challenger de 
-        Rosario, garantizando resultados de nivel competitivo.
 
-        Nos destacamos por llevar nuestras soluciones a clubes y 
-        complejos de toda la región, no solo dentro de Rosario, 
-        sino también en localidades cercanas.
-        </p>
-        </div>
-        <div class="imagen-lado">
-        <img src="{% static 'imagenes/fondo1.jpeg' %}" alt="Descripción" />
-        </div>
+    <div class="card-box card">
+      <img src="{% static 'imagenes/pelota.png.png' %}" alt="Flejes">
+      <p class="intro-sub ">Reparación de flejes</p>
+      <p>Reparamos y reemplazamos flejes para que tus canchas mantengan su forma y drenaje.</p>
     </div>
-    </section>
+
+    <div class="card-box card">
+      <img src="{% static 'imagenes/pelota.png.png' %}" alt="Desmalezamiento">
+      <p class="intro-sub ">Desmalezamiento y limpieza</p>
+      <p>Eliminamos maleza y realizamos limpieza profunda para conservar la calidad del polvo.</p>
+    </div>
+
+    <!-- NUEVA cuarta card -->
+    <div class="card-box card">
+      <img src="{% static 'imagenes/pelota.png.png' %}" alt="Venta polvo">
+      <p class="intro-sub ">Venta de polvo de ladrillo</p>
+      <p>Polvo de ladrillo “bayo” de alta calidad, listo para tu cancha o proyecto.</p>
+    </div>
+  </section>
+
+     <!-- ... -->
+  <div class="intro-box presencia">
+    <p class="intro-title animar-aparecer">Presencia profesional</p>
+    <p class="intro-info ">
+      Cancha Lista ha trabajado en importantes clubes y eventos, 
+      como el Jockey Club de Rosario y el prestigioso Challenger de 
+      Rosario, garantizando resultados de nivel competitivo.
+
+      Nos destacamos por llevar nuestras soluciones a clubes y 
+      complejos de toda la región, no solo dentro de Rosario, 
+      sino también en localidades cercanas.
+    </p>
+  </div>
+  <!-- ... -->
+
 
 </div>
 
@@ -150,10 +271,10 @@
       <h3 class="footer-titulo">SEGUINOS</h3>
       <div class="envelope">
         <div class="social-icons">
-          <a href="https://wa.me/5493416830332?text=Hola,%20estoy%20interesado%20en%20sus%20productos" target="_blank" rel="noopener noreferrer">
+          <a href="https://www.instagram.com/apurtenis/" target="_blank" rel="noopener noreferrer">
             <i class="fab fa-instagram"></i>
           </a>
-          <a href="https://wa.me/5493416830332?text=Hola,%20estoy%20interesado%20en%20sus%20productos" target="_blank">
+          <a href="https://wa.me/5493413006495" target="_blank">
             <i class="fab fa-whatsapp"></i>
           </a>
           <a href="https://www.facebook.com/tu_pagina" target="_blank">
@@ -182,7 +303,39 @@
    
 <style>
 
+  /* Centrar Presencia profesional */
+.presencia {
+  text-align: center;     /* centra el texto */
+  margin: 0 auto 2em;     /* opcional: separa de lo que venga abajo */
+  max-width: 800px;        /* opcional: limita ancho para mejor legibilidad */
+}
 
+/* Si quieres centrar también los párrafos internos: */
+.presencia .intro-info {
+  margin: 0 auto;         /* para que el <p> no ocupe 100% si pones un max-width */
+  font-size: 20px;
+  color: #777777;  
+}
+
+.card {
+  position: relative;
+  overflow: visible;
+  border-radius: 12px;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid rgb(111, 190, 140); /* verde claro */
+  border-radius: inherit;
+  opacity: 0;
+  transform: rotate(0deg) scale(0.8);
+  transition: opacity 0.3s, transform 0.6s;
+}
+.card:hover::before {
+  opacity: 1;
+  transform: rotate(360deg) scale(1.05);
+}
 /*index ----------------------------------------*/
 
 .cancha-encabezado-con-fondo {
@@ -218,11 +371,10 @@
   /* Estado inicial fuera de pantalla */
 .animate-from-left {
   opacity: 0;
-  transform: translateX(-100%);
+  transform: translateX(-60px);
   transition: all 0.8s ease-out;
 }
 
-/* Al entrar en pantalla */
 .animate-from-left.visible {
   opacity: 1;
   transform: translateX(0);
@@ -259,7 +411,7 @@
 .hero-section {
     
     position: relative;
-    width: 100%; /* ✅ correcto */
+    width: 110%; /* ✅ correcto */
     height: 90vh;
     background-image: url('/static/imagenes/fondo-gris.jpg'); /* tu imagen gris */
     background-size: cover;
@@ -289,12 +441,31 @@
 
 
 .hero-title {
+  overflow: hidden;          /* oculta el desbordamiento */
+  white-space: nowrap;       /* evita el wrapping */
+  border-right: .1em solid white; /* cursor */
+  font-family: monospace;
+  /* Un único animation que escribe y borra */
+  animation:
+    typing 6s steps(11, end) infinite,
+    blink 0.7s step-end infinite;
     font-size: 3rem;
     font-weight: bold;
     margin-bottom: -10px;
     text-align: left;
-    margin-left: auto;
+   
 
+}
+/* Revela de 0 a 10 caracteres (ajusta el número a la longitud de “Bienvenidos”) */
+@keyframes typing {
+  from { width: 0; }
+  to   { width: 11ch; } /* 11ch = 11 caracteres de ancho */
+}
+
+/* Parpadeo del cursor */
+@keyframes blink {
+  from, to { border-color: transparent; }
+  50%      { border-color: white; }
 }
 
 .hero-subtitle {
@@ -305,7 +476,7 @@
 }
 
 .hero-button {
-    background-color:rgb(76, 131, 32);
+    background-color:rgb(145, 146, 145);
     color: black;
     padding: 10px 40px;
     border-radius: 8px;
@@ -319,7 +490,7 @@
 }
 
 .hero-button:hover {
-    background-color:rgb(153, 153, 153);
+    background-color:rgb(76, 131, 32);
 }
 
 /* Cards que se superponen un poco a la imagen */
@@ -327,7 +498,7 @@
     display: flex;
     justify-content: center;
     gap: 30px;
-    margin-top: -120px;  /* ✅ Más superpuesto */
+    margin-top: -180px;  /* ✅ Más superpuesto */
     padding: 20px;
     z-index: 10;
     position: relative;
@@ -335,7 +506,8 @@
 
 
 .card-box {
-    background: rgb(76, 131, 32);
+    border: 4px solid #b1b4b9;
+    background:rgb(75, 77, 82);
     text-align: center;
     padding: 30px;
     border-radius: 10px;
@@ -366,14 +538,14 @@
 }
 
 .card-box h5 {
-    color: black;
+    color: #b1b4b9;
 }
 
 
 .imagen-texto-section {
   width: 100vw;
   padding: 40px 0 100px 0; /* más espacio arriba y abajo */
-  background-color:rgb(76, 131, 32);
+  background: #484d55;
   margin-top: 0px;
 }
 
@@ -501,11 +673,9 @@
 }
 
 .liga-boton:hover {
-  background-color: rgb(76, 131, 32);
+  background: #484d55;
   color: white;
 }
-
-
 
 .cancha-lista-section {
   width: 100%;
@@ -694,6 +864,62 @@ footer .envelope {
 }
 
 /*---------------------------------------------------------------*/
+.img-duo {
+  display: flex;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%); /* estira al borde */
+  flex: 0 0 100vw;
+}
+
+.img-box {
+  flex: 1;
+  height: 350px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  transition: filter 0.4s ease;
+  filter: brightness(50%) grayscale(80%); /* <-- efecto gris inicial */
+  overflow: hidden;
+}
+
+.img-box:hover {
+  filter: brightness(100%) grayscale(0%); /* <-- vuelve a color al hover */
+}
+
+
+.img-overlay {
+  position: absolute;
+  z-index: 2;
+  bottom: 20px;
+  left: 20px;
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-shadow: 1px 1px 5px rgba(0,0,0,1);
+}
+
+.imagen-detalle {
+  max-width: 60%;      /* o 70% si querés más angosta */
+  margin: 3em auto;     /* centrado y con espacio */
+  overflow: hidden;     /* quita bordes feos */
+  
+}
+
+.imagen-detalle img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+
+.linea-separadora {
+  border: none;
+  height: 1px;
+  background-color: #ccc; /* gris claro */
+  margin: 40px auto;
+  width: 80%;
+}
+
 
 </style>
 
@@ -744,21 +970,19 @@ footer .envelope {
   setInterval(cambiarImagenCanchas, 3000);
 
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const elementos = document.querySelectorAll('.animate-from-left');
-
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, {
-      threshold: 0.2
+  // Este script debe correr para que aparezca el texto
+document.addEventListener('DOMContentLoaded', () => {
+  const elementos = document.querySelectorAll('.animate-from-left');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
     });
+  }, { threshold: 0.2 });
+  elementos.forEach(el => observer.observe(el));
+});
 
-    elementos.forEach(el => observer.observe(el));
-  });
 
 </script>
 
