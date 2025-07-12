@@ -26,9 +26,14 @@ SECRET_KEY = 'django-insecure-08pmou9%%8lf7-+ih)6dwn8vxll7e)cxrt#%l_@4-^2(5$$+l-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+#agregado para pythonanywhere se puede sacar o adaptar al que se necdsite
+ALLOWED_HOSTS = ['apur.pythonanywhere.com', 'localhost', '127.0.0.1']
+
+#ALLOWED_HOSTS = []
 
 LOGIN_URL = '/login/'
+LOGOUT_REDIRECT_URL = '/login/'
+LOGIN_REDIRECT_URL  = '/admin_menu/'
 
 
 

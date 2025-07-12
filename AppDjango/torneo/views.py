@@ -68,7 +68,7 @@ def contar_sets_ganados(set1_a, set1_b, set2_a, set2_b, set3_a, set3_b):
 
 
 
-@user_passes_test(es_admin)
+
 def abm_torneo(request):
     all_categorias = Categoria.objects.all()
     categoria_id = request.GET.get('categoria')
@@ -1176,6 +1176,47 @@ def historial_jornada(request):
         print(f"📝 Número de partidos en la jornada: {jornada.partidos.count()}")
 
     return render(request, 'historial_jornada.html', {"jornadas": jornadas})
+
+def historial_publico(request, torneo_id=None):
+    # 1) Obtengo todos los torneos para el sidebar
+    torneos = Torneo.objects.all().order_by('nombre')
+
+    # 2) Base de datos: resultados con sus partidos relacionados
+    resultados = ResultadoPartido.objects.select_related(
+        'partido__torneo',
+        'partido__cancha',
+        'partido__equipo1',
+        'partido__equipo2',
+        'partido__jugador1',
+        'partido__jugador2',
+        'ganador_jugador',
+        'ganador_equipo',
+    )
+
+    # 3) Si pasaron un torneo_id, filtro por ese torneo
+    torneo_actual = None
+    if torneo_id:
+        torneo_actual = get_object_or_404(Torneo, id=torneo_id)
+        resultados = resultados.filter(partido__torneo=torneo_actual)
+
+    # 4) Filtro opcional por fecha (YYYY-MM-DD)
+    fecha = request.GET.get('fecha')
+    if fecha:
+        resultados = resultados.filter(partido__fecha=fecha)
+
+    # 5) Ordeno y pagino (12 por página)
+    resultados = resultados.order_by('-partido__fecha', '-partido__hora')
+    paginator = Paginator(resultados, 12)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    # 6) Renderizo plantilla pública
+    return render(request, 'historial_publico.html', {
+        'torneos': torneos,
+        'torneo_actual': torneo_actual,
+        'page_obj': page_obj,
+        'search_fecha': fecha or '',
+    })
+
 
 #filtrar por jugador los partidos 
 from django.shortcuts import render

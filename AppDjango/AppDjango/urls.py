@@ -21,18 +21,36 @@ from torneo import views as torneo_views
 from jugador import views as jugador_views
 from ranking import views as ranking_views
 
-from torneo.views import listar_partidos  # ✅ Importa desde torneo, NO desde jugador
-from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada, listado_jugadores_master, generar_pdf_partidos_por_fecha
+
+from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada, listado_jugadores_master, generar_pdf_partidos_por_fecha, historial_publico, listar_partidos
 from ranking.views import ranking_torneo, ver_ranking, ranking_general
 from ranking.views import confirmar_ascenso_final, ascender_jugadores
+from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
     path('',loginadmin_views.index, name='index'),
-    path('admin/', admin.site.urls),    
-    # URLs para la app 
-    path('login/', loginadmin_views.admin_login, name='login'),
-    path('admin_menu/', loginadmin_views.admin_menu, name='admin_menu'), 
+    path('admin/', admin.site.urls),
+        
+    # ————— Autenticación —————
+    path(
+        'login/',
+        auth_views.LoginView.as_view(
+            template_name='admin_login.html',
+            redirect_authenticated_user=True
+        ),
+        name='login'
+    ),
+    path(
+        'logout/',
+        auth_views.LogoutView.as_view(next_page='login'),
+        name='logout'
+    ),
+
+    # ————— Menú de admin de tu app —————
+    path('admin_menu/', loginadmin_views.admin_menu, name='admin_menu'),
+  
+ 
     path('liga_publico/', torneo_views.liga_publico, name='liga_publico'),    
    
     path('jugador/<str:dni>/', jugador_views.datos_jugador, name='listado_jugador'),  # Cambiado a dni
@@ -73,12 +91,18 @@ urlpatterns = [
     path('guardar_resultados/', torneo_views.guardar_resultados, name='guardar_resultados'),
     path('validar_partido_existente/<int:torneo_id>/', torneo_views.validar_partido_existente, name='validar_partido_existente'),
     path('partidos/', listar_partidos, name='listar_partidos'),
-    path('ranking/<int:torneo_id>/', actualizar_ranking, name='ranking_por_torneo'),
     path('guardar_jornada/<int:torneo_id>/', guardar_jornada, name='guardar_jornada'),
-    path('historial/', historial_jornada, name='historial_jornada'),
+    
+    path('historial/admin/', historial_jornada, name='historial_jornada'),
+    path('historial/admin/<int:torneo_id>/', historial_jornada, name='historial_partidos'),
+    # Historial público
+    path('historial/', historial_publico, name='historial_publico'),
+    path('historial/<int:torneo_id>/', historial_publico, name='historial_publico'),
+
     path('<int:torneo_id>/', ranking_torneo, name='ranking_torneo'),
     path('torneo/<int:torneo_id>/ranking/', ver_ranking, name='ver_ranking'),
-    path('ranking/', ranking_general, name='ranking_general'),
+    path('ranking/', ranking_views.ranking_general, name='ranking_general'),
+    path('ranking/<int:torneo_id>/', ranking_views.ranking_general, name='ranking_general'),
 
     path('ascenso/', ranking_views.procesar_ascenso, name='procesar_ascenso'),
 

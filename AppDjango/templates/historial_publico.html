@@ -1,0 +1,336 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block body_class %}fondo-secundario{% endblock %}
+
+{% block content %}
+<div class="container-admin">
+  <!-- Título -->
+  <div class="text-section">
+    <hr class="separator-line">
+    {% if torneo_actual %}
+      <h2 class="text-primary text-center">
+        HISTORIAL TORNEOS – {{ torneo_actual.nombre|upper }}
+      </h2>
+    {% else %}
+      <h2 class="text-primary text-center">
+        HISTORIAL TORNEOS
+      </h2>
+    {% endif %}
+  </div>
+
+  <div class="form-container d-flex gap-4 justify-content-between">
+    <!-- SIDEBAR IZQUIERDA (lista de torneos) -->
+    <div class="narrow-box flex-grow-1">
+      <div class="title-orange-gris text-center">
+        <h1>TORNEOS</h1>
+      </div>
+      <ul class="tournament-list">
+        {% for torneo in torneos %}
+          <li class="tournament-item mb-2">
+            <a href="{% url 'historial_publico' torneo.id %}">
+              <button class="login-button chico">
+                {{ torneo.nombre|upper }}
+              </button>
+            </a>
+          </li>
+        {% empty %}
+          <li>No hay torneos disponibles.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- PANEL DERECHO (grid de tarjetas como en admin) -->
+    <div class="flex-grow-1">
+      {% if page_obj.object_list %}
+        <div class="grid-container">
+          {% for resultado in page_obj %}
+            <div class="card partido-card">
+              <div class="card-header">
+                <p class="torneo-nombre">
+                  🏆 <strong>{{ resultado.partido.torneo.nombre }}</strong>
+                </p>
+                <div class="fecha-hora">
+                  <span class="fecha">{{ resultado.partido.fecha|date:"d/m/Y" }}</span>
+                  <span class="hora">{{ resultado.partido.hora|time:"H:i" }}</span>
+                </div>
+                <p class="jornada">Jornada: {{ resultado.partido.jornada }}</p>
+              </div>
+              <div class="card-body">
+                <table class="resultado-tabla">
+                  <tbody>
+                    {% if resultado.partido.torneo.tipo_juego in "Doble Mixto" %}
+                      <tr class="{% if resultado.ganador_equipo == resultado.partido.equipo1 %}resaltado{% endif %}">
+                        <td class="jugador-nombre">
+                          {{ resultado.partido.equipo1.jugador1.apellido }}
+                          / {{ resultado.partido.equipo1.jugador2.apellido }}
+                        </td>
+                        <td><span class="set-cuadro">{{ resultado.set1_equipo1 }}</span></td>
+                        <td><span class="set-cuadro">{{ resultado.set2_equipo1 }}</span></td>
+                        <td><span class="set-cuadro">{{ resultado.set3_equipo1 }}</span></td>
+                      </tr>
+                      <tr class="{% if resultado.ganador_equipo == resultado.partido.equipo2 %}resaltado{% endif %}">
+                        <td class="jugador-nombre">
+                          {{ resultado.partido.equipo2.jugador1.apellido }}
+                          / {{ resultado.partido.equipo2.jugador2.apellido }}
+                        </td>
+                        <td><span class="set-cuadro">{{ resultado.set1_equipo2 }}</span></td>
+                        <td><span class="set-cuadro">{{ resultado.set2_equipo2 }}</span></td>
+                        <td><span class="set-cuadro">{{ resultado.set3_equipo2 }}</span></td>
+                      </tr>
+                    {% else %}
+                      <tr class="{% if resultado.ganador_jugador == resultado.partido.jugador1 %}resaltado{% endif %}">
+                        <td class="jugador-nombre">{{ resultado.partido.jugador1 }}</td>
+                        <td><span class="set-cuadro">{{ resultado.set1_jugador1 }}</span></td>
+                        <td><span class="set-cuadro">{{ resultado.set2_jugador1 }}</span></td>
+                        <td><span class="set-cuadro">{{ resultado.set3_jugador1 }}</span></td>
+                      </tr>
+                      <tr class="{% if resultado.ganador_jugador == resultado.partido.jugador2 %}resaltado{% endif %}">
+                        <td class="jugador-nombre">{{ resultado.partido.jugador2 }}</td>
+                        <td><span class="set-cuadro">{{ resultado.set1_jugador2 }}</span></td>
+                        <td><span class="set-cuadro">{{ resultado.set2_jugador2 }}</span></td>
+                        <td><span class="set-cuadro">{{ resultado.set3_jugador2 }}</span></td>
+                      </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+                <div class="text-center mt-2">
+                  <p><strong>Cancha:</strong> {{ resultado.partido.cancha }}</p>
+                  <p class="ganador">
+                    🏅 <strong>Ganador:</strong>
+                    {% if resultado.ganador_jugador %}
+                      {{ resultado.ganador_jugador }}
+                    {% else %}
+                      {{ resultado.ganador_equipo.jugador1.apellido }}
+                      / {{ resultado.ganador_equipo.jugador2.apellido }}
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Paginación -->
+        <nav class="mt-4">
+          <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page=1{% if search_fecha %}&fecha={{ search_fecha }}{% endif %}">Primero</a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_fecha %}&fecha={{ search_fecha }}{% endif %}">Anterior</a>
+              </li>
+            {% endif %}
+            <li class="page-item active">
+              <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_fecha %}&fecha={{ search_fecha }}{% endif %}">Siguiente</a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_fecha %}&fecha={{ search_fecha }}{% endif %}">Último</a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% else %}
+        <div class="text-center py-5 text-muted">
+          <h3>No hay partidos para mostrar.</h3>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+<style>
+  
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        /* reduce el margen izquierdo para que el grid quede más pegado al sidebar */
+        margin-left: -40px;
+        /* si el sidebar ocupa ~300px, compénsalo con padding */
+        padding-left: 40px;
+        margin-top: 0;
+        padding-top: 20px;
+        max-width: calc(100% + 40px);
+    }
+    
+    .card-header {
+        display: flex;
+        flex-direction: column; /* Acomoda en columna */
+        background-color: rgba(102, 100, 100, 0.5); /* Fondo oscuro semi-transparente */
+        color: white;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+    }
+    
+    .card-header p {
+        margin: 5px 0;
+    }
+    
+    /* Alinea Fecha y Hora en la misma línea */
+    .fecha-hora {
+        display: flex;
+        justify-content: center; /* Centra los elementos */
+        gap: 15px; /* Espaciado entre fecha y hora */
+        margin-top: 5px;
+    }
+    
+    /* haz las cards un poco más angostas */
+  .partido-card {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 12px;
+    background-color: rgba(0,0,0,0.6);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform .15s ease;
+  }
+  .partido-card:hover {
+    transform: scale(1.02);
+  }
+
+  /* ajusta los paddings si quieres aún más estrecho */
+  .partido-card .card-body {
+    padding: 10px;
+  }
+  .partido-card .card-header {
+    padding: 8px;
+  }
+    .container{
+        background: transparent;
+        padding:20px;
+        gap:5PX;
+    }
+    
+    .score {
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+        padding:5px;
+    }
+
+    .ganador {
+        justify-content: center; /* Centra horizontalmente */
+        align-items: center; /* Centra verticalmente */
+        text-align: center;
+        background-color: rgba(255, 215, 0, 0.8);
+        color: black;
+        padding: 5px;
+        font-weight: bold;
+    }
+    
+    /* Nombres de jugadores y resultados */
+    .resultado-tabla {
+        display: block;
+
+        table-layout: auto;
+        width: 90%;
+        display: block;
+        text-align: center;
+        color: grey;
+        padding: 5px;
+        font-weight: bold;
+    }
+
+  
+    .resultado-tabla td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 16px;
+        padding: 5px;
+        max-width: 90px; /* Ajuste de ancho */
+        
+    }
+
+    
+    .jugador-nombre {
+        text-align: left;
+        font-weight: bold;
+        font-size:15px;
+        width:65%;
+        text-transform: uppercase !important;
+
+
+    }
+    
+    .puntaje {
+        text-align: left;
+
+    }
+
+    .torneos-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;  /* Espaciado entre tarjetas */
+        justify-content: center; /* Centra las tarjetas */
+    }
+
+    .torneo-card {
+        overflow: hidden; /* Ocultar desbordamientos */
+        width: 250px;  /* Tamaño fijo en ancho (ajústalo según necesidad) */
+        height: 150px; /* Tamaño fijo en alto */
+        background-color: #fff; /* Fondo blanco */
+        border-radius: 10px; /* Bordes redondeados */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra */
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between; /* Asegura que el contenido se distribuya */
+        align-items: center;
+        text-align: center;
+    }
+
+    .info-header {
+        background-color: black;
+        color: white;
+        padding: 10px;
+        width: 100%;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .match {
+        width: 100%;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* 🔹 Resaltar el mayor puntaje en cada set */
+    .resaltado {
+        font-weight: bold;
+        color:rgba(255, 215, 0, 0.8);
+        font-size: 18px;
+    }
+
+    /* Opcional: reducir un poco el font-size dentro de la tabla para que quepa */
+  .resultado-tabla td, .resultado-tabla th {
+    font-size: 14px;
+    padding: 4px;
+  }
+  
+
+    .set-cuadro {
+        display: inline-block;
+        background-color: #ddd;
+        color: black;
+        padding: 6px 3px;
+        border-radius: 5px;
+        min-width: 10px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 11px;
+    }
+    
+
+</style>
+{% endblock %}

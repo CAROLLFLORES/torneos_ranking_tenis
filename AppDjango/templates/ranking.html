@@ -137,6 +137,7 @@
                                 <th>SETS</th>
                                 <th>GAMES</th>
                                 <th>PUNTOS</th>
+                                {% if user.is_authenticated and user.is_staff %}
                                 <th>ASCENSO <div class="text-end mb-2">
                                     <button type="button" id="btnAbrirModalAscenso" class="btn" title="Ascender jugadores"
                                         title="Ascenso"
@@ -150,7 +151,10 @@
                                         style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
                                         <i class="bi-arrow-down-circle-fill" style="font-size: 1.5rem;color: red;"></i>
                                     </button>
-                                </div></th>
+                                </div>
+                                </th>
+                                {% endif %}
+
                                 
                                 
                                 
@@ -185,23 +189,26 @@
                                     {% endif %}
                                 </td>
                                 <td class="ranking-points">{{ jugador.puntaje_total_categoria }}</td>
-                                <td class="text-center">
-                                    <input type="checkbox" name="jugadores_seleccionados"
-                                        value="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}
-                                                {{ jugador.equipo.id }}
-                                            {% else %}
-                                                {{ jugador.jugador.dni }}
-                                            {% endif %}">
-                                </td>
-                                <td class="text-center">
-                                    <input type="checkbox" name="jugadores_seleccionados"
-                                        value="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}
-                                                {{ jugador.equipo.id }}
-                                            {% else %}
-                                                {{ jugador.jugador.dni }}
-                                            {% endif %}">
-                                </td>
                                 
+                                {% if user.is_authenticated and user.is_staff %}
+                                <td class="text-center">
+                                    <input type="checkbox" name="jugadores_seleccionados"
+                                        value="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}
+                                                {{ jugador.equipo.id }}
+                                            {% else %}
+                                                {{ jugador.jugador.dni }}
+                                            {% endif %}">
+                                </td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="jugadores_seleccionados"
+                                        value="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}
+                                                {{ jugador.equipo.id }}
+                                            {% else %}
+                                                {{ jugador.jugador.dni }}
+                                            {% endif %}">
+                                </td>
+                                {% endif %}
+
                             </tr>
                             {% empty %}
                             <tr>

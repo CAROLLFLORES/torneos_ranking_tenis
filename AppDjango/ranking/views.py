@@ -188,9 +188,48 @@ def actualizar_ranking(sender, instance, **kwargs):
     print(f"♻️ Ranking modificado - {ganador.nombre} ganó. Cambios aplicados correctamente.")
 
 
-def ranking_general(request):
-    torneos = Torneo.objects.all()  # 🔹 Obtener todos los torneos
-    return render(request, 'ranking_general.html', {'torneos': torneos})
+
+def ranking_general(request, torneo_id=None):
+    torneos = Torneo.objects.all()
+    contexto = {'torneos': torneos}
+
+    if torneo_id:
+        torneo_actual = get_object_or_404(Torneo, id=torneo_id)
+
+        # Decide qué modelo de ranking usar según el tipo de torneo
+        if torneo_actual.tipo_juego in ("Doble", "Mixto"):
+            # Asegura que aparezcan equipos sin partidos jugados
+            for equipo in torneo_actual.equipos.all():
+                RankingEquipo.objects.get_or_create(
+                    equipo=equipo,
+                    torneo=torneo_actual,
+                    categoria=torneo_actual.categorias.first(),
+                    anio=torneo_actual.fecha_inicio.year,
+                    bimestre=1,
+                    defaults={'pj':0,'pg':0,'pp':0,'sets':0,'games':0,
+                              'puntaje_total_categoria':0,'puntaje_acumulador':0,'activo':True}
+                )
+            ranking = RankingEquipo.objects.filter(
+                torneo=torneo_actual, activo=True
+            ).order_by('-puntaje_total_categoria')
+        else:
+            ranking = Ranking.objects.filter(
+                torneo=torneo_actual, activo=True
+            ).order_by('-puntaje_total_categoria','-games')
+
+        # Otros torneos para el modal de ascenso/descenso
+        torneos_en_curso = Torneo.objects.filter(
+            tipo_juego=torneo_actual.tipo_juego,
+            categorias__in=torneo_actual.categorias.all()
+        ).exclude(id=torneo_actual.id).distinct()
+
+        contexto.update({
+            'torneo_actual': torneo_actual,
+            'ranking': ranking,
+            'torneos_en_curso': torneos_en_curso
+        })
+
+    return render(request, 'ranking_general.html', contexto)
 
 
 def ascender_jugadores(jugadores_dni, torneo_origen_id, torneo_destino_id):

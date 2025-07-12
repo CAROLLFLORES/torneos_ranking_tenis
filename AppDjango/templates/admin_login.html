@@ -9,6 +9,27 @@
         <p>LOGIN PARA USUARIO PERMITIDO</p>
     </div>
     <div>
+        <div class="login-box login-container">
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                {# Usuario #}
+                <div class="mb-3">
+                <label for="{{ form.username.id_for_label }}">USUARIO</label>
+                {{ form.username }}
+                </div>
+                    <br>
+                {# Clave #}
+                <div class="mb-3">
+                <label for="{{ form.password.id_for_label }}">CLAVE</label>
+                {{ form.password }}
+                </div>
+
+                <button type="submit" class="login-button">ENTRAR</button>
+            </form>
+        </div>
+
+      
+<!-- anteriror 
         <div class="login-box">
             <h3>USUARIO </h3>
             <input type="text" placeholder="Usuario" class="input-field">
@@ -19,11 +40,12 @@
                 <input type="checkbox" id="remember">
                 <label for="remember" class="remember-me-label">Recordar</label>
             </div>
-            <!-- template.html -->
+          
             <a href="{% url 'admin_menu' %}">
                 <button class="login-button">Aceptar</button>
             </a>
         </div>
+        -->
     </div>
 </div>
 {% endblock %}

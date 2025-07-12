@@ -1,45 +1,99 @@
 {% extends "layout.html" %}
+{% load static %}
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
 <div class="container-admin">
-    <div class="text-section">
-        <hr class="separator-line">
-        <h2 class="text-primary text-center">SELECCIONA UN TORNEO PARA VER EL RANKING</h2>
-    </div>
+  <div class="text-section">
+    <hr class="separator-line">
+    <h2 class="text-primary text-center">
+      {% if torneo_actual %}
+        RANKING – {{ torneo_actual.nombre|upper }}
+      {% else %}
+        RANKING
+      {% endif %}
+    </h2>
+  </div>
 
-    <!-- Contenedor Principal -->
-    <div class="form-container d-flex gap-4 justify-content-between">
-        <!-- Menú izquierdo con torneos -->
-        <div class="narrow-box flex-grow-1">
-            <div class="title-orange-gris text-center">
-                <h1>RANKING TORNEOS</h1>
-                
-            </div>
-          
-            <ul class="tournament-list">
-                {% for torneo in torneos %}
-                <li class="tournament-item">
-                    <span class="tournament-name"></span>
-                    <a href="{% url 'ver_ranking' torneo.id %}">
-                        <button class="login-button chico">{{ torneo.nombre|upper }}</button>
-                    </a>
-                    
-                </li>
-                {% empty %}
-                <li>No hay torneos disponibles.</li>
-                {% endfor %}
-            </ul>
-        </div>
+  <div class="form-container d-flex gap-4 justify-content-between">
+    {# --- SIDEBAR --- #}
+    {% include "tournament_list.html" with torneos=torneos %}
 
-        <!-- Sección derecha en blanco, se actualizará al seleccionar un torneo -->
-        <div class="login-box listados flex-grow-1">
-            <div class="text-center">
-                <h3>Selecciona un torneo para ver su ranking</h3>
-            </div>
+    {# --- PANEL DERECHO: RANKING --- #}
+    <div class="table-responsive ranking-table-container flex-grow-1">
+      {% if torneo_actual %}
+      <table class="table table-dark table-bordered ranking-table mb-0">
+        <thead class="table-success text-center align-middle">
+          <tr>
+            <th scope="col">#</th>
+            {% if torneo_actual.tipo_juego in "Doble Mixto" %}
+              <th scope="col">EQUIPO</th>
+            {% else %}
+              <th scope="col">JUGADOR</th>
+            {% endif %}
+            <th scope="col">PJ</th>
+            <th scope="col">PG</th>
+            <th scope="col">PP</th>
+            <th scope="col">SETS</th>
+            <th scope="col">GAMES</th>
+            <th scope="col">PUNTOS</th>
+            {% if user.is_authenticated and user.is_staff %}
+              <th scope="col">ASCENSO</th>
+              <th scope="col">DESCENSO</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in ranking %}
+          <tr class="ranking-row">
+            <td class="text-center">{{ forloop.counter }}</td>
+
+            {% if torneo_actual.tipo_juego in "Doble Mixto" %}
+            <td>
+              {{ item.equipo.jugador1.apellido }} / {{ item.equipo.jugador2.apellido }}
+            </td>
+            {% else %}
+            <td>
+              {{ item.jugador.nombre }} {{ item.jugador.apellido }}
+            </td>
+            {% endif %}
+
+            <td class="text-center">{{ item.pj }}</td>
+            <td class="text-center">{{ item.pg }}</td>
+            <td class="text-center">{{ item.pp }}</td>
+            <td class="text-center">
+              {% if item.sets > 0 %}+{% endif %}{{ item.sets }}
+            </td>
+            <td class="text-center">
+              {% if item.games > 0 %}+{% endif %}{{ item.games }}
+            </td>
+            <td class="text-center ranking-points">{{ item.puntaje_total_categoria }}</td>
+
+            {% if user.is_authenticated and user.is_staff %}
+            <td class="text-center">
+              <input type="checkbox" name="seleccionados"
+                     value="{% if torneo_actual.tipo_juego in "Doble Mixto" %}{{ item.equipo.id }}{% else %}{{ item.jugador.dni }}{% endif %}">
+            </td>
+            <td class="text-center">
+              <input type="checkbox" name="seleccionados"
+                     value="{% if torneo_actual.tipo_juego in "Doble Mixto" %}{{ item.equipo.id }}{% else %}{{ item.jugador.dni }}{% endif %}">
+            </td>
+            {% endif %}
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="{% if user.is_authenticated and user.is_staff %}10{% else %}8{% endif %}"
+                class="text-center">No hay posiciones para este torneo.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <div class="text-center py-5">
+          <h2>Selecciona un torneo para ver su ranking</h2>
         </div>
+      {% endif %}
     </div>
+  </div>
 </div>
-
-
 {% endblock %}

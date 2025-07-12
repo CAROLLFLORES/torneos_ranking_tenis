@@ -1,0 +1,19 @@
+{# templates/_tournament_list.html #}
+<div class="narrow-box flex-grow-1">
+  <div class="title-orange-gris text-center">
+    <h1>RANKING TORNEOS</h1>
+  </div>
+  <ul class="tournament-list">
+    {% for torneo in torneos %}
+      <li class="tournament-item">
+        <a href="{% url 'ranking_general' torneo.id %}">
+          <button class="login-button chico">
+            {{ torneo.nombre|upper }}
+          </button>
+        </a>
+      </li>
+    {% empty %}
+      <li>No hay torneos disponibles.</li>
+    {% endfor %}
+  </ul>
+</div>

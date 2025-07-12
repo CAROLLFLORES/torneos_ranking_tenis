@@ -19,13 +19,16 @@ from reportlab.lib.styles import getSampleStyleSheet
 from jugador.models import Jugador, Categoria
 from django.http import JsonResponse
 import pandas as pd
-
+from django.contrib.auth.decorators import login_required, user_passes_test
+from loginAdmin.views import es_admin
 
 def jugador_detalle(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
     return render(request, 'datos_jugador.html', {'jugador': jugador})
 
 
+@login_required
+@user_passes_test(es_admin)
 def CrearJugador(request):
     if request.method == "POST":
         nombre = request.POST.get("nombre")
@@ -45,10 +48,13 @@ def CrearJugador(request):
     form = JugadorForm()
     return render(request, "admin_carga_jugador.html", {"form": form})
 
-
+@login_required
+@user_passes_test(es_admin)
 def guardar_jugador(request):
     return render(request, "guardar_jugador.html")
 
+@login_required
+@user_passes_test(es_admin)
 def modificar_jugador(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
     if request.method == "POST":
@@ -200,6 +206,9 @@ def busqueda_jugador(request):
 
     return render(request, 'listado_jugadores.html', {'jugadores': jugadores})
 
+
+@login_required
+@user_passes_test(es_admin)
 def borrar_jugador(request, dni):
     try:
         jugador = get_object_or_404(Jugador, dni=dni)
@@ -211,11 +220,14 @@ def borrar_jugador(request, dni):
         messages.error(request, "Error al eliminar el jugador, no existe.")
         return redirect(reverse('listado_jugadores'))
     
+@login_required
+@user_passes_test(es_admin)
 def borrado_exitoso(request, jugador_dni):
     return render(request, 'borrado_exitoso.html', {'jugador_dni': jugador_dni})
 
 
-
+@login_required
+@user_passes_test(es_admin)
 def abm_categoria(request):
     if request.method == "POST":
         c_nivel = request.POST.get("nivel")
@@ -236,14 +248,19 @@ def abm_categoria(request):
 
     return render(request, "abm_categoria.html")
 
-
+@login_required
+@user_passes_test(es_admin)
 def exito_categoria(request):
     return render(request, "exito_categoria.html")
 
+@login_required
+@user_passes_test(es_admin)
 def listado_categorias(request):
     categorias = Categoria.objects.all()
     return render(request, 'listados_categorias.html', {'categorias': categorias})
 
+@login_required
+@user_passes_test(es_admin)
 def eliminar_categoria(request, id_categoria):
     categoria = get_object_or_404(Categoria, id_categoria=id_categoria)
     categoria.delete()
@@ -251,7 +268,8 @@ def eliminar_categoria(request, id_categoria):
 
 #para generar pdf
 
-
+@login_required
+@user_passes_test(es_admin)
 def exportar_jugadores_pdf(request):
     # 🟡 1️⃣ Captura los filtros
     search = request.GET.get('search', '')
@@ -334,7 +352,8 @@ def exportar_jugadores_pdf(request):
 
 #--------------------------------------------------------------------------------------------------------------
 #Carga masiva categoria 101
-
+@login_required
+@user_passes_test(es_admin)
 def carga_masiva_categoria(request):
     if request.method == 'POST' and request.FILES.get('archivo_excel'):
         print(" Archivos recibidos:", request.FILES)
@@ -361,6 +380,8 @@ def carga_masiva_categoria(request):
 
 #--------------------------------------------------------------------------------------------------------------
 #Carga Masiva de Jugadores 102
+@login_required
+@user_passes_test(es_admin)
 def carga_masiva_jugadores(request):
     if request.method == 'POST' and request.FILES.get('archivo_excel'):
         try:

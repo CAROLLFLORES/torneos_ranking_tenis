@@ -88,7 +88,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="id_tipo" class="form-label">Tipo:</label>
+                    <label for="id_tipo" class="form-label">Género:</label>
                     {{ form.tipo }}
                 </div>
                 <BR>
@@ -222,10 +222,50 @@
                     {% endif %}
                 </tbody>
             </table>
+            <!-- Barra de paginación y filtros (idéntica a la de Jugadores) -->
+            <div class="barra-titulo">
+            <div class="barra-titulo-contenido d-flex justify-content-between align-items-center">
+
+                <!-- Paginación -->
+                <div class="pagination d-flex align-items-center">
+                <div class="fw-bold mx-3">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}&nbsp;&nbsp;
+                </div>
+                <div class="d-flex me-3">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}" 
+                        class="login-button peque">&lt;</a>
+                    {% endif %}
+                </div>
+                <div class="d-flex">
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}" 
+                        class="login-button peque">&gt;</a>
+                    {% endif %}
+                </div>
+                </div>
+
+                {# Aquí he eliminado el formulario de filtros/búsqueda #}
+
+            </div>
+            </div>
+
+
         </div>
         
     </div>
 </div>
+
+<style>
+    .form-label {
+        max-width: 200px;       /* ajustá a lo que necesites */
+        margin: 5px 5px; 
+        display: block;         /* para que margin auto funcione */
+        width: 90%; 
+        text-align: center;   
+    }
+
+</style>
 
 
 <script>
