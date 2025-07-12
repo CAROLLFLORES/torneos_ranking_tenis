@@ -5,6 +5,9 @@
 <!-- Usa esta línea UNA VEZ en el <head> -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="{% static 'css/styles.css' %}" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 
 <div class="container-admin">
     
@@ -30,14 +33,14 @@
 <div class="container-admin">
     <section class="cards-container">
         <div class="card-box card">
-            <img src="{% static 'imagenes/pelota.png.png' %}" alt="Icono 1" id="canchas">
+            <img src="{% static 'imagenes/pelota.png' %}" alt="Icono 1" id="canchas">
             <h5>ALQUILERES</h5>
             <p class="animar-aparecer">¿Querés jugar con amigos o entrenar por tu cuenta? 
           Te ofrecemos alquiler de canchas de tenis de excelente calidad, 
           con disponibilidad flexible y atención personalizada.</p>
         </div>
         <div class="card-box card">
-            <img src="{% static 'imagenes/pelota.png.png' %}" alt="Icono 2">
+            <img src="{% static 'imagenes/pelota.png' %}" alt="Icono 2">
             <h5>CLASES</h5>
             <p class="animar-aparecer">Contamos con clases grupales y particulares para adultos, 
           adaptadas a todos los niveles. Ya sea que estés dando tus primeros pasos o 
@@ -45,7 +48,7 @@
           ambiente dinámico y personalizado.</p>
         </div>
         <div class="card-box card">
-            <img src="{% static 'imagenes/pelota.png.png' %}" alt="Icono 3">
+            <img src="{% static 'imagenes/pelota.png' %}" alt="Icono 3">
             <h5>REPARACIONES</h5>
             <p class="animar-aparecer">En Apur confiamos en Cancha Lista Reparaciones,
            un servicio profesional especializado en el mantenimiento y 
@@ -80,15 +83,15 @@
     </div>
     <br>
     <div class="img-duo">
-      <div class="img-box" style="background-image: url('{% static "imagenes/IMG_3262.jpg" %}');">
+      <div class="img-box" style="background-image: url('{% static "imagenes/IMG_3262.JPG" %}');">
         <div class="img-overlay">DAMAS</div>
       </div>
-      <div class="img-box" style="background-image: url('{% static "imagenes/IMG_6911.jpg" %}');">
+      <div class="img-box" style="background-image: url('{% static "imagenes/IMG_6911.JPG" %}');">
         <div class="img-overlay">CABALLEROS</div>
       </div>
     </div>
     <div class="img-duo">
-      <div class="img-box" style="background-image: url('{% static "imagenes/IMG_8595.jpg" %}');">
+      <div class="img-box" style="background-image: url('{% static "imagenes/IMG_8595.JPG" %}');">
         
       </div>
       
@@ -110,7 +113,7 @@
      
       <!-- Image -->
 			<div class="imagen-detalle">
-        <img src="{% static 'imagenes/IMG_8663.jpg' %}" alt="Detalle imagen">
+        <img src="{% static 'imagenes/IMG_8663.JPG' %}" alt="Detalle imagen">
       </div>
 
       <p class="intro-title animar-aparecer intro-info--negro"><strong></strong>Participaciones
@@ -220,26 +223,26 @@
 
   <section class="cards-container">
     <div class="card-box card">
-      <img src="{% static 'imagenes/pelota.png.png' %}" alt="Picado">
+      <img src="{% static 'imagenes/pelota.png' %}" alt="Picado">
       <p class="intro-sub ">Picado y compactación</p>
       <p>Picamos y compactamos polvo de ladrillo para preparar superficies niveladas y firmes.</p>
     </div>
 
     <div class="card-box card">
-      <img src="{% static 'imagenes/pelota.png.png' %}" alt="Flejes">
+      <img src="{% static 'imagenes/pelota.png' %}" alt="Flejes">
       <p class="intro-sub ">Reparación de flejes</p>
       <p>Reparamos y reemplazamos flejes para que tus canchas mantengan su forma y drenaje.</p>
     </div>
 
     <div class="card-box card">
-      <img src="{% static 'imagenes/pelota.png.png' %}" alt="Desmalezamiento">
+      <img src="{% static 'imagenes/pelota.png' %}" alt="Desmalezamiento">
       <p class="intro-sub ">Desmalezamiento y limpieza</p>
       <p>Eliminamos maleza y realizamos limpieza profunda para conservar la calidad del polvo.</p>
     </div>
 
     <!-- NUEVA cuarta card -->
     <div class="card-box card">
-      <img src="{% static 'imagenes/pelota.png.png' %}" alt="Venta polvo">
+      <img src="{% static 'imagenes/pelota.png' %}" alt="Venta polvo">
       <p class="intro-sub ">Venta de polvo de ladrillo</p>
       <p>Polvo de ladrillo “bayo” de alta calidad, listo para tu cancha o proyecto.</p>
     </div>
@@ -294,9 +297,6 @@
 
   <p class="parrafo-centrado">&copy; 2025 HERAAS. Todos los derechos reservados.</p>
 
-  <button onclick="scrollToTop()" class="scroll-button">
-    <i class="bi bi-arrow-up"></i>
-  </button>
 
 </footer>
 
@@ -459,7 +459,7 @@
 /* Revela de 0 a 10 caracteres (ajusta el número a la longitud de “Bienvenidos”) */
 @keyframes typing {
   from { width: 0; }
-  to   { width: 11ch; } /* 11ch = 11 caracteres de ancho */
+  to   { width: 13ch; } /* 11ch = 11 caracteres de ancho */
 }
 
 /* Parpadeo del cursor */
@@ -830,39 +830,6 @@ footer .envelope {
 
 /*---------------------------------------------------------------*/
 
-/* Responsive */
-@media (max-width: 768px) {
-  .cancha-bloque {
-    padding: 30px 15px;
-  }
-
-  .liga-banner {
-    flex-direction: column;
-  }
-  .liga-texto {
-    padding: 40px 20px;
-    text-align: center;
-  }
-  .liga-boton {
-    margin: 0 auto;
-  }
-
-  .liga-banner {
-    flex-direction: column;
-  }
-  .liga-image, .liga-texto {
-    flex: unset;
-    width: 100%;
-  }
-  .liga-texto {
-    padding: 40px 20px;
-    text-align: center;
-  }
-  .liga-boton {
-    margin: 0 auto;
-  }
-}
-
 /*---------------------------------------------------------------*/
 .img-duo {
   display: flex;
@@ -918,6 +885,172 @@ footer .envelope {
   background-color: #ccc; /* gris claro */
   margin: 40px auto;
   width: 80%;
+}
+
+
+
+/* ================= RESPONSIVE: móviles (<=767px) ================= */
+@media (max-width: 767px) {
+  html, body {
+    overflow-x: hidden;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Logo encima y centrado */
+  .logo-izquierda {
+    position: relative !important;
+    display: block !important;
+    margin: 1rem auto !important;
+    max-width: 180px !important;
+    text-align: center;
+  }
+  .logo-izquierda img {
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Hero sección a pantalla completa */
+  .hero-section {
+    margin-top: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+    background-position: center top !important;
+  }
+  .hero-overlay {
+    position: relative !important;
+    width: 100% !important;
+    background: rgba(0,0,0,0.7) !important;
+    padding: 1rem !important;
+    box-sizing: border-box !important;
+  }
+  .hero-title {
+    font-size: 2.4rem !important;
+    white-space: normal !important;
+    border-right: none !important;
+    text-align: center !important;
+    margin: 0.5em 0 !important;
+    width: 100% !important;
+  }
+  .hero-subtitle {
+    font-size: 1.1rem !important;
+    text-align: center !important;
+    margin-bottom: 1rem !important;
+  }
+  .hero-button {
+    display: block !important;
+    width: 90% !important;
+    max-width: 300px !important;
+    margin: 0 auto 1.5rem !important;
+    padding: 0.8rem 0 !important;
+    text-align: center !important;
+  }
+
+  /* Tarjetas apiladas y con ancho completo */
+  .cards-container {
+    flex-direction: column !important;
+    gap: 1rem !important;
+    margin-top: -20px !important;
+    padding: 0 1rem !important;
+  }
+  .card-box {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 1rem !important;
+  }
+  .card-box h5 {
+    font-size: 1.1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  .card-box p {
+    font-size: 0.95rem !important;
+  }
+
+  /* Secciones internas centradas y fluidas */
+  .wrapper, .container-sinfondo, .intro-container {
+    padding: 1rem !important;
+    margin: 0 auto !important;
+  }
+  .wrapper .title {
+    font-size: 1.6rem !important;
+    text-align: center !important;
+    margin: 1rem 0 !important;
+  }
+  .intro-sub, .intro-info {
+    text-align: center !important;
+    font-size: 1rem !important;
+  }
+  .intro-box {
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Grillas de íconos y fotos apiladas */
+  .feature-grid, .img-duo {
+    flex-direction: column !important;
+    gap: 1rem !important;
+    padding: 0 1rem !important;
+  }
+  .img-box {
+    width: 100% !important;
+    height: 180px !important;
+  }
+
+  /* Footer centrado */
+  .footer-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    padding: 1rem !important;
+  }
+  .footer-section {
+    text-align: center !important;
+  }
+}
+
+/* ================ RESPONSIVE: súper pequeño (<=479px) ================ */
+@media (max-width: 479px) {
+  .hero-title {
+    font-size: 2rem !important;
+  }
+  .hero-subtitle {
+    font-size: 1rem !important;
+  }
+  .hero-button {
+    width: 100% !important;
+    padding: 0.6rem 0 !important;
+  }
+  .card-box {
+    padding: 0.8rem !important;
+  }
+  .wrapper .title {
+    font-size: 1.4rem !important;
+  }
+
+    /* =================== FORZAR ANCHO COMPLETO =================== */
+  .container-admin,
+  .container-sinfondo,
+  .wrapper,
+  .cards-container,
+  .feature-grid,
+  .img-duo,
+  .footer-content {
+    width: 100% !important;
+    max-width: none !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Si alguna clase tenía width: 100vw o 120vw, anúlala */
+  .img-duo,
+  .hero-section {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+
 }
 
 

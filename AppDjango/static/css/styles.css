@@ -528,6 +528,15 @@ background-color: transparent; /* 'none' no es válido */
 }
 
 /* Estilos de las Cajas */
+.login-container form .mb-3 input {
+  display: block;      /* para que respete margin auto */
+  width: 200px;        /* o el ancho que tú desees */
+  max-width: 80%;      /* para que nunca sea más ancho que el 80% */
+  margin: 0 auto;      /* ← esto centrará horizontalmente */
+  text-align: center;  /* centra el texto dentro del input */
+}
+
+
 .login-box {
     background-color: rgba(255, 255, 255, 0.8);
     justify-content: center;
@@ -576,18 +585,30 @@ background-color: transparent; /* 'none' no es válido */
 }
 
 select.input-field {
-    min-width: 200px; /* Ajusta según el ancho deseado */
+    width: 80px;
+    /* Ajusta según el ancho deseado */
     text-align: center; /* Centra el texto del option */
 }
 
 .input-field {
-    width: 90%;
-    padding: 10px;
-    margin: 5px 0;
+    width: 150px;      /* ancho fijo */
+    max-width: 90%;    /* nunca pase del 90% del contenedor */
+    padding: 8px 12px; /* un poco menos de padding si quieres */
+    font-size: 14px;
+    margin: 0 auto 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 14px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Agrega sombra */
+    display: block;       /* necesario para que margin auto funcione */
+    
+}
+
+@media (max-width: 400px) {
+  select.input-field,
+  .input-field {
+    width: 100px;    /* todavía más pequeño en móvil */
+  }
 }
 
 .login-button {
@@ -1208,7 +1229,7 @@ table {
 }
 
 /* Asegurar que la tabla sea responsive */
-@media (max-width: 768px) {
+@media (max-width: 410px) {
     .ranking-table {
         font-size: 0.8rem;
     }
@@ -1332,7 +1353,7 @@ table {
 }
 
 /* Hacer que los botones sean responsivos */
-@media (max-width: 768px) {
+@media (max-width: 410px) {
     .ranking-button {
         width: 100%; /* En pantallas pequeñas ocupa el 100% */
     }
@@ -1646,6 +1667,8 @@ padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
 				width: calc(100% - 40px);
 			}
 
+       
+
 		}
 
 
@@ -1851,7 +1874,7 @@ padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
   margin: 0;
 }
 /* =================== ESTILOS RESPONSIVOS =================== */
-@media (max-width: 768px) {
+@media (max-width: 410px) {
 
     .box-section {
     flex-direction: column;
@@ -2009,3 +2032,85 @@ padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
 }
 
 
+/* ================= RESPONSIVE ================= */
+/* ---------------------------------- */
+/* CORRECCIONES GLOBALES PARA MÓVIL    */
+/* ---------------------------------- */
+@media (max-width: 400px) {
+/* ---------------------------------- */
+
+  /* 1) Que ningún elemento rebase el ancho */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    max-width: 90%;
+  }
+
+  html, body {
+    overflow-x: hidden; /* elimina scroll lateral */
+  }
+
+  /* 2) Anula cualquier width:100vw / 120vw */
+  .wrapper,
+  .wrapper.style1,
+  .wrapper.style2,
+  .wrapper.style3 {
+    width: 90% !important;
+    margin: 0 auto !important;
+    padding: 0 1rem !important;
+  }
+
+  /* 3) Cajas fluidas en lugar de fijas */
+  .login-box,
+  .narrow-box,
+  .largo,
+  .form-container,
+  .recuadro {
+    width: 90% !important;
+    max-width: none !important;
+    padding: 1rem !important;
+  }
+
+/* ==================== Media Query para apilar las tarjetas ==================== */
+@media (max-width: 768px) {
+  /* Hacemos que .cards-container ya no sea flex en fila, sino en columna */
+  .cards-container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    margin-top: -100px !important; /* ajusta según tu diseño */
+    padding: 20px !important;
+  }
+
+  /* Las tarjetas ocupan casi todo el ancho del contenedor padre */
+  .card-box, .cards-container .card {
+    width: 90% !important;
+    max-width: 400px !important;
+    margin-bottom: 20px !important;
+  }
+  
+}
+
+/* Opcional: en móviles lo puedes hacer aún más pequeño y subirlo un poco */
+
+
+  /* 4) Recoloca el logo encima del texto, centrado */
+  .logo-izquierda {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    margin: 1rem auto;
+    text-align: center;
+  }
+  .logo-izquierda img {
+    max-width: 150px;
+    width: auto;
+  }
+
+  /* 5) Hero-overlay fluido */
+  .hero-section,
+  .hero-overlay {
+    width: 90% !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+  }
+}

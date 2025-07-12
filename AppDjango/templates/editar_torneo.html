@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="form-container">
-    <form method="POST">
+    <form method="POST" action="{% url 'abm_torneo_editar' torneo.id %}">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="login-button btn btn-success">Guardar Cambios</button>

@@ -60,17 +60,17 @@
 
             <!-- Input oculto para mantener la búsqueda -->
             <input type="hidden" name="search" value="{{ search }}">
+            {% if user.is_authenticated and user.is_staff %}
             <hr class="separator">
-
-            <a href="{% url 'admin_carga_jugador' %}">
-                <button class="login-button chico">ALTA</button>
-            </a>
+                <a href="{% url 'admin_carga_jugador' %}" class="login-button chico me-2">ALTA</a>
+            {% endif %}
+            
             <div class="buttons-container">
-             
+            {% if user.is_authenticated and user.is_staff %}
                 <a href="{% url 'exportar_jugadores_pdf' %}?search={{ search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" target="_blank">
                     <button class="pdf-button"> PDF</button>
                 </a>
-                
+             {% endif %}    
             </div>
         </div>
 
@@ -122,8 +122,10 @@
                         <th>SEXO</th>
                         <th>CATEGORIA</th>
                         <th>INFO</th>
-                        <th>MODIFICAR</th>
-                        <th>ELIMINAR</th>
+                        {% if user.is_authenticated and user.is_staff %}
+                            <th>MODIFICAR</th>
+                            <th>ELIMINAR</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -144,6 +146,7 @@
                                 <td>
                                     <a href="{% url 'datos_jugador' jugador.dni %}" class="modificar-button">+</a>
                                 </td>
+                                {% if user.is_authenticated and user.is_staff %}
                                 <td>
                                     <button type="button"
                                     data-bs-toggle="modal"
@@ -152,7 +155,7 @@
                                     style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
                                         <i class="bi bi-pencil-square" style="font-size: 1.5rem; color: black;"></i>
                                     </button>
-                            
+                                {% endif %}
                                     <!-- Modal para modificar el jugador -->
                                     <div class="modal fade" id="modificarModal-{{ jugador.dni }}" tabindex="-1" aria-labelledby="modificarModalLabel-{{ jugador.dni }}" aria-hidden="true">
                                         <div class="modal-dialog">
@@ -203,6 +206,8 @@
                                         </div>
                                     </div>
                                 </td>
+
+                                {% if user.is_authenticated and user.is_staff %}
                                 <td>
                                     <button type="button"
                                             data-bs-toggle="modal"
@@ -214,6 +219,8 @@
 
                                     {% include 'modal_eliminar_jugador.html' %}
                                 </td>
+                                {% endif %}
+
                             </tr>
                         {% endfor %}
                     {% else %}

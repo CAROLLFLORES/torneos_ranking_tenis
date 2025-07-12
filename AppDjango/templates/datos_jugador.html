@@ -131,6 +131,8 @@
 
         
         <div class="actions" style="margin-bottom: 100px; margin-top: 50px">
+
+            {% if user.is_authenticated and user.is_staff %}
             <td>
                 <!-- Botón BORRAR con clase 'delete-button' -->
                 <button class="login-button rojo" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ jugador.dni }}">
@@ -139,8 +141,9 @@
                 
                 {% include 'modal_eliminar_jugador.html' %}
             </td>
+            {% endif %}
              <br>
-             <a href="{% url 'admin_menu' %}">
+             <a href="{% url 'index' %}">
                 <button class="login-button peque">MENU</button>
             </a>
         

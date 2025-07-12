@@ -50,16 +50,29 @@
                     <a class="nav-link card" href="{% url 'listado_jugadores' %}">JUGADORES</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link card" href="#">TORNEOS</a>
+                   <a class="nav-link card" href="{% url 'historial_publico' %}">HISTORIAL</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link card" href="{% url 'ranking_general' %}">RANKING</a>
                 </li>
                 
             </ul>
+            {% if not user.is_authenticated %}
+            <!-- Si NO estás logueado, al click va a /login/ -->
             <a href="{% url 'login' %}">
-                <img src="{% static 'imagenes/logo apur.png' %}" alt="APUR Logo" class="logo-menu"> <!-- Logo a la derecha -->
+                <img src="{% static 'imagenes/logo apur.png' %}"
+                    alt="APUR Logo"
+                    class="logo-menu">
             </a>
+            {% else %}
+            <!-- Si estás logueado, al click va al menú de admins -->
+            <a href="{% url 'admin_menu' %}">
+                <img src="{% static 'imagenes/logo apur.png' %}"
+                    alt="APUR Logo"
+                    class="logo-menu">
+            </a>
+            {% endif %}
+
         </div>
 
         <div class="side-menu" id="side-menu">
@@ -99,7 +112,15 @@
                     <i class="bi bi-house-door-fill"></i><!-- Icono de home -->
                 </button>
             </a>
-            <button class="footer-button">SALIR</button>
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="footer-button" style="color:white;">
+                SALIR
+                </button>
+            </form>
+            {% endif %}
+            
             <button class="icon-button" id="back-btn">
                 <i class="bi bi-backspace-fill"></i>
             </button>
