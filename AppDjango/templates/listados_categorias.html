@@ -2,112 +2,103 @@
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
-<!-- Modales de eliminación de categoría -->
-{% for categoria in categorias %}
-<div class="modal fade" id="eliminarModal-{{ categoria.id_categoria }}" tabindex="-1" aria-labelledby="eliminarModalLabel-{{ categoria.id_categoria }}" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" style="background-color: rgba(196, 194, 194, 0.85); color: white; text-align: center;">
-            <div class="modal-header">
-                <h3 class="modal-title" id="eliminarModalLabel-{{ categoria.id_categoria }}">¿Está seguro que desea eliminar la categoría "{{ categoria.nivel }}"?</h3>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="bi bi-x" style="font-size: 1.5rem; color: white;"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Esta acción no se puede deshacer.</p>
-                <hr class="separator">
-                <form method="POST" action="{% url 'eliminar_categoria' categoria.id_categoria %}">
-                    {% csrf_token %}
-                    <button type="submit" class="login-button rojo delete-button">ELIMINAR </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
 
 <div class="container-admin">
-    <h4>ADMINISTRADOR</h4>
-    <div class="text-section">
-        <hr class="separator-line">
-        <h2>LISTADO DE CATEGORIAS</h2>
+  <h4>ADMINISTRADOR</h4>
+  <div class="text-section">
+    <hr class="separator-line">
+    <h2>LISTADO DE CATEGORIAS</h2>
+  </div>
+  
+  <div class="form-container">
+    <div class="narrow-box">
+      <div class="title-orange-gris">
+        <h1>CATEGORIAS</h1>
+        <h3 class="negro chico">OPCIONES</h3>
+      </div>
+      <a href="{% url 'admin_menu' %}"><button class="login-button peque">MENU</button></a>
+      <hr class="separator">
+      <a href="{% url 'abm_categoria' %}"><button class="login-button chico">ALTA</button></a>
     </div>
-    
-    <div class="form-container">
-        <div class="narrow-box">
-            <div class="title-orange-gris">
-                <h1>CATEGORIAS</h1>
-                <h3 class="negro chico">OPCIONES</h3>
+
+    <div class="login-box listados">
+      <!-- paginador idéntico al de jugadores -->
+      <div class="barra-titulo">
+        <div class="barra-titulo-contenido d-flex justify-content-between align-items-center">
+          <div class="pagination d-flex align-items-center">
+            <div class="fw-bold mx-3">
+              Página {{ categorias.number }} de {{ categorias.paginator.num_pages }}
             </div>
-            <a href="{% url 'admin_menu' %}">
-                <button class="login-button peque">MENU</button>
-            </a>
-            
-            <hr class="separator">
-            <a href="{% url 'abm_categoria' %}">
-                <button class="login-button chico">ALTA</button>
-            </a>
-          
+            <div class="d-flex me-3">
+              {% if categorias.has_previous %}
+                <a href="?page={{ categorias.previous_page_number }}" class="login-button peque">&lt;</a>
+              {% endif %}
+            </div>
+            <div class="d-flex">
+              {% if categorias.has_next %}
+                <a href="?page={{ categorias.next_page_number }}" class="login-button peque">&gt;</a>
+              {% endif %}
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div class="login-box listados">
-            <!-- Nueva barra de color que contiene la paginación y el filtro -->
-            <div >
-                <div class="barra-titulo-contenido d-flex justify-content-between align-items-center">
-                    
+      <table class="table table-striped-columns table-light table-bordered table-sm">
+        <thead class="table-success">
+          <tr class="title-container">
+            <th>NIVEL</th>
+            <th>EDAD</th>
+            <th>JUEGO</th>
+            <th>ELIMINAR</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for categoria in categorias %}
+            <tr>
+              <td style="text-align:left;">{{ categoria.nivel }}</td>
+              <td>{{ categoria.edad }}</td>
+              <td>{{ categoria.tipo_juego }}</td>
+              
+              <!-- ELIMINAR -->
+              <td>
+                <button type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#eliminarModal-{{ categoria.id_categoria }}"
+                        style="all: unset; cursor: pointer;">
+                  <i class="bi bi-trash-fill" style="font-size:1.5rem; color:red;"></i>
+                </button>
 
+                <!-- modal dentro de la fila -->
+                <div class="modal fade" id="eliminarModal-{{ categoria.id_categoria }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content" style="background-color:rgba(196,194,194,0.85); color:white; text-align:center;">
+                      <div class="modal-header">
+                        <h3 class="modal-title">
+                          ¿Eliminar categoría “{{ categoria.nivel }}”?
+                        </h3>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p>Esta acción no se puede deshacer.</p>
+                        <hr class="separator">
+                        <form method="POST" action="{% url 'eliminar_categoria' categoria.id_categoria %}">
+                          {% csrf_token %}
+                          <button type="submit" class="login-button rojo delete-button">ELIMINAR</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-            </div>
-            <!-- Fin de la nueva barra -->
-
-            <table class="table table-striped-columns table-light table-bordered table-sm">
-                <thead class="table-success">
-                    <tr class="title-container">
-                        <th>NIVEL</th>
-                        <th>EDAD</th>
-                        <th>JUEGO</th>
-                        <th></th>
-                        <th>ELIMINAR</th> <!-- Nueva columna para acciones -->
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for categoria in categorias %}
-                    <tr>
-                        <td style="text-align:left;">{{ categoria.nivel }}</td>
-                        <td>{{ categoria.edad }}</td>
-                        <td>{{ categoria.tipo_juego }}</td>
-                        <td>
-                            <form method="POST" action="{% url 'eliminar_categoria' categoria.id_categoria %}" style="display:inline;"
-                            onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta categoría?');">
-                                {% csrf_token %}
-                                <td>
-                                    <!-- Botón que abre el modal -->
-                                    <button type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#eliminarModal-{{ categoria.id_categoria }}"
-                                            title="Eliminar categoría"
-                                            style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi bi-trash-fill" style="font-size: 1.5rem; color: red;"></i>
-                                    </button>
-
-                                </td>
-                                
-                            </form>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4">No hay categorías disponibles.</td>
-                    </tr>
-                    {% endfor %}
-
-                </tbody>
-            </table>
-        </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="text-center">No hay categorías disponibles.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </div>
 </div>
 {% endblock %}
-
-
-   
-        

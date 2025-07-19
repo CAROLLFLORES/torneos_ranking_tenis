@@ -137,7 +137,7 @@
                                 <td>{{ jugador.sexo }}</td>
                                 <td>
                                     {% for categoria in jugador.categorias.all %}
-                                        <span class="badge bg-primary">{{ categoria.nivel }} - {{ categoria.tipo_juego }}</span>
+                                        <span class="badge bg-primary">{{ categoria.nivel }} - {{ categoria.edad }} -{{ categoria.tipo_juego }}</span>
                                     {% empty %}
                                         <span class="text-muted">Sin categoría</span>
                                     {% endfor %}

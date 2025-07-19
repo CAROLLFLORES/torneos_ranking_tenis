@@ -1,12 +1,11 @@
 #  5/04/2025 se realizo el agregar el id Carga masiva categoria 101 y Carga Masiva de Jugadores 102
 
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Jugador,Categoria,JugadorCategoria
 from torneo.models import TorneoJugador, Partido, Torneo
 from django.urls import reverse
 from django.contrib import messages
-from django.core.paginator import Paginator
 from django.db.models import Q
 from .forms import JugadorForm
 from django.http import JsonResponse
@@ -253,11 +252,27 @@ def abm_categoria(request):
 def exito_categoria(request):
     return render(request, "exito_categoria.html")
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 @login_required
 @user_passes_test(es_admin)
 def listado_categorias(request):
-    categorias = Categoria.objects.all()
-    return render(request, 'listados_categorias.html', {'categorias': categorias})
+    qs = Categoria.objects.all().order_by('nivel')
+    paginator = Paginator(qs, 10)
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    # PASAMOS 'categorias' = page_obj, y también page_obj para la paginación
+    return render(request, 'listados_categorias.html', {
+        'categorias': page_obj,
+        'page_obj': page_obj,
+    })
+
 
 @login_required
 @user_passes_test(es_admin)
