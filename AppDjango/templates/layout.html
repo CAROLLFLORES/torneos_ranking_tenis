@@ -5,12 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        !Liga Tenis 2024
+        APUR - LIGA 2025
         {% block title %}
         {% endblock %}
     </title>
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet"> -->
 
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -20,6 +21,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni&family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icon -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
     <!-- jQuery (opcional, solo si es necesario) -->
     <!-- JS de Bootstrap y dependencias (jQuery y Popper.js) -->
@@ -36,95 +41,126 @@
     <!-- Script personalizado -->
     <script src="{% static 'js/script.js' %}" defer></script>
 
-    
-
-
 </head>
 <body class="{% block body_class %}fondo-principal{% endblock %}">
-    <header>
-        <div class="menu-principal">
-            <button class="hamburguesa" id="menu-toggle">≡</button> <!-- Botón de menú a la izquierda -->
-            
-            <ul class="nav-list">
-                <li class="nav-item">
-                    <a class="nav-link card" href="{% url 'listado_jugadores' %}">JUGADORES</a>
-                </li>
-                <li class="nav-item">
-                   <a class="nav-link card" href="{% url 'historial_publico' %}">HISTORIAL</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link card" href="{% url 'ranking_general' %}">RANKING</a>
-                </li>
-                
-            </ul>
+
+    <!-- Menú Principal -->
+    <div class="menu-principal">
+        <button class="hamburguesa" id="menu-toggle">≡</button>
+        <a href="{% url 'index' %}">
+            <img src="{% static 'imagenes/logo apur.png' %}" alt="APUR Logo" class="logo-menu">
+        </a>
+        <ul class="nav-list">
+            <li class="nav-item">
+                <a class="nav-link card" href="{% url 'listado_jugadores' %}">&nbsp;JUGADORES&nbsp;</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link card" href="{% url 'historial_publico' %}">&nbsp;HISTORIAL TORNEOS&nbsp;</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link card" href="{% url 'ranking_general' %}">&nbsp;RANKING&nbsp;</a>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link card" href="{% url 'listados_categorias' %}">&nbsp;CATEGORÍAS&nbsp;</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link card" href="{% url 'listado_sedes' %}">&nbsp;SEDES&nbsp;</a>
+            </li> 
+            <li class="nav-item">
+                <a class="nav-link card" href="{% url 'listado_canchas' %}">&nbsp;CANCHAS&nbsp;</a>
+            </li>
+            {% endif %}
+        </ul>
+        <div class="nav-user">
+            <!-- Si estas logueado permite desloguearse -->
             {% if not user.is_authenticated %}
             <!-- Si NO estás logueado, al click va a /login/ -->
-            <a href="{% url 'login' %}">
-                <img src="{% static 'imagenes/logo apur.png' %}"
-                    alt="APUR Logo"
-                    class="logo-menu">
-            </a>
+             <div class="user-icon-wrapper">
+                 <a href="{% url 'login' %}">
+                     <i class="fas fa-user-circle"></i>
+                     <span class="hover-label">INGRESAR</span>
+                 </a>
+             </div>
+             
             {% else %}
             <!-- Si estás logueado, al click va al menú de admins -->
-            <a href="{% url 'admin_menu' %}">
-                <img src="{% static 'imagenes/logo apur.png' %}"
-                    alt="APUR Logo"
-                    class="logo-menu">
-            </a>
+             <div class="user-icon-wrapper">
+                 <a href="{% url 'admin_menu' %}">
+                     <i class="fas fa-user-circle"></i>
+                     <span class="hover-label">MENÚ ADMIN</span>
+                 </a>
+             </div>
             {% endif %}
 
-        </div>
-
-        <div class="side-menu" id="side-menu">
-            <div class="menu-header">
-                <h2>ONN</h2>
-                <span class="close-btn" id="close-btn">&times;</span>
-            </div>
-            <ul>
-                <li ><a href="genero.html">RANKING</a></li>
-                <hr class="separator-negro">
-                <li><a href="#">CATEGORIAS</a></li>
-                <hr class="separator-negro">
-                <li><a href="{% url 'admin_menu' %}">JUGADORES</a></li>
-                <hr class="separator-negro">
-                <li><a href="#">TIENDA</a></li>
-                <hr class="separator-negro">
-            </ul>
-            <ul>
-                <li><a href="#" class="contact-link">Políticas de seguridad</a></li>
-                <li><a href="#" class="contact-link">Notificar problemas</a></li>
-                <hr class="separator-negro">
-                <li><a href="https://wa.me/+5493413006495" class="contact-link">CONTACTO</a></li>
-            </ul>
-        </div>
-    </header>
-    
-    <div id="content"> 
-        {% block content %}
-        <!-- Aquí va el código de cada página del template -->
-        {% endblock %}
-    </div>
-
-    <footer>
-        <div class="footer-bar">
-            <a href="{% url 'index' %}" class="home-link">
-                <button class="icon-button">
-                    <i class="bi bi-house-door-fill"></i><!-- Icono de home -->
-                </button>
-            </a>
             {% if user.is_authenticated %}
-            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            <form method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
-                <button type="submit" class="footer-button" style="color:white;">
-                SALIR
+                <button type="submit" title="Salir" class="logout-btn">
+                    SALIR
                 </button>
             </form>
             {% endif %}
-            
-            <button class="icon-button" id="back-btn">
-                <i class="bi bi-backspace-fill"></i>
-            </button>
         </div>
-    </footer>
+    </div>
+
+    <!-- Side Menú -->
+    <div class="side-menu" id="side-menu">
+        <div class="container-close-btn">
+            <img src="{% static 'imagenes/logo apur.png' %}" alt="APUR Logo" class="logo-menu-sidemenu">
+            <span class="close-btn" id="close-btn">&times;</span>
+        </div>
+        <ul>
+            <li ><a href="{% url 'index' %}">INICIO</a></li>
+            <hr class="separator-negro">
+            <li ><a href="{% url 'listado_jugadores' %}">JUGADORES</a></li>
+            <hr class="separator-negro">
+            <li><a href="{% url 'historial_publico' %}">HISTORIAL TORNEOS</a></li>
+            <hr class="separator-negro">
+            <li><a href="{% url 'ranking_general' %}">RANKING</a></li>
+            <hr class="separator-negro">
+            {% if user.is_authenticated %}
+            <li><a href="{% url 'listados_categorias' %}">CATEGORÍAS</a></li>
+            <hr class="separator-negro">
+            <li><a href="{% url 'listado_sedes' %}">SEDES</a></li>
+            <hr class="separator-negro">
+            <li><a href="{% url 'listado_canchas' %}">CANCHAS&</a></li>
+            {% else %}
+            <li><a href="https://www.instagram.com/aptenisshop/" target="_blank">TIENDA</a></li>
+            <hr class="separator-negro">
+            <li><a class="contact-link" href="https://wa.me/5493413006495" target="_blank">CONTACTO</a></li>
+            {% endif %}
+            <hr class="separator-negro">
+        </ul>
+        <p class="copy">&copy; 2025 HERAAS. Todos los derechos reservados.</p>
+    </div>
+
+    <div id="content"> 
+        {% block content %}{% endblock %}
+        <footer class="footer" id="footer"> 
+            <div class="footer-section">
+                <h3 class="footer-titulo">SEGUINOS</h3>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/apurtenis/" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://wa.me/5493413006495" target="_blank">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://www.facebook.com/tu_pagina" target="_blank">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                </div> 
+                <h3 class="footer-titulo">CONTACTANOS</h3>
+                <p><i class="fas fa-phone-alt"></i> Teléfono: +54 341 6830332</p>
+                <p><i class="fas fa-map-marker-alt"></i> Dirección: Av. Belgrano 2182, Rosario, Santa Fe, Argentina</p>
+                <p >&copy; 2025 HERAAS. Todos los derechos reservados.</p>
+            </div>  
+        </footer>
+    </div>
+    <!-- Botón de volver arriba -->
+    <button id="scrollToTop" title="Volver arriba">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 </body>
 </html>

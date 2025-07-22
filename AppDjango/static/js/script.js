@@ -1,43 +1,109 @@
-// Botón de volver
-document.getElementById('back-btn').addEventListener('click', function() {
-    window.history.back(); // Navega a la página anterior en el historial del navegador
+document.addEventListener('DOMContentLoaded', function () {
+
+    const menuToggle = document.getElementById('menu-toggle');
+    const closeBtn = document.getElementById('close-btn');
+    const sideMenu = document.getElementById('side-menu');
+    const btn = document.getElementById('scrollToTop');
+
+    if(btn) {
+        btn.addEventListener('click', () => {
+            document.body.scrollTo({ top: 0, behavior: 'smooth'})
+        })
+    }
+
+    // Abre menú hamburguesa
+    if (menuToggle && sideMenu) {
+        menuToggle.addEventListener('click', function () {
+        sideMenu.classList.toggle('active');
+        });
+    }
+    // Cierra menú hamburguesa
+    if (closeBtn && sideMenu) {
+        closeBtn.addEventListener('click', function () {
+        sideMenu.classList.remove('active');
+        });
+    }
+    // Cierra el menú cuando se seleccióna un título
+    const sideMenuLinks = document.querySelectorAll('#side-menu a');
+    sideMenuLinks.forEach(link => {
+        link.addEventListener('click', function () {
+        console.log('Clic en enlace del menú');
+        if (sideMenu) {
+            sideMenu.classList.remove('active');
+        }
+        });
+    });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const filtroToggle = document.getElementById('filtro-toggle');
+    const filtroClose = document.getElementById('filtro-close');
+    const filtroCaja = document.getElementById('filtro-caja');
+
+    // Mostrar caja de filtros
+    if (filtroToggle && filtroCaja) {
+        filtroToggle.addEventListener('click', function () {
+            filtroCaja.classList.add('active');
+        });
+    }
+
+    // Cerrar caja de filtros
+    if (filtroClose && filtroCaja) {
+        filtroClose.addEventListener('click', function () {
+            filtroCaja.classList.remove('active');
+        });
+    }
+
+    // Cierra al hacer clic en el botón de búsqueda
+    const botonesBuscar = document.querySelectorAll('.cerrar-filtro-btn');
+    botonesBuscar.forEach(btn => {
+        btn.addEventListener('click', function () {
+            filtroCaja.classList.remove('active');
+        });
+    });
+});
+
+// Botón de volver
+// document.getElementById('back-btn').addEventListener('click', function() {
+//     window.history.back(); // Navega a la página anterior en el historial del navegador
+// });
 
 // Botón de menú
-document.getElementById('menu-toggle').addEventListener('click', function() {
-    const sideMenu = document.getElementById('side-menu');
-    sideMenu.classList.toggle('active');
-});
+// document.getElementById('menu-toggle').addEventListener('click', function() {
+//     const sideMenu = document.getElementById('side-menu');
+//     sideMenu.classList.toggle('active');
+// });
 
 // Botón de cerrar menú
-document.getElementById('close-btn').addEventListener('click', function() {
-    const sideMenu = document.getElementById('side-menu');
-    sideMenu.classList.remove('active');
-});
+// document.getElementById('close-btn').addEventListener('click', function() {
+//     const sideMenu = document.getElementById('side-menu');
+//     sideMenu.classList.remove('active');
+// });
 // test
 // Pantallas Administrativas
-document.addEventListener("DOMContentLoaded", function() {
-    showScreen('login-screen');
+// (login-screen, menu-screen, search-screen) NO EXISTEN EN EL HTML, SE COMENTA EL CODIGO PARA EVITAR FALLAS
+// document.addEventListener("DOMContentLoaded", function() {
+//     showScreen('login-screen');
 
-    document.querySelector('.login-button').addEventListener('click', function() {
-        showScreen('menu-screen');
-    });
+//     document.querySelector('.login-button').addEventListener('click', function() {
+//         showScreen('menu-screen');
+//     });
 
-    document.querySelector('.menu-button').addEventListener('click', function() {
-        showScreen('search-screen');
-    });
+//     document.querySelector('.menu-button').addEventListener('click', function() {
+//         showScreen('search-screen');
+//     });
 
-    document.querySelector('.refresh-button').addEventListener('click', function() {
-        alert('Refrescar');
-    });
-});
+//     document.querySelector('.refresh-button').addEventListener('click', function() {
+//         alert('Refrescar');
+//     });
+// });
 
-function showScreen(screenClass) {
-    document.querySelectorAll('.login-screen, .menu-screen, .search-screen').forEach(function(screen) {
-        screen.style.display = 'none';
-    });
-    document.querySelector('.' + screenClass).style.display = 'flex';
-}
+// function showScreen(screenClass) {
+//     document.querySelectorAll('.login-screen, .menu-screen, .search-screen').forEach(function(screen) {
+//         screen.style.display = 'none';
+//     });
+//     document.querySelector('.' + screenClass).style.display = 'flex';
+// }
 
 // Buscador de Jugadores
 const players = [
@@ -77,7 +143,7 @@ function selectPlayer(playerName) {
     window.location.href = `player_details.html?player=${encodeURIComponent(playerName)}`;
 }
 
-document.getElementById('searchInput').addEventListener('input', filterPlayers);
+// document.getElementById('searchInput').addEventListener('input', filterPlayers);
 
 // Slider
 function slide(n) {
