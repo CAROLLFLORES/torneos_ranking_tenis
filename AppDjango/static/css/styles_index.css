@@ -1,0 +1,507 @@
+/* Estilos Generales */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap');
+
+.animar-aparecer {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease-in-out;
+}
+
+.animar-aparecer.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero-section {
+    height: 100vh;
+    background-image:
+    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),  
+    url('/static/imagenes/fondo1.jpeg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hero-overlay {
+  color: rgba(255, 255, 255, 0.826);
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-overlay1 {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 4rem;
+}
+
+.hero-title {
+  margin-right: auto;
+  margin-left: auto;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: .1em solid white;
+  font-family: monospace;
+  animation: typing 4s steps(13, end) infinite, blink 0.7s step-end infinite;
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: -10px;
+}
+
+.hero-subtitle {
+  font-size: 1.3rem;
+}
+
+.hero-button {
+  background-color:rgb(211, 213, 211);
+  color: black;
+  padding: 10px 40px;
+  border-radius: 8px;
+  width: 100px;
+  font-weight: bold;
+  text-decoration: none;
+  margin-top: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+  transition: all 0.3s ease-in-out;
+}
+
+.hero-button:hover {
+  background-color: rgb(103, 105, 110);
+  color: white;
+  box-shadow: 5px 12px 12px rgba(0, 0, 0, 0.534);
+}
+
+.hero-button1 {
+  background-color:rgb(211, 213, 211);
+  color: black;
+  padding: 10px 40px;
+  border-radius: 8px;
+  width: 100px;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  margin-top: 1rem;
+  transition: all 0.3s ease-in-out;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.hero-button1:hover {
+  background-color: rgb(2, 2, 2);
+  color: white;
+  box-shadow: 5px 12px 12px rgba(0, 0, 0, 0.534);
+}
+
+.section-block {
+  position: relative;
+  text-align: center;
+  padding: 0;
+}
+
+.section-block .title {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  position: absolute;
+  top: -3.25em;
+  left: 50%;
+  transform: translateX(-50%);
+  text-transform: uppercase;
+  display: block;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  font-size: 1em;
+  width: 25em;
+  height: 3.25em;
+  line-height: 3.25em;
+  padding-top: 0.5em;
+  margin-bottom: -3.25em;
+}
+
+.section-block .title::before,
+.section-block .title::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  width: 45px;
+  height: 50px;
+  background: url("/static/imagenes/shadow.png");
+  background-repeat: no-repeat;
+}
+
+.section-block .title::before {
+  left: -35px;
+}
+
+.section-block .title::after {
+  right: -35px;
+  transform: scaleX(-1);
+}
+
+.section-liga {
+  background: linear-gradient(to bottom, #5f5e5e, #3e3e3e);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.section-liga .title {
+  background: linear-gradient(to bottom, #3e3e3e, #5f5e5e);
+}
+
+.section-interclubes {
+  margin-top: -60px;
+  background: #fff;
+}
+
+.section-interclubes .title {
+  background: #fff;
+  color: #484d55;
+}
+
+.section-canchas {
+  margin-top: -40px;
+  background: #f3f3f3 url("../imagenes/overlay.png");
+}
+
+.section-canchas .title {
+  background: #f3f3f3 url("../imagenes/overlay.png");
+  color: #484d55;
+}
+
+.section-canchas .image {
+  border: solid 10px #fff;
+}
+
+.introBox-liga {
+  padding: 2rem;
+}
+
+.introBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 2rem;
+  width: 75vw;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to   { width: 13ch; }
+}
+
+@keyframes blink {
+  from, to { border-color: transparent; }
+  50%      { border-color: white; }
+}
+
+.introInfo {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #525252;
+  text-align: center;
+}
+
+.introTitle {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 1.5;
+  color: #525252;
+}
+
+.introTitleB {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 1.5;
+  color: white;
+  text-align: center;
+}
+
+.introInfo-gris {
+  color: #525252;
+  margin-bottom: 8rem;
+}
+
+.cards-container {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 50px;
+  margin-top: -180px;
+  margin-bottom: 5rem;
+}
+
+.card-box {
+  width: calc(25% - 30px); /* 👈 Cuatro en una fila con gap incluido */
+  min-width: 220px;
+  max-width: 280px;        /* 👈 Límite superior opcional */
+  border: 4px solid #b1b4b9;
+  background: rgb(75, 77, 82);
+  text-align: center;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
+}
+
+.card-box:hover {
+  transform: translateY(-10px);
+}
+
+.card-box img {
+  width: 50px;
+  margin-bottom: 15px;
+}
+
+.logo {
+  z-index: 50;
+  margin-top: 5rem;
+}
+
+.logo img {
+  max-width: 280px;
+}
+
+.card-box h5 {
+    color: #b1b4b9;
+}
+
+.img-duo {
+  display: flex;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  flex: 0 0 100vw;
+}
+
+.img-box {
+  flex: 1;
+  height: 350px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  transition: filter 0.4s ease;
+  filter: brightness(50%) grayscale(80%); 
+  overflow: hidden;
+}
+
+.img-box:hover {
+  filter: brightness(100%) grayscale(0%);
+}
+
+.img-overlay {
+  position: absolute;
+  z-index: 2;
+  bottom: 20px;
+  left: 20px;
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-shadow: 1px 1px 5px rgba(0,0,0,1);
+}
+
+.imagen-detalle {
+  max-width: 60%;
+  margin: 3em auto;     
+  overflow: hidden;     
+}
+
+.imagen-detalle img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.linea-separadora {
+  border: none;
+  height: 1px;
+  background-color: #ccc; 
+  margin: 40px auto;
+  width: 80%;
+}
+
+.icon-svg {
+  width: 70px;
+  height: 70px;
+  background-color: #2c2c2c;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  transition: all 0.4s ease-in-out;
+}
+
+.icon-svg:hover {
+  transform: scale(1.2);
+  box-shadow: 5px 5px 18px rgba(0, 0, 0, 0.534);
+}
+
+/* ================= RESPONSIVE:(<=1220px) ================= */
+@media (max-width: 1220px) {
+
+  .logo {
+    top: 40px;
+    max-width: 250px;
+    text-align: center;
+  }
+
+  .logo img {
+    width: 100%;
+    height: auto;
+    margin-top: 5rem;
+  }
+
+  .hero-section {
+    margin-top: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 8rem;
+  }
+
+  .hero-overlay {
+    margin-top: 0;
+  }
+
+  .cards-container {
+    flex-direction: column !important;
+    gap: 2rem !important;
+  }
+
+  .card-box {
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .card-box h5 {
+    Font-size: 1.1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .card-box p {
+    font-size: 0.95rem !important;
+  }
+
+  .imagen-detalle {
+    max-width: 100%;
+    margin: 0;
+    overflow: visible;
+  }
+
+  .img-duo {
+    display: block
+  }
+
+  .introBox {
+    width: 70%;
+    padding: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .feature-grid {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ================ RESPONSIVE: móvil (<=479px) ================ */
+@media (max-width: 595px) {
+
+  .logo {
+    display: block;
+    /* top: 20px; */
+    max-width: 200px;
+    text-align: center;
+  }
+
+  .logo img {
+    width: 100%t;
+    height: auto;
+    margin-top: 2rem;
+  }
+
+  .hero-overlay{
+    padding: 0 4rem 4rem 4rem;
+  }
+
+  .hero-overlay1 {
+        padding: 0 4rem 4rem 4rem;
+  }
+
+  .hero-title {
+    font-size: 1.7rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .hero-button {
+    width: 100%;
+    padding: 0.6rem 0;
+  }
+
+  .hero-button1 {
+    width: 100%;
+    padding: 0.6rem 0;
+  }
+
+  .card-box {
+    width: 60vw;
+  }
+
+  .section-block .title {
+    width: 70vw;
+  }
+
+  .hero-overlay1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .introBox-liga {
+    width: 70vw;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .introTitle {
+    width: 70vw;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2rem;
+  }
+
+  .introInfo {
+    width: 70vw;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2rem;
+  }
+
+  .introInfo-gris {
+    width: 70vw;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1rem;
+  }
+
+  .introBox  {
+    padding: 0 0 2rem 0;
+  }
+}

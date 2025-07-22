@@ -98,7 +98,7 @@ def listado_jugadores(request):
         jugadores = jugadores.filter(categorias__id_categoria=categoria_filter)
 
     # 🔹 Paginación
-    paginator = Paginator(jugadores, 20)  # 20 jugadores por página
+    paginator = Paginator(jugadores, 100)  # 20 jugadores por página
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

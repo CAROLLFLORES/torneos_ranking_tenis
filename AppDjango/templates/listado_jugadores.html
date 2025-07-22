@@ -4,126 +4,122 @@
 {% block content %}
 
 <div class="container-admin">
-    <h4>ADMINISTRADOR</h4>
+    {% if user.is_authenticated %}
+        <h4>ADMINISTRADOR</h4>
+        {% else %}
+        <h4>LIGA 2025</h4>
+    {% endif %}
     <div class="text-section">
         <hr class="separator-line">
-        <h2>LISTADO</h2>
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">LISTADO COMPLETO DE JUGADORES</h5>
+        <!-- Botón para mostrar/ocultar el panel -->
+        <button id="filtro-toggle" class="btn-custom btn-negro">☰ FILTROS</button>
     </div>
-    <div class="text-section">
-        <hr class="separator-line">
-        <h5>COMPLETO DE JUGADORES</h5>
-    </div>
-    <div class="form-container">
-        <div class="narrow-box">
-            <div class="title-orange-gris">
-                <h1>JUGADORES</h1>
-                <h3 class="negro chico">OPCIONES</h3>
-            </div>
-            <a href="{% url 'admin_menu' %}">
-                <button class="login-button peque">MENU</button>
-            </a>
 
-            <a href="{% url 'listado_jugadores' %}">
-                <button class="login-button-gris chico">Listado completo</button>
-            </a>
+    <!-- FILTROS -->
+    <div>
+        <!-- Caja fija de filtros -->
+        <div id="filtro-caja" class="filtro-caja">
             
-            <hr class="separator">
-            <h3 class="negro">BUSCAR POR JUGADOR</h3>
-            <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center mb-3">
-                <input class="input-field" type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
-                <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
-            </form>
-            <hr class="separator">
-            <!-- Buscador por Categoría -->
-            <h3 class="negro">POR CATEGORIA</h3>
+            <div class="container-btn-close-filter">
+                <span id="filtro-close" class="btn-close-filter">&times;</span>
+            </div>
 
-            <!-- FORMULARIO CORRECTO DE BÚSQUEDA -->
-            <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center mb-3">
-                <select name="categoria" id="filtro-categoria" class="input-field me-2">
-                    <option value="">Todas</option>
-                    {% for categoria in todas_categorias %}
-                        <option value="{{ categoria.id_categoria }}" {% if categoria_seleccionada == categoria.id_categoria|slugify %} selected {% endif %}>
+            <!-- BUSQUEDAS -->
+            <div style="margin-top: 3rem;">
+                <span class="span-filter">BÚSQUEDA POR JUGADOR</span>
+                <form method="GET" action="{% url 'listado_jugadores' %}">
+                    <div class="filtro-busqueda">
+                        <input type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
+                        <button type="submit" class="btn-lupa"><i class="fas fa-search"></i></button>
+                    </div>
+                </form>
+    
+                <span class="span-filter">BÚSQUEDA POR CATEGORÍA</span>
+                <form method="GET" action="{% url 'listado_jugadores' %}">
+                    <div class="filtro-busqueda">
+                        <select name="categoria" id="filtro-categoria">
+                        <option value="">Todas</option>
+                        {% for categoria in todas_categorias %}
+                            <option value="{{ categoria.id_categoria }}" {% if categoria_seleccionada == categoria.id_categoria|slugify %} selected {% endif %}>
                             {{ categoria.nivel }} - {{ categoria.tipo_juego }} - {{ categoria.edad }} años
-                        </option>
-                    {% endfor %}
-                </select>
-
-                <!-- BOTÓN DE BUSCAR DENTRO DEL FORMULARIO -->
-                <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
-
-                <!-- Mantener los otros filtros (como búsqueda por nombre y género) -->
-                <input type="hidden" name="search" value="{{ search }}">
-                <input type="hidden" name="sexo" value="{{ request.GET.sexo }}">
-            </form>
-
-
-
-            <!-- Input oculto para mantener la búsqueda -->
-            <input type="hidden" name="search" value="{{ search }}">
-            {% if user.is_authenticated and user.is_staff %}
-            <hr class="separator">
-                <a href="{% url 'admin_carga_jugador' %}" class="login-button chico me-2">ALTA</a>
-            {% endif %}
-            
-            <div class="buttons-container">
-            {% if user.is_authenticated and user.is_staff %}
-                <a href="{% url 'exportar_jugadores_pdf' %}?search={{ search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" target="_blank">
-                    <button class="pdf-button"> PDF</button>
-                </a>
-             {% endif %}    
-            </div>
-        </div>
-
-        <div class="login-box listados">
-            <!-- Nueva barra de color que contiene la paginación y los filtros -->
-        <div class="barra-titulo">
-            <div class="barra-titulo-contenido d-flex justify-content-between align-items-center">
-                <!-- Paginación -->
-                <div class="pagination d-flex align-items-center">
-                    <div class="fw-bold mx-3">
-                        Página {{ jugadores.number }} de {{ jugadores.paginator.num_pages }}&nbsp;&nbsp;
+                            </option>
+                        {% endfor %}
+                        </select>
+                        <button type="submit" class="btn-lupa"><i class="fas fa-search"></i></button>
+                        <input type="hidden" name="search" value="{{ search }}">
+                        <input type="hidden" name="sexo" value="{{ request.GET.sexo }}">
                     </div>
-                    <div class="d-flex me-3">
-                        {% if jugadores.has_previous %}
-                            <a href="?page={{ jugadores.previous_page_number }}&search={{ request.GET.search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" class="login-button peque">&lt;</a>
-                        {% endif %}
-                    </div>
-                    <div class="d-flex">
-                        {% if jugadores.has_next %}
-                            <a href="?page={{ jugadores.next_page_number }}&search={{ request.GET.search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" class="login-button peque">&gt;</a>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- 🔹 Filtros de Género y Categoría -->
-                <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center">
-                    <label for="filtro-sexo" class="me-2 fw-bold">Género:</label>
-                    <select name="sexo" id="filtro-sexo" class="form-select me-2" onchange="this.form.submit()">
-                        <option value="">Todos</option>
-                        <option value="M" {% if request.GET.sexo == "M" %} selected {% endif %}>Masculino</option>
-                        <option value="F" {% if request.GET.sexo == "F" %} selected {% endif %}>Femenino</option>
-                    </select>
-
-
-                    <!-- Input oculto para mantener la búsqueda -->
-                    <input type="hidden" name="search" value="{{ request.GET.search }}">
                 </form>
             </div>
+
+            <!-- BOTONES -->
+            <div style="margin-top: 4rem;">
+                <a class="a-filter" href="{% url 'admin_menu' %}">
+                    <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
+                    MENÚ DEL ADMINISTRADOR
+                </a>
+                <a class="a-filter" href="{% url 'listado_jugadores' %}">
+                    <i class="bi bi-eye" style="margin-right: 5px;"></i>
+                    VER LISTADO COMPLETO
+                </a>
+                {% if user.is_authenticated and user.is_staff %}
+                <a class="a-filter" href="{% url 'admin_carga_jugador' %}">
+                    <i class="bi bi-plus-circle-fill" style="margin-right: 5px;"></i>
+                    ALTA JUGADOR
+                </a>
+                {% endif %}
+    
+                {% if user.is_authenticated and user.is_staff %}
+                    <a href="{% url 'exportar_jugadores_pdf' %}?search={{ search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}"
+                        target="_blank"
+                        class="a-filter"
+                    >
+                    <i class="bi bi-download" style="margin-right: 5px;"></i>
+                    DESCARGAR EN PDF
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- LISTADO -->
+    <div class="recuadro-tabla">
+        <!-- Paginación + Filtros de Género -->
+        <div class="green-box-table">
+            <div>
+                Página {{ jugadores.number }} de {{ jugadores.paginator.num_pages }}&nbsp;&nbsp;
+                {% if jugadores.has_previous %}
+                    <a href="?page={{ jugadores.previous_page_number }}&search={{ request.GET.search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" class="login-button peque">&lt;</a>
+                {% endif %}
+                {% if jugadores.has_next %}
+                    <a href="?page={{ jugadores.next_page_number }}&search={{ request.GET.search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" class="login-button peque">&gt;</a>
+                {% endif %}
+            </div>
+            <form method="GET" action="{% url 'listado_jugadores' %}" class="formFilter">
+                <label for="filtro-sexo" style="padding-right: .5rem;"> Género:</label>
+                <select name="sexo" id="filtro-sexo" class="input-seletc" onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    <option value="M" {% if request.GET.sexo == "M" %} selected {% endif %}>Masculino</option>
+                    <option value="F" {% if request.GET.sexo == "F" %} selected {% endif %}>Femenino</option>
+                </select>
+                <!-- Input oculto para mantener la búsqueda -->
+                <input type="hidden" name="search" value="{{ request.GET.search }}">
+            </form>
         </div>
 
-
-            <!-- Fin de la nueva barra -->
-
-            <table class="table table-striped-columns table-light table-bordered table-sm">
-                <thead class="table-success">
-                    <tr class="title-container">
+        <!-- TABLA -->
+        <div class="tabla-wrapper">
+            <table class="tabla-usuarios">
+                <thead>
+                    <tr>
                         <th>APELLIDO</th>
                         <th>NOMBRE</th>
                         <th>SEXO</th>
                         <th>CATEGORIA</th>
                         <th>INFO</th>
                         {% if user.is_authenticated and user.is_staff %}
-                            <th>MODIFICAR</th>
+                            <th>EDITAR</th>
                             <th>ELIMINAR</th>
                         {% endif %}
                     </tr>
@@ -132,28 +128,27 @@
                     {% if jugadores %}
                         {% for jugador in jugadores %}
                             <tr>
-                                <th scope="row" style="text-align:left;">{{ jugador.apellido | upper }}</th>
+                                <td scope="row">{{ jugador.apellido | upper }}</td>
                                 <td>{{ jugador.nombre | capfirst }}</td>
                                 <td>{{ jugador.sexo }}</td>
                                 <td>
                                     {% for categoria in jugador.categorias.all %}
-                                        <span class="badge bg-primary">{{ categoria.nivel }} - {{ categoria.edad }} -{{ categoria.tipo_juego }}</span>
+                                        <span>{{ categoria.nivel }} - {{ categoria.edad }} -{{ categoria.tipo_juego }}</span>
                                     {% empty %}
-                                        <span class="text-muted">Sin categoría</span>
+                                        <span>Sin categoría</span>
                                     {% endfor %}
                                 </td>
-
+    
                                 <td>
-                                    <a href="{% url 'datos_jugador' jugador.dni %}" class="modificar-button">+</a>
+                                    <a href="{% url 'datos_jugador' jugador.dni %}" class="btn-info">+</a>
                                 </td>
                                 {% if user.is_authenticated and user.is_staff %}
                                 <td>
                                     <button type="button"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modificarModal-{{ jugador.dni }}"
-                                    title="Modificar jugador"
-                                    style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi bi-pencil-square" style="font-size: 1.5rem; color: black;"></i>
+                                    title="Modificar jugador" class="btn-edit">
+                                        <i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i>
                                     </button>
                                 {% endif %}
                                     <!-- Modal para modificar el jugador -->
@@ -206,21 +201,20 @@
                                         </div>
                                     </div>
                                 </td>
-
+    
                                 {% if user.is_authenticated and user.is_staff %}
                                 <td>
                                     <button type="button"
                                             data-bs-toggle="modal"
                                             data-bs-target="#eliminarModal-{{ jugador.dni }}"
-                                            title="Eliminar jugador"
-                                            style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi bi-trash-fill" style="font-size: 1.5rem; color: red;"></i>
+                                            title="Eliminar jugador" class="btn-delete">
+                                        <i class="bi bi-trash-fill" style="font-size: 1.1rem;"></i>
                                     </button>
-
+    
                                     {% include 'modal_eliminar_jugador.html' %}
                                 </td>
                                 {% endif %}
-
+    
                             </tr>
                         {% endfor %}
                     {% else %}
@@ -243,5 +237,4 @@
         });
     });
 </script>
-
 {% endblock %}

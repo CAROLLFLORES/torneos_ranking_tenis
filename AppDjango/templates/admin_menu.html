@@ -1,109 +1,105 @@
 {% extends "layout.html" %}
-
 {% block body_class %}fondo-secundario{% endblock %}
+
 {% block content %}
 <div class="container-admin">
-    <h4>ADMINISTRADOR </h4>
+    <h4>ADMINISTRADOR</h4>
     <div class="text-section">
-        <hr class="separator-line"> <!-- Línea separadora -->
-        <h5>GESTIÓN TORNEOS DE TENIS</h5>
-        <div class="text-section">
-            <hr class="separator-line"> <!-- Línea separadora -->
-            <h2>OPCIONES</h2>
+        <hr class="separator-line">
+        <h5 style="font-size: 1rem; margin-top: 1rem;">GESTIÓN TORNEOS DE TENIS</h5>
+    </div>
+
+    <div class="recuadro-tabla-admin">
+        <!-- Paginación + Filtros de Género -->
+        <div class="green-box-table">
+            <h4 style="margin: .5rem auto; font-weight: 500;">PANEL DE CONTROL</h4>
         </div>
+        <div class="tabla-wrapper">
+            <table class="tabla-usuarios" style="table-layout: fixed; width: 100%;">
+                <thead>
+                    <tr>
+                        <th>SECCIÓN</th>
+                        <th>VER DETALLE</th>
+                        <th>ALTA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- JUGADORES -->
+                    <tr>
+                        <td>JUGADORES</td>
+                        <td>
+                            <a href="{% url 'listado_jugadores' %}" title="Listado completo" class="btn-edit">
+                                <i class="bi bi-list-ul" style="font-size: 1.3rem;"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'admin_carga_jugador' %}" title="Alta jugador" class="btn-info">+</a>
+                        </td>
+                    </tr>
 
-        <!-- Contenedor para los recuadros -->
-        <div class="recuadros-container">
-            <!-- Primer recuadro: JUGADORES -->
-            <div class="recuadro">
-                <div class="login-box">
-                    <div class="title-orange-box">
-                        <h2>JUGADORES</h2>
-                    </div>
-                    <h3 class="negro">BUSCAR POR JUGADOR</h3>
-                    <form method="GET" action="{% url 'listado_jugadores' %}" class="d-flex align-items-center mb-3">
-                        <input class="input-field" type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
-                        <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
-                    </form>
-                    <hr class="separator">
-                    <h3>CARGAR NUEVO JUGADOR</h3>
-                    <a href="{% url 'admin_carga_jugador' %}">
-                        <button class="login-button">ALTA</button>
-                    </a>
-                    <hr class="separator">
-                    <a href="{% url 'listado_jugadores' %}">
-                        <button class="login-button-gris">Listado completo</button>
-                    </a>
-                </div>
-            </div>
+                    <!-- RANKING -->
+                    <tr>
+                        <td>RANKING</td>
+                        <td>
+                            <a href="{% url 'ranking_general' %}" title="Listado completo" class="btn-edit">
+                                <i class="bi bi-list-ul" style="font-size: 1.3rem;"></i>
+                            </a>
+                        </td>
+                        <td></td>
+                    </tr>
 
-            <!-- Segundo recuadro: Ranking -->
-            <div class="recuadro">
-                <div class="login-box">
-                    <div class="title-orange-box">
-                        <h2>RANKING</h2>
-                    </div>
-                   <br>
-                    <h3>LISTADO COMPLETO</h3>
-                    <a class="nav-link" href="{% url 'ranking_general' %}">
-                        <button class="login-button">Aceptar</button>
-                    </a>
-                    
-                </div>
-            </div>
-        </div>
+                    <!-- CATEGORÍA -->
+                    <tr>
+                        <td>CATEGORÍA</td>
+                        <td>
+                            <a href="{% url 'listados_categorias' %}" title="Listado completo" class="btn-edit">
+                                <i class="bi bi-list-ul" style="font-size: 1.3rem;"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'abm_categoria' %}" title="Alta categoría" class="btn-info">+</a>
+                        </td>
+                    </tr>
 
-        <!-- Contenedor para los recuadros 2 -->
-        <div class="recuadros-container">
-            <!-- Primer recuadro: GESTIÓN -->
-            <div class="recuadro">
-                <div class="login-box">
-                    <div class="title-orange-box">
-                        <h2>GESTIÓN</h2>
-                    </div>
-                    <h3>NUEVA CATEGORÍA</h3>
-                    <a href="{% url 'abm_categoria' %}">
-                        <button class="login-button">ALTA</button>
-                    </a>
-                    <a href="{% url 'listados_categorias' %}">
-                        <button class="login-button-gris">Listado completo</button>
-                    </a>
-                    <hr class="separator">
-                    <h3>SEDE</h3>
-                    <a href="{% url 'abm_sede' %}">
-                        <button class="login-button">ALTA</button>
-                    </a>
-                    <a href="{% url 'listado_sedes' %}">
-                        <button class="login-button-gris">Listado completo</button>
-                    </a>
+                    <!-- SEDE -->
+                    <tr>
+                        <td>SEDE</td>
+                        <td>
+                            <a href="{% url 'listado_sedes' %}" title="Listado completo" class="btn-edit">
+                                <i class="bi bi-list-ul" style="font-size: 1.3rem;"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'abm_sede' %}" title="Alta sede" class="btn-info">+</a>
+                        </td>
+                    </tr>
 
-                    <hr class="separator">
-                    <h3>NUEVA CANCHA</h3>
-                    <a href="{% url 'abm_cancha' %}">
-                        <button class="login-button">ALTA</button>
-                    </a>
-                    <a href="{% url 'listado_canchas' %}">
-                        <button class="login-button-gris">Listado completo </button>
-                    </a>
-                </div>
-            </div>
+                    <!-- CANCHA -->
+                    <tr>
+                        <td>CANCHA</td>
+                        <td>
+                            <a href="{% url 'listado_canchas' %}" title="Listado completo" class="btn-edit">
+                                <i class="bi bi-list-ul" style="font-size: 1.3rem;"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'abm_cancha' %}" title="Alta cancha" class="btn-info">+</a>
+                        </td>
+                    </tr>
 
-            <!-- Segundo recuadro: PARTIDOS -->
-            <div class="recuadro">
-                <div class="login-box">
-                    <div class="title-orange-box">
-                        <h2>TORNEOS Y PARTIDOS</h2>
-                    </div>
-                    <br>
-                    <h3>INGRESAR</h3>
-                    <a href="{% url 'crear_torneo' %}">
-                        <button class='login-button'>TORNEOS</button>
-                    </a>
-                    
-                </div>
-            </div>
+                    <!-- TORNEOS Y PARTIDOS -->
+                    <tr>
+                        <td>TORNEOS Y PARTIDOS</td>
+                        <td>
+                            <a href="{% url 'crear_torneo' %}" title="Ingresar" class="btn-edit">
+                                <i class="bi bi-list-ul" style="font-size: 1.3rem;"></i>
+                            </a>
+                        </td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
-
 {% endblock %}

@@ -1,51 +1,130 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIGA TENIS 2024 - Inicio</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>APUR - COMPLEJO DE TENIS </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+        <!-- CSS y JS iguales a layout.html -->
+        <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet"> -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+        <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+        <link href="{% static 'css/styles_index.css' %}" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 
-    <!-- CSS y JS iguales a layout.html -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+        <!-- Script personalizado -->
+        <script src="{% static 'js/script.js' %}" defer></script>
+    </head>
 
-    <script src="{% static 'js/script.js' %}" defer></script>
-</head>
+    <body style="background-color: black">
 
-<body style="background-color: black">
-    <div class="menu-principal">
-            <button class="hamburguesa" id="menu-toggle">≡</button> <!-- Botón de menú a la izquierda -->
-
-    <!-- ✅ MENÚ EXCLUSIVO DE INICIO -->
+        <!-- Menú Principal -->
+        <div class="menu-principal">
+            <button class="hamburguesa" id="menu-toggle">≡</button>
+            <a href="{% url 'index' %}">
+                <img src="{% static 'imagenes/logo apur.png' %}" alt="APUR Logo" class="logo-menu">
+            </a>
             <ul class="nav-list">
-                <li class="nav-item ">
-                    <a class="nav-link card" href="{% url 'liga_publico' %}">LIGA</a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link card" href="#canchas">CANCHAS</a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link card" href="https://www.instagram.com/aptenisshop/">🛒 TIENDA</a>
+                <li class="nav-item">
+                    <a class="nav-link card" href="{% url 'liga_publico' %}">&nbsp;LIGA&nbsp;</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link card" href="https://wa.me/5493413006495">CONTACTO</a>
+                    <a class="nav-link card" href="#alquiler-canchas">&nbsp;ALQUILER&nbsp;</a>
                 </li>
-                
+                <li class="nav-item">
+                    <a class="nav-link card" href="#reparacion-canchas">REPARACIÓN CANCHAS</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link card" href="https://www.instagram.com/aptenisshop/" target="_blank">&nbsp;TIENDA&nbsp;</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link card" href="https://wa.me/5493413006495" target="_blank">&nbsp;CONTACTO&nbsp;</a>
+                </li>
             </ul>
-            <a href="{% url 'login' %}">
-            <img src="{% static 'imagenes/logo apur.png' %}" alt="APUR Logo" class="logo-menu">
-            </a>
+            <div class="nav-user">
+                <!-- Si estas logueado permite desloguearse -->
+                {% if not user.is_authenticated %}
+                <!-- Si NO estás logueado, al click va a /login/ -->
+                <div class="user-icon-wrapper">
+                    <a href="{% url 'login' %}">
+                        <i class="fas fa-user-circle"></i>
+                        <span class="hover-label">INGRESAR</span>
+                    </a>
+                </div>
+                
+                {% else %}
+                <!-- Si estás logueado, al click va al menú de admins -->
+                <div class="user-icon-wrapper">
+                    <a href="{% url 'admin_menu' %}">
+                        <i class="fas fa-user-circle"></i>
+                        <span class="hover-label">MENÚ ADMIN</span>
+                    </a>
+                </div>
+                {% endif %}
 
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" title="Salir" class="logout-btn">
+                        SALIR
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Side Menú -->
+        <div class="side-menu" id="side-menu">
+            <div class="container-close-btn">
+                <img src="{% static 'imagenes/logo apur.png' %}" alt="APUR Logo" class="logo-menu-sidemenu">
+                <span class="close-btn" id="close-btn">&times;</span>
+            </div>
+            <ul>
+                <li ><a href="{% url 'liga_publico' %}">LIGA</a></li>
+                <hr class="separator-negro">
+                <li><a href="#alquiler-canchas">ALQUILER</a></li>
+                <hr class="separator-negro">
+                <li><a href="#reparacion-canchas">REPARACIÓN CANCHAS</a></li>
+                <hr class="separator-negro">
+                <li><a href="https://www.instagram.com/aptenisshop/" target="_blank">TIENDA</a></li>
+                <hr class="separator-negro">
+                <li><a class="contact-link" href="https://wa.me/5493413006495" target="_blank">CONTACTO</a></li>
+            </ul>
+            <p class="copy">&copy; 2025 HERAAS. Todos los derechos reservados.</p>
         </div>
 
-    <div id="content">
-        {% block content %}{% endblock %}
-    </div>
+        <div id="content">
+            {% block content %}{% endblock %}
+            <footer class="footer" id="footer"> 
+                <div class="footer-section">
+                    <h3 class="footer-titulo">SEGUINOS</h3>
+                    <div class="social-icons">
+                        <a href="https://www.instagram.com/apurtenis/" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://wa.me/5493413006495" target="_blank">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="https://www.facebook.com/tu_pagina" target="_blank">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                    </div> 
+                    <h3 class="footer-titulo">CONTACTANOS</h3>
+                    <p><i class="fas fa-phone-alt"></i> Teléfono: +54 341 6830332</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Dirección: Av. Belgrano 2182, Rosario, Santa Fe, Argentina</p>
+                    <p >&copy; 2025 HERAAS. Todos los derechos reservados.</p>
+                </div>  
+            </footer>
+        </div>
 
-</body>
+        <!-- Botón de volver arriba -->
+        <button id="scrollToTop" title="Volver arriba">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+    </body>
 </html>

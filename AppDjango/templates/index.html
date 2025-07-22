@@ -2,84 +2,75 @@
 {% load static %}
 
 {% block content %}
-<!-- Usa esta línea UNA VEZ en el <head> -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<link href="{% static 'css/styles.css' %}" rel="stylesheet">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-
-<div class="container-admin">
+<div>
     
-    
-<!-- ✅ SACAMOS el container-admin de esta parte -->
-<section class="hero-section" style="background-image: url('{% static "imagenes/fondo1.jpeg" %}');">
-    <div class="logo-izquierda fade-in">
-        <img src="{% static 'imagenes/logo apur.png' %}" alt="Logo" class="img-fluid">
+<section class="hero-section">
+    <div class="logo fade-in">
+        <img src="{% static 'imagenes/logo apur.png' %}" alt="Logo">
     </div>
-
     <div class="hero-overlay">
-        <h1 class="hero-title">Bienvenidos </h1>
-        <p class="hero-subtitle">Te ofrecemos mucho más que canchas.
-          <br>
-          Te damos una experiencia completa para que disfrutes del tenis en todas sus formas.
-          </p>
-        <a href="{% url 'liga_publico' %}" class="hero-button">LIGA</a>
+      <h1 class="hero-title">Bienvenidos </h1>
+      <p class="hero-subtitle">Te ofrecemos mucho más que canchas.<br>
+        Te damos una experiencia completa para que disfrutes del tenis en todas sus formas.
+      </p>
+      <a href="{% url 'liga_publico' %}" class="hero-button">LIGA</a>
     </div>
-    
 </section>
 
-<!-- ✅ AHORA envolvemos las cards en un container si querés centrarlo -->
-<div class="container-admin">
-    <section class="cards-container">
-        <div class="card-box card">
-            <img src="{% static 'imagenes/pelota.png' %}" alt="Icono 1" id="canchas">
-            <h5>ALQUILERES</h5>
-            <p class="animar-aparecer">¿Querés jugar con amigos o entrenar por tu cuenta? 
+<div>
+  <section class="cards-container">
+      <div class="card-box card">
+        <img src="{% static 'imagenes/pelota.png' %}" alt="Icono 1" id="alquiler-canchas">
+        <h5>ALQUILERES</h5>
+        <p class="animar-aparecer">
+          ¿Querés jugar con amigos o entrenar por tu cuenta? 
           Te ofrecemos alquiler de canchas de tenis de excelente calidad, 
-          con disponibilidad flexible y atención personalizada.</p>
+          con disponibilidad flexible y atención personalizada.
+        </p>
+        <div>
+            <a class="action-card" href="https://wa.me/5493413006495" target="_blank">RESERVAR</a>
         </div>
-        <div class="card-box card">
-            <img src="{% static 'imagenes/pelota.png' %}" alt="Icono 2">
-            <h5>CLASES</h5>
-            <p class="animar-aparecer">Contamos con clases grupales y particulares para adultos, 
+      </div>
+      <div class="card-box card">
+        <img src="{% static 'imagenes/pelota.png' %}" alt="Icono 2">
+        <h5>CLASES</h5>
+        <p class="animar-aparecer">
+          Contamos con clases grupales y particulares para adultos, 
           adaptadas a todos los niveles. Ya sea que estés dando tus primeros pasos o 
           busques perfeccionar tu técnica, nuestros profesores te guiarán en un 
-          ambiente dinámico y personalizado.</p>
+          ambiente dinámico y personalizado.
+        </p>
+        <div>
+            <a class="action-card" href="https://wa.me/5493413006495" target="_blank">CONSULTAR</a>
         </div>
-        <div class="card-box card">
-            <img src="{% static 'imagenes/pelota.png' %}" alt="Icono 3">
-            <h5>REPARACIONES</h5>
-            <p class="animar-aparecer">En Apur confiamos en Cancha Lista Reparaciones,
-           un servicio profesional especializado en el mantenimiento y 
-           reparación de canchas de polvo de ladrillo, 
-           con amplia trayectoria en Rosario y zonas aledañas.</p>
-        </div>
-    </section>
-
-    <!-- liga -->
-  <section id="intro" class="wrapper style1 ">
-    <div class="title">LIGA</div>
-    <div class="container-sinfondo intro-container">
-      <p class="intro-sub ">¡Competí, divertite y viví el tenis con intensidad!</p>
-
-      <div class="intro-box ">
-        <p class="intro-title animar-aparecer">Participá de nuestras <strong>ligas abiertas</strong>...
-       </p>
-       <p class="intro-info ">
-       <strong>Singles</strong> y <strong>Dobles</strong> para Damas 
-          y Caballeros, además de encuentros de Dobles Mixtos.
-      </p>
       </div>
+      <div class="card-box card">
+        <img src="{% static 'imagenes/pelota.png' %}" alt="Icono 3">
+        <h5>REPARACIONES</h5>
+        <p class="animar-aparecer">
+          En Apur confiamos en Cancha Lista Reparaciones,
+          un servicio profesional especializado en el mantenimiento y 
+          reparación de canchas de polvo de ladrillo, 
+          con amplia trayectoria en Rosario y zonas aledañas.
+        </p>
+        <div>
+            <a class="action-card" href="https://wa.me/5493413006495" target="_blank">CONTRATAR</a>
+        </div>
+      </div>
+  </section>
 
-      
-
-      <ul class="actions">
-        <li><a href="{% url 'liga_publico' %}" class="hero-button style3 large">LIGA</a></li>
-        <li>
-            <a href="https://wa.me/5493413006495" target="_blank" class="hero-button style3 large">INSCRIBITE</a>
-          </li>
-      </ul>
+  <!-- liga -->
+  <section id="intro1" class="section-block section-liga">
+    <div class="title">LIGA</div>
+    <div class="introBox-liga">
+      <p class="introInfoB">¡Competí, divertite y viví el tenis con intensidad!</p>
+      <p class="introTitleB animar-aparecer">Participá de nuestras ligas abiertas...</p>
+      <p class="introInfoB ">
+      <strong>Singles</strong> y <strong>Dobles</strong> para Damas y Caballeros, además de encuentros de Dobles Mixtos.</p>
+    </div>
+    <div class="hero-overlay1">
+      <a href="{% url 'liga_publico' %}" class="hero-button1">LIGA</a></li>
+      <a href="https://wa.me/5493413006495" target="_blank" class="hero-button1">INSCRIBITE</a>
     </div>
     <br>
     <div class="img-duo">
@@ -92,21 +83,19 @@
     </div>
     <div class="img-duo">
       <div class="img-box" style="background-image: url('{% static "imagenes/IMG_8595.JPG" %}');">
-        
       </div>
-      
     </div>
   </section>
 
-  <section id="intro" class="wrapper style2 ">
+  <section id="intro2" class="section-block section-interclubes">
     <div class="title">INTERCLUBES</div>
     <div class="container-sinfondo">
 
 						
-      <div class="intro-box ">
-        <p class="intro-title animar-aparecer intro-info--negro"><strong>Apur </strong>compite activamente desde hace años 
+      <div class="introBox ">
+        <p class="introTitle animar-aparecer "><strong>Apur </strong>compite activamente desde hace años 
        </p>
-       <p class="intro-info intro-info--gris">
+       <p class="introInfo .introInfo-gris">
        en los torneos interclubes organizados por la <strong>ART</strong>
       </p>
       </div>
@@ -116,17 +105,17 @@
         <img src="{% static 'imagenes/IMG_8663.JPG' %}" alt="Detalle imagen">
       </div>
 
-      <p class="intro-title animar-aparecer intro-info--negro"><strong></strong>Participaciones
+      <p class="introTitle animar-aparecer "><strong></strong>Participaciones
        </p>
 
      
-       <p class="intro-info intro-info--gris">Somos protagonista temporada tras temporada. 
+       <p class="introInfo .introInfo-gris">Somos protagonista temporada tras temporada. 
           <br>Nuestro complejo ha logrado destacarse ubicándose 
           entre los primeros puestos 
        </p>   
       <div class="feature-grid">
         <div class="feature-item">
-          <div class="feature-icon-svg">
+          <div class="icon-svg">
             <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="copa-svg">
               <path fill="white" d="M458 64h-42V48c0-8.8-7.2-16-16-16H112c-8.8 0-16 7.2-16 16v16H54c-6.6 0-12 5.4-12 12v60c0 54.3 39.7 99.3 91.6 106.9 6.2 30.2 25.2 55.6 51.3 69.7v44.1c0 17.8-11.6 33.7-28.6 39.3l-45.6 15.2c-6.6 2.2-11.2 8.4-11.2 15.5V464c0 8.8 7.2 16 16 16h256c8.8 0 16-7.2 16-16v-13.3c0-7.1-4.5-13.3-11.2-15.5l-45.6-15.2c-17-5.7-28.6-21.5-28.6-39.3v-44.1c26.1-14.1 45.1-39.5 51.3-69.7 51.9-7.6 91.6-52.6 91.6-106.9V76c0-6.6-5.4-12-12-12zM70 136v-44h26v81.6C80 166.8 70 152.6 70 136zm372 0c0 16.6-10 30.8-26 37.6V92h26v44z"/>
             </svg>
@@ -136,7 +125,7 @@
         </div>
 
         <div class="feature-item">
-          <div class="feature-icon-svg">
+          <div class="icon-svg">
             <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="copa-svg">
               <path fill="white" d="M458 64h-42V48c0-8.8-7.2-16-16-16H112c-8.8 0-16 7.2-16 16v16H54c-6.6 0-12 5.4-12 12v60c0 54.3 39.7 99.3 91.6 106.9 6.2 30.2 25.2 55.6 51.3 69.7v44.1c0 17.8-11.6 33.7-28.6 39.3l-45.6 15.2c-6.6 2.2-11.2 8.4-11.2 15.5V464c0 8.8 7.2 16 16 16h256c8.8 0 16-7.2 16-16v-13.3c0-7.1-4.5-13.3-11.2-15.5l-45.6-15.2c-17-5.7-28.6-21.5-28.6-39.3v-44.1c26.1-14.1 45.1-39.5 51.3-69.7 51.9-7.6 91.6-52.6 91.6-106.9V76c0-6.6-5.4-12-12-12zM70 136v-44h26v81.6C80 166.8 70 152.6 70 136zm372 0c0 16.6-10 30.8-26 37.6V92h26v44z"/>
             </svg>
@@ -154,7 +143,7 @@
 
     <div class="feature-grid">
         <div class="feature-item">
-          <div class="feature-icon-svg">
+          <div class="icon-svg">
             <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="copa-svg">
               <path fill="white" d="M458 64h-42V48c0-8.8-7.2-16-16-16H112c-8.8 0-16 7.2-16 16v16H54c-6.6 0-12 5.4-12 12v60c0 54.3 39.7 99.3 91.6 106.9 6.2 30.2 25.2 55.6 51.3 69.7v44.1c0 17.8-11.6 33.7-28.6 39.3l-45.6 15.2c-6.6 2.2-11.2 8.4-11.2 15.5V464c0 8.8 7.2 16 16 16h256c8.8 0 16-7.2 16-16v-13.3c0-7.1-4.5-13.3-11.2-15.5l-45.6-15.2c-17-5.7-28.6-21.5-28.6-39.3v-44.1c26.1-14.1 45.1-39.5 51.3-69.7 51.9-7.6 91.6-52.6 91.6-106.9V76c0-6.6-5.4-12-12-12zM70 136v-44h26v81.6C80 166.8 70 152.6 70 136zm372 0c0 16.6-10 30.8-26 37.6V92h26v44z"/>
             </svg>
@@ -164,7 +153,7 @@
         </div>
 
         <div class="feature-item">
-          <div class="feature-icon-svg">
+          <div class="icon-svg">
             <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="copa-svg">
               <path fill="white" d="M458 64h-42V48c0-8.8-7.2-16-16-16H112c-8.8 0-16 7.2-16 16v16H54c-6.6 0-12 5.4-12 12v60c0 54.3 39.7 99.3 91.6 106.9 6.2 30.2 25.2 55.6 51.3 69.7v44.1c0 17.8-11.6 33.7-28.6 39.3l-45.6 15.2c-6.6 2.2-11.2 8.4-11.2 15.5V464c0 8.8 7.2 16 16 16h256c8.8 0 16-7.2 16-16v-13.3c0-7.1-4.5-13.3-11.2-15.5l-45.6-15.2c-17-5.7-28.6-21.5-28.6-39.3v-44.1c26.1-14.1 45.1-39.5 51.3-69.7 51.9-7.6 91.6-52.6 91.6-106.9V76c0-6.6-5.4-12-12-12zM70 136v-44h26v81.6C80 166.8 70 152.6 70 136zm372 0c0 16.6-10 30.8-26 37.6V92h26v44z"/>
             </svg>
@@ -177,7 +166,7 @@
 
        <hr class="linea-separadora">
 
-    <p class="intro-info intro-info--gris">Demostrando el compromiso, el nivel 
+    <p class="introInfo introInfo-gris">Demostrando el compromiso, el nivel 
           <br>
           y la pasión de nuestros jugadores.
        </p> 
@@ -187,37 +176,24 @@
     </div>
   
    <!-- cancha -->
-  <section id="intro" class="wrapper style3 ">
-    <div class="title">CANCHAS LISTAS</div>
-    <div class="container-sinfondo intro-container">
-      
-      <div class="intro-box ">
-        <p class="intro-title animar-aparecer intro-info--negro">Reparación de canchas 
-       </p>
-       <p class="intro-info intro-info--negro">
-       En Apur confiamos en Cancha Lista Reparaciones, 
-       <br>un servicio profesional especializado en el mantenimiento y reparación 
-       <br>de canchas de polvo de ladrillo, 
-       <br>con amplia trayectoria en Rosario y zonas aledañas.
-
-
-      </p>
+  <section id="intro3" class="section-block section-canchas">
+    <div class="title" id="reparacion-canchas">CANCHAS LISTAS</div>
+    <div class="container-sinfondo intro-container">  
+      <div class="introBox ">
+        <p class="introTitle animar-aparecer ">Reparación de canchas </p>
+        <p class="introInfo">
+          En Apur confiamos en Cancha Lista Reparaciones, 
+          <br>un servicio profesional especializado en el mantenimiento y reparación 
+          <br>de canchas de polvo de ladrillo, 
+          <br>con amplia trayectoria en Rosario y zonas aledañas.
+        </p>
       </div>
-
-      
-
-      <ul class="actions">
-        <li>
-            <a href="https://wa.me/5493413006495" target="_blank" class="hero-button style3 large">CONTACTANOS</a>
-          </li>
-      </ul>
+      <div class="hero-overlay">
+        <a href="https://wa.me/5493413006495" target="_blank" class="hero-button">CONTACTANOS</a>
+      </div>
     </div>
-    <br>
-    <div class="intro-title intro-info--gris animar-aparecer">Servicios que ofrecemos</div>
-    <br>
-    <br>
-    <br>
-    <br>
+    <div class="introTitle .introInfo-gris animar-aparecer">Servicios que ofrecemos</div>
+    <br><br><br><br><br><br>
   </section>
 
 
@@ -249,9 +225,9 @@
   </section>
 
      <!-- ... -->
-  <div class="intro-box presencia">
-    <p class="intro-title animar-aparecer">Presencia profesional</p>
-    <p class="intro-info ">
+  <div class="introBox">
+    <p class="introTitleB animar-aparecer">Presencia profesional</p>
+    <p class="introInfo ">
       Cancha Lista ha trabajado en importantes clubes y eventos, 
       como el Jockey Club de Rosario y el prestigioso Challenger de 
       Rosario, garantizando resultados de nivel competitivo.
@@ -265,797 +241,7 @@
 
 
 </div>
-
- <footer>    
-
-  <div class="footer-content" id="contacto">
-
-    <div class="footer-section">
-      <h3 class="footer-titulo">SEGUINOS</h3>
-      <div class="envelope">
-        <div class="social-icons">
-          <a href="https://www.instagram.com/apurtenis/" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-instagram"></i>
-          </a>
-          <a href="https://wa.me/5493413006495" target="_blank">
-            <i class="fab fa-whatsapp"></i>
-          </a>
-          <a href="https://www.facebook.com/tu_pagina" target="_blank">
-            <i class="fab fa-facebook-f"></i>
-          </a>
-        </div> 
-      </div>
-    </div>
-
-    <div class="footer-section">
-      <h3 class="footer-titulo">CONTACTANOS</h3>
-      <p><i class="fas fa-phone-alt"></i> Teléfono: +54 341 6830332</p>
-      <p><i class="fas fa-map-marker-alt"></i> Dirección: Av. Belgrano 2182, Rosario, Santa Fe, Argentina</p>
-    </div>
-
-  </div>
-
-  <p class="parrafo-centrado">&copy; 2025 HERAAS. Todos los derechos reservados.</p>
-
-
-</footer>
-
    
-<style>
-
-  /* Centrar Presencia profesional */
-.presencia {
-  text-align: center;     /* centra el texto */
-  margin: 0 auto 2em;     /* opcional: separa de lo que venga abajo */
-  max-width: 800px;        /* opcional: limita ancho para mejor legibilidad */
-}
-
-/* Si quieres centrar también los párrafos internos: */
-.presencia .intro-info {
-  margin: 0 auto;         /* para que el <p> no ocupe 100% si pones un max-width */
-  font-size: 20px;
-  color: #777777;  
-}
-
-.card {
-  position: relative;
-  overflow: visible;
-  border-radius: 12px;
-}
-.card::before {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border: 2px solid rgb(111, 190, 140); /* verde claro */
-  border-radius: inherit;
-  opacity: 0;
-  transform: rotate(0deg) scale(0.8);
-  transition: opacity 0.3s, transform 0.6s;
-}
-.card:hover::before {
-  opacity: 1;
-  transform: rotate(360deg) scale(1.05);
-}
-/*index ----------------------------------------*/
-
-.cancha-encabezado-con-fondo {
-  background-image: url("{% static 'imagenes/IMG_6911.jpg' %}"); /* Cambiá por tu imagen real */
-  background-size: cover;
-  background-position: center;
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  margin-bottom: -110px;
-}
-
-.cancha-overlay {
-  background-color: rgba(0, 0, 0, 0.65); /* más oscuro que 0.5 */
-  color: white;
-  text-align: center;
-  padding: 40px 20px;
-  width: 100%;
-}
-
-.cancha-overlay h2 {
-  font-size: 3rem;
-  margin-bottom: 10px;
-}
-
-.cancha-overlay p {
-  font-size: 1.2rem;
-  
-}
-
-  /* Estado inicial fuera de pantalla */
-.animate-from-left {
-  opacity: 0;
-  transform: translateX(-60px);
-  transition: all 0.8s ease-out;
-}
-
-.animate-from-left.visible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.imagen-texto-container.reverse {
-  flex-direction: row-reverse;
-}
-
-.foto-flash {
-  position: relative;
-}
-
-
-.zoom-flash.en-zoom {
-  transform: scale(1.15);
-}
-
-
-/* animacion */
-.animar-aparecer {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: all 0.8s ease-in-out;
-}
-
-.animar-aparecer.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-
-/* Imagen de fondo con texto encima */
-.hero-section {
-    
-    position: relative;
-    width: 110%; /* ✅ correcto */
-    height: 90vh;
-    background-image: url('/static/imagenes/fondo-gris.jpg'); /* tu imagen gris */
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -100px;  /* ✅ Más superpuesto */
-
-}
-
-.hero-overlay {
-    color: white;
-    text-align: left;
-    background: rgba(0,0,0,0.5);
-    padding: 40px;
-    border-radius: 0;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 45%; /* o lo que necesites */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-
-.hero-title {
-  overflow: hidden;          /* oculta el desbordamiento */
-  white-space: nowrap;       /* evita el wrapping */
-  border-right: .1em solid white; /* cursor */
-  font-family: monospace;
-  /* Un único animation que escribe y borra */
-  animation:
-    typing 6s steps(11, end) infinite,
-    blink 0.7s step-end infinite;
-    font-size: 3rem;
-    font-weight: bold;
-    margin-bottom: -10px;
-    text-align: left;
-   
-
-}
-/* Revela de 0 a 10 caracteres (ajusta el número a la longitud de “Bienvenidos”) */
-@keyframes typing {
-  from { width: 0; }
-  to   { width: 13ch; } /* 11ch = 11 caracteres de ancho */
-}
-
-/* Parpadeo del cursor */
-@keyframes blink {
-  from, to { border-color: transparent; }
-  50%      { border-color: white; }
-}
-
-.hero-subtitle {
-    font-size: 1.3rem;
-    margin-bottom: 20px;
-    text-align: left;
-    margin-left: auto;
-}
-
-.hero-button {
-    background-color:rgb(145, 146, 145);
-    color: black;
-    padding: 10px 40px;
-    border-radius: 8px;
-    font-weight: bold;
-    text-decoration: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    text-align: left;
-    /* eliminamos alineación derecha */
-    margin-left: 0;
-    align-self: flex-start;  /* clave para alinear el botón a la izquierda del bloque */
-}
-
-.hero-button:hover {
-    background-color:rgb(76, 131, 32);
-}
-
-/* Cards que se superponen un poco a la imagen */
-.cards-container {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin-top: -180px;  /* ✅ Más superpuesto */
-    padding: 20px;
-    z-index: 10;
-    position: relative;
-}
-
-
-.card-box {
-    border: 4px solid #b1b4b9;
-    background:rgb(75, 77, 82);
-    text-align: center;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    width: 250px;
-    transition: transform 0.3s ease;
-
-}
-
-.card-box:hover {
-    transform: translateY(-10px);
-}
-
-.card-box img {
-    width: 50px;
-    margin-bottom: 15px;
-}
-
-.logo-izquierda {
-    position: absolute;
-    top: 150px;
-    left: 150px;
-    z-index: 50;
-}
-
-.logo-izquierda img {
-    max-width: 280px; /* o el tamaño que prefieras */
-}
-
-.card-box h5 {
-    color: #b1b4b9;
-}
-
-
-.imagen-texto-section {
-  width: 100vw;
-  padding: 40px 0 100px 0; /* más espacio arriba y abajo */
-  background: #484d55;
-  margin-top: 0px;
-}
-
-.imagen-texto-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 40px;
-  flex-wrap: wrap;
-  padding: 0 80px; /* Espaciado interno horizontal */
-  max-width: 100%; /* ✅ Ocupa todo el ancho disponible */
-  margin: 0 auto; /* ✅ Centrado vertical
-  box-sizing: border-box; /* ✅ evita desbordes */
-
-}
-
-
-.imagen-lado img {
-  max-width: 100%;
-  height: auto;
-  width: 600px;
-}
-
-.texto-lado {
-  max-width: 400px;
-  color: black;
-  text-align: justify;
-
-}
-
-.texto-lado h2 {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-.texto-lado p {
-  font-size: 1.1rem;
-  line-height: 1.6;
-}
-
-.fondo-negro {
-  background-color: #000;
-  color: white;
-}
-
-.fondo-negro .texto-lado h2,
-.fondo-negro .texto-lado p {
-  color: white;
-}
-
-.liga-banner {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  min-height: 400px;
-  overflow: hidden;
-  background-color:rgb(0, 0, 0);
-}
-
-.liga-image {
-  flex: 1;
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch;
-}
-
-.foto-flash {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-.flash-img {
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  border-radius: 0;
-}
-
-.flash-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: white;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-}
-
-.liga-texto {
-  flex: 1;
-  background-color: grey;
-  color: white;
-  padding: 60px;
-  display: flex;
-  flex-direction: column;
-  text-align: justify;
-  justify-content: center;
-}
-
-.liga-texto h2 {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-}
-
-.liga-texto p {
-  font-size: 1.2rem;
-  margin-bottom: 30px;
-  line-height: 1.6;
-}
-
-.liga-boton {
-  background-color: white;
-  color: rgb(76, 131, 32);
-  font-weight: bold;
-  padding: 12px 30px;
-  border-radius: 6px;
-  text-decoration: none;
-  max-width: fit-content;
-  transition: background 0.3s ease, color 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.liga-boton:hover {
-  background: #484d55;
-  color: white;
-}
-
-.cancha-lista-section {
-  width: 100%;
-  background-color:rgb(0, 0, 0);
-  padding: 60px 0px;
-  text-align: center;
-}
-
-.cancha-encabezado h2 {
-  font-size: 3rem;
-  color: black;
-  margin-bottom: 10px;
-}
-
-.cancha-encabezado p {
-  font-size: 1.2rem;
-  color: #333;
-  margin-bottom: 50px;
-}
-
-.cancha-bloque {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 40px;
-  padding: 40px 20px;
-  border-radius: 8px;
-  color: white;
-}
-
-.cancha-bloque img {
-  width: 100%;
-  max-width: 400px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-.cancha-bloque .cancha-info {
-  max-width: 500px;
-}
-
-.cancha-bloque h3 {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-.cancha-bloque p {
-  font-size: 1rem;
-  margin-bottom: 20px;
-  line-height: 1.6;
-}
-
-.cancha-boton {
-  background-color: white;
-  color: #e53935;
-  font-weight: bold;
-  padding: 10px 30px;
-  text-decoration: none;
-  border-radius: 5px;
-  transition: background 0.3s ease, color 0.3s ease;
-}
-
-.cancha-boton:hover {
-  background-color: #e53935;
-  color: white;
-}
-
-.rojo {
-  background-color: #e53935;
-}
-
-.negro {
-  background-color: #212121;
-}
-
-
-/* Estilos Footer-------------------------------------------------------- */
-footer {
-    background-color: #000000;
-    color: rgb(75, 75, 75);
-    text-align: center;
-    position: relative;
-    margin-top: 100px;
-    width: 100%;
-    padding-top: 50px;
-   
-}  
-
-.footer-titulo {
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri;
-  font-size: 16px;
-  color:  rgb(76, 131, 32);
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-footer h2 {
-    display: flex; /* Establece el contenedor como flex */
-    justify-content: center; 
-    height: 280px;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    padding: 20px; /* Ajusta el relleno según sea necesario */
-    color: rgb(107, 107, 107); /* Cambia el color del texto para que sea legible en la imagen de fondo */
-    align-items: flex-end;
-}
-   
-.social-icons a {
-    color: rgb(75, 75, 75);
-    text-decoration: none;
-    margin: -50px 10px; /* Eliminado uno de los margin-top */
-    font-size: 40px !important;
-    padding: 15px;
-}
-.envelope {
-    width: 100%; /* Ancho del sobre */
-    height: 100px; /* Altura del sobre */
-    background-color: rgb(0, 0, 0);
-    border-radius: 10px; /* Bordes redondeados */
-    box-shadow: 0 10px 20px rgba(243, 242, 242, 0.3); /* Sombra */
-    position: relative;
-    align-items: center;
-    margin: 0 auto;
-    
- }   
-
-footer .envelope {
-    display: flex;
-    justify-content: center; /* Centra horizontalmente los elementos */
-    align-items: center; /* Centra verticalmente los elementos */
-    
-}
-.social-icons {
-    position: absolute;
-    top: 50%; /* Posiciona los iconos en el centro verticalmente */
-    left: 50%; /* Posiciona los iconos en el centro horizontalmente */
-    transform: translate(-50%, -50%); /* Centra los iconos */
-}
-.social-icons a:hover {
-    color:rgb(76, 131, 32);
-}
-
-
-.footer-section p,
-.footer-section a {
-    color: #ccc; /* Color gris claro */
-    font-size: 14px;
-    text-decoration: none;
-    justify-content: center; /* Centra horizontalmente los elementos */
-}
-
-/*---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------*/
-.img-duo {
-  display: flex;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%); /* estira al borde */
-  flex: 0 0 100vw;
-}
-
-.img-box {
-  flex: 1;
-  height: 350px;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  transition: filter 0.4s ease;
-  filter: brightness(50%) grayscale(80%); /* <-- efecto gris inicial */
-  overflow: hidden;
-}
-
-.img-box:hover {
-  filter: brightness(100%) grayscale(0%); /* <-- vuelve a color al hover */
-}
-
-
-.img-overlay {
-  position: absolute;
-  z-index: 2;
-  bottom: 20px;
-  left: 20px;
-  color: white;
-  font-weight: bold;
-  font-size: 1.5rem;
-  text-shadow: 1px 1px 5px rgba(0,0,0,1);
-}
-
-.imagen-detalle {
-  max-width: 60%;      /* o 70% si querés más angosta */
-  margin: 3em auto;     /* centrado y con espacio */
-  overflow: hidden;     /* quita bordes feos */
-  
-}
-
-.imagen-detalle img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-
-.linea-separadora {
-  border: none;
-  height: 1px;
-  background-color: #ccc; /* gris claro */
-  margin: 40px auto;
-  width: 80%;
-}
-
-
-
-/* ================= RESPONSIVE: móviles (<=767px) ================= */
-@media (max-width: 767px) {
-  html, body {
-    overflow-x: hidden;
-    padding: 0;
-    margin: 0;
-  }
-
-  /* Logo encima y centrado */
-  .logo-izquierda {
-    position: relative !important;
-    display: block !important;
-    margin: 1rem auto !important;
-    max-width: 180px !important;
-    text-align: center;
-  }
-  .logo-izquierda img {
-    width: 100% !important;
-    height: auto !important;
-  }
-
-  /* Hero sección a pantalla completa */
-  .hero-section {
-    margin-top: 0 !important;
-    height: auto !important;
-    padding: 0 !important;
-    background-position: center top !important;
-  }
-  .hero-overlay {
-    position: relative !important;
-    width: 100% !important;
-    background: rgba(0,0,0,0.7) !important;
-    padding: 1rem !important;
-    box-sizing: border-box !important;
-  }
-  .hero-title {
-    font-size: 2.4rem !important;
-    white-space: normal !important;
-    border-right: none !important;
-    text-align: center !important;
-    margin: 0.5em 0 !important;
-    width: 100% !important;
-  }
-  .hero-subtitle {
-    font-size: 1.1rem !important;
-    text-align: center !important;
-    margin-bottom: 1rem !important;
-  }
-  .hero-button {
-    display: block !important;
-    width: 90% !important;
-    max-width: 300px !important;
-    margin: 0 auto 1.5rem !important;
-    padding: 0.8rem 0 !important;
-    text-align: center !important;
-  }
-
-  /* Tarjetas apiladas y con ancho completo */
-  .cards-container {
-    flex-direction: column !important;
-    gap: 1rem !important;
-    margin-top: -20px !important;
-    padding: 0 1rem !important;
-  }
-  .card-box {
-    width: 100% !important;
-    max-width: none !important;
-    padding: 1rem !important;
-  }
-  .card-box h5 {
-    font-size: 1.1rem !important;
-    margin-bottom: 0.5rem !important;
-  }
-  .card-box p {
-    font-size: 0.95rem !important;
-  }
-
-  /* Secciones internas centradas y fluidas */
-  .wrapper, .container-sinfondo, .intro-container {
-    padding: 1rem !important;
-    margin: 0 auto !important;
-  }
-  .wrapper .title {
-    font-size: 1.6rem !important;
-    text-align: center !important;
-    margin: 1rem 0 !important;
-  }
-  .intro-sub, .intro-info {
-    text-align: center !important;
-    font-size: 1rem !important;
-  }
-  .intro-box {
-    padding: 1rem !important;
-    margin-bottom: 1rem !important;
-  }
-
-  /* Grillas de íconos y fotos apiladas */
-  .feature-grid, .img-duo {
-    flex-direction: column !important;
-    gap: 1rem !important;
-    padding: 0 1rem !important;
-  }
-  .img-box {
-    width: 100% !important;
-    height: 180px !important;
-  }
-
-  /* Footer centrado */
-  .footer-content {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 1rem !important;
-    padding: 1rem !important;
-  }
-  .footer-section {
-    text-align: center !important;
-  }
-}
-
-/* ================ RESPONSIVE: súper pequeño (<=479px) ================ */
-@media (max-width: 479px) {
-  .hero-title {
-    font-size: 2rem !important;
-  }
-  .hero-subtitle {
-    font-size: 1rem !important;
-  }
-  .hero-button {
-    width: 100% !important;
-    padding: 0.6rem 0 !important;
-  }
-  .card-box {
-    padding: 0.8rem !important;
-  }
-  .wrapper .title {
-    font-size: 1.4rem !important;
-  }
-
-    /* =================== FORZAR ANCHO COMPLETO =================== */
-  .container-admin,
-  .container-sinfondo,
-  .wrapper,
-  .cards-container,
-  .feature-grid,
-  .img-duo,
-  .footer-content {
-    width: 100% !important;
-    max-width: none !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    margin: 0 auto !important;
-    box-sizing: border-box !important;
-  }
-
-  /* Si alguna clase tenía width: 100vw o 120vw, anúlala */
-  .img-duo,
-  .hero-section {
-    width: 100% !important;
-    margin-left: 0 !important;
-  }
-
-}
-
-
-</style>
-
 <script>
   const animar = document.querySelectorAll('.animar-aparecer');
 
@@ -1116,6 +302,21 @@ document.addEventListener('DOMContentLoaded', () => {
   elementos.forEach(el => observer.observe(el));
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('scrollToTop');
+
+    if (!btn) {
+    console.warn('Botón "Volver arriba" no encontrado');
+    return;
+    }
+
+    btn.addEventListener('click', () => {
+    console.log("Click en botón scrollToTop");
+
+    document.documentElement.scrollTop = 0; 
+    document.body.scrollTop = 0;
+    });
+})
 
 </script>
 
