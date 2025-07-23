@@ -3,11 +3,11 @@ from django.db import models
 class Categoria(models.Model):
     id_categoria = models.AutoField(primary_key=True)
     nivel = models.CharField(max_length=20, default='Sin nivel')  # Cambiado a CharField
-    edad = models.IntegerField(default=0)                        # Nuevo campo para Edad
+    edad = models.CharField(max_length=20, default=0)                        # Nuevo campo para Edad
     tipo_juego = models.CharField(max_length=20, default='Sin tipo')  # Nuevo campo para Tipo de Juego
 
     def __str__(self):
-        return f"Categoria: {self.nivel}+{self.edad}+{self.tipo_juego}"
+        return f"{self.nivel or 'N/A'}+{self.edad or 'N/A'}+{self.tipo_juego or 'N/A'}"
 
 class Jugador(models.Model):
     dni = models.AutoField(primary_key=True)  # Cambiado a AutoField

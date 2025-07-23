@@ -98,7 +98,7 @@ def listado_jugadores(request):
         jugadores = jugadores.filter(categorias__id_categoria=categoria_filter)
 
     # 🔹 Paginación
-    paginator = Paginator(jugadores, 100)  # 20 jugadores por página
+    paginator = Paginator(jugadores, 50)  # 50 jugadores por página
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -258,7 +258,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 @user_passes_test(es_admin)
 def listado_categorias(request):
     qs = Categoria.objects.all().order_by('nivel')
-    paginator = Paginator(qs, 10)
+    paginator = Paginator(qs, 30)
     page_number = request.GET.get('page')
     try:
         page_obj = paginator.page(page_number)
@@ -279,6 +279,27 @@ def listado_categorias(request):
 def eliminar_categoria(request, id_categoria):
     categoria = get_object_or_404(Categoria, id_categoria=id_categoria)
     categoria.delete()
+    return redirect('listados_categorias')
+
+@login_required
+@user_passes_test(es_admin)
+def editar_categoria(request, id_categoria):
+    categoria = get_object_or_404(Categoria, id_categoria=id_categoria)
+
+    if request.method == "POST":
+        nivel = request.POST.get('nivel')
+        edad = request.POST.get('edad')
+        tipo_juego = request.POST.get('tipo_juego')
+
+        categoria.nivel = nivel
+        categoria.edad = edad
+        categoria.tipo_juego = tipo_juego
+        categoria.save()
+
+        messages.success(request, "Categoría actualizada exitosamente.")
+        return redirect('listados_categorias')  # Asegurate que este nombre de vista sea correcto
+
+    # En este caso no se debería llegar con GET porque es desde un modal
     return redirect('listados_categorias')
 
 #para generar pdf

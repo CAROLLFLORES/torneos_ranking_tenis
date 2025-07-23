@@ -62,6 +62,9 @@
             </li>
             {% if user.is_authenticated %}
             <li class="nav-item">
+                <a class="nav-link card" href="{% url 'crear_torneo' %}">&nbsp;GESTIÓN DE TORNEOS&nbsp;</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link card" href="{% url 'listados_categorias' %}">&nbsp;CATEGORÍAS&nbsp;</a>
             </li>
             <li class="nav-item">
@@ -120,6 +123,8 @@
             <li><a href="{% url 'ranking_general' %}">RANKING</a></li>
             <hr class="separator-negro">
             {% if user.is_authenticated %}
+            <li><a href="{% url 'crear_torneo' %}">GESTIÓN DE TORNEOS</a></li>
+            <hr class="separator-negro">
             <li><a href="{% url 'listados_categorias' %}">CATEGORÍAS</a></li>
             <hr class="separator-negro">
             <li><a href="{% url 'listado_sedes' %}">SEDES</a></li>

@@ -66,6 +66,7 @@ urlpatterns = [
     path('jugadores/', jugador_views.listado_categorias, name='listados_categorias'),
     path('exito_categoria/', jugador_views.exito_categoria, name='exito_categoria'),
     path('categorias/eliminar/<int:id_categoria>/', jugador_views.eliminar_categoria, name='eliminar_categoria'),
+    path('categorias/editar/<int:id_categoria>/', jugador_views.editar_categoria, name='editar_categoria'),
     path('borrado_exitoso/<str:jugador_dni>/', jugador_views.borrado_exitoso, name='borrado_exitoso'),  # Cambiado a str
     path('modificar_jugador/<str:dni>/', jugador_views.modificar_jugador, name='modificar_jugador'),
     path('borrar_jugador/<str:dni>/', jugador_views.borrar_jugador, name='borrar_jugador'),

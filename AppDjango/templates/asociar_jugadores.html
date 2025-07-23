@@ -4,38 +4,68 @@
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
-<div class="container-admin" style="max-width: 1200px; margin: auto;">
+
+<div class="container-admin">
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
         <hr class="separator-line">
-        <h2 class="text-primary">Asociar Jugadores al Torneo: {{ torneo.nombre }}</h2>
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: .5rem;">ANOTAR JUGADORES AL TORNEO:</h5>
+        <h4 style="margin-top: 0; margin-bottom: 2rem;">{{ torneo.nombre }}</h4>
     </div>
-        <form method="GET" action="" class="d-flex align-items-center mb-3" style="gap: 10px;">
-            <input class="input-field form-control" type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
-            <button class="login-button-gris chico" type="submit">Buscar</button>
-        </form>
 
-    <div class="form-container">
-        <div class="narrow-box">
-            <div class="title-orange-gris">
-                <h1>INFORMACIÓN DEL TORNEO</h1>
-            </div>
-            <a href="{% url 'admin_menu' %}">
-                <button class="login-button peque">MENU</button>
-            </a>
-            <a href="{% url 'crear_torneo' %}">
-                        <button class='login-button-gris chico'>VOLVER A TORNEO</button>
-            </a>
-         
-        </div> 
+    <!-- OPCIONES -->
+    <div id="toggle-crear" class="recuadro-tabla" style="margin-bottom: 2rem;">
+
+        <div style="cursor: pointer;" class="green-box-title-btn"><h4 style="margin: 0;">OPCIONES</h4></div>
+        <div id="form-crear" class="hidden" class="form-container-torneos hidden">    
+            <div style="display: inline-block; text-align: start; align-items: center; justify-content: center; margin: auto auto;"> 
+                <span class="span-filter">BUSCAR POR JUGADOR</span>
+                <form method="GET" action="" class="d-flex align-items-center mb-3" style="gap: 10px;">
+                    <div class="filtro-busqueda1" style="margin-bottom: .5rem !important;">
+                        <input class="input-field form-control" type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
+                        <button type="submit" class="btn-lupa"><i class="fas fa-search"></i></button>
+                    </div>
+                </form>
+                <div>
+                    <a class="a-options" href="{% url 'crear_torneo' %}" style="margin-bottom: 1rem;">
+                        <i class="bi bi-arrow-left"></i>
+                        VOLVER A GESTIÓN DE TORNEOS
+                    </a>
+                </div>
+            </div>    
+        </div>
+    </div>
+
+    <div>
         <form method="POST" action="">
             {% csrf_token %}
-            <div class="recuadros-container d-flex justify-content-between align-items-start">
+            <div>
+                <div class="botones-jugadores">
+                    <button class="btn-carga-masiva" type="button" onclick="moveSelected('availableBox', 'selectedBox', event)">
+                        Agregar al Listador &gt;&gt;
+                    </button>
+                    <button class="btn-carga-masiva" type="button" onclick="moveSelected('selectedBox', 'availableBox', event)">
+                        &lt;&lt;  Quitar del Listado
+                    </button>
+                </div>
+
+                <div class="botones-jugadores">
+                    <button class="btn-crear" type="submit" name="action" value="asociar">
+                        Confirmar Jugadores Anotados
+                    </button>
+                    <button class="btn-delete1" type="submit" name="action" value="desasociar">
+                        Eliminar Jugadores Anotados
+                    </button>
+                </div>
+            </div>
+
+            <div class="contenedor-jugadores">
                 <!-- Recuadro Izquierdo: Jugadores Disponibles -->
-                <div class="jugadores-box jugadores-disponibles">
-                    <h4 class="text-center">Jugadores Disponibles</h4>
-                    
-                    <div class="card-body" id="availableBox">
+                <div class="bloque-jugadores">
+                    <div class="titulo-jugadores">
+                        <h4 style="margin: 0;">JUGADORES DISPONIBLES</h4>
+                    </div>
+                <div class="lista-jugadores"  id="availableBox">
                         {% for jugador in jugadores_disponibles %}
                             <div class="form-check" style="text-align:left;">
                                 <input class="form-check-input" type="checkbox" value="{{ jugador.dni }}" id="jugador{{ jugador.dni }}" name="jugadores">
@@ -49,21 +79,17 @@
                     </div>
                 </div>
 
-                <!-- Recuadro Central: Botones para Mover Jugadores -->
-                <div class="d-flex flex-column justify-content-center align-items-center" style="flex: 0.1;">
-                    <button type="button" class="login-button chico mb-2" style="margin-top: 80px;" onclick="moveSelected('availableBox', 'selectedBox', event)">Agregar &gt;&gt;</button>
-                    <button type="button" class="login-button chico fondo-boton-eliminar" style="margin-top: 80px; background-color: red" onclick="moveSelected('selectedBox', 'availableBox', event)">&lt;&lt; Eliminar</button>
-                </div>
                 <!-- Recuadro Derecho: Jugadores Seleccionados -->
-                <div class="jugadores-box jugadores-seleccionados">
-                    <h4 class="text-center">Jugadores Seleccionados</h4>
-                    <div class="card-body" id="selectedBox">
+                <div class="bloque-jugadores">
+                    <div class="titulo-jugadores">
+                        <h4 style="margin: 0;">JUGADORES ANOTADOS</h4>
+                    </div>
+                    <div class="lista-jugadores"  id="selectedBox">
                         {% for jugador in jugadores_asociados %}
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="{{ jugador.dni }}" id="jugadorSeleccionado{{ jugador.dni }}" name="jugadores_seleccionados">
                                 <label class="form-check-label" for="jugadorSeleccionado{{ jugador.dni }}">
                                     {{ jugador.apellido  | upper}} {{ jugador.nombre |capfirst}}
-                                    <!-- Caroll - Ordene por apellido y nombre -->
                                 </label>
                             </div>
                         {% empty %}
@@ -71,66 +97,9 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Botón para Guardar Asociaciones -->
-             <div class="text-center mt-4" style="margin-top: 10px; margin-bottom:30px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                <button type="submit" name="action" value="asociar" class="login-button chico mb-2" style="margin: 0; padding: 10px 30px;">
-                    Guardar Asociaciones
-                </button>
-                <button type="submit" name="action" value="desasociar" class="login-button chico fondo-boton-eliminar" style="margin: 0; padding: 10px 30px;">
-                    Eliminar Jugadores Seleccionados
-                </button>
-            </div>
-            
         </form>
     </div>
 </div>
-
-<!-- Estilos específicos para esta página -->
-<style>
-/* Configuración del contenedor general */
-.container-admin {
-    max-width: 1200px;
-    margin: auto;
-}
-
-/* Contenedor de los recuadros */
-.recuadros-container {
-    display: flex;
-    gap: 5px; /* Espacio entre recuadros */
-    justify-content: space-between;
-}
-
-/* Recuadros de jugadores */
-.jugadores-box {
-    flex: 1;
-    background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco semitransparente */
-    color: black; /* Texto negro */
-    border-radius: 10px; /* Bordes redondeados */
-    padding: 10px;
-    min-width: 370px; /* Mínimo ancho asegurado */
-    height: 500px; /* Ajusta la altura del recuadro */
-    overflow-y: auto; /* Permite el desplazamiento si hay demasiados elementos */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera */
-}
-
-/* Título dentro de los recuadros */
-.jugadores-box h4 {
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-/* Espaciado interno de los elementos dentro del recuadro */
-.card-body {
-    padding: 10px;
-}
-
-/* Botones para mover jugadores */
-button.login-button.chico {
-    width: 150px;
-    margin: 5px;
-}
-</style>
 
 <!-- JavaScript para Manejar el Movimiento de Jugadores -->
 <script>

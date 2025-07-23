@@ -49,6 +49,7 @@
             <th>NIVEL</th>
             <th>EDAD</th>
             <th>JUEGO</th>
+            <th>EDITAR</th>
             <th>ELIMINAR</th>
           </tr>
         </thead>
@@ -58,7 +59,49 @@
               <td style="text-align:left;">{{ categoria.nivel }}</td>
               <td>{{ categoria.edad }}</td>
               <td>{{ categoria.tipo_juego }}</td>
-              
+
+               <!-- EDITAR -->
+              <td>
+                <button type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editarModal-{{ categoria.id_categoria }}"
+                        style="all: unset; cursor: pointer;">
+                  <i class="bi bi-pencil-square" style="font-size:1.5rem; color:#17a2b8;"></i>
+                </button>
+
+                <!-- Modal editar categoría -->
+                <div class="modal fade" id="editarModal-{{ categoria.id_categoria }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content" style="background-color:rgba(255,255,255,0.95); color:#000;">
+                      <div class="modal-header">
+                        <h3 class="modal-title">Editar categoría</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <div class="modal-body">
+                        <form method="POST" action="{% url 'editar_categoria' categoria.id_categoria %}">
+                          {% csrf_token %}
+                          <div class="mb-3">
+                            <label for="nivel-{{ categoria.id_categoria }}" class="form-label">Nivel:</label>
+                            <input type="text" class="form-control" id="nivel-{{ categoria.id_categoria }}" name="nivel" value="{{ categoria.nivel }}" required>
+                          </div>
+                          <div class="mb-3">
+                            <label for="edad-{{ categoria.id_categoria }}" class="form-label">Edad:</label>
+                            <input type="text" class="form-control" id="edad-{{ categoria.id_categoria }}" name="edad" value="{{ categoria.edad }}" required>
+                          </div>
+                          <div class="mb-3">
+                            <label for="tipo_juego-{{ categoria.id_categoria }}" class="form-label">Tipo de juego:</label>
+                            <input type="text" class="form-control" id="tipo_juego-{{ categoria.id_categoria }}" name="tipo_juego" value="{{ categoria.tipo_juego }}" required>
+                          </div>
+                          <div class="text-center">
+                            <button type="submit" class="login-button btn btn-success">Guardar cambios</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+
               <!-- ELIMINAR -->
               <td>
                 <button type="button"
