@@ -1536,6 +1536,20 @@ def generar_pdf_partidos_por_fecha(request):
             if any("-" in s and s != "0-0" for s in sets_filtrados):
                 resultado_texto = "<br/><font size=10 color='red'><b>Resultado:</b> " + " / ".join(sets_filtrados) + "</font>"
 
+                    # ── Nuevo: añadir ganador debajo del resultado ──
+            if tipo == 'Single' and resultado.ganador_jugador:
+                ganador_nombre = f"{resultado.ganador_jugador.apellido} {resultado.ganador_jugador.nombre}"
+            elif tipo != 'Single' and resultado.ganador_equipo:
+                eq = resultado.ganador_equipo
+                ganador_nombre = f"{eq.jugador1.apellido}/{eq.jugador2.apellido}"
+            else:
+                ganador_nombre = "Sin definir"
+
+            resultado_texto += (
+                f"<br/><font size=10><b>Ganador:</b> {ganador_nombre}</font>"
+            )
+
+
         detalle = Paragraph(
             f"<font size=12><b>{nombres}</b></font><br/><font size=9>{torneo.nombre} - {tipo}</font>{resultado_texto}",
             estilo_celda
