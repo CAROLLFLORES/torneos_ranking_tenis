@@ -1,4 +1,51 @@
 document.addEventListener('DOMContentLoaded', function () {
+  // DESCARGAR FIXTURE Y RESULTADOS
+  const toggleDescarga = document.getElementById('toggle-descarga');
+  const formDescarga = document.getElementById('form-descarga');
+
+  function toggleFormularioDescarga() {
+    if (formDescarga.classList.contains('visible')) {
+      formDescarga.classList.remove('visible');
+      formDescarga.classList.add('hidden');
+    } else {
+      formDescarga.classList.remove('hidden');
+      formDescarga.classList.add('visible');
+    }
+  }
+
+  if (toggleDescarga && formDescarga) {
+    toggleDescarga.addEventListener('click', toggleFormularioDescarga);
+  }
+
+  // CREAR TORNEO
+  const toggleCrear = document.getElementById('toggle-crear');
+  const formCrear = document.getElementById('form-crear');
+
+  function toggleFormularioCrear() {
+    if (formCrear.classList.contains('visible')) {
+      formCrear.classList.remove('visible');
+      formCrear.classList.add('hidden');
+    } else {
+      formCrear.classList.remove('hidden');
+      formCrear.classList.add('visible');
+    }
+  }
+
+  if (toggleCrear && formCrear) {
+    toggleCrear.addEventListener('click', toggleFormularioCrear);
+  }
+
+  // Evitar que el clic en el botón CREAR dispare el toggle
+    const btnCrearTorneo = document.getElementById('btnCrearTorneo');
+    if (btnCrearTorneo) {
+    btnCrearTorneo.addEventListener('click', function (e) {
+        e.stopPropagation();  // ✋ Evita que el clic se propague al contenedor
+    });
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
 
     const menuToggle = document.getElementById('menu-toggle');
     const closeBtn = document.getElementById('close-btn');

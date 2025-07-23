@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block body_class %}fondo-secundario{% endblock %}
+{% load custom_filters %}
 
 {% block content %}
 
@@ -13,10 +14,10 @@
         <hr class="separator-line">
         <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">LISTADO COMPLETO DE JUGADORES</h5>
         <!-- Botón para mostrar/ocultar el panel -->
-        <button id="filtro-toggle" class="btn-custom btn-negro">☰ FILTROS</button>
+        <!-- <button id="filtro-toggle" class="btn-custom btn-negro">☰ FILTROS</button> -->
     </div>
 
-    <!-- FILTROS -->
+    <!-- FILTROS ANTIGUO, PARA VER DESCOMENTAR button id="filtro-toggle"-->
     <div>
         <!-- Caja fija de filtros -->
         <div id="filtro-caja" class="filtro-caja">
@@ -82,18 +83,81 @@
             </div>
         </div>
     </div>
+
+    <!-- OPCIONES -->
+    <div class="recuadro-tabla">
+        <div id="toggle-crear" style="cursor: pointer;" class="green-box-title-btn">
+            <h4 style="margin: 0;">OPCIONES</h4>
+        </div>
+        <div id="form-crear" class="form-container-torneos hidden">
+
+            <div style="display: inline-block; text-align: start; align-items: center; justify-content: center; margin: auto auto;">
+                <span class="span-filter">BUSCAR POR JUGADOR</span>
+                <form method="GET" action="{% url 'listado_jugadores' %}">
+                    <div class="filtro-busqueda1">
+                        <input type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
+                        <button type="submit" class="btn-lupa"><i class="fas fa-search"></i></button>
+                    </div>
+                </form>
+    
+                <span class="span-filter">BUSCAR POR CATEGORÍA</span>
+                <form method="GET" action="{% url 'listado_jugadores' %}">
+                    <div class="filtro-busqueda1">
+                        <select name="categoria" id="filtro-categoria">
+                        <option value="">Todas</option>
+                        {% for categoria in todas_categorias %}
+                            <option value="{{ categoria.id_categoria }}" {% if categoria_seleccionada == categoria.id_categoria|slugify %} selected {% endif %}>
+                            {{ categoria.nivel }} - {{ categoria.tipo_juego }} - {{ categoria.edad }} años
+                            </option>
+                        {% endfor %}
+                        </select>
+                        <button type="submit" class="btn-lupa"><i class="fas fa-search"></i></button>
+                        <input type="hidden" name="search" value="{{ search }}">
+                        <input type="hidden" name="sexo" value="{{ request.GET.sexo }}">
+                    </div>
+                </form>
+                <!-- BOTONES -->
+                <div>
+                    <a class="a-options" href="{% url 'listado_jugadores' %}">
+                        <i class="bi bi-eye" style="margin-right: 5px;"></i>
+                        VER LISTADO COMPLETO
+                    </a>
+                    <a class="a-options" href="{% url 'admin_menu' %}">
+                        <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
+                        MENÚ ADMINISTRADOR
+                    </a>
+                    {% if user.is_authenticated and user.is_staff %}
+                    <a class="a-options" href="{% url 'admin_carga_jugador' %}">
+                        <i class="bi bi-plus-circle-fill" style="margin-right: 5px;"></i>
+                        ALTA JUGADOR
+                    </a>
+                    {% endif %}
+        
+                    {% if user.is_authenticated and user.is_staff %}
+                    <a href="{% url 'exportar_jugadores_pdf' %}?search={{ search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}"
+                        target="_blank"
+                        class="a-options"
+                    >
+                    <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
+                    DESCARGAR EN PDF
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!-- LISTADO -->
     <div class="recuadro-tabla">
         <!-- Paginación + Filtros de Género -->
         <div class="green-box-table">
-            <div>
-                Página {{ jugadores.number }} de {{ jugadores.paginator.num_pages }}&nbsp;&nbsp;
+            <div class="pagination-container">
+                Página {{ jugadores.number }} de {{ jugadores.paginator.num_pages }}
                 {% if jugadores.has_previous %}
-                    <a href="?page={{ jugadores.previous_page_number }}&search={{ request.GET.search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" class="login-button peque">&lt;</a>
+                    <a href="?page={{ jugadores.previous_page_number }}&search={{ request.GET.search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" class="arrow">&lt;</a>
                 {% endif %}
                 {% if jugadores.has_next %}
-                    <a href="?page={{ jugadores.next_page_number }}&search={{ request.GET.search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" class="login-button peque">&gt;</a>
+                    <a href="?page={{ jugadores.next_page_number }}&search={{ request.GET.search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" class="arrow">&gt;</a>
                 {% endif %}
             </div>
             <form method="GET" action="{% url 'listado_jugadores' %}" class="formFilter">
@@ -132,13 +196,14 @@
                                 <td>{{ jugador.nombre | capfirst }}</td>
                                 <td>{{ jugador.sexo }}</td>
                                 <td>
-                                    {% for categoria in jugador.categorias.all %}
-                                        <span>{{ categoria.nivel }} - {{ categoria.edad }} -{{ categoria.tipo_juego }}</span>
-                                    {% empty %}
+                                    {% if jugador.categorias.all %}
+                                        {% for categoria in jugador.categorias.all %}
+                                            {{ categoria|formatear_categoria }}{% if not forloop.last %} / {% endif %}
+                                        {% endfor %}
+                                    {% else %}
                                         <span>Sin categoría</span>
-                                    {% endfor %}
+                                    {% endif %}
                                 </td>
-    
                                 <td>
                                     <a href="{% url 'datos_jugador' jugador.dni %}" class="btn-info">+</a>
                                 </td>

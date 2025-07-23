@@ -44,6 +44,10 @@ from .models import Sede
 from django.db import transaction
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import user_passes_test
+import os
+from django.conf import settings
+
+ruta_imagen = os.path.join(settings.BASE_DIR, 'static', 'imagenes', 'apur.png')
 
 def es_admin(user):
     return user.is_authenticated and user.is_staff
@@ -74,8 +78,9 @@ def abm_torneo(request):
     categoria_id = request.GET.get('categoria')
     search_query = request.GET.get('search')
     
+    form = TorneoForms()
 
-    torneos = Torneo.objects.all().order_by('-id')
+    torneos = Torneo.objects.all().order_by('-fecha_inicio')
 
     if categoria_id:
         torneos = torneos.filter(categorias__id=categoria_id)
@@ -83,13 +88,14 @@ def abm_torneo(request):
     if search_query:
         torneos = torneos.filter(nombre__icontains=search_query)
 
-    paginator = Paginator(torneos, 10)
+    paginator = Paginator(torneos, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     sedes = Sede.objects.all()  # 🔥 ESTA LÍNEA CREA LA VARIABLE
 
 
     return render(request, 'abm_torneo.html', {
+        'form': form,
         'page_obj': page_obj,
         'all_categorias': all_categorias,
         'categoria_id': categoria_id,
@@ -109,6 +115,7 @@ def crear_torneo(request):
                     for categoria in categorias:
                         TorneoCategoria.objects.get_or_create(torneo=torneo, categoria=categoria)
                 messages.success(request, 'Torneo creado exitosamente.')
+                # form = TorneoForms()
                 return redirect('abm_torneo')
             except IntegrityError:
                 messages.error(request, 'Error: Ya existe una relación entre este torneo y una de las categorías seleccionadas.')
@@ -120,7 +127,7 @@ def crear_torneo(request):
         form = TorneoForms()
     
     torneos = Torneo.objects.all().order_by('-fecha_inicio').prefetch_related('categorias')
-    paginator = Paginator(torneos, 10)
+    paginator = Paginator(torneos, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     all_categorias = Categoria.objects.all()
@@ -386,7 +393,9 @@ def redirigir_inscripcion(request, torneo_id):
 
 def redirigir_partidos(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
-    es_doble = torneo.categorias.filter(tipo_juego__iexact='Doble').exists()
+    # es_doble = torneo.categorias.filter(tipo_juego__iexact='Doble').exists()
+    es_doble = torneo.categorias.filter(Q(tipo_juego__iexact='Doble') | Q(tipo_juego__iexact='Mixto')).exists()
+
 
     if es_doble:
         return redirect('partido_doble', torneo_id=torneo.id)
@@ -1573,7 +1582,7 @@ def generar_pdf_partidos_por_fecha(request):
 
     # Logo
     try:
-        logo = Image("static/imagenes/apur.png", width=4 * cm, height=2 * cm)
+        logo = Image(ruta_imagen, width=4 * cm, height=2 * cm)
         story.append(logo)
     except:
         story.append(Paragraph("[LOGO NO ENCONTRADO]", styles["Normal"]))
