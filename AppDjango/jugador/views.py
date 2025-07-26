@@ -20,6 +20,7 @@ from django.http import JsonResponse
 import pandas as pd
 from django.contrib.auth.decorators import login_required, user_passes_test
 from loginAdmin.views import es_admin
+from io import BytesIO
 
 def jugador_detalle(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
@@ -78,39 +79,40 @@ def modificar_jugador(request, dni):
     return render(request, 'modificar_jugador.html', {'jugador': jugador})
 
 def listado_jugadores(request):
-    search = request.GET.get('search', '')
-    sexo_filter = request.GET.get('sexo', '')
-    categoria_filter = request.GET.get('categoria', '')
+    search = request.GET.get('search', '').strip()
+    sexo_filter = request.GET.get('sexo', '').strip()
+    categoria_filter = request.GET.get('categoria', '').strip()
 
-    # 🔹 Filtrar jugadores por nombre, apellido, sexo y categoría
-    jugadores = Jugador.objects.all().order_by('apellido', 'nombre')
-
+    jugadores_qs = Jugador.objects.all().order_by('apellido', 'nombre')
 
     if search:
-        jugadores = jugadores.filter(
+        jugadores_qs = jugadores_qs.filter(
             Q(nombre__icontains=search) | Q(apellido__icontains=search)
         )
 
     if sexo_filter:
-        jugadores = jugadores.filter(sexo=sexo_filter)
+        jugadores_qs = jugadores_qs.filter(sexo=sexo_filter)
 
     if categoria_filter:
-        jugadores = jugadores.filter(categorias__id_categoria=categoria_filter)
+        jugadores_qs = jugadores_qs.filter(categorias__id_categoria=categoria_filter)
 
-    # 🔹 Paginación
-    paginator = Paginator(jugadores, 50)  # 50 jugadores por página
+    # Evita duplicados si un jugador está en varias categorías
+    jugadores_qs = jugadores_qs.distinct()
+
+    paginator = Paginator(jugadores_qs, 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # 🔹 Obtener todas las categorías para el selector
-    todas_categorias = Categoria.objects.all()
+    todas_categorias = Categoria.objects.all().order_by('nivel')
 
     return render(request, 'listado_jugadores.html', {
         'jugadores': page_obj,
         'todas_categorias': todas_categorias,
-        'search': search,
-        'sexo': sexo_filter,
-        'categoria_seleccionada': categoria_filter
+        'filtros': {
+            'search': search,
+            'sexo': sexo_filter,
+            'categoria': categoria_filter,
+        }
     })
 
 from collections import defaultdict
@@ -232,15 +234,26 @@ def abm_categoria(request):
         c_nivel = request.POST.get("nivel")
         c_edad = request.POST.get("edad")
         c_tipo_juego = request.POST.get("tipo_juego")
-        
+        c_genero = request.POST.get("genero")  # ✅ NUEVO
+
         try:
-            categoria_existente = Categoria.objects.filter(nivel=c_nivel, edad=c_edad, tipo_juego=c_tipo_juego).exists()
-            
+            categoria_existente = Categoria.objects.filter(
+                nivel=c_nivel,
+                edad=c_edad,
+                tipo_juego=c_tipo_juego,
+                genero=c_genero  # ✅ VALIDAMOS también por género
+            ).exists()
+
             if categoria_existente:
                 return JsonResponse({"success": False, "errors": "La categoría ya existe."})
             else:
-                Categoria.objects.create(nivel=c_nivel, edad=c_edad, tipo_juego=c_tipo_juego)
-                return JsonResponse({"success": True})  # ✅ Respuesta JSON exitosa
+                Categoria.objects.create(
+                    nivel=c_nivel,
+                    edad=c_edad,
+                    tipo_juego=c_tipo_juego,
+                    genero=c_genero  # ✅ AHORA SE GUARDA
+                )
+                return JsonResponse({"success": True})  # ✅ Éxito
         except Exception as e:
             print(f"Error al crear categoría: {e}")
             return JsonResponse({"success": False, "errors": str(e)})
@@ -258,7 +271,24 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 @user_passes_test(es_admin)
 def listado_categorias(request):
     qs = Categoria.objects.all().order_by('nivel')
-    paginator = Paginator(qs, 30)
+
+    # Obtener filtros del GET
+    tipo_juego = request.GET.get('tipo_juego')
+    genero = request.GET.get('genero')
+    nivel = request.GET.get('nivel')
+    edad = request.GET.get('edad')
+
+    # Filtros acumulativos
+    if tipo_juego:
+        qs = qs.filter(tipo_juego=tipo_juego)
+    if genero:
+        qs = qs.filter(genero=genero)
+    if nivel:
+        qs = qs.filter(nivel=nivel)
+    if edad:
+        qs = qs.filter(edad=edad)
+
+    paginator = Paginator(qs, 50)
     page_number = request.GET.get('page')
     try:
         page_obj = paginator.page(page_number)
@@ -267,12 +297,16 @@ def listado_categorias(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
 
-    # PASAMOS 'categorias' = page_obj, y también page_obj para la paginación
     return render(request, 'listados_categorias.html', {
         'categorias': page_obj,
         'page_obj': page_obj,
+        'filtros': {
+            'tipo_juego': tipo_juego or '',
+            'genero': genero or '',
+            'nivel': nivel or '',
+            'edad': edad or '',
+        }
     })
-
 
 @login_required
 @user_passes_test(es_admin)
@@ -290,10 +324,12 @@ def editar_categoria(request, id_categoria):
         nivel = request.POST.get('nivel')
         edad = request.POST.get('edad')
         tipo_juego = request.POST.get('tipo_juego')
+        genero = request.POST.get('genero')
 
         categoria.nivel = nivel
         categoria.edad = edad
         categoria.tipo_juego = tipo_juego
+        categoria.genero = genero
         categoria.save()
 
         messages.success(request, "Categoría actualizada exitosamente.")
@@ -307,84 +343,68 @@ def editar_categoria(request, id_categoria):
 @login_required
 @user_passes_test(es_admin)
 def exportar_jugadores_pdf(request):
-    # 🟡 1️⃣ Captura los filtros
-    search = request.GET.get('search', '')
-    sexo_filter = request.GET.get('sexo', '')
-    categoria_filter = request.GET.get('categoria', '')
+    # Filtros desde la URL
+    search = request.GET.get("search", "")
+    sexo = request.GET.get("sexo", "")
+    categoria = request.GET.get("categoria", "")
 
-    # 🟡 2️⃣ Filtra los jugadores según los parámetros recibidos
+    # Filtrado
     jugadores = Jugador.objects.all()
-
     if search:
-        jugadores = jugadores.filter(
-            Q(nombre__icontains=search) | Q(apellido__icontains=search)
-        )
-    if sexo_filter:
-        jugadores = jugadores.filter(sexo=sexo_filter)
-    if categoria_filter:
-        jugadores = jugadores.filter(categorias__id_categoria=categoria_filter)
+        jugadores = jugadores.filter(nombre__icontains=search) | jugadores.filter(apellido__icontains=search)
+    if sexo:
+        jugadores = jugadores.filter(sexo=sexo)
+    if categoria:
+        jugadores = jugadores.filter(categorias__id_categoria=categoria)
 
-    # 🟡 3️⃣ Obtiene la categoría seleccionada
-    categoria_nombre = "Todas"
-    if categoria_filter:
-        categoria_obj = Categoria.objects.filter(id_categoria=categoria_filter).first()
-        if categoria_obj:
-            categoria_nombre = f"{categoria_obj.nivel} - {categoria_obj.tipo_juego} - {categoria_obj.edad} años"
+    # PDF
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    y = height - 40
 
-    sexo_nombre = "Todos"
-    if sexo_filter == "M":
-        sexo_nombre = "Masculino"
-    elif sexo_filter == "F":
-        sexo_nombre = "Femenino"
-
-    # 🟡 4️⃣ Genera el PDF
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="listado_jugadores.pdf"'
-
-    c = canvas.Canvas(response, pagesize=A4)
-    c.setTitle('Listado de Jugadores')
-
-    # 🟠 5️⃣ Títulos
+    # Encabezados
     c.setFont("Helvetica-Bold", 14)
-    c.drawString(200, 800, "Listado de Jugadores")
+    c.drawString(100, y, "Listado de Jugadores")
+    y -= 30
 
-    c.setFont("Helvetica", 11)
-    c.drawString(100, 780, f"Categoría: {categoria_nombre}")
-    c.drawString(100, 765, f"Género: {sexo_nombre}")
+    # Columnas
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(40, y, "Apellido")
+    c.drawString(150, y, "Nombre")
+    c.drawString(250, y, "Sexo")
+    c.drawString(300, y, "Categorías")
+    y -= 20
 
-    # 🟠 6️⃣ Genera la tabla de jugadores con categorías
-    jugadores = jugadores.prefetch_related('categorias')
-    data = [["Apellido", "Nombre", "Sexo", "Categorías"]]
-
+    # Contenido
+    c.setFont("Helvetica", 10)
     for jugador in jugadores:
-        categorias = ", ".join([f"{c.nivel}-{c.tipo_juego}" for c in jugador.categorias.all()])
-        data.append([
-            jugador.apellido.upper(),
-            jugador.nombre.capitalize(),
-            "Masculino" if jugador.sexo == "M" else "Femenino",
-            categorias if categorias else "Sin categoría"
-        ])
+        if y < 60:
+            c.showPage()
+            y = height - 40
 
-    # 🟠 7️⃣ Estilo de la tabla
-    table = Table(data, colWidths=[100, 100, 100])
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.orange),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ]))
+        categorias = ", ".join([
+            f"{c.tipo_juego}-{c.genero}-{c.nivel}-{c.edad}" for c in jugador.categorias.all()
+        ]) or "Sin categoría"
 
-    # 🟡 8️⃣ Coloca la tabla en el PDF
-    table.wrapOn(c, 400, 600)
-    table.drawOn(c, 100, 650 - len(data) * 20)
+        c.setFont("Helvetica", 10)
+        c.drawString(40, y, jugador.apellido.upper())
+        c.drawString(150, y, jugador.nombre.capitalize())
+        c.drawString(250, y, jugador.sexo)
 
-    # 🟠 9️⃣ Cierra el PDF
+        # 👇 CATEGORÍAS: achicamos y dividimos en varias líneas si es largo
+        c.setFont("Helvetica", 8)
+        max_line_length = 70  # Ajustable: ancho máximo de cada línea
+        lines = [categorias[i:i+max_line_length] for i in range(0, len(categorias), max_line_length)]
+        for i, line in enumerate(lines):
+            c.drawString(300, y - (i * 10), line)
+
+        y -= 20 + (10 * (len(lines) - 1))  # Ajustamos el y según las líneas extra
+
+    c.showPage()
     c.save()
-
-    return response
+    buffer.seek(0)
+    return HttpResponse(buffer, content_type="application/pdf")
 
 #--------------------------------------------------------------------------------------------------------------
 #Carga masiva categoria 101

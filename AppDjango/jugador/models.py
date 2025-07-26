@@ -5,9 +5,10 @@ class Categoria(models.Model):
     nivel = models.CharField(max_length=20, default='Sin nivel')  # Cambiado a CharField
     edad = models.CharField(max_length=20, default=0)                        # Nuevo campo para Edad
     tipo_juego = models.CharField(max_length=20, default='Sin tipo')  # Nuevo campo para Tipo de Juego
+    genero = models.CharField(max_length=10, default='Sin tipo')  # Nuevo campo para Género
 
     def __str__(self):
-        return f"{self.nivel or 'N/A'}+{self.edad or 'N/A'}+{self.tipo_juego or 'N/A'}"
+        return f"{self.tipo_juego or 'N/A'}+{self.genero or 'N/A'}+{self.nivel or 'N/A'}+{self.edad or 'N/A'}"
 
 class Jugador(models.Model):
     dni = models.AutoField(primary_key=True)  # Cambiado a AutoField

@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block body_class %}fondo-secundario{% endblock %}
+{% load custom_filters %}
 
 {% block content %}
 <!-- Modal para Editar Torneo -->
@@ -110,39 +111,92 @@
         </div>
     </div>
 
+    
+    <!-- FILTROS -->
+    <div class="recuadro-tabla">
+        <div  style="cursor: pointer;" class="green-box-title-btn">
+            <h4 style="margin: 0;">FILTROS</h4>
+        </div>
+        <div class="form-container-torneos">
+            <div class="container-form-filter">
+                <!-- FALTA EL METODO Y LA ACCION -->
+                <form method="GET" action="{% url 'abm_torneo' %}#resultados">
+                    {% csrf_token %}
+                    <!-- BUSCAR POR NOMBRE -->
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter">TORNEO</span>
+                        <input type="text" name="search" placeholder="Buscar por nombre" class="form-control"
+                            value="{{ filtros.search }}">
+                    </div>
+            
+                    <!-- CATEGORÍA -->
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter">CATEGORÍA</span>
+                        <select name="categoria" class="form-select">
+                            <option value="">Todas</option>
+                            {% for categoria in all_categorias %}
+                                <option value="{{ categoria.id_categoria }}"
+                                    {% if filtros.categoria|stringformat:"s" == categoria.id_categoria|stringformat:"s" %}selected{% endif %}>
+                                    {{ categoria|formatear_categoria }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+            
+                    <!-- FECHA -->
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter">FECHA</span>
+                        <input type="date" name="fecha" class="form-control" value="{{ filtros.fecha }}">
+                    </div>
+            
+                    <!-- BOTONES -->
+                    <div id="resultados" style="display: flex; flex-direction: row; gap: 1rem">
+                        <button class="btn-opciones" type="submit">FILTRAR</button>
+                        <div class="btn-opciones">
+                            <a href="{% url 'crear_torneo' %}#resultados">LIMPIAR FILTROS</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- LISTADO -->
     <div class="recuadro-tabla">
 
-         <!-- Paginación -->
+        <!-- Paginación -->
         <div class="green-box-table">
             <div class="pagination-container">
                 Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                
                 {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}" 
-                    class="arrow">&lt;</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if filtros.search %}&search={{ filtros.search }}{% endif %}{% if filtros.categoria %}&categoria={{ filtros.categoria }}{% endif %}{% if filtros.fecha %}&fecha={{ filtros.fecha }}{% endif %}#resultados" class="arrow">&lt;</a>
                 {% endif %}
+
                 {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if categoria_id %}&categoria={{ categoria_id }}{% endif %}" 
-                    class="arrow">&gt;</a>
+                    <a href="?page={{ page_obj.next_page_number }}{% if filtros.search %}&search={{ filtros.search }}{% endif %}{% if filtros.categoria %}&categoria={{ filtros.categoria }}{% endif %}{% if filtros.fecha %}&fecha={{ filtros.fecha }}{% endif %}#resultados" class="arrow">&gt;</a>
                 {% endif %}
             </div>
         </div>
-        
+
+        <p style="margin-top: .5rem; color: rgb(150, 149, 149); font-size: .8rem;">
+            {{ page_obj.paginator.count }} resultados encontrados.
+        </p>
         <!-- TABLA -->
         <div class="tabla-wrapper">
             <table class="tabla-usuarios">
                 <thead>
                     <tr>
-                        <th>MASTER</th>
                         <th>TORNEO</th>
                         <th>CATEGORÍA</th>
-                        <th>RANKING</th>
-                        <th>HISTORIAL</th>
                         <th>F.INICIO</th>
+                        <th>JUGADORES</th>
+                        <th>HISTORIAL</th>
+                        <th>CARGAR PARTIDOS</th>
+                        <th>RANKING</th>
+                        <th>MASTER</th>
                         <!-- <th>F.FIN</th> -->
                         <th>EDITAR</th>
-                        <th>ANOTAR JUGADORES</th>
-                        <th>CARGAR PARTIDOS</th>
                         <th>ELIMINAR</th>
                     </tr>
                 </thead>
@@ -150,31 +204,29 @@
                     {% if page_obj %}
                         {% for torneo in page_obj %}              
                             <tr>
-                                <td>
-                                    <a href="{% url 'listado_jugadores_master' torneo.id %}" 
-                                        title="Ver ranking"
-                                        class="btn-edit">
-                                        <i class="bi bi-award" title="Master" style="font-size: 1.3rem; color: #d2df97;"></i>
-                                    </a>
-                                </td>
+                                <!-- TORNEO -->
                                 <td>{{ torneo.nombre }}</td>
+                                <!-- CATEGORÍA -->
                                 <td>
                                     {% if torneo.categorias.all %}
                                         {% for categoria in torneo.categorias.all %}
-                                            <div>{{ categoria.nivel }}-{{ categoria.tipo_juego }}-{{ categoria.edad }}</div>
+                                            <div>{{ categoria|formatear_categoria }}</div>
                                         {% endfor %}
                                     {% else %}
                                         <span>Sin categorías</span>
                                     {% endif %}
                                 </td>
+                                <!-- FECHA -->
+                                <td >{{ torneo.fecha_inicio|date:"d/m/y" }}</td>
+                                <!-- JUGADORES -->
                                 <td>
-                                    <a href="{% url 'ver_ranking' torneo.id %}" 
-                                        title="Ver ranking"
-                                        class="btn-ranking">
-                                        <i class="bi bi-trophy-fill" style="font-size: 1.2rem; color: #b3c564;"></i>
+                                    <a href="{% url 'redirigir_inscripcion' torneo.id %}" 
+                                        title="Ver torneo"
+                                        class="btn-edit">
+                                            <i class="bi bi-people" style="font-size: 1.1rem;"></i>
                                     </a>
                                 </td>
-                                
+                                <!-- HISTORIAL -->
                                 <td>
                                     <a href="{% url 'listar_partidos' %}?torneo={{ torneo.id }}&jugador={{ jugador.dni }}" 
                                         title="Ver historial"
@@ -182,10 +234,31 @@
                                         <i class="bi bi-clipboard-data" style="font-size: 1.1rem;"></i>
                                     </a>
                                 </td>
-                                
-                                <td >{{ torneo.fecha_inicio|date:"d/m/y" }}</td>
+                                <!-- PARTIDOS -->
+                                <td>
+                                    <a href="{% url 'redirigir_partidos' torneo.id %}" class="btn-edit" >
+                                        <!-- <button type="button" class="login-button mas-chico mb-2" >PARTIDOS</button> -->
+                                        <i class="fas fa-table-tennis" style="font-size: 1.1rem;"></i>
+                                    </a>
+                                </td>
+                                <!-- RANKING -->
+                                <td>
+                                    <a href="{% url 'ver_ranking' torneo.id %}" 
+                                        title="Ver ranking"
+                                        class="btn-ranking">
+                                        <i class="bi bi-trophy-fill" style="font-size: 1.2rem; color: #b3c564;"></i>
+                                    </a>
+                                </td>
+                                <!-- MASTER -->
+                                <td>
+                                    <a href="{% url 'listado_jugadores_master' torneo.id %}" 
+                                        title="Ver ranking"
+                                        class="btn-edit">
+                                        <i class="bi bi-award" title="Master" style="font-size: 1.3rem; color: #d2df97;"></i>
+                                    </a>
+                                </td>
                                 <!-- <td style="font-size: 0.6rem;">{{ torneo.fecha_fin|date:"d/m/y" }}</td> -->
-
+                                <!-- EDITAR -->
                                 <td>
                                     <a href="{% url 'abm_torneo_editar' torneo.id %}" 
                                     class="btn-edit openModalBtn" 
@@ -193,20 +266,7 @@
                                         <i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i>
                                     </a>
                                 </td>
-                                <td>
-                                    <a href="{% url 'redirigir_inscripcion' torneo.id %}" 
-                                        title="Ver torneo"
-                                        class="btn-edit">
-                                            <i class="bi bi-people" style="font-size: 1.1rem;"></i>
-                                    </a>
-
-                                </td>
-                                <td>
-                                    <a href="{% url 'redirigir_partidos' torneo.id %}" class="btn-edit" >
-                                        <!-- <button type="button" class="login-button mas-chico mb-2" >PARTIDOS</button> -->
-                                        <i class="fas fa-table-tennis" style="font-size: 1.1rem;"></i>
-                                    </a>
-                                </td>
+                                <!-- ELIMINAR -->
                                 <td>
                                     <button data-bs-toggle="modal" 
                                             data-bs-target="#eliminarModal-{{ torneo.id }}"
@@ -239,11 +299,11 @@
                                 </td>
                             </tr>
                         {% endfor %}
-                    {% else %}
+                        {% else %}
                         <tr>
                             <td colspan="7" class="text-center">No hay torneos guardados.</td>
                         </tr>
-                    {% endif %}
+                        {% endif %}
                 </tbody>
             </table>
         </div>

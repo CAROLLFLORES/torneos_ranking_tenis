@@ -17,11 +17,11 @@
             <div class="modal-body">
                 <p>La nueva categoría ha sido registrada correctamente.</p>
                 <hr class="separator">
-                <button type="button" class="login-button" onclick="window.location.href='{% url 'abm_categoria' %}'">
+                <button type="button" class="login-button" data-url="{% url 'admin_menu' %}" onclick="window.location.href=this.dataset.url">
                     Cargar Otra Categoría
                 </button>
                 <hr class="separator">
-                <button type="button" class="login-button" onclick="window.location.href='{% url 'admin_menu' %}'">
+                <button type="button" class="login-button" data-url="{% url 'admin_menu' %}" onclick="window.location.href=this.dataset.url">
                     Ir al Menú Principal
                 </button>
             </div>
@@ -44,12 +44,8 @@
         <div class="narrow-box">
             <div class="title-orange-gris">
                 <h1>CATEGORIA</h1>
-                <h3 class="negro chico">OPCIONES</h3>
+                <h3 class="negro chico">FILTROS</h3>
             </div>
-            <!--<br><br>
-            <h3 class="negro">BUSCAR</h3>
-            <hr class="separator">
-            <input type="text" placeholder="Buscar por NOMBRE" class="input-field"><br>-->
             <br>
             <a href="{% url 'admin_menu' %}">
                 <button class="login-button peque">MENU</button>
@@ -94,7 +90,7 @@
                 <div>
                     <br>
                     <label for="edad">Edad</label>
-                    <input type="number" id="edad" name="edad" placeholder="Edad" required>
+                    <input type="text" id="edad" name="edad" placeholder="Edad" required>
                 </div> 
             
                 <div>
@@ -104,9 +100,22 @@
                         <option value="" disabled selected>Seleccione un tipo de juego</option>
                         <option value="Single">Single</option>
                         <option value="Doble">Doble</option>
-                        <option value="Mixto">Mixto</option>
+                        <option value="-"></option>
                     </select>
-                </div>                 
+                </div> 
+                
+                <div>
+                    <br>
+                    <label for="genero">Género</label>
+                    <select id="genero" name="genero" required>
+                        <option value="" disabled selected>Seleccione un género</option>
+                        <option value="DAM">Dama</option>
+                        <option value="CAB">Caballero</option>
+                        <option value="MIX">Mixto</option>
+                        <option value="-"></option>
+                    </select>
+                </div> 
+
                 <br>
                 <button class="login-button" type="submit">Guardar</button>
             </form>
