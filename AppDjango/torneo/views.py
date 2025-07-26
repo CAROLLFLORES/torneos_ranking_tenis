@@ -77,22 +77,34 @@ def abm_torneo(request):
     all_categorias = Categoria.objects.all()
     categoria_id = request.GET.get('categoria')
     search_query = request.GET.get('search')
-    
+    fecha = request.GET.get('fecha')  # <- este campo nuevo
+
+    print("FILTROS:", categoria_id, search_query, fecha)
+
     form = TorneoForms()
 
     torneos = Torneo.objects.all().order_by('-fecha_inicio')
 
     if categoria_id:
-        torneos = torneos.filter(categorias__id=categoria_id)
+        torneos = torneos.filter(torneo_categorias__categoria__id_categoria=categoria_id)
 
     if search_query:
         torneos = torneos.filter(nombre__icontains=search_query)
 
+    if fecha:
+        torneos = torneos.filter(fecha_inicio=fecha)
+
     paginator = Paginator(torneos, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    sedes = Sede.objects.all()  # 🔥 ESTA LÍNEA CREA LA VARIABLE
 
+    sedes = Sede.objects.all()
+
+    filtros = {
+        'search': search_query,
+        'categoria': categoria_id,
+        'fecha': fecha,
+    }
 
     return render(request, 'abm_torneo.html', {
         'form': form,
@@ -100,11 +112,12 @@ def abm_torneo(request):
         'all_categorias': all_categorias,
         'categoria_id': categoria_id,
         'search': search_query,
-        'sedes': sedes,  # 👈 este es el que faltaba antes
-
+        'sedes': sedes,
+        'filtros': filtros,
     })
 
 def crear_torneo(request):
+    print("HOLA")
     if request.method == 'POST':
         form = TorneoForms(request.POST)
         if form.is_valid():

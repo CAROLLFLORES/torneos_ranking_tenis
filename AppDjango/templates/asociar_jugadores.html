@@ -9,20 +9,22 @@
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
         <hr class="separator-line">
-        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: .5rem;">ANOTAR JUGADORES AL TORNEO:</h5>
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: .5rem;">INSCRIBIR JUGADORES AL TORNEO:</h5>
         <h4 style="margin-top: 0; margin-bottom: 2rem;">{{ torneo.nombre }}</h4>
     </div>
 
-    <!-- OPCIONES -->
-    <div id="toggle-crear" class="recuadro-tabla" style="margin-bottom: 2rem;">
+    <!-- FILTROS -->
+    <div class="recuadro-tabla" style="margin-bottom: 2rem;">
+        <div id="toggle-crear"  style="cursor: pointer;" class="green-box-title-btn">
+            <h4 style="margin: 0;">FILTROS</h4>
+        </div>
+        <div id="form-crear" class="form-container-torneos hidden">
 
-        <div style="cursor: pointer;" class="green-box-title-btn"><h4 style="margin: 0;">OPCIONES</h4></div>
-        <div id="form-crear" class="hidden" class="form-container-torneos hidden">    
             <div style="display: inline-block; text-align: start; align-items: center; justify-content: center; margin: auto auto;"> 
-                <span class="span-filter">BUSCAR POR JUGADOR</span>
+                <span class="span-filter">BUSCAR JUGADORES DISPONIBLES</span>
                 <form method="GET" action="" class="d-flex align-items-center mb-3" style="gap: 10px;">
                     <div class="filtro-busqueda1" style="margin-bottom: .5rem !important;">
-                        <input class="input-field form-control" type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
+                        <input class="input-field form-control" type="text" name="search" placeholder="Ingresar nombre o apellido" value="{{ search }}">
                         <button type="submit" class="btn-lupa"><i class="fas fa-search"></i></button>
                     </div>
                 </form>

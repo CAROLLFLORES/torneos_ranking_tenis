@@ -336,7 +336,7 @@ background-color: transparent; /* 'none' no es válido */
     color: black;
     text-align: center;
     border: 2px solid #cddf80;
-    width: 90vw;
+    width: 70vw;
     margin: 1rem auto
 }
 
@@ -351,7 +351,7 @@ background-color: transparent; /* 'none' no es válido */
     color: black;
     text-align: center;
     border: 2px solid #cddf80;
-    width: 60vw;
+    width: 70vw;
     margin: 1rem auto
 }
 
@@ -2058,7 +2058,7 @@ html, body {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin: 8rem auto;
+    margin: 5rem auto;
 }
 
 .containerLayout {
@@ -2508,19 +2508,19 @@ html, body {
     padding: 6px 10px !important;
     border: 1px solid #ccc !important;
     border-radius: 10px !important;
-    background-color: #474b32;
-    color: #ffffff;
+    background-color: #2d2f23;
+    color: #c4c1c1;
     font-size: 0.9rem;
     letter-spacing: 1.2px;
-    text-align: center;
+    /* text-align: center; */
     box-sizing: border-box;
     outline: none !important;
 }
 
 .filtro-busqueda1 input::placeholder {
-  color: rgb(218, 216, 216) !important;
+  color: #c4c1c1 !important;
+   font-style: italic;
 }
-
 
 .btn-lupa {
   background: none;
@@ -2535,6 +2535,32 @@ html, body {
   color: #cddf80;
 }
 
+.btn-opciones {
+    background-color: #cedf8042;
+    border: 1px solid #ccc;
+    padding: 5px 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    font-family: 'Oswald', sans-serif !important;
+    letter-spacing: 3px;
+    transition: all 0.3s ease-in-out;
+    /* background-color: transparent; */
+    color: #c4c1c1;
+}
+
+.btn-opciones a {
+    color: #c4c1c1;
+    text-decoration: none;
+}
+
+.btn-opciones:hover {
+    background-color: #cedf8027;
+}
 
 
 .btn-custom {
@@ -2543,7 +2569,6 @@ html, body {
     border-radius: 10px;
     cursor: pointer;
     font-size: 14px;
-    transition: all 0.3s ease-in-out;
     display: block;
     width: 220px;
     margin-left: auto;
@@ -2709,64 +2734,7 @@ html, body {
 .arrow:hover {
     color: #f0f0f0;
 }
-/* 
-.filtros-pdf {
-    display: flex;
-    justify-content: row;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-    margin: 1rem auto;
-    flex-wrap: wrap;
-}
 
-.input-pdf {
-    padding: 0.3rem 0.6rem;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #474b32;
-    color: #ffffff;
-    font-size: 0.9rem;
-    outline: none;
-    letter-spacing: 1.7px;
-    appearance: none !important;
-    text-align: center;
-}
-
-.input-pdf:focus {
-    border-color: #a1c298;
-}
-
-.input-pdf option {
-    color: white;
-    background-color: #474b32;
-}
-
-.btn-pdf {
-    text-align: center;
-    justify-content: center;
-    background-color: #cddf80;
-    color: rgb(33, 33, 33);
-    border: none;
-    border-radius: 10px;
-    padding: 0.6rem 0.8rem;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    min-width: 200px;
-    transition: all 0.3s ease-in-out;
-}
-
-.btn-pdf:hover {
-    background-color: #edf1d6;
-    box-shadow: 5px 5px 12px rgba(117, 117, 117, 0.534);
-    transform: scale(1.03);
-} */
-
-/* Para que el botón tenga el mismo ancho que los inputs */
 .full-width {
   width: 100%;
   height: 38px;
@@ -2873,7 +2841,7 @@ html, body {
 }
 
 .input-pdf option {
-  background-color: #474b32;
+  background-color: #2d2f23;
   color: white;
 }
 
@@ -2914,7 +2882,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     padding: 6px 10px !important;
     border: 1px solid #ccc !important;
     border-radius: 10px !important;
-    background-color: #474b32;
+    background-color: #2d2f23;
     color: #ffffff;
     font-size: 0.9rem;
     letter-spacing: 1.7px;
@@ -2930,7 +2898,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .form-group option {
     color: white;
-    background-color: #474b32;
+    background-color: #2d2f23;
 }
 
 .hidden {
@@ -2992,6 +2960,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     z-index: 2;
 }
 
+.container-form-filter {
+    display: inline-block;
+    text-align: start;
+    align-items: center;
+    justify-content: center;
+    margin: auto auto;
+    width: 40vw;
+}
 
 /*////////////////////////////////////////////////////////// NUEVOS ESTILOS RESPOSIVE //////////////////////////////////////////////////////////*/
 @media (max-width: 1220px) {
@@ -3008,9 +2984,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     .input-admin {
         width: 190px !important;
     }
-}
-
-@media (max-width: 595px) {
     .hamburguesa {
         display: block;
         margin-right: 0.5rem;
@@ -3020,10 +2993,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         cursor: pointer;
         border: none;
     }
-
+    
     .hamburguesa:hover {
         color: darkgreen;
     }
+
+    .nav-list {
+        display: none;
+    }
+
+}
+
+@media (max-width: 595px) {
 
     .menu-principal {
         justify-content: space-between;
@@ -3034,10 +3015,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         position: absolute;
         left: 45%;
         transform: translateX(-50%);
-    }
-
-    .nav-list {
-        display: none;
     }
 
     #scrollToTop {
@@ -3061,7 +3038,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     }
 
     .recuadro-tabla-admin {
-        width: 90vw;
+        width: 85vw;
+    }
+
+    .recuadro-tabla {
+        width: 85vw;
     }
 
     .login-box {
@@ -3096,8 +3077,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
     .btn-crear, .btn-carga-masiva {
         width: 100%;
+    }  
+    .container-form-filter {
+        width: auto;
     }
-        
-    
 
 }

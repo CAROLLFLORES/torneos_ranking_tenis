@@ -12,285 +12,227 @@
     {% endif %}
     <div class="text-section">
         <hr class="separator-line">
-        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">LISTADO COMPLETO DE JUGADORES</h5>
-        <!-- Botón para mostrar/ocultar el panel -->
-        <!-- <button id="filtro-toggle" class="btn-custom btn-negro">☰ FILTROS</button> -->
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">LISTADO DE JUGADORES</h5>
     </div>
 
-    <!-- FILTROS ANTIGUO, PARA VER DESCOMENTAR button id="filtro-toggle"-->
-    <div>
-        <!-- Caja fija de filtros -->
-        <div id="filtro-caja" class="filtro-caja">
-            
-            <div class="container-btn-close-filter">
-                <span id="filtro-close" class="btn-close-filter">&times;</span>
-            </div>
-
-            <!-- BUSQUEDAS -->
-            <div style="margin-top: 3rem;">
-                <span class="span-filter">BÚSQUEDA POR JUGADOR</span>
-                <form method="GET" action="{% url 'listado_jugadores' %}">
-                    <div class="filtro-busqueda">
-                        <input type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
-                        <button type="submit" class="btn-lupa"><i class="fas fa-search"></i></button>
-                    </div>
-                </form>
-    
-                <span class="span-filter">BÚSQUEDA POR CATEGORÍA</span>
-                <form method="GET" action="{% url 'listado_jugadores' %}">
-                    <div class="filtro-busqueda">
-                        <select name="categoria" id="filtro-categoria">
-                        <option value="">Todas</option>
-                        {% for categoria in todas_categorias %}
-                            <option value="{{ categoria.id_categoria }}" {% if categoria_seleccionada == categoria.id_categoria|slugify %} selected {% endif %}>
-                            {{ categoria.nivel }} - {{ categoria.tipo_juego }} - {{ categoria.edad }} años
-                            </option>
-                        {% endfor %}
-                        </select>
-                        <button type="submit" class="btn-lupa"><i class="fas fa-search"></i></button>
-                        <input type="hidden" name="search" value="{{ search }}">
-                        <input type="hidden" name="sexo" value="{{ request.GET.sexo }}">
-                    </div>
-                </form>
-            </div>
-
-            <!-- BOTONES -->
-            <div style="margin-top: 4rem;">
-                <a class="a-filter" href="{% url 'admin_menu' %}">
-                    <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
-                    MENÚ DEL ADMINISTRADOR
-                </a>
-                <a class="a-filter" href="{% url 'listado_jugadores' %}">
-                    <i class="bi bi-eye" style="margin-right: 5px;"></i>
-                    VER LISTADO COMPLETO
-                </a>
-                {% if user.is_authenticated and user.is_staff %}
-                <a class="a-filter" href="{% url 'admin_carga_jugador' %}">
-                    <i class="bi bi-plus-circle-fill" style="margin-right: 5px;"></i>
-                    ALTA JUGADOR
-                </a>
-                {% endif %}
-    
-                {% if user.is_authenticated and user.is_staff %}
-                    <a href="{% url 'exportar_jugadores_pdf' %}?search={{ search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}"
-                        target="_blank"
-                        class="a-filter"
-                    >
-                    <i class="bi bi-download" style="margin-right: 5px;"></i>
-                    DESCARGAR EN PDF
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- OPCIONES -->
+    <!-- FILTROS -->
     <div class="recuadro-tabla">
-        <div id="toggle-crear" style="cursor: pointer;" class="green-box-title-btn">
-            <h4 style="margin: 0;">OPCIONES</h4>
+        <!-- NOTA: id="toggle-crear" agregar en div de opciones para cerrar y abrir panel -->
+        <div  style="cursor: pointer;" class="green-box-title-btn">
+            <h4 style="margin: 0;">FILTROS</h4>
         </div>
-        <div id="form-crear" class="form-container-torneos hidden">
+        <!-- id="form-crear"  agregar en div de form container sumado a clase hidden para cerrar y abrir panel -->
+        <div class="form-container-torneos">
+            <div class="container-form-filter">
+                <form method="GET" action="{% url 'listado_jugadores' %}#resultados" class="row g-2 mb-3">
 
-            <div style="display: inline-block; text-align: start; align-items: center; justify-content: center; margin: auto auto;">
-                <span class="span-filter">BUSCAR POR JUGADOR</span>
-                <form method="GET" action="{% url 'listado_jugadores' %}">
-                    <div class="filtro-busqueda1">
-                        <input type="text" name="search" placeholder="Buscar por nombre o apellido" value="{{ search }}">
-                        <button type="submit" class="btn-lupa"><i class="fas fa-search"></i></button>
+                    <!-- BUSCAR POR JUGADOR -->
+                    <div class="filtro-busqueda1" >
+                        <span class="span-filter">JUGADOR</span>
+                        <input type="text" name="search" placeholder="Ingresar nombre o apellido" class="form-control" value="{{ filtros.search }}">
                     </div>
-                </form>
-    
-                <span class="span-filter">BUSCAR POR CATEGORÍA</span>
-                <form method="GET" action="{% url 'listado_jugadores' %}">
+
+                    <!-- GÉNERO -->
                     <div class="filtro-busqueda1">
-                        <select name="categoria" id="filtro-categoria">
-                        <option value="">Todas</option>
-                        {% for categoria in todas_categorias %}
-                            <option value="{{ categoria.id_categoria }}" {% if categoria_seleccionada == categoria.id_categoria|slugify %} selected {% endif %}>
-                            {{ categoria.nivel }} - {{ categoria.tipo_juego }} - {{ categoria.edad }} años
-                            </option>
-                        {% endfor %}
+                        <span class="span-filter">GÉNERO</span>
+                        <select name="sexo" id="filtro-sexo" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="M" {% if filtros.sexo == "M" %}selected{% endif %}>Masculino</option>
+                            <option value="F" {% if filtros.sexo == "F" %}selected{% endif %}>Femenino</option>
                         </select>
-                        <button type="submit" class="btn-lupa"><i class="fas fa-search"></i></button>
-                        <input type="hidden" name="search" value="{{ search }}">
-                        <input type="hidden" name="sexo" value="{{ request.GET.sexo }}">
+                    </div>
+
+                    <!-- CATEGORÍA -->
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter">CATEGORÍA</span>
+                        <select name="categoria" id="filtro-categoria" class="form-select">
+                            <option value="">Todas</option>
+                            {% for categoria in todas_categorias %}
+                            <option value="{{ categoria.id_categoria }}"
+                                {% if filtros.categoria|stringformat:"s" == categoria.id_categoria|stringformat:"s" %}selected{% endif %}>
+                                {{ categoria|formatear_categoria }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- BOTONES -->
+                    <div style="display: flex; flex-direction: row; gap: 1rem">
+                        <button class="btn-opciones" type="submit">FILTRAR</button>
+                        <div class="btn-opciones">
+                            <a href="{% url 'listado_jugadores' %}#resultados">LIMPIAR FILTROS</a>
+                        </div>
                     </div>
                 </form>
-                <!-- BOTONES -->
-                <div>
-                    <a class="a-options" href="{% url 'listado_jugadores' %}">
-                        <i class="bi bi-eye" style="margin-right: 5px;"></i>
-                        VER LISTADO COMPLETO
-                    </a>
-                    <a class="a-options" href="{% url 'admin_menu' %}">
-                        <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
-                        MENÚ ADMINISTRADOR
-                    </a>
-                    {% if user.is_authenticated and user.is_staff %}
-                    <a class="a-options" href="{% url 'admin_carga_jugador' %}">
-                        <i class="bi bi-plus-circle-fill" style="margin-right: 5px;"></i>
-                        ALTA JUGADOR
-                    </a>
-                    {% endif %}
-        
-                    {% if user.is_authenticated and user.is_staff %}
-                    <a href="{% url 'exportar_jugadores_pdf' %}?search={{ search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}"
-                        target="_blank"
-                        class="a-options"
-                    >
+            </div>
+            <!-- LINKS -->
+            <div id="resultados">
+                <a class="a-options" href="{% url 'admin_menu' %}">
+                <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
+                MENÚ ADMINISTRADOR
+                </a>
+                {% if user.is_authenticated and user.is_staff %}
+                <a class="a-options" href="{% url 'admin_carga_jugador' %}">
+                <i class="bi bi-plus-circle-fill" style="margin-right: 5px;"></i>
+                ALTA JUGADOR
+                </a>
+                {% endif %}
+
+                {% if user.is_authenticated and user.is_staff %}
+                {% with query_string=request.GET.urlencode %}
+                <a href="{% url 'exportar_jugadores_pdf' %}?{{ query_string }}"
+                    target="_blank"
+                    class="a-options">
                     <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
                     DESCARGAR EN PDF
-                    </a>
+                </a>
+                {% endwith %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+   
+    <!-- LISTADO -->
+     <div>
+         <div class="recuadro-tabla">
+            <!-- PAGINADO -->
+             <div class="green-box-table">
+                 <div class="pagination-container">
+                    Página {{ jugadores.number }} de {{ jugadores.paginator.num_pages }}
+                    {% if jugadores.has_previous %}
+                        <a href="?page={{ jugadores.previous_page_number }}{% if filtros.search %}&search={{ filtros.search }}{% endif %}{% if filtros.sexo %}&sexo={{ filtros.sexo }}{% endif %}{% if filtros.categoria %}&categoria={{ filtros.categoria }}{% endif %}#resultados" class="arrow">&lt;</a>
+                    {% endif %}
+                    {% if jugadores.has_next %}
+                        <a href="?page={{ jugadores.next_page_number }}{% if filtros.search %}&search={{ filtros.search }}{% endif %}{% if filtros.sexo %}&sexo={{ filtros.sexo }}{% endif %}{% if filtros.categoria %}&categoria={{ filtros.categoria }}{% endif %}#resultados" class="arrow">&gt;</a>
                     {% endif %}
                 </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- LISTADO -->
-    <div class="recuadro-tabla">
-        <!-- Paginación + Filtros de Género -->
-        <div class="green-box-table">
-            <div class="pagination-container">
-                Página {{ jugadores.number }} de {{ jugadores.paginator.num_pages }}
-                {% if jugadores.has_previous %}
-                    <a href="?page={{ jugadores.previous_page_number }}&search={{ request.GET.search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" class="arrow">&lt;</a>
-                {% endif %}
-                {% if jugadores.has_next %}
-                    <a href="?page={{ jugadores.next_page_number }}&search={{ request.GET.search }}&sexo={{ request.GET.sexo }}&categoria={{ request.GET.categoria }}" class="arrow">&gt;</a>
-                {% endif %}
-            </div>
-            <form method="GET" action="{% url 'listado_jugadores' %}" class="formFilter">
-                <label for="filtro-sexo" style="padding-right: .5rem;"> Género:</label>
-                <select name="sexo" id="filtro-sexo" class="input-seletc" onchange="this.form.submit()">
-                    <option value="">Todos</option>
-                    <option value="M" {% if request.GET.sexo == "M" %} selected {% endif %}>Masculino</option>
-                    <option value="F" {% if request.GET.sexo == "F" %} selected {% endif %}>Femenino</option>
-                </select>
-                <!-- Input oculto para mantener la búsqueda -->
-                <input type="hidden" name="search" value="{{ request.GET.search }}">
-            </form>
-        </div>
+             </div>
 
-        <!-- TABLA -->
-        <div class="tabla-wrapper">
-            <table class="tabla-usuarios">
-                <thead>
-                    <tr>
-                        <th>APELLIDO</th>
-                        <th>NOMBRE</th>
-                        <th>SEXO</th>
-                        <th>CATEGORIA</th>
-                        <th>INFO</th>
-                        {% if user.is_authenticated and user.is_staff %}
-                            <th>EDITAR</th>
-                            <th>ELIMINAR</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if jugadores %}
-                        {% for jugador in jugadores %}
-                            <tr>
-                                <td scope="row">{{ jugador.apellido | upper }}</td>
-                                <td>{{ jugador.nombre | capfirst }}</td>
-                                <td>{{ jugador.sexo }}</td>
-                                <td>
-                                    {% if jugador.categorias.all %}
-                                        {% for categoria in jugador.categorias.all %}
-                                            {{ categoria|formatear_categoria }}{% if not forloop.last %} / {% endif %}
-                                        {% endfor %}
-                                    {% else %}
-                                        <span>Sin categoría</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{% url 'datos_jugador' jugador.dni %}" class="btn-info">+</a>
-                                </td>
-                                {% if user.is_authenticated and user.is_staff %}
-                                <td>
-                                    <button type="button"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modificarModal-{{ jugador.dni }}"
-                                    title="Modificar jugador" class="btn-edit">
-                                        <i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i>
-                                    </button>
-                                {% endif %}
-                                    <!-- Modal para modificar el jugador -->
-                                    <div class="modal fade" id="modificarModal-{{ jugador.dni }}" tabindex="-1" aria-labelledby="modificarModalLabel-{{ jugador.dni }}" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h3 class="modal-title" id="modificarModalLabel-{{ jugador.dni }}">
-                                                        Modificar jugador '{{ jugador.apellido | upper }} {{ jugador.nombre | capfirst }}'
-                                                    </h3>
-                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                                        <i class="bi bi-x" style="font-size: 1.5rem;"></i>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <form method="POST" action="{% url 'modificar_jugador' jugador.dni %}">
-                                                        {% csrf_token %}
-                                                        <div class="mb-3">
-                                                            <label for="nombre">Nombre:</label>
-                                                            <input class="form-control" type="text" value="{{ jugador.nombre | capfirst }}" name="nombre" id="nombre" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="apellido">Apellido:</label>
-                                                            <input class="form-control" type="text" value="{{ jugador.apellido | upper }}" name="apellido" id="apellido" required>
-                                                        </div>
-                                                        <input type="hidden" name="dni" value="{{ jugador.dni }}">
-                                                        <div class="mb-3">
-                                                            <label for="sexo">Sexo:</label>
-                                                            <select class="form-select" name="sexo" id="sexo" required>
-                                                                <option value="M" {% if jugador.sexo == "M" %} selected {% endif %}>Masculino</option>
-                                                                <option value="F" {% if jugador.sexo == "F" %} selected {% endif %}>Femenino</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="categorias">Categorías:</label>
-                                                            <select id="categorias-{{ jugador.dni }}" name="categorias[]" class="form-select" multiple>
-                                                                {% for categoria in todas_categorias %}
-                                                                    <option value="{{ categoria.id_categoria }}" {% if categoria in jugador.categorias.all %} selected {% endif %}>
-                                                                        {{ categoria }}
-                                                                    </option>
-                                                                {% endfor %}
-                                                            </select>
-                                                        </div>
-                                                        <div class="text-center">
-                                                            <button class="login-button btn btn-success" type="submit">Guardar cambios</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-    
-                                {% if user.is_authenticated and user.is_staff %}
-                                <td>
-                                    <button type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#eliminarModal-{{ jugador.dni }}"
-                                            title="Eliminar jugador" class="btn-delete">
-                                        <i class="bi bi-trash-fill" style="font-size: 1.1rem;"></i>
-                                    </button>
-    
-                                    {% include 'modal_eliminar_jugador.html' %}
-                                </td>
-                                {% endif %}
-    
-                            </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center">No hay jugadores registrados.</td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+            <p style="margin-top: .5rem; color: rgb(150, 149, 149); font-size: .8rem;">
+                {{ jugadores.paginator.count }} resultados encontrados.
+            </p>
+
+             <!-- TABLA -->
+             <div class="tabla-wrapper">
+                 <table class="tabla-usuarios">
+                     <thead>
+                         <tr>
+                             <th>APELLIDO</th>
+                             <th>NOMBRE</th>
+                             <th>SEXO</th>
+                             <th>CATEGORIA</th>
+                             <th>INFO</th>
+                             {% if user.is_authenticated and user.is_staff %}
+                                 <th>EDITAR</th>
+                                 <th>ELIMINAR</th>
+                             {% endif %}
+                         </tr>
+                     </thead>
+                     <tbody>
+                         {% if jugadores %}
+                             {% for jugador in jugadores %}
+                                 <tr>
+                                     <td scope="row">{{ jugador.apellido | upper }}</td>
+                                     <td>{{ jugador.nombre | capfirst }}</td>
+                                     <td>{{ jugador.sexo }}</td>
+                                     <td>
+                                         {% if jugador.categorias.all %}
+                                             {% for categoria in jugador.categorias.all %}
+                                                 {{ categoria|formatear_categoria }}{% if not forloop.last %} / {% endif %}
+                                             {% endfor %}
+                                         {% else %}
+                                             <span>Sin categoría</span>
+                                         {% endif %}
+                                     </td>
+                                     <td>
+                                         <a href="{% url 'datos_jugador' jugador.dni %}" class="btn-info">+</a>
+                                     </td>
+                                     {% if user.is_authenticated and user.is_staff %}
+                                     <!-- EDITAR -->
+                                     <td>
+                                         <button type="button"
+                                         data-bs-toggle="modal"
+                                         data-bs-target="#modificarModal-{{ jugador.dni }}"
+                                         title="Modificar jugador" class="btn-edit">
+                                             <i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i>
+                                         </button>
+                                     {% endif %}
+                                         <!-- Modal para modificar el jugador -->
+                                         <div class="modal fade" id="modificarModal-{{ jugador.dni }}" tabindex="-1" aria-labelledby="modificarModalLabel-{{ jugador.dni }}" aria-hidden="true">
+                                             <div class="modal-dialog">
+                                                 <div class="modal-content">
+                                                     <div class="modal-header">
+                                                         <h3 class="modal-title" id="modificarModalLabel-{{ jugador.dni }}">
+                                                             Modificar jugador '{{ jugador.apellido | upper }} {{ jugador.nombre | capfirst }}'
+                                                         </h3>
+                                                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                             <i class="bi bi-x" style="font-size: 1.5rem;"></i>
+                                                         </button>
+                                                     </div>
+                                                     <div class="modal-body">
+                                                         <form method="POST" action="{% url 'modificar_jugador' jugador.dni %}">
+                                                             {% csrf_token %}
+                                                             <div class="mb-3">
+                                                                 <label for="nombre">Nombre:</label>
+                                                                 <input class="form-control" type="text" value="{{ jugador.nombre | capfirst }}" name="nombre" id="nombre" required>
+                                                             </div>
+                                                             <div class="mb-3">
+                                                                 <label for="apellido">Apellido:</label>
+                                                                 <input class="form-control" type="text" value="{{ jugador.apellido | upper }}" name="apellido" id="apellido" required>
+                                                             </div>
+                                                             <input type="hidden" name="dni" value="{{ jugador.dni }}">
+                                                             <div class="mb-3">
+                                                                 <label for="sexo">Sexo:</label>
+                                                                 <select class="form-select" name="sexo" id="sexo" required>
+                                                                     <option value="M" {% if jugador.sexo == "M" %} selected {% endif %}>Masculino</option>
+                                                                     <option value="F" {% if jugador.sexo == "F" %} selected {% endif %}>Femenino</option>
+                                                                 </select>
+                                                             </div>
+                                                             <div class="mb-3">
+                                                                 <label for="categorias">Categorías:</label>
+                                                                 <select id="categorias-{{ jugador.dni }}" name="categorias[]" class="form-select" multiple>
+                                                                     {% for categoria in todas_categorias %}
+                                                                         <option value="{{ categoria.id_categoria }}" {% if categoria in jugador.categorias.all %} selected {% endif %}>
+                                                                             {{ categoria }}
+                                                                         </option>
+                                                                     {% endfor %}
+                                                                 </select>
+                                                             </div>
+                                                             <div class="text-center">
+                                                                 <button class="login-button btn btn-success" type="submit">Guardar cambios</button>
+                                                             </div>
+                                                         </form>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </td>
+     
+                                     {% if user.is_authenticated and user.is_staff %}
+                                     <td>
+                                         <button type="button"
+                                                 data-bs-toggle="modal"
+                                                 data-bs-target="#eliminarModal-{{ jugador.dni }}"
+                                                 title="Eliminar jugador" class="btn-delete">
+                                             <i class="bi bi-trash-fill" style="font-size: 1.1rem;"></i>
+                                         </button>
+     
+                                         {% include 'modal_eliminar_jugador.html' %}
+                                     </td>
+                                     {% endif %}
+     
+                                 </tr>
+                             {% endfor %}
+                         {% else %}
+                             <tr>
+                                 <td colspan="6" class="text-center">No hay jugadores registrados.</td>
+                             </tr>
+                         {% endif %}
+                     </tbody>
+                 </table>
+             </div>
+         </div>
+     </div>
 </div>
 
 <script>

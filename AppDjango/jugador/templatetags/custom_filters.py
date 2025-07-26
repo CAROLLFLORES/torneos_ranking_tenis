@@ -4,4 +4,5 @@ register = template.Library()
 
 @register.filter
 def formatear_categoria(categoria):
-    return f"{categoria.nivel}-{categoria.edad}-{categoria.tipo_juego}"
+    return f"{categoria.tipo_juego}-{categoria.genero}-{categoria.nivel}-{categoria.edad}"
+
