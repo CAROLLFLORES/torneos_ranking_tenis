@@ -83,7 +83,7 @@ def abm_torneo(request):
 
     form = TorneoForms()
 
-    torneos = Torneo.objects.all().order_by('-fecha_inicio')
+    torneos = Torneo.objects.all().order_by('nombre')
 
     if categoria_id:
         torneos = torneos.filter(torneo_categorias__categoria__id_categoria=categoria_id)
@@ -139,7 +139,7 @@ def crear_torneo(request):
     else:
         form = TorneoForms()
     
-    torneos = Torneo.objects.all().order_by('-fecha_inicio').prefetch_related('categorias')
+    torneos = Torneo.objects.all().order_by('nombre').prefetch_related('categorias')
     paginator = Paginator(torneos, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
