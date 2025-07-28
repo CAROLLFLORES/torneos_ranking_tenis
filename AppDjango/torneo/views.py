@@ -1640,7 +1640,7 @@ def generar_pdf_partidos_por_fecha(request):
     buffer.close()
 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="liga_{fecha}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="liga_{sede.nombre.replace(" ", "_")}_{fecha}.pdf"'
     response.write(pdf)
     return response
 
