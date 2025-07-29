@@ -679,6 +679,7 @@
 });
 
 //agregado para guardar partido
+//agregado para guardar partido
 function guardarPartido(partidoId) {
     let set1Jugador1 = document.getElementById(`set1-jugador1-${partidoId}`).value.trim() || "0";
     let set2Jugador1 = document.getElementById(`set2-jugador1-${partidoId}`).value.trim() || "0";
@@ -693,19 +694,33 @@ function guardarPartido(partidoId) {
     let torneoTipo = "{{ torneo.tipo_juego|lower }}";
     let torneoEsDobleOMixto = torneoTipo === "doble" || torneoTipo === "mixto";
 
-    // 👤 Opción para single
-    let jugador1DNI = parseInt(document.getElementById(`jugador1-${partidoId}`).getAttribute("data-dni"), 10);
-    let jugador2DNI = parseInt(document.getElementById(`jugador2-${partidoId}`).getAttribute("data-dni"), 10);
-
+    // Variables para ganador
     let ganadorDNI = null;
     let ganadorEquipoID = null;
 
     if (torneoEsDobleOMixto) {
-        // 👫 En dobles/mixto, el input tiene el ID del equipo
-        ganadorEquipoID = document.getElementById(`jugador1-${partidoId}`).getAttribute("data-dni");
-        // ⚠️ Solo un equipo puede ser ganador, no se compara por nombre
+        // 👫 Evaluar sets para dobles/mixto
+        let setsGanadosEq1 = 0;
+        let setsGanadosEq2 = 0;
+
+        if (set1Jugador1 > set1Jugador2) setsGanadosEq1++;
+        if (set2Jugador1 > set2Jugador2) setsGanadosEq1++;
+        if (set3Jugador1 > set3Jugador2) setsGanadosEq1++;
+
+        if (set1Jugador2 > set1Jugador1) setsGanadosEq2++;
+        if (set2Jugador2 > set2Jugador1) setsGanadosEq2++;
+        if (set3Jugador2 > set3Jugador1) setsGanadosEq2++;
+
+        if (setsGanadosEq1 >= 2) {
+            ganadorEquipoID = document.getElementById(`jugador1-${partidoId}`).getAttribute("data-dni");
+        } else if (setsGanadosEq2 >= 2) {
+            ganadorEquipoID = document.getElementById(`jugador2-${partidoId}`).getAttribute("data-dni");
+        }
     } else {
-        // 🧍 En single se compara por nombre completo
+        // 🧍 Single: se compara contra el input ganador
+        let jugador1DNI = parseInt(document.getElementById(`jugador1-${partidoId}`).getAttribute("data-dni"), 10);
+        let jugador2DNI = parseInt(document.getElementById(`jugador2-${partidoId}`).getAttribute("data-dni"), 10);
+
         if (ganadorInput === document.getElementById(`jugador1-${partidoId}`).value) {
             ganadorDNI = jugador1DNI;
         } else if (ganadorInput === document.getElementById(`jugador2-${partidoId}`).value) {
@@ -746,7 +761,6 @@ function guardarPartido(partidoId) {
         alert('❌ Hubo un problema al guardar.');
     });
 }
-
 
 
 

@@ -21,6 +21,10 @@ import pandas as pd
 from django.contrib.auth.decorators import login_required, user_passes_test
 from loginAdmin.views import es_admin
 from io import BytesIO
+from collections import defaultdict
+from ranking.models import Ranking, RankingEquipo
+from .models import Jugador  # solo Jugador está en jugador.models
+from torneo.models import Torneo, Partido, Equipo  # estos están en torneo
 
 def jugador_detalle(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
@@ -115,65 +119,73 @@ def listado_jugadores(request):
         }
     })
 
-from collections import defaultdict
+
+
+
+
 def datos_jugador(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
 
-    # 🔹 Torneos en los que está inscrito
-    torneos = Torneo.objects.filter(torneo_jugadores__jugador=jugador).distinct()
-    from ranking.models import Ranking
+    # 🔹 Torneos en los que participa (singles y dobles/mixtos)
+    torneos = Torneo.objects.filter(
+        Q(torneo_jugadores__jugador=jugador) |
+        Q(equipos__jugador1=jugador) |
+        Q(equipos__jugador2=jugador)
+    ).distinct()
 
     torneos_data = []
 
     for torneo in torneos:
-        ranking = Ranking.objects.filter(
-            torneo=torneo,
-            jugador=jugador,
-            activo=True
-        ).first()
-
-        if ranking:
-            todos_rankings = Ranking.objects.filter(
+        if torneo.tipo_juego in ["Doble", "Mixto"]:
+            equipo = Equipo.objects.filter(
+                torneo=torneo
+            ).filter(
+                Q(jugador1=jugador) | Q(jugador2=jugador)
+            ).first()
+            
+            ranking = RankingEquipo.objects.filter(
                 torneo=torneo,
-                bimestre=ranking.bimestre,
-                anio=ranking.anio,
-                categoria=ranking.categoria,
+                equipo=equipo,
                 activo=True
-            ).order_by('-puntaje_total_categoria')
-
-            posicion = None
-            for i, r in enumerate(todos_rankings, start=1):
-                if r.jugador == jugador:
-                    posicion = i
-                    break
+            ).first() if equipo else None
 
             torneos_data.append({
                 'nombre': torneo.nombre,
-                'categoria': ranking.categoria,
+                'categoria': torneo.categorias.first(),
                 'fecha': torneo.fecha_inicio,
-                'ranking': posicion,
-                'puntaje': ranking.puntaje_total_categoria,
+                'ranking': getattr(ranking, "posicion", None),
+                'puntaje': getattr(ranking, "puntaje_total_categoria", None),
             })
+
         else:
+            ranking = Ranking.objects.filter(
+                torneo=torneo,
+                jugador=jugador,
+                activo=True
+            ).first()
+
             torneos_data.append({
                 'nombre': torneo.nombre,
-                'categoria': torneo.categorias.first(),  # fallback si no tiene ranking
+                'categoria': ranking.categoria if ranking else torneo.categorias.first(),
                 'fecha': torneo.fecha_inicio,
-                'ranking': None,
-                'puntaje': None,
+                'ranking': getattr(ranking, "posicion", None),
+                'puntaje': getattr(ranking, "puntaje_total_categoria", None),
             })
 
-    # 🔹 Partidos jugados por el jugador
+    # 🔹 Partidos jugados (singles y dobles)
     partidos = Partido.objects.filter(
-        Q(jugador1=jugador) | Q(jugador2=jugador)
-    ).select_related('torneo').order_by('-fecha')
+        Q(jugador1=jugador) | Q(jugador2=jugador) |
+        Q(equipo1__jugador1=jugador) | Q(equipo1__jugador2=jugador) |
+        Q(equipo2__jugador1=jugador) | Q(equipo2__jugador2=jugador)
+    ).select_related(
+        'torneo', 'resultado',
+        'equipo1__jugador1', 'equipo1__jugador2',
+        'equipo2__jugador1', 'equipo2__jugador2'
+    ).order_by('-fecha')
 
-    # 🔸 Agrupar los partidos por nombre del torneo
-    from collections import defaultdict
     partidos_por_nombre = defaultdict(list)
     for partido in partidos:
-        nombre = partido.torneo.nombre
-        partidos_por_nombre[nombre].append(partido)
+        partidos_por_nombre[partido.torneo.nombre].append(partido)
 
     return render(request, 'datos_jugador.html', {
         'jugador': jugador,
@@ -181,9 +193,6 @@ def datos_jugador(request, dni):
         'torneos_data': torneos_data,
         'partidos_agrupados': partidos_por_nombre.items(),
     })
-
-
-
     
 def busqueda_jugador(request):
     nombre = request.GET.get('nombre', '')
