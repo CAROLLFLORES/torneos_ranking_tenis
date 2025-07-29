@@ -80,14 +80,14 @@
                                 <select name="jugador2[]" class="form-select" required>
                                     <option value="">-- Equipo 2 --</option>
                                     {% for equipo in equipos %}
-                                        <option value="{{ equipo.id }}">{{ equipo.jugador1.apellido }} / {{ equipo.jugador2.apellido }}</option>
+                                        <option value="{{ equipo.id }}">{{ equipo.jugador1.apellido | upper}} / {{ equipo.jugador2.apellido }}</option>
                                     {% endfor %}
                                 </select>
                             {% else %}
                                 <select name="jugador2[]" class="form-select" required>
                                     <option value="">-- Jugador 2 --</option>
                                     {% for jugador in jugadores %}
-                                        <option value="{{ jugador.dni }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                                        <option value="{{ jugador.dni }}">{{ jugador. | upper }}, {{ jugador.nombre }}</option>
                                     {% endfor %}
                                 </select>
                             {% endif %}
@@ -149,7 +149,7 @@
                 <td>
                     {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
                         <input type="text" class="form-control"
-                            value="{{ partido.equipo1.jugador1.apellido }} / {{ partido.equipo1.jugador2.apellido }}"
+                            value="{{ partido.equipo1.jugador1.apellido | upper}} / {{ partido.equipo1.jugador2.apellido | upper}}"
                             data-dni="{{ partido.equipo1.id }}"
                             id="jugador1-{{ partido.id }}"
                             disabled>
@@ -192,12 +192,12 @@
                         {% if partido.resultado.ganador_equipo %}
                             <input type="text" class="form-control"
                                 id="ganador-{{ partido.id }}"
-                                value="{{ partido.resultado.ganador_equipo.jugador1.apellido }} {{ partido.resultado.ganador_equipo.jugador1.nombre }} / {{ partido.resultado.ganador_equipo.jugador2.apellido }} {{ partido.resultado.ganador_equipo.jugador2.nombre }}"
+                                value="{{ partido.resultado.ganador_equipo.jugador1.apellido | upper}} {{ partido.resultado.ganador_equipo.jugador1.nombre }} / {{ partido.resultado.ganador_equipo.jugador2.apellido | upper }} {{ partido.resultado.ganador_equipo.jugador2.nombre }}"
                                 readonly>
                         {% elif partido.resultado.ganador_jugador %}
                             <input type="text" class="form-control"
                                 id="ganador-{{ partido.id }}"
-                                value="{{ partido.resultado.ganador_jugador.apellido }} {{ partido.resultado.ganador_jugador.nombre }}"
+                                value="{{ partido.resultado.ganador_jugador.apellido | upper}} {{ partido.resultado.ganador_jugador.nombre }}"
                                 readonly>
                         {% else %}
                             <input type="text" class="form-control"
@@ -226,7 +226,7 @@
                 <td>
                     {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
                         <input type="text" class="form-control"
-                            value="{{ partido.equipo2.jugador1.apellido }} / {{ partido.equipo2.jugador2.apellido }}"
+                            value="{{ partido.equipo2.jugador1.apellido | upper}} / {{ partido.equipo2.jugador2.apellido | upper}}"
                             data-dni="{{ partido.equipo2.id }}"
                             id="jugador2-{{ partido.id }}"
                             disabled>
@@ -246,7 +246,7 @@
                 <td><input type="number" class="form-control set-input" min="0" max="9"
                     value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set2_equipo2 }}{% else %}{{ partido.resultado.set2_jugador2 }}{% endif %}"
                     id="set2-jugador2-{{ partido.id }}" disabled></td>
-                <td><input type="number" class="form-control set-input" min="0" max="9"
+                <td><input type="number" class="form-control set-input" min="0"
                     value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set3_equipo2 }}{% else %}{{ partido.resultado.set3_jugador2 }}{% endif %}"
                     id="set3-jugador2-{{ partido.id }}" disabled></td>
             </tr>
@@ -679,53 +679,70 @@
 });
 
 //agregado para guardar partido
-//agregado para guardar partido
 function guardarPartido(partidoId) {
-    let set1Jugador1 = document.getElementById(`set1-jugador1-${partidoId}`).value.trim() || "0";
-    let set2Jugador1 = document.getElementById(`set2-jugador1-${partidoId}`).value.trim() || "0";
-    let set3Jugador1 = document.getElementById(`set3-jugador1-${partidoId}`).value.trim() || "0";
-    let set1Jugador2 = document.getElementById(`set1-jugador2-${partidoId}`).value.trim() || "0";
-    let set2Jugador2 = document.getElementById(`set2-jugador2-${partidoId}`).value.trim() || "0";
-    let set3Jugador2 = document.getElementById(`set3-jugador2-${partidoId}`).value.trim() || "0";
+    let s1j1 = parseInt(document.getElementById(`set1-jugador1-${partidoId}`).value || '0', 10);
+    let s2j1 = parseInt(document.getElementById(`set2-jugador1-${partidoId}`).value || '0', 10);
+    let s3j1 = parseInt(document.getElementById(`set3-jugador1-${partidoId}`).value || '0', 10);
 
-    let ganadorInput = document.getElementById(`ganador-${partidoId}`).value.trim();
+    let s1j2 = parseInt(document.getElementById(`set1-jugador2-${partidoId}`).value || '0', 10);
+    let s2j2 = parseInt(document.getElementById(`set2-jugador2-${partidoId}`).value || '0', 10);
+    let s3j2 = parseInt(document.getElementById(`set3-jugador2-${partidoId}`).value || '0', 10);
 
-    // 📌 Obtener el tipo de torneo desde Django
+    let ganadorInput = document.getElementById(`ganador-${partidoId}`);
+
     let torneoTipo = "{{ torneo.tipo_juego|lower }}";
-    let torneoEsDobleOMixto = torneoTipo === "doble" || torneoTipo === "mixto";
+    let esDoble = torneoTipo === "doble" || torneoTipo === "mixto";
 
-    // Variables para ganador
+    // 📌 IDs para enviar
+    let jugador1DNI = null, jugador2DNI = null;
+    let equipo1ID = null, equipo2ID = null;
+
+    if (esDoble) {
+        equipo1ID = parseInt(document.getElementById(`jugador1-${partidoId}`).getAttribute("data-dni"), 10);
+        equipo2ID = parseInt(document.getElementById(`jugador2-${partidoId}`).getAttribute("data-dni"), 10);
+    } else {
+        jugador1DNI = parseInt(document.getElementById(`jugador1-${partidoId}`).getAttribute("data-dni"), 10);
+        jugador2DNI = parseInt(document.getElementById(`jugador2-${partidoId}`).getAttribute("data-dni"), 10);
+    }
+
+    let jugador1 = document.getElementById(`jugador1-${partidoId}`).value;
+    let jugador2 = document.getElementById(`jugador2-${partidoId}`).value;
+
+    // 📌 Contar sets ganados
+    let setsGanados1 = 0, setsGanados2 = 0;
+
+    function ganadorSet(j1, j2) {
+        if (j1 === 0 && j2 === 0) return null;
+        return j1 > j2 ? 1 : 2;
+    }
+
+    let g1 = ganadorSet(s1j1, s1j2);
+    if (g1 === 1) setsGanados1++;
+    if (g1 === 2) setsGanados2++;
+
+    let g2 = ganadorSet(s2j1, s2j2);
+    if (g2 === 1) setsGanados1++;
+    if (g2 === 2) setsGanados2++;
+
+    if (!(s3j1 === 0 && s3j2 === 0)) {
+        if (s3j1 > s3j2) setsGanados1++;
+        else if (s3j2 > s3j1) setsGanados2++;
+    }
+
+    // 📌 Determinar ganador
     let ganadorDNI = null;
     let ganadorEquipoID = null;
 
-    if (torneoEsDobleOMixto) {
-        // 👫 Evaluar sets para dobles/mixto
-        let setsGanadosEq1 = 0;
-        let setsGanadosEq2 = 0;
-
-        if (set1Jugador1 > set1Jugador2) setsGanadosEq1++;
-        if (set2Jugador1 > set2Jugador2) setsGanadosEq1++;
-        if (set3Jugador1 > set3Jugador2) setsGanadosEq1++;
-
-        if (set1Jugador2 > set1Jugador1) setsGanadosEq2++;
-        if (set2Jugador2 > set2Jugador1) setsGanadosEq2++;
-        if (set3Jugador2 > set3Jugador1) setsGanadosEq2++;
-
-        if (setsGanadosEq1 >= 2) {
-            ganadorEquipoID = document.getElementById(`jugador1-${partidoId}`).getAttribute("data-dni");
-        } else if (setsGanadosEq2 >= 2) {
-            ganadorEquipoID = document.getElementById(`jugador2-${partidoId}`).getAttribute("data-dni");
-        }
+    if (setsGanados1 >= 2) {
+        ganadorInput.value = jugador1;
+        if (esDoble) ganadorEquipoID = equipo1ID;
+        else ganadorDNI = jugador1DNI;
+    } else if (setsGanados2 >= 2) {
+        ganadorInput.value = jugador2;
+        if (esDoble) ganadorEquipoID = equipo2ID;
+        else ganadorDNI = jugador2DNI;
     } else {
-        // 🧍 Single: se compara contra el input ganador
-        let jugador1DNI = parseInt(document.getElementById(`jugador1-${partidoId}`).getAttribute("data-dni"), 10);
-        let jugador2DNI = parseInt(document.getElementById(`jugador2-${partidoId}`).getAttribute("data-dni"), 10);
-
-        if (ganadorInput === document.getElementById(`jugador1-${partidoId}`).value) {
-            ganadorDNI = jugador1DNI;
-        } else if (ganadorInput === document.getElementById(`jugador2-${partidoId}`).value) {
-            ganadorDNI = jugador2DNI;
-        }
+        ganadorInput.value = "No definido";
     }
 
     // 🚀 Enviar al servidor
@@ -737,12 +754,12 @@ function guardarPartido(partidoId) {
         },
         body: JSON.stringify({
             partido_id: partidoId,
-            set1_jugador1: parseInt(set1Jugador1, 10),
-            set2_jugador1: parseInt(set2Jugador1, 10),
-            set3_jugador1: parseInt(set3Jugador1, 10),
-            set1_jugador2: parseInt(set1Jugador2, 10),
-            set2_jugador2: parseInt(set2Jugador2, 10),
-            set3_jugador2: parseInt(set3Jugador2, 10),
+            set1_jugador1: s1j1,
+            set2_jugador1: s2j1,
+            set3_jugador1: s3j1,
+            set1_jugador2: s1j2,
+            set2_jugador2: s2j2,
+            set3_jugador2: s3j2,
             ganador_dni: ganadorDNI,
             ganador_equipo_id: ganadorEquipoID
         })
@@ -763,7 +780,6 @@ function guardarPartido(partidoId) {
 }
 
 
-
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".set-input").forEach(input => {
         input.addEventListener("input", function () {
@@ -774,37 +790,53 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function actualizarGanador(partidoId) {
-    let set1Jugador1 = parseInt(document.getElementById(`set1-jugador1-${partidoId}`).value || '0', 10);
-    let set2Jugador1 = parseInt(document.getElementById(`set2-jugador1-${partidoId}`).value || '0', 10);
-    let set3Jugador1 = parseInt(document.getElementById(`set3-jugador1-${partidoId}`).value || '0', 10);
+    let s1j1 = parseInt(document.getElementById(`set1-jugador1-${partidoId}`).value || '0', 10);
+    let s2j1 = parseInt(document.getElementById(`set2-jugador1-${partidoId}`).value || '0', 10);
+    let s3j1 = parseInt(document.getElementById(`set3-jugador1-${partidoId}`).value || '0', 10);
 
-    let set1Jugador2 = parseInt(document.getElementById(`set1-jugador2-${partidoId}`).value || '0', 10);
-    let set2Jugador2 = parseInt(document.getElementById(`set2-jugador2-${partidoId}`).value || '0', 10);
-    let set3Jugador2 = parseInt(document.getElementById(`set3-jugador2-${partidoId}`).value || '0', 10);
+    let s1j2 = parseInt(document.getElementById(`set1-jugador2-${partidoId}`).value || '0', 10);
+    let s2j2 = parseInt(document.getElementById(`set2-jugador2-${partidoId}`).value || '0', 10);
+    let s3j2 = parseInt(document.getElementById(`set3-jugador2-${partidoId}`).value || '0', 10);
 
     let ganadorInput = document.getElementById(`ganador-${partidoId}`);
     let jugador1 = document.getElementById(`jugador1-${partidoId}`).value;
     let jugador2 = document.getElementById(`jugador2-${partidoId}`).value;
 
-    let setsGanadosJugador1 = 0;
-    let setsGanadosJugador2 = 0;
+    let setsGanados1 = 0;
+    let setsGanados2 = 0;
 
-    if (set1Jugador1 > set1Jugador2) setsGanadosJugador1++;
-    if (set2Jugador1 > set2Jugador2) setsGanadosJugador1++;
-    if (set3Jugador1 > set3Jugador2) setsGanadosJugador1++;
+    // Función genérica para sets normales
+    function ganadorSet(j1, j2) {
+        if (j1 === 0 && j2 === 0) return null;
+        return j1 > j2 ? 1 : 2;
+    }
 
-    if (set1Jugador2 > set1Jugador1) setsGanadosJugador2++;
-    if (set2Jugador2 > set2Jugador1) setsGanadosJugador2++;
-    if (set3Jugador2 > set3Jugador1) setsGanadosJugador2++;
+    // 📌 Set 1
+    let g1 = ganadorSet(s1j1, s1j2);
+    if (g1 === 1) setsGanados1++;
+    if (g1 === 2) setsGanados2++;
 
-    if (setsGanadosJugador1 >= 2) {
+    // 📌 Set 2
+    let g2 = ganadorSet(s2j1, s2j2);
+    if (g2 === 1) setsGanados1++;
+    if (g2 === 2) setsGanados2++;
+
+    // 📌 Set 3 (desempate: puede ser 10, 12, 15, etc.)
+    if (!(s3j1 === 0 && s3j2 === 0)) {
+        if (s3j1 > s3j2) setsGanados1++;
+        else if (s3j2 > s3j1) setsGanados2++;
+    }
+
+    // 📌 Determinar el ganador del partido
+    if (setsGanados1 >= 2) {
         ganadorInput.value = jugador1;
-    } else if (setsGanadosJugador2 >= 2) {
+    } else if (setsGanados2 >= 2) {
         ganadorInput.value = jugador2;
     } else {
         ganadorInput.value = "";
     }
 }
+
 
 /*ASEGURA 1 DIGITO EN SET 1 Y 2*/
 document.querySelectorAll('.set-input').forEach(input => {

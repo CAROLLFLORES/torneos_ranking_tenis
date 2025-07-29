@@ -46,6 +46,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import user_passes_test
 import os
 from django.conf import settings
+from datetime import datetime, timedelta
 
 ruta_imagen = os.path.join(settings.BASE_DIR, 'static', 'imagenes', 'apur.png')
 
@@ -1482,10 +1483,11 @@ from io import BytesIO
 from reportlab.platypus import Table, TableStyle, Paragraph, SimpleDocTemplate, Spacer, Image
 from reportlab.lib.enums import TA_CENTER
 
+
 def generar_pdf_partidos_por_fecha(request):
     fecha_str = request.GET.get("fecha")
     sede_id = request.GET.get("sede_id")
-    sede = Sede.objects.get(id=sede_id)
+    sede = get_object_or_404(Sede, id=sede_id)
 
     if not fecha_str or not sede_id:
         return HttpResponse("Fecha o sede no proporcionada", status=400)
@@ -1496,18 +1498,65 @@ def generar_pdf_partidos_por_fecha(request):
     except ValueError:
         return HttpResponse("Parámetros inválidos", status=400)
 
-    partidos_qs = Partido.objects.select_related(
+    # ✅ Traer partidos de todas las sedes (para verificar mismo día o días consecutivos)
+    rango_fechas = [fecha - timedelta(days=1), fecha, fecha + timedelta(days=1)]
+    partidos_global = Partido.objects.select_related(
         'torneo', 'cancha__sede',
         'jugador1', 'jugador2',
         'equipo1__jugador1', 'equipo1__jugador2',
         'equipo2__jugador1', 'equipo2__jugador2'
     ).filter(
-        fecha=fecha,
-        cancha__sede__id=sede_id
-    ).order_by('hora')
+        fecha__in=rango_fechas
+    ).order_by('fecha', 'hora')
 
-    if not partidos_qs.exists():
+    # ✅ Filtrar solo los partidos de la sede actual para mostrar
+    partidos_sede = partidos_global.filter(cancha__sede__id=sede_id)
+
+    if not partidos_sede.exists():
         return HttpResponse("No hay partidos para la fecha y sede seleccionadas", status=404)
+
+    # Detectar jugadores con partidos consecutivos o más de uno en el mismo día
+    jugadores_partidos = {}
+    for p in partidos_global:  # se analiza GLOBALMENTE
+        jugadores = []
+        if p.torneo.tipo_juego == 'Single':
+            if p.jugador1: jugadores.append(p.jugador1)
+            if p.jugador2: jugadores.append(p.jugador2)
+        else:
+            if p.equipo1:
+                if p.equipo1.jugador1: jugadores.append(p.equipo1.jugador1)
+                if p.equipo1.jugador2: jugadores.append(p.equipo1.jugador2)
+            if p.equipo2:
+                if p.equipo2.jugador1: jugadores.append(p.equipo2.jugador1)
+                if p.equipo2.jugador2: jugadores.append(p.equipo2.jugador2)
+
+        for j in jugadores:
+            jugadores_partidos.setdefault(j.dni, []).append(p.fecha)
+
+    jugadores_marcados = set()
+    for jugador_dni, fechas in jugadores_partidos.items():
+        fechas_ordenadas = sorted(fechas)
+
+        # Caso 1: más de un partido el mismo día
+        conteo_por_fecha = {}
+        for f in fechas_ordenadas:
+            conteo_por_fecha[f] = conteo_por_fecha.get(f, 0) + 1
+            if conteo_por_fecha[f] > 1:
+                jugadores_marcados.add(jugador_dni)
+
+        # Caso 2: partidos en días consecutivos
+        for i in range(len(fechas_ordenadas) - 1):
+            if (fechas_ordenadas[i + 1] - fechas_ordenadas[i]).days == 1:
+                jugadores_marcados.add(jugador_dni)
+
+    # Función para formatear nombres
+    def formatear_nombre(jugador):
+        if not jugador:
+            return "SIN ASIGNAR"
+        nombre = f"{jugador.apellido.upper()} {jugador.nombre.capitalize()}"
+        if jugador.dni in jugadores_marcados:
+            return f"<font color='green'><b>{nombre}*</b></font>"
+        return nombre
 
     styles = getSampleStyleSheet()
     estilo_celda = ParagraphStyle(
@@ -1519,27 +1568,24 @@ def generar_pdf_partidos_por_fecha(request):
     )
 
     partidos = []
-    for p in partidos_qs:
+    for p in partidos_sede:  # mostramos solo sede actual
         torneo = p.torneo
         tipo = torneo.tipo_juego
 
         if tipo == 'Single':
-            jugador1 = p.jugador1.apellido if p.jugador1 else "Sin asignar"
-            jugador2 = p.jugador2.apellido if p.jugador2 else "Sin asignar"
+            jugador1 = formatear_nombre(p.jugador1)
+            jugador2 = formatear_nombre(p.jugador2)
             nombres = f"{jugador1} vs {jugador2}"
         else:
-            equipo1_j1 = p.equipo1.jugador1.apellido if p.equipo1 and p.equipo1.jugador1 else "?"
-            equipo1_j2 = p.equipo1.jugador2.apellido if p.equipo1 and p.equipo1.jugador2 else "?"
-            equipo2_j1 = p.equipo2.jugador1.apellido if p.equipo2 and p.equipo2.jugador1 else "?"
-            equipo2_j2 = p.equipo2.jugador2.apellido if p.equipo2 and p.equipo2.jugador2 else "?"
-
-            nombres = f"{equipo1_j1}/{equipo1_j2} vs {equipo2_j1}/{equipo2_j2}"
-
+            equipo1_j1 = formatear_nombre(p.equipo1.jugador1 if p.equipo1 else None)
+            equipo1_j2 = formatear_nombre(p.equipo1.jugador2 if p.equipo1 else None)
+            equipo2_j1 = formatear_nombre(p.equipo2.jugador1 if p.equipo2 else None)
+            equipo2_j2 = formatear_nombre(p.equipo2.jugador2 if p.equipo2 else None)
+            nombres = f"{equipo1_j1} / {equipo1_j2} vs {equipo2_j1} / {equipo2_j2}"
 
         # Buscar resultado si existe
         resultado = ResultadoPartido.objects.filter(partido=p).first()
         resultado_texto = ""
-
         if resultado:
             if tipo == 'Single':
                 sets = [
@@ -1553,30 +1599,25 @@ def generar_pdf_partidos_por_fecha(request):
                     f"{resultado.set2_equipo1}-{resultado.set2_equipo2}",
                     f"{resultado.set3_equipo1}-{resultado.set3_equipo2}"
                 ]
-
             sets_filtrados = [s for s in sets if s not in ("0-0", "None-None", "None-0", "0-None", "None-None")]
             if any("-" in s and s != "0-0" for s in sets_filtrados):
                 resultado_texto = "<br/><font size=10 color='red'><b>Resultado:</b> " + " / ".join(sets_filtrados) + "</font>"
 
-                    # ── Nuevo: añadir ganador debajo del resultado ──
             if tipo == 'Single' and resultado.ganador_jugador:
-                ganador_nombre = f"{resultado.ganador_jugador.apellido} {resultado.ganador_jugador.nombre}"
+                ganador_nombre = formatear_nombre(resultado.ganador_jugador)
             elif tipo != 'Single' and resultado.ganador_equipo:
                 eq = resultado.ganador_equipo
-                ganador_nombre = f"{eq.jugador1.apellido}/{eq.jugador2.apellido}"
+                ganador_nombre = f"{formatear_nombre(eq.jugador1)}/{formatear_nombre(eq.jugador2)}"
             else:
                 ganador_nombre = "Sin definir"
 
-            resultado_texto += (
-                f"<br/><font size=10><b>Ganador:</b> {ganador_nombre}</font>"
-            )
-
+            resultado_texto += f"<br/><font size=10><b>Ganador:</b> {ganador_nombre}</font>"
 
         detalle = Paragraph(
-            f"<font size=12><b>{nombres}</b></font><br/><font size=9>{torneo.nombre} - {tipo}</font>{resultado_texto}",
+            f"<font size=12 color='red'><b>{torneo.nombre}</b></font><br/>"
+            f"<font size=11><b>{nombres}</b></font>{resultado_texto}",
             estilo_celda
         )
-
 
         partidos.append({
             'hora': p.hora,
@@ -1608,20 +1649,56 @@ def generar_pdf_partidos_por_fecha(request):
     story = []
 
     # Logo
+    # Logos lado a lado
+    from reportlab.platypus import Table
+
     try:
-        logo = Image(ruta_imagen, width=4 * cm, height=2 * cm)
-        story.append(logo)
+        logo_apur = Image(ruta_imagen, width=4 * cm, height=2 * cm)
     except:
-        story.append(Paragraph("[LOGO NO ENCONTRADO]", styles["Normal"]))
+        logo_apur = Paragraph("[APUR NO ENCONTRADO]", styles["Normal"])
+
+    try:
+        ruta_french = os.path.join(settings.BASE_DIR, 'static', 'imagenes', 'logo_french_clay.png')
+        logo_french = Image(ruta_french, width=3 * cm, height=2 * cm)
+    except:
+        logo_french = Paragraph("[FRENCH CLAY NO ENCONTRADO]", styles["Normal"])
+
+    tabla_logos = Table(
+        [[logo_apur, logo_french]],
+        colWidths=[6*cm, 6*cm]  # ancho de columnas ajustable
+    )
+    tabla_logos.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+    ]))
+
+    story.append(tabla_logos)
+
 
     story.append(Spacer(1, 0.3 * cm))
-    story.append(Paragraph("LIGA", styles["Title"]))
-    story.append(Paragraph(f'<para align="center"><font size=20>Fecha: {fecha.strftime("%d/%m/%Y")}</font></para>', styles["Normal"]))
+    story.append(Paragraph("Liga Abierta APUR-FRENCH CLAY ", styles["Title"]))
+
+    # Día de la semana
+    dia_semana = fecha.strftime("%A")
+    dias_es = {
+        "Monday": "Lunes", "Tuesday": "Martes", "Wednesday": "Miércoles",
+        "Thursday": "Jueves", "Friday": "Viernes",
+        "Saturday": "Sábado", "Sunday": "Domingo"
+    }
+    dia_semana_es = dias_es.get(dia_semana, dia_semana)
+
+    story.append(Paragraph(
+        f'<para align="center"><font size=20>Fecha: {dia_semana_es} {fecha.strftime("%d/%m/%Y")}</font></para>',
+        styles["Normal"]
+    ))
+
     story.append(Spacer(1, 0.5 * cm))
     story.append(Paragraph(f'<para align="center"><font size=20><b>Sede: {sede.nombre}</b></font></para>', styles["Normal"]))
     story.append(Spacer(1, 0.5 * cm))
 
-    row_heights = [1.5 * cm] + [2.5 * cm for _ in horarios]
+    row_heights = [3 * cm] + [2.8 * cm for _ in horarios]
     table = Table(data, colWidths=[3.5 * cm] + [6 * cm for _ in canchas], rowHeights=row_heights)
 
     table.setStyle(TableStyle([
@@ -1634,15 +1711,26 @@ def generar_pdf_partidos_por_fecha(request):
     ]))
 
     story.append(table)
+
+    # Leyenda
+    story.append(Spacer(1, 0.5 * cm))
+    story.append(Paragraph(
+        "<font size=12 color='green'><b>* Jugadores en verde: juegan más de un partido el mismo día o en días consecutivos (en cualquier sede o tipo de juego)</b></font>",
+        styles["Normal"]
+    ))
+
     doc.build(story)
 
     pdf = buffer.getvalue()
     buffer.close()
 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="liga_{sede.nombre.replace(" ", "_")}_{fecha}.pdf"'
+    response['Content-Disposition'] = (
+        f'attachment; filename="liga_{sede.nombre.replace(" ", "_")}_{dia_semana_es}_{fecha.strftime("%d-%m-%Y")}.pdf"'
+    )
     response.write(pdf)
     return response
+
 
 def abm_sede(request):
     if request.method == 'POST':
