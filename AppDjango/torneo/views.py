@@ -1786,3 +1786,17 @@ def eliminar_cancha(request, cancha_id):
     cancha = get_object_or_404(Cancha, id=cancha_id)
     cancha.delete()
     return redirect('listado_canchas')  # Cambiá esto si tu vista se llama diferente
+
+
+
+def editar_sede(request, sede_id):
+    sede = get_object_or_404(Sede, id=sede_id)
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        if nombre:
+            sede.nombre = nombre
+            sede.save()
+            messages.success(request, f'Sede "{nombre}" editada correctamente.')
+        else:
+            messages.error(request, 'El nombre no puede estar vacío.')
+        return redirect('listado_sedes')

@@ -2,105 +2,172 @@
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
+
 <div class="container-admin">
-    <h4>ADMINISTRADOR</h4>
+    {% if user.is_authenticated %}
+        <h4>ADMINISTRADOR</h4>
+    {% else %}
+        <h4>LIGA 2025</h4>
+    {% endif %}
     <div class="text-section">
         <hr class="separator-line">
-        <h2>LISTADO</h2>
-    </div>
-    <div class="text-section">
-        <hr class="separator-line">
-        <h5>COMPLETO DE SEDES</h5>
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">SEDES</h5>
     </div>
 
-    <div class="form-container">
-        <div class="narrow-box">
-            <div class="title-orange-gris">
-                <h1>SEDES</h1>
-                <h3 class="negro chico">OPCIONES</h3>
+    <!-- LINKS Y OPCIONES -->
+    <div class="recuadro-tabla">
+        <div class="form-container-torneos">
+            <!-- BOTONES -->
+            <div style="display: flex; flex-direction: row; gap: 1rem">
+                <a class="btn-opciones" href="{% url 'listado_sedes' %}#resultados">LISTADO COMPLETO</a>
             </div>
-            <a href="{% url 'admin_menu' %}">
-                <button class="login-button peque">MENU</button>
-            </a>
-            <hr class="separator">
 
-            <a href="{% url 'listado_sedes' %}">
-                <button class="login-button-gris chico">Listado completo</button>
-            </a>
-
-            <hr class="separator">
-            <h3 class="negro">BUSCAR POR NOMBRE</h3>
-            <form method="GET" action="{% url 'listado_sedes' %}" class="d-flex align-items-center mb-3">
-                <input class="input-field" type="text" name="search" placeholder="Buscar por nombre de sede" value="{{ request.GET.search }}">
-                <button class="login-button-gris chico ms-2" type="submit">Buscar</button>
-            </form>
-            <hr class="separator">
-
-            <a href="{% url 'abm_sede' %}">
-                <button class="login-button chico">ALTA</button>
-            </a>
+            <!-- LINKS -->
+            <div id="resultados" style="margin-top: 1rem;">
+                <a class="a-options" href="{% url 'admin_menu' %}">
+                    <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
+                    MENÚ ADMINISTRADOR
+                </a>
+                {% if user.is_authenticated and user.is_staff %}
+                <a class="a-options" href="{% url 'abm_sede' %}">
+                    <i class="bi bi-plus-circle-fill" style="margin-right: 5px;"></i>
+                    ALTA SEDE
+                </a>
+                {% endif %}
+            </div>
         </div>
+    </div>
 
-        <div class="login-box listados">
-            <table class="table table-striped-columns table-light table-bordered table-sm">
-                <thead class="table-success">
-                    <tr class="title-container">
-                        <th>ID</th>
-                        <th>NOMBRE</th>
-                        <th>ELIMINAR</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if sedes %}
-                        {% for sede in sedes %}
-                            <tr>
-                                <td>{{ sede.id }}</td>
-                                <td style="text-align: left;">{{ sede.nombre }}</td>
-                            
-                                <td>
-                                    <button type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#eliminarModal-{{ sede.id }}"
-                                            title="Eliminar sede"
-                                            style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi bi-trash-fill" style="font-size: 1.5rem; color: red;"></i>
-                                    </button>
-
-                                    <!-- Modal eliminar sede -->
-                                    <div class="modal fade" id="eliminarModal-{{ sede.id }}" tabindex="-1" aria-labelledby="eliminarModalLabel-{{ sede.id }}" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                        <form method="POST" action="{% url 'eliminar_sede' sede.id %}">
-                                            {% csrf_token %}
-                                            <div class="modal-header">
-                                            <h5 class="modal-title" id="eliminarModalLabel-{{ sede.id }}">¿Eliminar sede "{{ sede.nombre }}"?</h5>
-                                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                                <i class="bi bi-x" style="font-size: 1.5rem;"></i>
-                                            </button>
-                                            </div>
-                                            <div class="modal-body">
-                                            Esta acción eliminará permanentemente la sede del sistema.
-                                            </div>
-                                            <div class="modal-footer">
-                                            <button type="submit"class="login-button rojo delete-button">ELIMINAR</button>
-                                            
-                                            </div>
-                                        </form>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="2" class="text-center">No hay sedes registradas.</td>
-                        </tr>
+    <!-- LISTADO -->
+    <div>
+        <div class="recuadro-tabla">
+            <!-- PAGINADO -->
+            <div class="green-box-table">
+                <div class="pagination-container">
+                    Página {{ sedes.number }} de {{ sedes.paginator.num_pages }}
+                    {% if sedes.has_previous %}
+                        <a href="?page={{ sedes.previous_page_number }}#resultados" class="arrow">&lt;</a>
                     {% endif %}
-                </tbody>
-            </table>
+                    {% if sedes.has_next %}
+                        <a href="?page={{ sedes.next_page_number }}#resultados" class="arrow">&gt;</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <p style="margin-top: .5rem; color: rgb(150, 149, 149); font-size: .8rem;">
+                {{ sedes.paginator.count }} resultados encontrados.
+            </p>
+
+            <!-- TABLA -->
+            <div class="tabla-wrapper">
+                <table class="tabla-usuarios">
+                    <thead>
+                        <tr>
+                            <th>NOMBRE</th>
+                            {% if user.is_authenticated and user.is_staff %}
+                                <th>EDITAR</th>
+                                <th>ELIMINAR</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if sedes %}
+                            {% for sede in sedes %}
+                                <tr>
+                                    <td style="text-align: left;">{{ sede.nombre }}</td>
+
+                                    {% if user.is_authenticated and user.is_staff %}
+                                    <!-- EDITAR -->
+                                    <td>
+                                        <button type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editarModal-{{ sede.id }}"
+                                                title="Editar sede"
+                                                class="btn-edit">
+                                            <i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i>
+                                        </button>
+
+                                        <!-- Modal Editar Sede -->
+                                        <div class="modal fade" id="editarModal-{{ sede.id }}" tabindex="-1" aria-labelledby="editarModalLabel-{{ sede.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h3 class="modal-title" id="editarModalLabel-{{ sede.id }}">
+                                                            Modificar sede '{{ sede.nombre }}'
+                                                        </h3>
+                                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                            <i class="bi bi-x" style="font-size: 1.5rem;"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form method="POST" action="{% url 'editar_sede' sede.id %}">
+                                                            {% csrf_token %}
+                                                            <div class="mb-3">
+                                                                <label for="sede-nombre-{{ sede.id }}">Nombre:</label>
+                                                                <input class="form-control" type="text" 
+                                                                    value="{{ sede.nombre }}" 
+                                                                    name="nombre" 
+                                                                    id="sede-nombre-{{ sede.id }}" 
+                                                                    required>
+                                                            </div>
+                                                            <div class="text-center">
+                                                                <button class="login-button btn btn-success" type="submit">Guardar cambios</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- ELIMINAR -->
+                                    <td>
+                                        <button type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#eliminarModal-{{ sede.id }}"
+                                                title="Eliminar sede"
+                                                class="btn-delete">
+                                            <i class="bi bi-trash-fill" style="font-size: 1.1rem;"></i>
+                                        </button>
+
+                                        <!-- Modal Eliminar -->
+                                        <div class="modal fade" id="eliminarModal-{{ sede.id }}" tabindex="-1" aria-labelledby="eliminarModalLabel-{{ sede.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <form method="POST" action="{% url 'eliminar_sede' sede.id %}">
+                                                        {% csrf_token %}
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="eliminarModalLabel-{{ sede.id }}">
+                                                                ¿Eliminar sede "{{ sede.nombre }}"?
+                                                            </h5>
+                                                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                                <i class="bi bi-x" style="font-size: 1.5rem;"></i>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Esta acción eliminará permanentemente la sede del sistema.
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="submit" class="login-button rojo delete-button">Eliminar</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No hay SEDES registradas.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
 {% endblock %}
