@@ -11,6 +11,11 @@ class JugadorForm(forms.ModelForm):
         required=True,  # Haz que sea obligatorio o no según tus necesidades
         label="Categorías",  # Etiqueta personalizada para el campo
     )
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Cambiar cómo se muestra cada categoría
+        self.fields['categorias'].label_from_instance = lambda obj: f"{obj.nivel} {obj.edad}"
 
     class Meta:
         model = Jugador

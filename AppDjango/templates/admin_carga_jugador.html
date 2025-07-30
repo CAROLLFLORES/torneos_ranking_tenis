@@ -28,62 +28,162 @@
     </div>
 </div>
 
+
+
 <div class="container-admin">
-    <h4>ADMINISTRADOR</h4>
+    {% if user.is_authenticated %}
+        <h4>ADMINISTRADOR</h4>
+    {% else %}
+        <h4>LIGA 2025</h4>
+    {% endif %}
     <div class="text-section">
-        <hr class="separator-line"> <!-- Línea separadora -->
-        <h2>ALTA</h2>
+        <hr class="separator-line">
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">ALTA DE JUGADOR</h5>
     </div>
-    <div class="text-section">
-        <hr class="separator-line"> <!-- Línea separadora -->
-        <h5>CARGA DE NUEVO JUGADOR</h5>
-    </div>
-    <div class="form-container">
-        <!-- Rectángulo angosto a la izquierda -->
-        <div class="narrow-box">
-            <div class="title-orange-gris">
-                <h1>JUGADORES</h1>
-                <h3 class="negro chico">OPCIONES</h3>
+
+    <!-- FILTROS -->
+    <div class="recuadro-tabla">
+        
+        <!-- id="form-crear"  agregar en div de form container sumado a clase hidden para cerrar y abrir panel -->
+        <div class="form-container-torneos">
+            <div class="container-form-filter">
+                <form method="GET" action="{% url 'listado_jugadores' %}#resultados" class="row g-2 mb-3">
+
+                    <!-- BOTONES -->
+                    <div style="display: flex; flex-direction: row; gap: 1rem">
+                        
+                        <div class="btn-opciones">
+                            <a href="{% url 'listado_jugadores' %}">LISTADO COMPLETO</a>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <a href="{% url 'admin_menu' %}">
-                <button class="login-button peque">MENU</button>
-            </a>
-            <hr class="separator">
+            <!-- LINKS -->
+            <div id="resultados">
+                <a class="a-options" href="{% url 'admin_menu' %}">
+                <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
+                MENÚ ADMINISTRADOR
+                </a>
+                {% if user.is_authenticated and user.is_staff %}
+                <!-- Inicio Carga Masiva de Jugadores 102-->     
+                <form id="form-carga-masiva-jugadores" enctype="multipart/form-data" style="display: none;">
+                    {% csrf_token %}
+                    <input type="file" id="input-jugadores" name="archivo_excel" accept=".xlsx">
+                </form>
+                <a href="{% url 'exportar_jugadores_pdf' %}?{{ query_string }}"
+                    target="_blank"
+                    class="a-options"
+                    onclick="document.getElementById('input-jugadores').click();">
+                    <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
+                    CARGA MASIVA DE JUGADORES
+                </a>
+                {% endif %}
 
-            <a href="{% url 'listado_jugadores' %}">
-                <button class="login-button-gris chico">Listado completo</button>
-            </a>
-            <hr class="separator">
-<!-- Inicio Carga Masiva de Jugadores 102-->     
-            <form id="form-carga-masiva-jugadores" enctype="multipart/form-data" style="display: none;">
-                {% csrf_token %}
-                <input type="file" id="input-jugadores" name="archivo_excel" accept=".xlsx">
-            </form>
-
-            <button class="login-button-gris chico" onclick="document.getElementById('input-jugadores').click();">
-                Carga Masiva Jugadores
-            </button>
-
-            <div id="mensaje-carga-jugadores" style="margin-top: 10px; display: none; color: green; font-weight: bold;">
-                ¡Jugadores cargados con éxito!
+                
             </div>
-<!-- Fin Carga Masiva de Jugadores 102-->
-
-            
         </div>
+    </div>
+    
+
 
         <!-- Login box a la derecha del rectángulo angosto -->
-        <div class="login-box">
-            <form method="POST" id="formNuevoJugador" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button class="login-button" type="submit">GUARDAR JUGADOR</button>
-            </form>
-        </div>
+    <div class="tabla-wrapper">
+        <table class="tabla-usuarios">
+            <div>
+                <div class="recuadro-tabla">
+
+                    <form method="POST" id="formNuevoJugador" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Apellido -->
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter" for="apellido" class="span-filter">APELLIDO</span>
+                        <input type="text" name="apellido" id="apellido"
+                            placeholder="Ingresar apellido"
+                            class="form-control" required>
+                    </div>
+
+                    <!-- Nombre -->
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter" for="nombre" class="span-filter">NOMBRE</span>
+                        <input type="text" name="nombre" id="nombre"
+                            placeholder="Ingresar nombre"
+                            class="form-control" required>
+                    </div>
+
+                    <!-- Sexo -->
+                    <div class="filtro-busqueda1">
+                        <span for="sexo" class="span-filter">SEXO</span>
+                        <select name="sexo" id="sexo" class="form-select" required>
+                            <option value="">-- Seleccionar --</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                        </select>
+                    </div>
+
+
+                        {% csrf_token %}
+                        <div class="filtro-busqueda1">
+                            <span class="span-filter">CATEGORÍAS</span>
+                            <div class="form-control categorias-box">
+                                <ul>
+                                    {% for checkbox in form.categorias|dictsort:"choice_label" %}
+                                        <li>
+                                            {{ checkbox.tag }}
+                                            <label for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- BOTONES -->
+                        <div style="display: flex; flex-direction: row; gap: 1rem">
+                            <button class="btn-opciones" type="submit">GUARDAR JUGADOR</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </table>
         
     </div>
 </div>
 
+<style>
+.categorias-box ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(250px, 1fr)); /* 2 columnas fijas */
+    gap: 8px 20px;   /* espacio entre filas y entre columnas */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    justify-items: start;  /* 👈 alinea todo el contenido de cada celda a la izquierda */
+}
+
+.categorias-box li {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* 👈 checkbox + texto alineados a la izquierda */
+    white-space: nowrap;         /* evita saltos de línea raros */
+}
+
+.categorias-box input[type="checkbox"] {
+    margin: 0 10px 0 0;   /* 👈 elimina margen izquierdo, solo deja espacio a la derecha */
+    transform: scale(1.3);
+    cursor: pointer;
+}
+
+.categorias-box label {
+    text-align: left;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #ffffff; /* texto claro */
+    cursor: pointer;
+}
+
+
+</style>
 <script>
     document.getElementById("formNuevoJugador").addEventListener("submit", function (event) {
         event.preventDefault(); // Evita el envío normal del formulario

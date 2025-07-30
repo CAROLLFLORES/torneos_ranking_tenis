@@ -5,7 +5,6 @@
 
 {% block content %}
 <!-- Modal de Confirmación de Alta de Cancha -->
-<!-- Modal de Confirmación de Alta de Cancha -->
 <div class="modal fade" id="modalConfirmacionCancha" tabindex="-1" aria-labelledby="modalConfirmacionCanchaLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="background-color: rgba(210, 223, 101, 0.85); color: white; text-align: center;">
@@ -30,81 +29,80 @@
     </div>
 </div>
 
+
 <div class="container-admin">
-    <h4>ADMINISTRADOR</h4>
+    {% if user.is_authenticated %}
+        <h4>ADMINISTRADOR</h4>
+    {% else %}
+        <h4>LIGA 2025</h4>
+    {% endif %}
     <div class="text-section">
         <hr class="separator-line">
-        <h2>ALTA</h2>
-    </div>
-    <div class="text-section">
-        <hr class="separator-line">
-        <h5>CARGA DE NUEVA CANCHA</h5>
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">ALTA DE CANCHA</h5>
     </div>
 
+    <!-- FILTROS -->
+    <div class="recuadro-tabla">
+        
+        <!-- id="form-crear"  agregar en div de form container sumado a clase hidden para cerrar y abrir panel -->
+        <div class="form-container-torneos">
+            <div class="container-form-filter">
+                <form method="GET" action="{% url 'listado_canchas' %}#resultados" class="row g-2 mb-3">
+
+                    <!-- BOTONES -->
+                    <div style="display: flex; flex-direction: row; gap: 1rem">
+                        
+                        <div class="btn-opciones">
+                            <a href="{% url 'listado_canchas' %}">LISTADO COMPLETO</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- LINKS -->
+            <div id="resultados">
+                <a class="a-options" href="{% url 'admin_menu' %}">
+                <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
+                MENÚ ADMINISTRADOR
+                </a>
+                               
+            </div>
+        </div>
+    </div>
     
 
-    <div class="form-container">
-        <!-- Rectángulo angosto a la izquierda -->
-        <div class="narrow-box">
-            <div class="title-orange-gris">
-                <h1>CANCHAS</h1>
-                <h3 class="negro chico">OPCIONES</h3>
-            </div>
-            <a href="{% url 'admin_menu' %}">
-                <button class="login-button peque">MENU</button>
-            </a>
-            <hr class="separator">
 
-            <a href="{% url 'listado_canchas' %}">
-                <button class="login-button-gris chico">Listado completo</button>
-            </a>
-            <hr class="separator">
-<!--Inicio CARGAGA MASIVA - 100 -->
-            <form id="form-carga-masiva-cancha" enctype="multipart/form-data" style="display: none;">
-                {% csrf_token %}
-                <input type="file" id="input-cancha" name="archivo_excel" accept=".xlsx">
-            </form>
-            
-            <button class="login-button-gris chico" onclick="document.getElementById('input-cancha').click();">
-                Carga Masiva Canchas
-            </button>
-            
-            <div id="mensaje-carga-cancha" style="margin-top: 10px; display: none; color: green; font-weight: bold;">
-                ¡Canchas cargadas con éxito!
-            </div>
+<div class="tabla-wrapper">
+        <table class="tabla-usuarios">
+            <div>
+                <div class="recuadro-tabla">           
+        
+                <form id="form-nueva-cancha" method="POST" enctype="multipart/form-data">
 
-<!--Fin CARGAGA MASIVA  - 100 -->            
-            
-        </div>
+                    {% csrf_token %}
+                    <div class="filtro-busqueda1">
+                         <span class="span-filter" for="id_cancha" class="form-label">NUMERO DE CANCHA:</span>
+                         <input type="number" name="cancha" id="id_cancha" class="form-control" placeholder="Ingrese el número de la cancha" required>
+                    </div>
 
-        <!-- Formulario para cargar la nueva cancha -->
-        <!-- Formulario para cargar la nueva cancha -->
-        <div class="login-box">
-            <form id="form-nueva-cancha" method="POST" enctype="multipart/form-data">
-
-                {% csrf_token %}
-                <div class="mb-3">
-                    <br> 
-                    <label for="id_cancha" class="form-label">Número de Cancha:</label>
-                    <input type="number" name="cancha" id="id_cancha" class="form-control" placeholder="Ingrese el número de la cancha" required>
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter" for="id_sede" class="form-label">SEDE:</span>
+                        <select name="sede" id="id_sede" class="form-select" required>
+                            <option value="">-- Seleccione una sede --</option>
+                            {% for sede in sedes %}
+                                <option value="{{ sede.id }}">{{ sede.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- BOTONES -->
+                    <div style="display: flex; flex-direction: row; gap: 1rem">
+                        <button class="btn-opciones" type="submit">GUARDAR </button>
+                    </div>
+                   
+                </form>
                 </div>
-                <br> 
-                <div class="mb-3">
-                <label for="id_sede" class="form-label">Sede:</label>
-                <select name="sede" id="id_sede" class="form-select" required>
-                    <option value="">-- Seleccione una sede --</option>
-                    {% for sede in sedes %}
-                        <option value="{{ sede.id }}">{{ sede.nombre }}</option>
-                    {% endfor %}
-                </select>
-                </div>
-
-
-                <button class="login-button" type="submit">GUARDAR</button>
-            </form>
-            
-        </div>
-    </div>
+            </div>
+        </table>
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
