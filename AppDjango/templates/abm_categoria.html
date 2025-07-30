@@ -29,96 +29,112 @@
     </div>
 </div>
 
+
 <div class="container-admin">
-    <h4>ADMINISTRADOR</h4>
+    {% if user.is_authenticated %}
+        <h4>ADMINISTRADOR</h4>
+    {% else %}
+        <h4>LIGA 2025</h4>
+    {% endif %}
     <div class="text-section">
-        <hr class="separator-line"> <!-- Línea separadora -->
-        <h2>ALTA</h2>
+        <hr class="separator-line">
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">ALTA DE CATEGORIA</h5>
     </div>
-    <div class="text-section">
-        <hr class="separator-line"> <!-- Línea separadora -->
-        <h5>CATEGORIA</h5>
-    </div>
-    <div class="form-container">
-        <!-- Rectángulo angosto a la izquierda -->
-        <div class="narrow-box">
-            <div class="title-orange-gris">
-                <h1>CATEGORIA</h1>
-                <h3 class="negro chico">FILTROS</h3>
-            </div>
-            <br>
-            <a href="{% url 'admin_menu' %}">
-                <button class="login-button peque">MENU</button>
-            </a>
-            <hr class="separator">
 
-            <a href="{% url 'listados_categorias' %}">
-                <button class="login-button-gris chico">Listado completo</button>
-            </a>
-            <hr class="separator">
-<!-- Inicio CARGA MASIVA - 101 -->
-            <form id="form-carga-masiva" enctype="multipart/form-data" style="display: none;">
-                {% csrf_token %}
-                <input type="file" id="input-archivo" name="archivo_excel" accept=".xlsx">
-            </form>
-            
-            <button class="login-button-gris chico" onclick="document.getElementById('input-archivo').click();">
-                Carga Masiva
-            </button>
-            
-            <div id="mensaje-carga" style="margin-top: 10px; display: none; color: green; font-weight: bold;">
-                ¡Categorías cargadas con éxito!
+    <!-- FILTROS -->
+    <div class="recuadro-tabla">
+        
+        <!-- id="form-crear"  agregar en div de form container sumado a clase hidden para cerrar y abrir panel -->
+        <div class="form-container-torneos">
+            <div class="container-form-filter">
+                <form method="GET" action="{% url 'listados_categorias' %}#resultados" class="row g-2 mb-3">
+
+                    <!-- BOTONES -->
+                    <div style="display: flex; flex-direction: row; gap: 1rem">
+                        
+                        <div class="btn-opciones">
+                            <a href="{% url 'listados_categorias' %}">LISTADO COMPLETO</a>
+                        </div>
+                    </div>
+                </form>
             </div>
-<!--  Fin CARGA MASIVA - 101 -->           
-            
-            <!-- Contenedor para los botones -->
-            
+            <!-- LINKS -->
+            <div id="resultados">
+                <a class="a-options" href="{% url 'admin_menu' %}">
+                <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
+                MENÚ ADMINISTRADOR
+                </a>
+
+                {% if user.is_authenticated and user.is_staff %}
+                <!-- Inicio Carga Masiva de Jugadores 102-->     
+                <form id="form-carga-masiva" enctype="multipart/form-data" style="display: none;">
+                    {% csrf_token %}
+                    <input type="file" id="input-jugadores" name="archivo_excel" accept=".xlsx">
+                </form>
+                <a href="{% url 'exportar_jugadores_pdf' %}?{{ query_string }}"
+                    target="_blank"
+                    class="a-options"
+                    onclick="document.getElementById('input-categorias').click();">
+                    <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
+                    CARGA MASIVA DE JUGADORES
+                </a>
+                {% endif %}
+                               
+            </div>
         </div>
+    </div>
+    
 
-        <!-- Login box a la derecha del rectángulo angosto -->
-        <div class="login-box">
-            <form method="POST" id="form-nueva-categoria">
-                
-            
-                {% csrf_token %}
-                <div>
-                    <br>
-                    <label for="nivel">Nivel</label>
-                    <input type="text" id="nivel" name="nivel" placeholder="Nivel" required>
-                </div>
-            
-                <div>
-                    <br>
-                    <label for="edad">Edad</label>
-                    <input type="text" id="edad" name="edad" placeholder="Edad" required>
-                </div> 
-            
-                <div>
-                    <br>
-                    <label for="tipo_juego">Tipo de Juego</label>
-                    <select id="tipo_juego" name="tipo_juego" required>
-                        <option value="" disabled selected>Seleccione un tipo de juego</option>
-                        <option value="Single">Single</option>
-                        <option value="Doble">Doble</option>
-                        <option value="-"></option>
-                    </select>
-                </div> 
-                
-                <div>
-                    <br>
-                    <label for="genero">Género</label>
-                    <select id="genero" name="genero" required>
-                        <option value="" disabled selected>Seleccione un género</option>
-                        <option value="DAM">Dama</option>
-                        <option value="CAB">Caballero</option>
-                        <option value="MIX">Mixto</option>
-                        <option value="-"></option>
-                    </select>
-                </div> 
 
-                <br>
-                <button class="login-button" type="submit">Guardar</button>
-            </form>
+<div class="tabla-wrapper">
+        <table class="tabla-usuarios">
+            <div>
+                <div class="recuadro-tabla">  
+    
+                <form method="POST" id="form-nueva-categoria">
+                    
+                    {% csrf_token %}
+                    <!-- Nivel -->
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter" for="nivel" class="span-filter">NIVEL</span>
+                        <input type="text" id="nivel" name="nivel" placeholder="Nivel"
+                            class="form-control" required>
+                    </div>
+                
+                    <!-- Edad -->
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter" for="edad" class="span-filter">EDAD</span>
+                        <input type="text" id="edad" name="edad" placeholder="Edad"
+                            class="form-control" required>
+                    </div>
+
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter" class="form-label" for="tipo_juego">TIPO DE JUEGO</span>
+                        <select name="tipo_juego" id="tipo_juego" class="form-select" required>
+                            <option value="">-- SELECCIONE --</option>
+                                <option value="Single">Single</option>
+                                <option value="Doble">Doble</option>
+                                <option value="-"></option>
+                        </select>
+                    </div>
+
+
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter" class="form-label" for="genero">GENERO</span>
+                        <select id="genero" name="genero" class="form-select" required>
+                            <option value="">-- SELECCIONE --</option>
+                                <option value="DAM">Dama</option>
+                                <option value="CAB">Caballero</option>
+                                <option value="MIX">Mixto</option>
+                                <option value="-"></option>
+                        </select>
+                    </div>
+  
+                    <div style="display: flex; flex-direction: row; gap: 1rem">
+                        <button class="btn-opciones" type="submit">GUARDAR </button>
+                    </div>
+                   
+                </form>
             
         </div>
     </div>
