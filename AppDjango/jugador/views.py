@@ -120,13 +120,10 @@ def listado_jugadores(request):
     })
 
 
-
-
-
 def datos_jugador(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
 
-    # 🔹 Torneos en los que participa (singles y dobles/mixtos)
+    # 🔹 Torneos en los que participa
     torneos = Torneo.objects.filter(
         Q(torneo_jugadores__jugador=jugador) |
         Q(equipos__jugador1=jugador) |
@@ -134,7 +131,6 @@ def datos_jugador(request, dni):
     ).distinct()
 
     torneos_data = []
-
     for torneo in torneos:
         if torneo.tipo_juego in ["Doble", "Mixto"]:
             equipo = Equipo.objects.filter(
@@ -142,37 +138,63 @@ def datos_jugador(request, dni):
             ).filter(
                 Q(jugador1=jugador) | Q(jugador2=jugador)
             ).first()
-            
-            ranking = RankingEquipo.objects.filter(
-                torneo=torneo,
-                equipo=equipo,
-                activo=True
-            ).first() if equipo else None
+
+            ranking = None
+            puesto = None
+            if equipo:
+                ranking = RankingEquipo.objects.filter(
+                    torneo=torneo,
+                    equipo=equipo
+                ).order_by('-anio', '-bimestre', '-id_ranking_equipo').first()
+
+                if ranking:
+                    if ranking.posicion and ranking.posicion > 0:
+                        puesto = ranking.posicion
+                    else:
+                        puesto = RankingEquipo.objects.filter(
+                            torneo=torneo,
+                            categoria=ranking.categoria
+                        ).filter(
+                            puntaje_total_categoria__gt=ranking.puntaje_total_categoria
+                        ).count() + 1
 
             torneos_data.append({
-                'nombre': torneo.nombre,
-                'categoria': torneo.categorias.first(),
-                'fecha': torneo.fecha_inicio,
-                'ranking': getattr(ranking, "posicion", None),
-                'puntaje': getattr(ranking, "puntaje_total_categoria", None),
-            })
-
-        else:
-            ranking = Ranking.objects.filter(
-                torneo=torneo,
-                jugador=jugador,
-                activo=True
-            ).first()
-
-            torneos_data.append({
+                'torneo': torneo,
                 'nombre': torneo.nombre,
                 'categoria': ranking.categoria if ranking else torneo.categorias.first(),
                 'fecha': torneo.fecha_inicio,
-                'ranking': getattr(ranking, "posicion", None),
-                'puntaje': getattr(ranking, "puntaje_total_categoria", None),
+                'ranking': ranking,
+                'puesto': puesto,
             })
 
-    # 🔹 Partidos jugados (singles y dobles)
+        else:  # Torneo individual
+            ranking = Ranking.objects.filter(
+                torneo=torneo,
+                jugador=jugador
+            ).order_by('-anio', '-bimestre', '-id_ranking').first()
+
+            puesto = None
+            if ranking:
+                if ranking.posicion and ranking.posicion > 0:
+                    puesto = ranking.posicion
+                else:
+                    puesto = Ranking.objects.filter(
+                        torneo=torneo,
+                        categoria=ranking.categoria
+                    ).filter(
+                        puntaje_total_categoria__gt=ranking.puntaje_total_categoria
+                    ).count() + 1
+
+            torneos_data.append({
+                'torneo': torneo,
+                'nombre': torneo.nombre,
+                'categoria': ranking.categoria if ranking else torneo.categorias.first(),
+                'fecha': torneo.fecha_inicio,
+                'ranking': ranking,
+                'puesto': puesto,
+            })
+
+    # 🔹 Partidos jugados
     partidos = Partido.objects.filter(
         Q(jugador1=jugador) | Q(jugador2=jugador) |
         Q(equipo1__jugador1=jugador) | Q(equipo1__jugador2=jugador) |
@@ -189,11 +211,10 @@ def datos_jugador(request, dni):
 
     return render(request, 'datos_jugador.html', {
         'jugador': jugador,
-        'torneos': torneos,
         'torneos_data': torneos_data,
         'partidos_agrupados': partidos_por_nombre.items(),
     })
-    
+
 def busqueda_jugador(request):
     nombre = request.GET.get('nombre', '')
     apellido = request.GET.get('apellido', '')
