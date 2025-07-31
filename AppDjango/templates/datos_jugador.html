@@ -3,10 +3,16 @@
 {% load static %}
 
 {% block content %} 
-<div class="datos">
-    <div class="title-bar">
-        <h2>DATOS JUGADOR</h2>
+<div class="container-admin">
+   <div class="text-section">
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">DATOS JUGADOR</h5>
+        <hr class="separator-line">
     </div>
+<div class="datos">
+    <h2 class="text-primary text-center">
+            {% if torneo.es_master %}MASTER - {% endif %}{{ torneo.nombre|upper }}
+        </h2>
+
     <main>
         <section class="player-info">
             <div class="player-card ancho">
@@ -16,13 +22,8 @@
                 <div class="player-details">
                     <div class="player-name">
                         <img src="{% static 'imagenes/pelota.png' %}" alt="Pelota" class="pelota">
-                        <h3 class="nombre-jugador"><strong>{{ jugador.apellido }}</strong></h3>
+                        <h3 class="nombre-jugador"><strong>{{ jugador.apellido |upper }}</strong></h3>
                         <h3 class="nombre-jugador"><strong>{{ jugador.nombre }}</strong></h3>
-                    </div>
-                    <div class="player-data">
-                        <p class="texto-gris naranja"><strong>Datos</strong></p>
-                        <hr>
-                       
                     </div>
                 </div>
                <!--  <div class="player-stats"> Nuevo contenedor a la derecha 
@@ -35,45 +36,46 @@
                 </div>-->
             </div>
         </section>
+        <div class="player-data">
+            <p class="texto-gris naranja" style="color:rgba(210, 223, 101, 0.85);"><strong>Datos</strong></p>
+        </div>
         <div class="history-item">
             <div class="details-box">
-                <p><strong>DNI:</strong> {{ jugador.dni }}</p>
                 <p><strong>Sexo:</strong> {{ jugador.sexo }}</p>
             </div>
         </div>
         
         
-        <p class="p-centrado naranja"><strong>TORNEOS ACTUALES</strong></p> 
+        <p class="p-centrado naranja" style="color:rgba(210, 223, 101, 0.85);"><strong>TORNEOS ACTUALES</strong></p> 
         <div class="grid-container">
-        {% if torneos_data %}
-            {% for torneo in torneos_data %}
-                <div class="history-item">
-                    <div class="player-data">
-                        <p><strong>Torneo:</strong> {{ torneo.nombre }}</p>
-                        <p><strong>Categoría:</strong> {{ torneo.categoria }}</p>
-                    </div>     
-                    <div class="player-data">
-                        
-                        {% if torneo.ranking %}
-                            <p class="ranking-points">Ranking:  {{ torneo.ranking }}</p>
-                            <p class="texto-negro">Puntaje: {{ torneo.puntaje }}</p>
-                        {% else %}
-                            <p class="texto-negro">No tiene ranking aún</p>
-                        {% endif %}
-                    </div>  
-                </div>
-            {% endfor %}
-        {% else %}
-            <p style="text-align: center; color: grey;"><strong>No está inscrito en ningún torneo actualmente.</strong></p>
-        {% endif %}
+        {% for data in torneos_data %}
+        <div class="history-item">
+            <div class="player-data">
+                <p><strong>TORNEO:</strong> {{ data.nombre }}</p>
+            </div>
+            <div class="player-data">
+                {% if data.ranking %}
+                    <p class="ranking-points">Ranking: 
+                        {% if data.puesto %}{{ data.puesto }}{% else %}{{ data.ranking.posicion }}{% endif %}
+                    </p>
+                    <p class="texto-negro">Puntaje: {{ data.ranking.puntaje_total_categoria }}</p>
+                {% else %}
+                    <p class="texto-negro">No tiene ranking aún</p>
+                {% endif %}
+
+
+            </div>
+        </div>
+        {% endfor %}
+
 
 
             
 
       <!-- trae torneos que participa de manera dinamica -->
 
-        <p class="p-centrado naranja"><strong>HISTORIAL INSCRIPTO TORNEOS</strong></p>
-            <div class="torneos-container">
+        <p class="p-centrado naranja" style="color:rgba(210, 223, 101, 0.85);"><strong>HISTORIAL INSCRIPTO TORNEOS</strong></p>
+            <div class="torneos-container" >
                 {% for torneo in torneos %}
                 <div class="narrow-box torneo-card">
                     <div class="info-header">
@@ -89,10 +91,10 @@
                 {% endfor %}
             </div>
             
-            <p class="p-centrado naranja"><strong>HISTORIAL DE PARTIDOS</strong></p> 
+            <p class="p-centrado naranja" style="color:rgba(210, 223, 101, 0.85);"><strong>HISTORIAL DE PARTIDOS</strong></p> 
             {% if partidos_agrupados %}
             {% for nombre_torneo, partidos in partidos_agrupados %}
-                <div class="info-header" style="background-color: orange; color: white; margin: 20px 0px; padding: 10px; display: flex; justify-content: space-between;">
+                <div class="info-header" style="background-color:rgba(210, 223, 101, 0.85); color: black; margin: 20px 0px; padding: 10px; display: flex; justify-content: space-between;">
                     <p><strong>{{ nombre_torneo }}</strong></p>
                 </div>
                 <div class="carrusel-wrapper">
@@ -128,24 +130,6 @@
                 <p style="text-align: center; color: grey;"><strong>No ha jugado ningún partido aún.</strong></p>
             {% endif %}
 
-
-        
-        <div class="actions" style="margin-bottom: 100px; margin-top: 50px">
-
-            {% if user.is_authenticated and user.is_staff %}
-            <td>
-                <!-- Botón BORRAR con clase 'delete-button' -->
-                <button class="login-button rojo" data-bs-toggle="modal" data-bs-target="#eliminarModal-{{ jugador.dni }}">
-                    ELIMINAR
-                </button>
-                
-                {% include 'modal_eliminar_jugador.html' %}
-            </td>
-            {% endif %}
-             <br>
-             <a href="{% url 'index' %}">
-                <button class="login-button peque">MENU</button>
-            </a>
         
             </div>
     </main>
