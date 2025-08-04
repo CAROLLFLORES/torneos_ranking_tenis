@@ -24,7 +24,7 @@
                                 <option value="" selected>Seleccione Equipo 1</option>
                                 {% for equipo in equipos %}
                                 <option value="{{ equipo.id }}">
-                                    {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                    {{ equipo.jugador1.apellido | upper }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido | upper }} {{ equipo.jugador2.nombre }}
                                 </option>
                                 {% endfor %}
                             </select>
@@ -34,7 +34,7 @@
                                 <option value="" selected>Seleccione Equipo 2</option>
                                 {% for equipo in equipos %}
                                 <option value="{{ equipo.id }}">
-                                    {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                    {{ equipo.jugador1.apellido | upper }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido | upper }} {{ equipo.jugador2.nombre }}
                                 </option>
                                 {% endfor %}
                             </select>

@@ -3179,12 +3179,21 @@ input.editable::placeholder,
 select.editable::placeholder {
     color: #555
 }
-td.jugador, td.ganador {
+
+td.jugador {
     min-width: 220px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+td.ganador {
+    min-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 td.set {
     min-width: 40px;
 }

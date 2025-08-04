@@ -11,32 +11,48 @@
     {% endif %}
     <div class="text-section">
         <hr class="separator-line">
-        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">CANCHAS</h5>
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">LISTADO DE CANCHAS</h5>
     </div>
 
-    <!-- LINKS Y OPCIONES -->
+    <!-- FILTROS -->
     <div class="recuadro-tabla">
+        <div style="cursor: pointer;" class="green-box-title-btn">
+            <h4 style="margin: 0;">FILTROS</h4>
+        </div>
         <div class="form-container-torneos">
-            <!-- BOTONES -->
-            <div style="display: flex; flex-direction: row; gap: 1rem">
-                <a class="btn-opciones" href="{% url 'listado_sedes' %}#resultados">LISTADO COMPLETO</a>
-            </div>
+            <div class="container-form-filter">
+                <form method="get" action="#resultados">
+                    
+                    <div class="filtro-busqueda1">
+                        <span for="search" class="span-filter">NOMBRE</span>
+                        <input type="text" name="search" id="search" placeholder="Buscar por nombre" class="form-control" value="{{ filtros.search }}">
+                    </div>
 
-            <!-- LINKS -->
-            <div id="resultados" style="margin-top: 1rem;">
-                <a class="a-options" href="{% url 'admin_menu' %}">
-                    <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
-                    MENÚ ADMINISTRADOR
-                </a>
-                {% if user.is_authenticated and user.is_staff %}
+                    <!-- BOTONES -->
+                    <div class="btn-filtros">
+                        <button class="btn-opciones" type="submit">FILTRAR</button>
+                        <div class="btn-opciones">
+                            <a href="{% url 'listado_canchas' %}#resultados">LIMPIAR FILTROS</a>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="resultados">
+                    <a class="a-options" href="{% url 'admin_menu' %}">
+                        <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
+                        MENÚ ADMINISTRADOR
+                    </a>
+                    {% if user.is_authenticated and user.is_staff %}
                     <a class="a-options" href="{% url 'abm_cancha' %}">
                         <i class="bi bi-plus-circle-fill" style="margin-right: 5px;"></i>
                         ALTA CANCHA
                     </a>
-                {% endif %}
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
+
 
     <!-- LISTADO -->
     <div>
@@ -46,10 +62,10 @@
                 <div class="pagination-container">
                     Página {{ canchas.number }} de {{ canchas.paginator.num_pages }}
                     {% if canchas.has_previous %}
-                        <a href="?page={{ canchas.previous_page_number }}#resultados" class="arrow">&lt;</a>
+                        <a href="?page={{ canchas.previous_page_number }}&search={{ filtros.search }}#resultados" class="arrow">&lt;</a>
                     {% endif %}
                     {% if canchas.has_next %}
-                        <a href="?page={{ canchas.next_page_number }}#resultados" class="arrow">&gt;</a>
+                        <a href="?page={{ canchas.next_page_number }}&search={{ filtros.search }}#resultados" class="arrow">&gt;</a>
                     {% endif %}
                 </div>
             </div>

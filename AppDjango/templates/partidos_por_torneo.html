@@ -85,9 +85,7 @@
                     <th>Set 2</th>
                     <th>Set 3</th> 
                     <th>Ganador</th>                                  
-                    <th>Borrar</th>
-                    <th>Editar</th>
-                    <th>Guardar</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -95,12 +93,12 @@
                 <tr style="border-top: .15rem solid #717070 !important;">
                     <td rowspan="2"><input type="date" value="{{ partido.fecha|date:'Y-m-d' }}" id="fecha-{{ partido.id }}" disabled></td>
                     <td rowspan="2"><input type="time" value="{{ partido.hora|time:'H:i' }}" id="hora-{{ partido.id }}" disabled></td>
-                    <td rowspan="2">
+                    <td rowspan="2" style="min-width: 130px !important;">
                         <select id="cancha-{{ partido.id }}" disabled>
                             {% for c in canchas %}
                                 <option value="{{ c.id }}"
                                     {% if c.id == partido.cancha.id %}selected{% endif %}>
-                                    {{ c.sede.nombre }} - Cancha {{ c.cancha }}
+                                    {{ c.sede.nombre }} - {{ c.cancha }}
                                 </option>
                             {% endfor %}
                         </select>
@@ -113,14 +111,14 @@
                                 {% for equipo in equipos %}
                                     <option value="{{ equipo.id }}"
                                         {% if equipo.id == partido.equipo1.id %}selected{% endif %}>
-                                        {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                        {{ equipo.jugador1.apellido | upper }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido | upper }} {{ equipo.jugador2.nombre }}
                                     </option>
                                 {% endfor %}
                             {% else %}
                                 {% for jugador in jugadores %}
                                     <option value="{{ jugador.dni }}"
                                         {% if jugador.dni == partido.jugador1.dni %}selected{% endif %}>
-                                        {{ jugador.apellido }} {{ jugador.nombre }}
+                                        {{ jugador.apellido | upper }} {{ jugador.nombre }}
                                     </option>
                                 {% endfor %}
                             {% endif %}
@@ -152,7 +150,7 @@
                                         {% if partido.resultado and partido.resultado.ganador_equipo and equipo.id == partido.resultado.ganador_equipo.id %}
                                             selected
                                         {% endif %}>
-                                        {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                        {{ equipo.jugador1.apellido | upper }} / {{ equipo.jugador2.apellido | upper }}
                                     </option>
                                 {% endfor %}
                             {% else %}
@@ -161,29 +159,29 @@
                                         {% if partido.resultado and partido.resultado.ganador_jugador and jugador.dni == partido.resultado.ganador_jugador.dni %}
                                             selected
                                         {% endif %}>
-                                        {{ jugador.apellido }} {{ jugador.nombre }}
+                                        {{ jugador.apellido | upper }} {{ jugador.nombre }}
                                     </option>
                                 {% endfor %}
                             {% endif %}
                         </select>
                     </td>
-                    <!-- ELIMINAR -->
                     <td rowspan="2">
-                        <button type="button" title="Eliminar partido" class="btn-deleteP" data-id="{{ partido.id }}">
-                            <i class="bi bi-trash-fill" style="font-size: 1.1rem;"></i>
-                        </button>
-                    </td>
-                    <!-- Botón MODIFICAR -->
-                    <td rowspan="2">
-                        <button type="button" title="Modificar datos de partido" class="btn-edit" onclick="habilitarEdicionCompleta('{{ partido.id }}')">
-                            <i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i>
-                        </button>
-                    </td>
-                    <!-- Botón GUARDAR -->
-                    <td rowspan="2">
-                        <button type="button" title="Guardar partido" class="btn-edit">
-                            <i class="bi bi-floppy" class="btn-edit" style="font-size: 1.1rem;" onclick="guardarPartido('{{ partido.id }}')"></i>
-                        </button>
+                        <div style="display: flex; flex-direction: column; gap: 5px; align-items: center;">
+                            <!-- MODIFICAR -->
+                            <button type="button" title="Modificar datos de partido" class="btn-edit" onclick="habilitarEdicionCompleta('{{ partido.id }}')">
+                                <i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i>
+                            </button>
+
+                            <!-- GUARDAR -->
+                            <button type="button" title="Guardar partido" class="btn-edit" onclick="guardarPartido('{{ partido.id }}')">
+                                <i class="bi bi-floppy" style="font-size: 1.1rem;"></i>
+                            </button>
+
+                            <!-- ELIMINAR -->
+                            <button type="button" title="Eliminar partido" class="btn-deleteP" data-id="{{ partido.id }}">
+                                <i class="bi bi-trash-fill" style="font-size: 1.1rem;"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 <tr>
@@ -194,14 +192,14 @@
                                 {% for equipo in equipos %}
                                     <option value="{{ equipo.id }}"
                                         {% if equipo.id == partido.equipo2.id %}selected{% endif %}>
-                                        {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                        {{ equipo.jugador1.apellido | upper }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido | upper }} {{ equipo.jugador2.nombre }}
                                     </option>
                                 {% endfor %}
                             {% else %}
                                 {% for jugador in jugadores %}
                                     <option value="{{ jugador.dni }}"
                                         {% if jugador.dni == partido.jugador2.dni %}selected{% endif %}>
-                                        {{ jugador.apellido }} {{ jugador.nombre }}
+                                        {{ jugador.apellido | upper }} {{ jugador.nombre }}
                                     </option>
                                 {% endfor %}
                             {% endif %}

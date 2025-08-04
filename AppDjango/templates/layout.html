@@ -70,18 +70,18 @@
             <!-- <li class="nav-item">
                 <a class="nav-link card" href="{% url 'ranking_general' %}">&nbsp;RANKING&nbsp;</a>
             </li> -->
+            <li class="nav-item">
+                <a class="nav-link card" href="{% url 'listado_sedes' %}">&nbsp;SEDES&nbsp;</a>
+            </li>
             {% if user.is_authenticated %}
             <li class="nav-item">
-                <a class="nav-link card" href="{% url 'crear_torneo' %}">&nbsp;GESTIÓN DE TORNEOS&nbsp;</a>
+                <a class="nav-link card" href="{% url 'listado_canchas' %}">&nbsp;CANCHAS&nbsp;</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link card" href="{% url 'listados_categorias' %}">&nbsp;CATEGORÍAS&nbsp;</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link card" href="{% url 'listado_sedes' %}">&nbsp;SEDES&nbsp;</a>
-            </li> 
-            <li class="nav-item">
-                <a class="nav-link card" href="{% url 'listado_canchas' %}">&nbsp;CANCHAS&nbsp;</a>
+                <a class="nav-link card" href="{% url 'crear_torneo' %}">&nbsp;GESTIÓN DE TORNEOS&nbsp;</a>
             </li>
             {% endif %}
         </ul>
@@ -132,14 +132,14 @@
             <!-- <hr class="separator-negro"> -->
             <!-- <li><a href="{% url 'ranking_general' %}">RANKING</a></li> -->
             <hr class="separator-negro">
+            <li><a href="{% url 'listado_sedes' %}">SEDES</a></li>
+            <hr class="separator-negro">
             {% if user.is_authenticated %}
-            <li><a href="{% url 'crear_torneo' %}">GESTIÓN DE TORNEOS</a></li>
+            <li><a href="{% url 'listado_canchas' %}">CANCHAS&</a></li>
             <hr class="separator-negro">
             <li><a href="{% url 'listados_categorias' %}">CATEGORÍAS</a></li>
             <hr class="separator-negro">
-            <li><a href="{% url 'listado_sedes' %}">SEDES</a></li>
-            <hr class="separator-negro">
-            <li><a href="{% url 'listado_canchas' %}">CANCHAS&</a></li>
+            <li><a href="{% url 'crear_torneo' %}">GESTIÓN DE TORNEOS</a></li>
             {% else %}
             <li><a href="https://www.instagram.com/aptenisshop/" target="_blank">TIENDA</a></li>
             <hr class="separator-negro">

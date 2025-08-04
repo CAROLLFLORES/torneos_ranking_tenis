@@ -11,29 +11,44 @@
     {% endif %}
     <div class="text-section">
         <hr class="separator-line">
-        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">SEDES</h5>
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">LISTADO DE SEDES</h5>
     </div>
 
-    <!-- LINKS Y OPCIONES -->
+    <!-- FILTROS -->
     <div class="recuadro-tabla">
+        <div style="cursor: pointer;" class="green-box-title-btn">
+            <h4 style="margin: 0;">FILTROS</h4>
+        </div>
         <div class="form-container-torneos">
-            <!-- BOTONES -->
-            <div style="display: flex; flex-direction: row; gap: 1rem">
-                <a class="btn-opciones" href="{% url 'listado_sedes' %}#resultados">LISTADO COMPLETO</a>
-            </div>
+            <div class="container-form-filter">
+                <form method="get" action="#resultados">
+                    
+                    <div class="filtro-busqueda1">
+                    <span for="search" class="span-filter">NOMBRE</span>
+                    <input type="text" name="search" id="search" placeholder="Buscar por nombre" class="form-control" value="{{ filtros.search }}">
+                    </div>
 
-            <!-- LINKS -->
-            <div id="resultados" style="margin-top: 1rem;">
-                <a class="a-options" href="{% url 'admin_menu' %}">
-                    <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
-                    MENÚ ADMINISTRADOR
-                </a>
-                {% if user.is_authenticated and user.is_staff %}
-                <a class="a-options" href="{% url 'abm_sede' %}">
-                    <i class="bi bi-plus-circle-fill" style="margin-right: 5px;"></i>
-                    ALTA SEDE
-                </a>
-                {% endif %}
+                    <!-- BOTONES -->
+                    <div class="btn-filtros">
+                        <button class="btn-opciones" type="submit">FILTRAR</button>
+                        <div class="btn-opciones">
+                            <a href="{% url 'listado_sedes' %}#resultados">LIMPIAR FILTROS</a>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="resultados">
+                    <a class="a-options" href="{% url 'admin_menu' %}">
+                        <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
+                        MENÚ ADMINISTRADOR
+                    </a>
+                    {% if user.is_authenticated and user.is_staff %}
+                    <a class="a-options" href="{% url 'abm_sede' %}">
+                        <i class="bi bi-plus-circle-fill" style="margin-right: 5px;"></i>
+                        ALTA SEDE
+                    </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -46,10 +61,10 @@
                 <div class="pagination-container">
                     Página {{ sedes.number }} de {{ sedes.paginator.num_pages }}
                     {% if sedes.has_previous %}
-                        <a href="?page={{ sedes.previous_page_number }}#resultados" class="arrow">&lt;</a>
+                        <a href="?page={{ sedes.previous_page_number }}&search={{ filtros.search }}#resultados" class="arrow">&lt;</a>
                     {% endif %}
                     {% if sedes.has_next %}
-                        <a href="?page={{ sedes.next_page_number }}#resultados" class="arrow">&gt;</a>
+                        <a href="?page={{ sedes.next_page_number }}&search={{ filtros.search }}#resultados" class="arrow">&gt;</a>
                     {% endif %}
                 </div>
             </div>
@@ -64,6 +79,7 @@
                     <thead>
                         <tr>
                             <th>NOMBRE</th>
+                            <th>UBICACIÓN</th>
                             {% if user.is_authenticated and user.is_staff %}
                                 <th>EDITAR</th>
                                 <th>ELIMINAR</th>
@@ -74,7 +90,18 @@
                         {% if sedes %}
                             {% for sede in sedes %}
                                 <tr>
-                                    <td style="text-align: left;">{{ sede.nombre }}</td>
+                                    <td>{{ sede.nombre }}</td>
+                                    <td>
+                                        {% if sede.id == 7 %}
+                                        <a href="https://maps.app.goo.gl/SdPDvsRj43n4G4nY9" class="a-options" style="font-size: .8rem; margin: 0 !important;" target="_blank">Ubicación</a>
+                                        {% elif sede.id == 8 %}
+                                        <a href="https://maps.app.goo.gl/PsC8rh4VWCNfSBEF8" class="a-options" style="font-size: .8rem; margin: 0 !important;" target="_blank">Ubicación</a>
+                                        {% elif sede.id == 9 %}
+                                        <a href="https://maps.app.goo.gl/kXgjYHy5uEZSs3Tk7" class="a-options" style="font-size: .8rem; margin: 0 !important;" target="_blank">Ubicación</a>
+                                        {% else %}
+                                        No disponible
+                                        {% endif %}
+                                    </td>
 
                                     {% if user.is_authenticated and user.is_staff %}
                                     <!-- EDITAR -->

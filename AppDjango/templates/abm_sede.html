@@ -15,11 +15,11 @@
             <div class="modal-body">
                 <p>La nueva sede ha sido registrada correctamente.</p>
                 <hr class="separator">
-                <button type="button" class="login-button" onclick="window.location.href='{% url 'abm_sede' %}'">
+                <button type="button" class="login-button" data-url="{% url 'abm_sede' %}" onclick="window.location.href=this.dataset.url">
                     Cargar Otra Sede
                 </button>
                 <hr class="separator">
-                <button type="button" class="login-button" onclick="window.location.href='{% url 'admin_menu' %}'">
+                <button type="button" class="login-button" data-url="{% url 'admin_menu' %}" onclick="window.location.href=this.dataset.url">
                     Ir al Menú Principal
                 </button>
             </div>
