@@ -23,7 +23,7 @@
                             <select name="jugador1[]" required>
                                 <option value="" selected>Seleccione Jugador 1</option>
                                 {% for jugador in jugadores %}
-                                <option value="{{ jugador.dni }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                                <option value="{{ jugador.dni }}">{{ jugador.apellido | upper }}, {{ jugador.nombre }}</option>
                                 {% endfor %}
                             </select>
                         </td>
@@ -31,7 +31,7 @@
                             <select name="jugador2[]" required>
                                 <option value="" selected>Seleccione Jugador 2</option>
                                 {% for jugador in jugadores %}
-                                <option value="{{ jugador.dni }}">{{ jugador.apellido }}, {{ jugador.nombre }}</option>
+                                <option value="{{ jugador.dni }}">{{ jugador.apellido | upper }}, {{ jugador.nombre }}</option>
                                 {% endfor %}
                             </select>
                         </td>

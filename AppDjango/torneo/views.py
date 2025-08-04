@@ -10,7 +10,7 @@ from django.contrib import messages
 from .forms import TorneoForms
 from .models import Torneo, TorneoCategoria, TorneoJugador, Partido, Equipo, Cancha
 from jugador.models import Categoria, Jugador
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.decorators.http import require_POST
 from django.db import transaction, IntegrityError
 import random
@@ -138,7 +138,7 @@ def crear_torneo(request):
         form = TorneoForms()
     
     torneos = Torneo.objects.all().order_by('nombre').prefetch_related('categorias')
-    paginator = Paginator(torneos, 20)
+    paginator = Paginator(torneos, 30)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     all_categorias = Categoria.objects.all()
@@ -1365,10 +1365,33 @@ def abm_cancha(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
 
-
 def listado_canchas(request):
-    canchas = Cancha.objects.all()
-    return render(request, 'listado_canchas.html', {'canchas': canchas})
+    search = request.GET.get('search', '').strip()
+    qs = Cancha.objects.all().order_by('cancha')
+
+    if search:
+        condiciones = Q()
+        if search.isdigit():
+            condiciones |= Q(cancha=int(search))
+        condiciones |= Q(sede__nombre__icontains=search)
+        qs = qs.filter(condiciones)
+
+    paginator = Paginator(qs, 30)
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    return render(request, 'listado_canchas.html', {
+        'canchas': page_obj,
+        'page_obj': page_obj,
+        'filtros': {
+            'search': search,
+        }
+    })
 
 
 #Maneja la  vista de ver la jornada 
@@ -2127,9 +2150,27 @@ def abm_sede(request):
 
 def listado_sedes(request):
     search = request.GET.get('search', '')
-    sedes = Sede.objects.filter(nombre__icontains=search).order_by('nombre')
-    return render(request, 'listado_sedes.html', {'sedes': sedes})
 
+    qs = Sede.objects.all().order_by('nombre')
+    if search:
+        qs = qs.filter(nombre__icontains=search)
+
+    paginator = Paginator(qs, 10)
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    return render(request, 'listado_sedes.html', {
+        'sedes': page_obj,
+        'page_obj': page_obj,
+        'filtros': {
+            'search': search or '',
+        }
+    })
 
 
 def formulario_pdf_fecha_sede(request):
