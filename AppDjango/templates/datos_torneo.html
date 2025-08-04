@@ -1,72 +1,66 @@
 {% extends "layout.html" %}
 {% load static %}
-
 {% block body_class %}fondo-secundario{% endblock %}
-
 {% block content %}
 <div class="container-admin">
+
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
         <hr class="separator-line">
-        <h2 class="text-primary">Características del Torneo: {{ torneo.nombre }}</h2>
+        <h5 style="font-size: 1rem; margin-top: 1rem;">INFORMACIÓN DE TORNEO</h5>
     </div>
-    <div class="text-section">
-        <hr class="separator-line">
-    </div>
-    <br>
-    <!-- Información del Torneo -->
-    <div class="form-container">
-        <div class="narrow-box">
-            <div class="title-orange-gris">
-                <h1>INFORMACIÓN DEL TORNEO</h1>
+    <!-- INFO E INSCRIPTOS -->
+    <div class="recuadro-tabla">
+        <div id="toggle-descarga" style="cursor: pointer;" class="green-box-title-btn">
+            <h4 style="margin: 0; cursor: pointer;">
+                <span style="font-size: .7rem; font-weight: 400; letter-spacing: 2px;">VER INFORMACIÓN: </span>
+                {{ torneo.nombre | upper }}
+            </h4>
+        </div>
+        <div id="form-descarga" class="form-container-info hidden">
+            <div class="btn-filtros">
+                <div class="btn-opciones">
+                    <a href="{% url 'redirigir_inscripcion' torneo.id %}">INSCRIBIR JUGADORES</a>
+                </div>
+                <div class="btn-opciones">
+                    <!-- href="{% url 'ver_ranking' torneo.id %}" -->
+                    <a>VER RANKING</a>
+                </div>
             </div>
-            <a href="{% url 'admin_menu' %}">
-                <button class="login-button peque">MENU</button>
-            </a>
-             <a href="{% url 'crear_torneo' %}">
-                    <button class='login-button-gris chico'>VOLVER A TORNEO</button>
-            </a>
-            <hr class="separator-line"> <!-- Línea separadora -->
-         
-            <div class="card-body p-2">
-                <p class="fs-6 mb-1"><strong>Torneo</strong> <br>{{ torneo.nombre | upper}}</p>
-                <hr class="separator-line">
-                <p class="fs-6 mb-1"><strong>Fecha de Inicio</strong><br> {{ torneo.fecha_inicio|date:"d/m/Y" }}</p>
-                <hr class="separator-line">
-                <p class="fs-6 mb-1"><strong>Fecha de Fin</strong><br> {{ torneo.fecha_fin|date:"d/m/Y" }}</p>
-                <hr class="separator-line">
-                <p class="fs-6 mb-1"><strong>Categorías Juegan</strong>
+            <div style="display: flex; flex-direction: column; align-items: start;text-align: start; margin-top: 1rem;">
+                <span class="span-filter">Fecha de Inicio: {{ torneo.fecha_inicio|date:"d/m/Y" }}</span>
+                {% if torneo.fecha_fin %}
+                <span class="span-filter">Fecha de Fin: {{ torneo.fecha_fin|date:"d/m/Y" }}</span>
+                {% endif %}
+                <span class="span-filter">Categoría/s:
                     {% for categoria in torneo.categorias.all %}
-                        {{ categoria.nivel }} + {{ categoria.edad }} + {{ categoria.tipo_juego }}
+                        {{ categoria.tipo_juego }}-{{ categoria.genero }}-{{ categoria.nivel }}-{{ categoria.edad }}
                         {% if not forloop.last %} | {% endif %}
                     {% endfor %}
-                </p>
-            </div>
-        </div>
-
-        <div class="login-box listados">
-            <div class="title-orange-box grande">
-                <h2>
+                </span>
+                <span class="span-filter">
                     {% if torneo.tipo_juego == "Doble" %}
-                        EQUIPOS ASOCIADOS
+                        Tipo de Juego: Doble
                     {% else %}
-                        JUGADORES INSCRIPTOS
+                        Tipo de Juego: Individual
                     {% endif %}
-                </h2>
+                </span>
             </div>
-            
-            <div class="card-body">
+            <span class="span-filter" style="margin-top: 1rem; text-align: start;">
+                INSCRIPTOS
+            </span>
+            <div class="torneo-listado">
                 {% if torneo.equipos.exists %}
-                    <!-- Mostrar equipos -->
-                    <ul class="list-group list-group-flush">
+                    <!-- DOBLES -->
+                    <ul>
                         {% for equipo in torneo.equipos.all %}
-                            <li class="list-group-item fs-5">
-                                Equipo: {{ equipo.jugador1.apellido | upper }} y {{ equipo.jugador2.apellido | upper }}
+                            <li>
+                                {{ equipo.jugador1.apellido | upper }} y {{ equipo.jugador2.apellido | upper }}
                             </li>
                         {% endfor %}
                     </ul>
                 {% elif torneo.torneo_jugadores.exists %}
-                    <!-- Mostrar jugadores -->
+                    <!-- SINGLES -->
                     <ul class="list-group list-group-flush">
                         {% for torneo_jugador in torneo.torneo_jugadores.all %}
                             <li class="list-group-item fs-5">
@@ -75,26 +69,16 @@
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <!-- Sin inscripciones -->
-                    <p class="fs-5">No hay inscripciones asociadas a este torneo.</p>
+                    <p class="fs-5">No hay jugadores inscriptos.</p>
                 {% endif %}
             </div>
-        </div>
-        
-
-            <!-- Botones de Acción -->
-            <div class="d-flex justify-content-start align-items-center gap-3 mb-4">
-                <a href="{% url 'redirigir_inscripcion' torneo.id %}" class="btn btn-success">
-                    <button type="button" class="login-button chico mb-2" style="margin-top: 80px;">INSCRIBIR JUGADORES</button>
-                </a>
-                <a href="{% url 'redirigir_partidos' torneo.id %}" class="btn btn-primary">
-                    <button type="button" class="login-button chico mb-2" style="margin-top: 80px;">PARTIDOS</button>
-                </a>
-                <a href="{% url 'ver_ranking' torneo.id %}" class="btn btn-primary">
-                    <button type="button" class="login-button chico mb-2" style="margin-top: 80px;">RANKING</button>
-                </a>
-            </div>
-        </div>
-    </div>
+        </div>    
+    </div>  
+    {% if es_doble %}
+        {% include 'partidoDoble.html' %}
+    {% else %}
+        {% include 'partidoSingle.html' %}
+    {% endif %}
+    {% include 'partidos_por_torneo.html' %}
 </div>
 {% endblock %}

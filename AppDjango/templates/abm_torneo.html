@@ -150,7 +150,7 @@
                     </div>
             
                     <!-- BOTONES -->
-                    <div id="resultados" style="display: flex; flex-direction: row; gap: 1rem">
+                    <div id="resultados"  class="btn-filtros">
                         <button class="btn-opciones" type="submit">FILTRAR</button>
                         <div class="btn-opciones">
                             <a href="{% url 'crear_torneo' %}#resultados">LIMPIAR FILTROS</a>
@@ -190,9 +190,9 @@
                         <th>TORNEO</th>
                         <th>CATEGORÍA</th>
                         <th>F.INICIO</th>
+                        <th>DETALLE</th>
                         <th>JUGADORES</th>
                         <th>HISTORIAL</th>
-                        <th>CARGAR PARTIDOS</th>
                         <th>RANKING</th>
                         <th>MASTER</th>
                         <!-- <th>F.FIN</th> -->
@@ -218,6 +218,15 @@
                                 </td>
                                 <!-- FECHA -->
                                 <td >{{ torneo.fecha_inicio|date:"d/m/y" }}</td>
+
+                                <!-- DETALLE Y CARGA DE PARTIDOS -->
+                                <td>
+                                    <a href="{% url 'datos_torneo' torneo.id %}" 
+                                        title="Ver torneo"
+                                        class="btn-edit">
+                                           <i class="bi bi-gear" style="font-size: 1.1rem;"></i>
+                                    </a>
+                                </td>
                                 <!-- JUGADORES -->
                                 <td>
                                     <a href="{% url 'redirigir_inscripcion' torneo.id %}" 
@@ -234,16 +243,10 @@
                                         <i class="bi bi-clipboard-data" style="font-size: 1.1rem;"></i>
                                     </a>
                                 </td>
-                                <!-- PARTIDOS -->
-                                <td>
-                                    <a href="{% url 'redirigir_partidos' torneo.id %}" class="btn-edit" >
-                                        <!-- <button type="button" class="login-button mas-chico mb-2" >PARTIDOS</button> -->
-                                        <i class="fas fa-table-tennis" style="font-size: 1.1rem;"></i>
-                                    </a>
-                                </td>
                                 <!-- RANKING -->
                                 <td>
-                                    <a href="{% url 'ver_ranking' torneo.id %}" 
+                                    <!-- href="{% url 'ver_ranking' torneo.id %}"  -->
+                                    <a
                                         title="Ver ranking"
                                         class="btn-ranking">
                                         <i class="bi bi-trophy-fill" style="font-size: 1.2rem; color: #b3c564;"></i>
@@ -251,7 +254,8 @@
                                 </td>
                                 <!-- MASTER -->
                                 <td>
-                                    <a href="{% url 'listado_jugadores_master' torneo.id %}" 
+                                    <!-- href="{% url 'listado_jugadores_master' torneo.id %}" -->
+                                    <a
                                         title="Ver ranking"
                                         class="btn-edit">
                                         <i class="bi bi-award" title="Master" style="font-size: 1.3rem; color: #d2df97;"></i>

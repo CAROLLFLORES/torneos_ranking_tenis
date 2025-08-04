@@ -79,8 +79,6 @@ def abm_torneo(request):
     search_query = request.GET.get('search')
     fecha = request.GET.get('fecha')  # <- este campo nuevo
 
-    print("FILTROS:", categoria_id, search_query, fecha)
-
     form = TorneoForms()
 
     torneos = Torneo.objects.all().order_by('-fecha_inicio')
@@ -94,7 +92,7 @@ def abm_torneo(request):
     if fecha:
         torneos = torneos.filter(fecha_inicio=fecha)
 
-    paginator = Paginator(torneos, 20)
+    paginator = Paginator(torneos, 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -117,7 +115,6 @@ def abm_torneo(request):
     })
 
 def crear_torneo(request):
-    print("HOLA")
     if request.method == 'POST':
         form = TorneoForms(request.POST)
         if form.is_valid():
@@ -202,6 +199,253 @@ def editar_torneo(request, id):
 
     return render(request, 'editar_torneo.html', {'form': form, 'torneo': torneo})
 
+def datos_torneo(request, id):
+    torneo = get_object_or_404(Torneo, id=id)
+    es_doble = torneo.categorias.filter(
+        Q(tipo_juego__iexact='Doble') | Q(tipo_juego__iexact='Mixto')
+    ).exists()
+
+    # jornadas = Partido.objects.filter(torneo=torneo).values('jornada').distinct().order_by('jornada')
+    # no usamos jornadas
+    numero_jornada = 0
+    canchas = Cancha.objects.all()
+
+    if request.method == 'POST':
+        return handle_post_datos_torneo(request, torneo, es_doble, numero_jornada)
+
+    return handle_get_datos_torneo(request, torneo, es_doble, numero_jornada, canchas)
+
+def handle_get_datos_torneo(request, torneo, es_doble, numero_jornada, canchas):
+    fecha = request.GET.get('fecha', '')
+    hora = request.GET.get('hora', '')
+    cancha_id = request.GET.get('cancha', '')
+    search = request.GET.get('search', '').strip()
+
+    if es_doble:
+        partidos_qs = Partido.objects.filter(torneo=torneo).select_related(
+            'equipo1__jugador1', 'equipo1__jugador2',
+            'equipo2__jugador1', 'equipo2__jugador2',
+            'cancha', 'resultado'
+        )
+
+        if search:
+            partidos_qs = partidos_qs.filter(
+                Q(equipo1__jugador1__nombre__icontains=search) |
+                Q(equipo1__jugador1__apellido__icontains=search) |
+                Q(equipo1__jugador2__nombre__icontains=search) |
+                Q(equipo1__jugador2__apellido__icontains=search) |
+                Q(equipo2__jugador1__nombre__icontains=search) |
+                Q(equipo2__jugador1__apellido__icontains=search) |
+                Q(equipo2__jugador2__nombre__icontains=search) |
+                Q(equipo2__jugador2__apellido__icontains=search)
+            )
+
+        if fecha:
+            partidos_qs = partidos_qs.filter(fecha=fecha)
+
+        if hora:
+            partidos_qs = partidos_qs.filter(hora=hora)
+
+        if cancha_id:
+            partidos_qs = partidos_qs.filter(cancha__id=cancha_id)
+
+        partidos_qs = partidos_qs.order_by('-fecha', '-hora', 'cancha')
+        paginator = Paginator(partidos_qs, 30)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        equipos = Equipo.objects.filter(torneo=torneo).select_related('jugador1', 'jugador2').order_by('jugador1__apellido')
+
+        return render(request, 'datos_torneo.html', {
+            'torneo': torneo,
+            'es_doble': True,
+            'jornada': 'Todas',
+            'numero_jornada': numero_jornada,
+            'partidos': page_obj,
+            'equipos': equipos,
+            'canchas': canchas,
+            'filtros': {
+                'fecha': fecha,
+                'hora': hora,
+                'cancha': cancha_id,
+                'search': search,
+            }
+        })
+    else:
+        partidos_qs = Partido.objects.filter(torneo=torneo).select_related(
+            'jugador1', 'jugador2', 'cancha', 'resultado'
+        )
+
+        if search:
+            partidos_qs = partidos_qs.filter(
+                Q(jugador1__nombre__icontains=search) |
+                Q(jugador1__apellido__icontains=search) |
+                Q(jugador2__nombre__icontains=search) |
+                Q(jugador2__apellido__icontains=search)
+            )
+
+        if fecha:
+            partidos_qs = partidos_qs.filter(fecha=fecha)
+
+        if hora:
+            partidos_qs = partidos_qs.filter(hora=hora)
+
+        if cancha_id:
+            partidos_qs = partidos_qs.filter(cancha__id=cancha_id)
+
+        partidos_qs = partidos_qs.order_by('fecha', 'hora', 'cancha')
+        paginator = Paginator(partidos_qs, 30)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        jugadores = Jugador.objects.filter(ranking__torneo=torneo, ranking__activo=True).distinct().order_by('apellido', 'nombre')
+
+        return render(request, 'datos_torneo.html', {
+            'torneo': torneo,
+            'es_doble': False,
+            'jornada': 'Todas',
+            'numero_jornada': numero_jornada,
+            'partidos': page_obj,
+            'jugadores': jugadores,
+            'canchas': canchas,
+            'filtros': {
+                'fecha': fecha,
+                'hora': hora,
+                'cancha': cancha_id,
+                'search': search,
+            }
+        })
+
+def handle_post_datos_torneo(request, torneo, es_doble, numero_jornada):
+    fechas = request.POST.getlist('fecha[]')
+    horas = request.POST.getlist('hora[]')
+    canchas_post = request.POST.getlist('cancha[]')
+    forzar_creacion = request.POST.get('forzar') == '1'
+
+    advertencias = []
+    partidos_creados = []
+
+    if es_doble:
+        equipos1 = request.POST.getlist('jugador1[]')
+        equipos2 = request.POST.getlist('jugador2[]')
+        if not equipos1 or not equipos2 or not fechas or not horas or not canchas_post:
+            return JsonResponse({'status': 'error', 'messages': ['Faltan datos para crear partidos dobles.']})
+
+        for equipo1, equipo2, fecha_str, hora_str, cancha_id in zip(equipos1, equipos2, fechas, horas, canchas_post):
+            partido, advertencia = crear_partido(
+                torneo=torneo,
+                jornada=numero_jornada,
+                jugador1_id=equipo1,
+                jugador2_id=equipo2,
+                fecha_str=fecha_str,
+                hora_str=hora_str,
+                cancha_id=cancha_id,
+                es_doble=True,
+                forzar_creacion=forzar_creacion
+            )
+            if advertencia:
+                advertencias.extend(advertencia if isinstance(advertencia, list) else [advertencia])
+            elif partido:
+                partidos_creados.append(partido)
+
+    else:
+        jugadores1 = request.POST.getlist('jugador1[]')
+        jugadores2 = request.POST.getlist('jugador2[]')
+        if not jugadores1 or not jugadores2 or not fechas or not horas or not canchas_post:
+            return JsonResponse({'status': 'error', 'messages': ['Faltan datos para crear partidos individuales.']})
+
+        for jugador1, jugador2, fecha_str, hora_str, cancha_id in zip(jugadores1, jugadores2, fechas, horas, canchas_post):
+            partido, advertencia = crear_partido(
+                torneo=torneo,
+                jornada=numero_jornada,
+                jugador1_id=jugador1,
+                jugador2_id=jugador2,
+                fecha_str=fecha_str,
+                hora_str=hora_str,
+                cancha_id=cancha_id,
+                es_doble=False,
+                forzar_creacion=forzar_creacion
+            )
+            if advertencia:
+                advertencias.extend(advertencia if isinstance(advertencia, list) else [advertencia])
+            elif partido:
+                partidos_creados.append(partido)
+
+    if advertencias and not forzar_creacion:
+        return JsonResponse({'status': 'conflicto', 'messages': advertencias})
+
+    if partidos_creados:
+        return JsonResponse({'status': 'ok', 'messages': []})
+
+    return JsonResponse({'status': 'error', 'messages': ['No se pudieron crear los partidos.']})
+
+def crear_partido(torneo, jornada, jugador1_id, jugador2_id, fecha_str, hora_str, cancha_id, es_doble=False, forzar_creacion=False):
+    try:
+        fecha_obj = date.fromisoformat(fecha_str)
+        hora_obj = datetime.strptime(hora_str, '%H:%M').time()
+    except ValueError as e:
+        return None, f"Error en fecha/hora: {e}"
+
+    advertencias = []
+
+    # Validación 1: jugadores o equipos ya se enfrentaron en el torneo
+    if es_doble:
+        ya_jugaron = Partido.objects.filter(
+            torneo=torneo,
+            equipo1_id=jugador1_id,
+            equipo2_id=jugador2_id
+        ).exists() or Partido.objects.filter(
+            torneo=torneo,
+            equipo1_id=jugador2_id,
+            equipo2_id=jugador1_id
+        ).exists()
+    else:
+        ya_jugaron = Partido.objects.filter(
+            torneo=torneo,
+            jugador1_id=jugador1_id,
+            jugador2_id=jugador2_id
+        ).exists() or Partido.objects.filter(
+            torneo=torneo,
+            jugador1_id=jugador2_id,
+            jugador2_id=jugador1_id
+        ).exists()
+
+    if ya_jugaron:
+        tipo = 'equipos' if es_doble else 'jugadores'
+        advertencias.append(f"Ya existe un partido entre estos {tipo} en este torneo.")
+
+    # Validación 2: misma hora y cancha
+    conflicto = Partido.objects.filter(
+        fecha=fecha_obj,
+        hora=hora_obj,
+        cancha_id=cancha_id
+    ).exists()
+
+    if conflicto:
+        advertencias.append("Ya hay un partido programado en esa cancha y hora.")
+
+    # Si hay advertencias y NO se está forzando, no se crea
+    if advertencias and not forzar_creacion:
+        return None, advertencias
+
+    # Si no hay advertencias o se está forzando, se crea igual
+    partido = Partido(
+        torneo=torneo,
+        jornada=jornada,
+        fecha=fecha_obj,
+        hora=hora_obj,
+        cancha_id=cancha_id
+    )
+
+    if es_doble:
+        partido.equipo1_id = jugador1_id
+        partido.equipo2_id = jugador2_id
+    else:
+        partido.jugador1_id = jugador1_id
+        partido.jugador2_id = jugador2_id
+
+    partido.save()
+    return partido, None
 
 
 def ver_caracteristicas_torneo(request, id):
@@ -540,6 +784,144 @@ def guardar_fecha(request, torneo_id):
         return redirect('jornada_detalle', torneo_id=torneo.id, jornada=numero_jornada)
 
     return redirect('jornada_detalle', torneo_id=torneo.id, jornada=request.POST.get('numero_jornada'))
+
+@csrf_exempt
+def guardar_resultados2(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            # print("📩 Payload recibido:", data)
+            partido_id = data.get('partido_id')
+            partido = get_object_or_404(Partido, id=partido_id)
+            torneo = partido.torneo
+            es_doble = torneo.tipo_juego in ['Doble', 'Mixto']
+
+            # 🔄 Actualizar campos del partido
+            partido.fecha = data.get('fecha')
+            partido.hora = data.get('hora')
+
+            cancha_id = data.get('cancha')
+            if cancha_id:
+                partido.cancha = get_object_or_404(Cancha, id=int(cancha_id))
+
+            if es_doble:
+                equipo1_id = data.get('equipo1_id')
+                equipo2_id = data.get('equipo2_id')
+                # print("🎾 Modo DOBLE/MIXTO - equipo1_id:", equipo1_id, "equipo2_id:", equipo2_id)
+                partido.equipo1 = Equipo.objects.get(id=int(equipo1_id)) if equipo1_id else None
+                partido.equipo2 = Equipo.objects.get(id=int(equipo2_id)) if equipo2_id else None
+                partido.jugador1 = None
+                partido.jugador2 = None
+            else:
+                dni_jugador1 = data.get('jugador1_dni')
+                dni_jugador2 = data.get('jugador2_dni')
+                # print("👤 Modo SINGLE - jugador1_dni:", dni_jugador1, "jugador2_dni:", dni_jugador2)
+                partido.jugador1 = Jugador.objects.get(dni=int(dni_jugador1)) if dni_jugador1 else None
+                partido.jugador2 = Jugador.objects.get(dni=int(dni_jugador2)) if dni_jugador2 else None
+                partido.equipo1 = None
+                partido.equipo2 = None
+
+            partido.save()
+
+            # Buscar resultado existente
+            resultado = ResultadoPartido.objects.filter(partido=partido).first()
+            es_edicion = resultado is not None
+
+            if not resultado:
+                resultado = ResultadoPartido(partido=partido)
+
+            # Guardar resultado anterior para comparar
+            resultado_original = ResultadoPartido.objects.filter(partido=partido).first()
+            datos_anteriores = (
+                resultado_original.set1_jugador1,
+                resultado_original.set2_jugador1,
+                resultado_original.set3_jugador1,
+                resultado_original.set1_jugador2,
+                resultado_original.set2_jugador2,
+                resultado_original.set3_jugador2,
+                resultado_original.ganador_jugador_id
+            ) if resultado_original and not es_doble else (
+                resultado_original.set1_equipo1,
+                resultado_original.set2_equipo1,
+                resultado_original.set3_equipo1,
+                resultado_original.set1_equipo2,
+                resultado_original.set2_equipo2,
+                resultado_original.set3_equipo2,
+                resultado_original.ganador_equipo_id
+            ) if resultado_original else None
+
+            # Guardar nuevo resultado
+            if es_doble:
+                resultado.set1_equipo1 = int(data.get('set1_jugador1') or 0)
+                resultado.set2_equipo1 = int(data.get('set2_jugador1') or 0)
+                resultado.set3_equipo1 = int(data.get('set3_jugador1') or 0)
+                resultado.set1_equipo2 = int(data.get('set1_jugador2') or 0)
+                resultado.set2_equipo2 = int(data.get('set2_jugador2') or 0)
+                resultado.set3_equipo2 = int(data.get('set3_jugador2') or 0)
+
+                ganador_equipo_id = data.get('ganador_equipo_id')
+                resultado.ganador_equipo = Equipo.objects.get(id=int(ganador_equipo_id)) if ganador_equipo_id else None
+                resultado.ganador_jugador = None
+            else:
+                resultado.set1_jugador1 = int(data.get('set1_jugador1') or 0)
+                resultado.set2_jugador1 = int(data.get('set2_jugador1') or 0)
+                resultado.set3_jugador1 = int(data.get('set3_jugador1') or 0)
+                resultado.set1_jugador2 = int(data.get('set1_jugador2') or 0)
+                resultado.set2_jugador2 = int(data.get('set2_jugador2') or 0)
+                resultado.set3_jugador2 = int(data.get('set3_jugador2') or 0)
+
+                ganador_dni = data.get('ganador_dni')
+                resultado.ganador_jugador = Jugador.objects.get(dni=int(ganador_dni)) if ganador_dni else None
+                resultado.ganador_equipo = None
+
+            # Comparar con los datos anteriores
+            datos_nuevos = (
+                resultado.set1_jugador1,
+                resultado.set2_jugador1,
+                resultado.set3_jugador1,
+                resultado.set1_jugador2,
+                resultado.set2_jugador2,
+                resultado.set3_jugador2,
+                resultado.ganador_jugador_id
+            ) if not es_doble else (
+                resultado.set1_equipo1,
+                resultado.set2_equipo1,
+                resultado.set3_equipo1,
+                resultado.set1_equipo2,
+                resultado.set2_equipo2,
+                resultado.set3_equipo2,
+                resultado.ganador_equipo_id
+            )
+
+            if datos_anteriores != datos_nuevos:
+                from django.db.models.signals import post_save
+                post_save.disconnect(actualizar_ranking, sender=ResultadoPartido)
+
+                resultado.save()
+
+                post_save.connect(actualizar_ranking, sender=ResultadoPartido)
+
+                # Revertir ranking anterior si es edición
+                # if es_edicion:
+                #     if es_doble:
+                #         revertir_ranking_doble(resultado_original)
+                #     else:
+                #         revertir_ranking_single(resultado_original)
+
+                # Aplicar nuevo ranking
+                # if es_doble:
+                #     actualizar_ranking_manual_equipos(resultado)
+                # else:
+                #     actualizar_ranking_manual(resultado)
+
+                return JsonResponse({'success': True, 'message': '✅ Resultado actualizado correctamente.'})
+            else:
+                return JsonResponse({'success': True, 'message': '⚠️ Se modificaron los datos del partido.'})
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({'success': False, 'message': str(e)})
 
 @csrf_exempt
 def guardar_resultados(request):
