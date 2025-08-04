@@ -67,11 +67,11 @@
             </div>
             <!-- LINKS -->
             <div id="resultados">
+                {% if user.is_authenticated and user.is_staff %}
                 <a class="a-options" href="{% url 'admin_menu' %}">
                 <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
                 MENÚ ADMINISTRADOR
                 </a>
-                {% if user.is_authenticated and user.is_staff %}
                 <a class="a-options" href="{% url 'admin_carga_jugador' %}">
                 <i class="bi bi-plus-circle-fill" style="margin-right: 5px;"></i>
                 ALTA JUGADOR

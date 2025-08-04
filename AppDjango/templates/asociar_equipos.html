@@ -51,7 +51,7 @@
                                 id="jugador{{ jugador.dni }}"
                             >
                             <label class="form-check-label jugador-label" for="jugador{{ jugador.dni }}">
-                                {{ jugador.apellido }} {{ jugador.nombre }}
+                                {{ jugador.apellido | upper}} {{ jugador.nombre }}
                             </label>
                         </div>
                         {% endfor %}
@@ -89,11 +89,12 @@
                             {% for equipo in equipos_asociados %}
                                 <div class="form-check" style="text-align:left;">
                                     <input 
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        name="equipos"
-                                        value="{{ equipo.id }}"
-                                        id="equipo{{ equipo.id }}"
+                                    class="form-check-input equipo-checkbox"
+                                    type="checkbox"
+                                    name="equipos"
+                                    value="{{ equipo.id }}"
+                                    id="equipo{{ equipo.id }}"
+
                                     >
                                     <label 
                                         class="form-check-label"

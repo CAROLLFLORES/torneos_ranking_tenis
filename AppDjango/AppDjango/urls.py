@@ -126,4 +126,7 @@ urlpatterns = [
     path('sedes/eliminar/<int:sede_id>/', torneo_views.eliminar_sede, name='eliminar_sede'),
     path('eliminar_cancha/<int:cancha_id>/', torneo_views.eliminar_cancha, name='eliminar_cancha'),
 
+
+    path('editar_sede/<int:sede_id>/', torneo_views.editar_sede, name='editar_sede'),
+
 ]

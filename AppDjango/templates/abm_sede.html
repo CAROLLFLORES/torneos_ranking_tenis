@@ -28,53 +28,74 @@
 </div>
 
 <div class="container-admin">
-    <h4>ADMINISTRADOR</h4>
+    {% if user.is_authenticated %}
+        <h4>ADMINISTRADOR</h4>
+    {% else %}
+        <h4>LIGA 2025</h4>
+    {% endif %}
     <div class="text-section">
         <hr class="separator-line">
-        <h2>ALTA</h2>
-    </div>
-    <div class="text-section">
-        <hr class="separator-line">
-        <h5>CARGA DE NUEVA SEDE</h5>
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">ALTA DE SEDES</h5>
     </div>
 
-    <div class="form-container">
-        <!-- Lado izquierdo -->
-        <div class="narrow-box">
-            <div class="title-orange-gris">
-                <h1>SEDES</h1>
-                <h3 class="negro chico">OPCIONES</h3>
+    <!-- FILTROS -->
+    <div class="recuadro-tabla">
+        
+        <!-- id="form-crear"  agregar en div de form container sumado a clase hidden para cerrar y abrir panel -->
+        <div class="form-container-torneos">
+            <div class="container-form-filter">
+                <form method="GET" action="{% url 'listado_sedes' %}#resultados" class="row g-2 mb-3">
+
+                    <!-- BOTONES -->
+                    <div style="display: flex; flex-direction: row; gap: 1rem">
+                        
+                        <div class="btn-opciones">
+                            <a href="{% url 'listado_sedes' %}">LISTADO COMPLETO</a>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <a href="{% url 'admin_menu' %}">
-                <button class="login-button peque">MENU</button>
-            </a>
-            <hr class="separator">
-            <a href="{% url 'listado_sedes' %}">
-                <button class="login-button-gris chico">Listado completo</button>
-            </a>
+            <!-- LINKS -->
+            <div id="resultados">
+                <a class="a-options" href="{% url 'admin_menu' %}">
+                <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
+                MENÚ ADMINISTRADOR
+                </a>
+                               
+            </div>
         </div>
+    </div>
+    
 
-        <!-- Formulario de sede -->
-        <div class="login-box">
-            <form method="POST">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <br> 
-                    <label for="id_nombre" class="form-label">Nombre de la Sede:</label>
-                    <input type="text" name="nombre" id="id_nombre" class="form-control" placeholder="Ejemplo: Palos Verdes" required>
-                </div>
-                <br> 
-                <button class="login-button" type="submit">GUARDAR</button>
-            </form>
-        </div>
+
+<div class="tabla-wrapper">
+        <table class="tabla-usuarios">
+            <div>
+                <div class="recuadro-tabla">  
+                    <form id="form-nueva-sede" method="POST">
+                    {% csrf_token %}
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter" for="id_nombre">NOMBRE DE SEDE:</span>
+                        <input type="text" name="nombre" id="id_nombre" class="form-control" placeholder="Nombre" required>
+                    </div>
+
+                    <div style="display: flex; flex-direction: row; gap: 1rem">
+                        <button class="btn-opciones" type="submit">GUARDAR</button>
+                    </div>
+                </form>
+            </div>
+        </table>
     </div>
 </div>
 
 <script>
-    document.querySelector("form").addEventListener("submit", function (event) {
-        event.preventDefault();
+   document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("form-nueva-sede");
 
-        let formData = new FormData(this);
+    form.addEventListener("submit", function (event) {
+        event.preventDefault(); // Evita el envío normal
+
+        let formData = new FormData(form);
 
         fetch("{% url 'abm_sede' %}", {
             method: "POST",
@@ -86,7 +107,7 @@
                 let modal = new bootstrap.Modal(document.getElementById('modalConfirmacionSede'));
                 modal.show();
             } else {
-                alert("Hubo un error al guardar la sede.");
+                alert("❌ Error al guardar la sede: " + (data.error || "Desconocido"));
             }
         })
         .catch(error => {
@@ -94,5 +115,7 @@
             alert("Hubo un problema con el servidor.");
         });
     });
+});
+
 </script>
 {% endblock %}
