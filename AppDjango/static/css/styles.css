@@ -2403,6 +2403,21 @@ html, body {
     color: red;
 }
 
+.btn-deleteP {
+    color: red;
+    font-size: 1rem;
+    cursor: pointer !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    all: unset;
+    transition: transform 0.2s ease;
+}
+
+.btn-deleteP:hover {
+    color: red;
+}
+
 .filtro-caja {
     position: fixed;
     left: 0;
@@ -2549,8 +2564,25 @@ html, body {
     font-family: 'Oswald', sans-serif !important;
     letter-spacing: 3px;
     transition: all 0.3s ease-in-out;
-    /* background-color: transparent; */
     color: #c4c1c1;
+}
+
+.btn-opciones-gris {
+    background-color: #3e3e3d;
+    border: 1px solid #ccc;
+    padding: 5px 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    font-family: 'Oswald', sans-serif !important;
+    letter-spacing: 3px;
+    transition: all 0.3s ease-in-out;
+    color: #c4c1c1;
+    margin-bottom: 4px;
 }
 
 .btn-opciones a {
@@ -2559,6 +2591,10 @@ html, body {
 }
 
 .btn-opciones:hover {
+    background-color: #cedf8027;
+}
+
+.btn-opciones-gris:hover {
     background-color: #cedf8027;
 }
 
@@ -2855,6 +2891,22 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .form-container-torneos {
   margin: auto;
   padding: 20px;
+    /* width: 100%; */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.form-container-partidos {
+  margin: auto;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.form-container-info {
+  margin: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-row {
@@ -2969,6 +3021,180 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     width: 40vw;
 }
 
+.torneo-listado {
+  text-align: left;
+  color: white;
+  padding-left: 1rem;
+}
+
+.torneo-listado ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+
+.torneo-listado li {
+  font-size: .8rem;
+}
+
+.torneo-listado p {
+  font-size: .8rem;
+}
+
+.btn-filtros {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem
+}
+
+.tabla-partidos {
+  width: 100%;
+  background-color: #cedf8042;
+  font-family: 'Oswald', sans-serif;
+  /* color: #444546; */
+  overflow: hidden;
+}
+
+.tabla-partidos tr {
+    background-color: rgb(41, 45, 24) !important;
+}
+
+.tabla-partidos th,
+.tabla-partidos td {
+  border: 1px solid #4f4f4f;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: white
+}
+
+.tabla-partidos th {
+  font-weight: bold;
+  letter-spacing: 2px;
+  /* color: #c4c1c1 */
+}
+
+.tabla-partidos input,
+.tabla-partidos select {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #4f4f4f;
+    border-radius: 5px;
+    background-color: #2d2f23;
+    color: white;
+    font-size: 13px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+.btn-ranking {
+    cursor: pointer;
+}
+
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.custom-toast {
+  padding: 12px 16px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  transition: opacity 0.5s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Tipos de mensaje */
+.custom-toast.success {
+  background-color: #cddf80;
+}
+
+.custom-toast.error {
+  background-color: #f44336;
+}
+
+.custom-toast.warning {
+  background-color: #ff9800;
+}
+
+.custom-toast.info {
+  background-color: #2196F3;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 40%;
+    text-align: center;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.button-delete {
+    background-color: red;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button-close {
+    background-color: gray;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.editable {
+    background-color: #fff9c4 !important;
+    color: #000 !important;
+    border: 1px solid #fbc02d;
+    transition: background-color 0.3s ease;
+}
+
+select.editable option {
+    color: #000;
+}
+
+input.editable::placeholder,
+select.editable::placeholder {
+    color: #555
+}
+td.jugador, td.ganador {
+    min-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+td.set {
+    min-width: 40px;
+}
+
+td.set input {
+    width: 100%;
+    min-width: 40px;
+    text-align: center;
+}
+
 /*////////////////////////////////////////////////////////// NUEVOS ESTILOS RESPOSIVE //////////////////////////////////////////////////////////*/
 @media (max-width: 1220px) {
     .recuadro-1 {
@@ -3079,6 +3305,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         width: 100%;
     }  
     .container-form-filter {
+        width: auto;
+    }
+    .btn-filtros {
+        flex-direction: column;
+    }
+    .btn-opciones {
+        width: auto;
+    }
+    .btn-opciones-gris {
         width: auto;
     }
 

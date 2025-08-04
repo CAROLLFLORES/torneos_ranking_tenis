@@ -3,93 +3,41 @@
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
-
 <div class="container-admin">
-    {% if user.is_authenticated %}
-        <h4>ADMINISTRADOR</h4>
-        {% else %}
-        <h4>LIGA 2025</h4>
+  <!-- Título -->
+  <div class="text-section">
+    <hr class="separator-line">
+    {% if torneo_actual %}
+      <h2 class="text-primary text-center">
+        HISTORIAL PARTIDOS – {{ torneo_actual.nombre|upper }}
+      </h2>
+    {% else %}
+      <h2 class="text-primary text-center">
+        HISTORIAL PARTIDOS
+      </h2>
     {% endif %}
-    <div class="text-section">
-        <hr class="separator-line">
-        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">HISTORIAL TORNEOS – {{ torneo_actual.nombre|upper }}</h5>
-        
+  </div>
+
+  <div class="form-container d-flex gap-4 justify-content-between">
+    <!-- SIDEBAR IZQUIERDA (lista de torneos) -->
+    <div class="narrow-box flex-grow-1">
+      <div class="title-orange-gris text-center">
+        <h1>TORNEOS</h1>
+      </div>
+      <ul class="tournament-list">
+        {% for torneo in torneos %}
+          <li class="tournament-item mb-2">
+            <a href="{% url 'historial_publico' torneo.id %}">
+              <button class="login-button chico">
+                {{ torneo.nombre|upper }}
+              </button>
+            </a>
+          </li>
+        {% empty %}
+          <li>No hay torneos disponibles.</li>
+        {% endfor %}
+      </ul>
     </div>
-
-    <!-- FILTROS -->
-    <div class="recuadro-tabla">
-        <!-- NOTA: id="toggle-crear" agregar en div de opciones para cerrar y abrir panel -->
-        <div  style="cursor: pointer;" class="green-box-title-btn">
-            <h4 style="margin: 0;">CATEGORIAS</h4>
-        </div>
-        <!-- id="form-crear"  agregar en div de form container sumado a clase hidden para cerrar y abrir panel -->
-        <div class="form-container-torneos">
-            <div class="container-form-filter">
-               
-                    <!-- CATEGORÍA -->
-                    <div class="filtro-busqueda1">                        
-                        <span class="span-filter">CATEGORÍAS</span>
-                        <form method="get" action="">
-                            <select name="torneo" id="filtro-torneo" class="form-select" onchange="if(this.value) window.location.href=this.value;">
-                                <option value="">Todas</option>
-                                {% for torneo in torneos %}
-                                  <option value="{% url 'historial_publico' torneo.id %}">
-                                    {{ torneo.nombre|upper }}
-                                  </option>
-                                {% empty %}
-                                  <option disabled>No hay torneos disponibles.</option>
-                                {% endfor %}
-                            </select>
-                        </form>
-                    </div>
-            </div>
-            <!-- LINKS -->
-            <div id="resultados">
-                {% if user.is_authenticated and user.is_staff %}
-                <a class="a-options" href="{% url 'admin_menu' %}">
-                <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
-                MENÚ ADMINISTRADOR
-                </a>
-                <a class="a-options" href="{% url 'admin_carga_jugador' %}">
-                <i class="bi bi-plus-circle-fill" style="margin-right: 5px;"></i>
-                ALTA JUGADOR
-                </a>
-                {% endif %}
-
-                {% if user.is_authenticated and user.is_staff %}
-                {% with query_string=request.GET.urlencode %}
-                <a href="{% url 'exportar_jugadores_pdf' %}?{{ query_string }}"
-                    target="_blank"
-                    class="a-options">
-                    <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
-                    DESCARGAR EN PDF
-                </a>
-                {% endwith %}
-                {% endif %}
-            </div>
-        </div>
-    </div>
-   
-
-<!-- LISTADO -->
-     <div>
-         <div class="recuadro-tabla">
-            <!-- PAGINADO -->
-          <div class="green-box-table">
-            <div class="pagination-container">
-              Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-              {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if search_fecha %}&fecha={{ search_fecha }}{% endif %}#resultados" class="arrow">&lt;</a>
-              {% endif %}
-              {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if search_fecha %}&fecha={{ search_fecha }}{% endif %}#resultados" class="arrow">&gt;</a>
-              {% endif %}
-            </div>
-          </div>
-
-          <p style="margin-top: .5rem; color: rgb(150, 149, 149); font-size: .8rem;">
-            {{ page_obj.paginator.count }} resultados encontrados.
-          </p>
 
     <!-- PANEL DERECHO (grid de tarjetas como en admin) -->
     <div class="flex-grow-1">

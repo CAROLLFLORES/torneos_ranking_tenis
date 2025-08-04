@@ -1,0 +1,151 @@
+<div class="recuadro-tabla">
+    <div id="toggle-crear" style="cursor: pointer;" class="green-box-title-btn">
+        <h4 style="margin: 0; cursor: pointer;">CARGAR PARTIDOS</h4>
+    </div>
+    <div id="form-crear" class="form-container-partidos hidden">
+        <form method="post" action="{% url 'datos_torneo' torneo.id %}">
+            {% csrf_token %}
+            <table class="tabla-partidos">
+                <thead>
+                    <tr>
+                        <th>Equipo 1</th>
+                        <th>Equipo 2</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Cancha</th>
+                        <th>Borrar</th>
+                        <th>Cargar</th>
+                    </tr>
+                </thead>
+                <tbody id="partidos-body">
+                    <tr>
+                        <td>
+                            <select name="jugador1[]" required>
+                                <option value="" selected>Seleccione Equipo 1</option>
+                                {% for equipo in equipos %}
+                                <option value="{{ equipo.id }}">
+                                    {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <select name="jugador2[]" required>
+                                <option value="" selected>Seleccione Equipo 2</option>
+                                {% for equipo in equipos %}
+                                <option value="{{ equipo.id }}">
+                                    {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><input type="date" name="fecha[]" required></td>
+                        <td><input type="time" name="hora[]" required></td>
+                        <td>
+                            <select name="cancha[]" required>
+                                {% for c in canchas %}
+                                <option value="{{ c.id }}">{{ c.sede.nombre }} - Cancha {{ c.cancha }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><button type="button" style="font-size: 1.1rem;" class="btn-delete" title="Borrar datos"><i class="bi bi-trash-fill"></i></button></td>
+                        <td><button class="btn-edit" type="button" style="font-size: 1.1rem;" title="Cargar partido"><i class="bi bi-download" onclick="validarPartidoDesdeFrontend(event, this)"></i></button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>  
+
+<script>
+// Borrar datos del formulario desde el front
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const row = e.target.closest('tr');
+            if (row) {
+                // Limpiar los selects
+                row.querySelectorAll('select').forEach(select => {
+                    select.selectedIndex = 0;  // vuelve al primer <option> (el placeholder)
+                });
+
+                // Limpiar los inputs
+                row.querySelectorAll('input').forEach(input => {
+                    input.value = '';
+                });
+            }
+        });
+    });
+});
+
+// Validar y crear partido
+async function validarPartidoDesdeFrontend(event, button) {
+    event.preventDefault();
+    const row = button.closest('tr');
+    const jugador1 = row.querySelector("select[name='jugador1[]']").value;
+    const jugador2 = row.querySelector("select[name='jugador2[]']").value;
+    const fecha = row.querySelector("input[name='fecha[]']").value;
+    const hora = row.querySelector("input[name='hora[]']").value;
+    const cancha = row.querySelector("select[name='cancha[]']").value;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Validaciones locales básicas
+    if (!jugador1 || !jugador2 || !fecha || !hora || !cancha) {
+        alert("❌ Todos los campos son obligatorios.");
+        return;
+    }
+    if (jugador1 === jugador2) {
+        alert("❌ No se puede enfrentar un mismo jugador o equipo contra sí mismo.");
+        return;
+    }
+
+    // POST con fetch solo para validar
+    const formData = new FormData();
+    formData.append('forzar', '0');
+    formData.append('jugador1[]', jugador1);
+    formData.append('jugador2[]', jugador2);
+    formData.append('fecha[]', fecha);
+    formData.append('hora[]', hora);
+    formData.append('cancha[]', cancha);
+    formData.append('validar', '1');
+
+    const response = await fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken
+        },
+        body: formData
+    });
+
+    const result = await response.json();
+
+    if (result.status === 'conflicto') {
+        const continuar = confirm("⚠️ Conflictos detectados:\n\n" + result.messages.join('\n') + "\n\n¿Querés crear el partido de todos modos?");
+        if (continuar) {
+            formData.set('forzar', '1'); // forzar ahora
+            const segundaRespuesta = await fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            });
+
+            const resultadoFinal = await segundaRespuesta.json();
+            if (resultadoFinal.status === 'ok') {
+                alert("✅ Partido creado con éxito.");
+                location.reload(); // o redirigir si querés
+            } else {
+                alert("❌ Error al crear el partido.");
+            }
+        } else {
+            alert("⛔ El partido no fue creado.");
+        }
+    } else if (result.status === 'ok') {
+        alert("✅ Partido creado con éxito.");
+        location.reload();
+    } else {
+        alert("❌ Algo salió mal.");
+    } 
+}
+</script>

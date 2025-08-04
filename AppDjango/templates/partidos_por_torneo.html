@@ -1,0 +1,489 @@
+
+    
+<!-- FILTROS -->
+<div class="recuadro-tabla" style="font-weight: 400; letter-spacing: 2px;">
+    <div class="green-box-title-btn" style="cursor: pointer;">
+        <h4 style="margin: 0; cursor: pointer;">FILTROS</h4>
+    </div>
+    <div class="form-container-torneos">
+        <div class="container-form-filter">
+            <form method="GET" action="" class="row g-2 mb-3">
+
+                <!-- Fecha -->
+                <div class="filtro-busqueda1">
+                    <span class="span-filter">FECHA</span>
+                    <input type="date" name="fecha" class="form-control" value="{{ filtros.fecha }}">
+                </div>
+
+                <!-- Hora -->
+                <div class="filtro-busqueda1">
+                    <span class="span-filter">HORA</span>
+                    <input type="time" name="hora" class="form-control" value="{{ filtros.hora }}">
+                </div>
+
+                <!-- Cancha -->
+                <div class="filtro-busqueda1">
+                    <span class="span-filter">CANCHA</span>
+                    <select name="cancha">
+                        <option value="">Todas</option>
+                        {% for c in canchas %}
+                        <option value="{{ c.id }}">{{ c.sede.nombre }} - Cancha {{ c.cancha }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Jugador -->
+                <div class="filtro-busqueda1">
+                    <span class="span-filter">JUGADOR</span>
+                    <input type="text" name="search" class="form-control" placeholder="Nombre o apellido" value="{{ filtros.search }}">
+                </div>
+
+                <!-- Botones -->
+                <div class="btn-filtros">
+                    <button class="btn-opciones" type="submit">FILTRAR</button>
+                    <div class="btn-opciones">
+                        <a href="?">LIMPIAR FILTROS</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="recuadro-tabla">
+    <!-- PAGINADO -->
+    <div class="green-box-table">
+        <span>PARTIDOS PROGRAMADOS</span>
+        <div class="pagination-container">
+            Página {{ partidos.number }} de {{ partidos.paginator.num_pages }}
+
+            {% if partidos.has_previous %}
+                <a href="?page={{ partidos.previous_page_number }}{% if filtros.search %}&search={{ filtros.search }}{% endif %}{% if filtros.fecha %}&fecha={{ filtros.fecha }}{% endif %}{% if filtros.hora %}&hora={{ filtros.hora }}{% endif %}{% if filtros.cancha %}&cancha={{ filtros.cancha }}{% endif %}" class="arrow">&lt;</a>
+            {% endif %}
+
+            {% if partidos.has_next %}
+                <a href="?page={{ partidos.next_page_number }}{% if filtros.search %}&search={{ filtros.search }}{% endif %}{% if filtros.fecha %}&fecha={{ filtros.fecha }}{% endif %}{% if filtros.hora %}&hora={{ filtros.hora }}{% endif %}{% if filtros.cancha %}&cancha={{ filtros.cancha }}{% endif %}" class="arrow">&gt;</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <p style="margin-top: .5rem; color: rgb(150, 149, 149); font-size: .8rem;">
+        {{ partidos.paginator.count }} resultados encontrados.
+    </p>
+
+    <!-- LISTADO -->
+    <div class="form-container-partidos" style="margin-bottom: 1rem;">
+        <table class="tabla-partidos">
+            <thead>
+                <tr>
+                    <!-- <th>PARTIDO</th> -->
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Cancha</th>
+                    <th>Jugadores</th>
+                    <th>Set 1</th>
+                    <th>Set 2</th>
+                    <th>Set 3</th> 
+                    <th>Ganador</th>                                  
+                    <th>Borrar</th>
+                    <th>Editar</th>
+                    <th>Guardar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for partido in partidos %}
+                <tr style="border-top: .15rem solid #717070 !important;">
+                    <td rowspan="2"><input type="date" value="{{ partido.fecha|date:'Y-m-d' }}" id="fecha-{{ partido.id }}" disabled></td>
+                    <td rowspan="2"><input type="time" value="{{ partido.hora|time:'H:i' }}" id="hora-{{ partido.id }}" disabled></td>
+                    <td rowspan="2">
+                        <select id="cancha-{{ partido.id }}" disabled>
+                            {% for c in canchas %}
+                                <option value="{{ c.id }}"
+                                    {% if c.id == partido.cancha.id %}selected{% endif %}>
+                                    {{ c.sede.nombre }} - Cancha {{ c.cancha }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    
+                    <!-- Jugador/Equipo 1 -->
+                    <td  class="jugador">
+                        <select id="jugador1-{{ partido.id }}" disabled>
+                            {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
+                                {% for equipo in equipos %}
+                                    <option value="{{ equipo.id }}"
+                                        {% if equipo.id == partido.equipo1.id %}selected{% endif %}>
+                                        {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                    </option>
+                                {% endfor %}
+                            {% else %}
+                                {% for jugador in jugadores %}
+                                    <option value="{{ jugador.dni }}"
+                                        {% if jugador.dni == partido.jugador1.dni %}selected{% endif %}>
+                                        {{ jugador.apellido }} {{ jugador.nombre }}
+                                    </option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </td>
+
+                    <!-- Set 1 -->
+                    <td class="set">
+                        <input type="number" min="0" max="7"
+                        value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set1_equipo1 }}{% else %}{{ partido.resultado.set1_jugador1 }}{% endif %}"
+                        id="set1-jugador1-{{ partido.id }}" class="set-input" disabled>
+                    </td>
+                    <!-- Set 2 -->
+                    <td class="set"><input type="number" min="0" max="7"
+                        value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set2_equipo1 }}{% else %}{{ partido.resultado.set2_jugador1 }}{% endif %}"
+                        id="set2-jugador1-{{ partido.id }}" class="set-input" disabled></td>
+                    <!-- Set 3 -->
+                    <td class="set"><input type="number" min="0" max="30"
+                        value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set3_equipo1 }}{% else %}{{ partido.resultado.set3_jugador1 }}{% endif %}"
+                        id="set3-jugador1-{{ partido.id }}" class="set-input" disabled></td>
+
+                    <!-- GANADOR -->
+                    <td rowspan="2" class="ganador">
+                        <select id="ganador-{{ partido.id }}" disabled>
+                            <option value="">No definido</option>
+                            {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
+                                {% for equipo in equipos %}
+                                    <option value="{{ equipo.id }}"
+                                        {% if partido.resultado and partido.resultado.ganador_equipo and equipo.id == partido.resultado.ganador_equipo.id %}
+                                            selected
+                                        {% endif %}>
+                                        {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                    </option>
+                                {% endfor %}
+                            {% else %}
+                                {% for jugador in jugadores %}
+                                    <option value="{{ jugador.dni }}"
+                                        {% if partido.resultado and partido.resultado.ganador_jugador and jugador.dni == partido.resultado.ganador_jugador.dni %}
+                                            selected
+                                        {% endif %}>
+                                        {{ jugador.apellido }} {{ jugador.nombre }}
+                                    </option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </td>
+                    <!-- ELIMINAR -->
+                    <td rowspan="2">
+                        <button type="button" title="Eliminar partido" class="btn-deleteP" data-id="{{ partido.id }}">
+                            <i class="bi bi-trash-fill" style="font-size: 1.1rem;"></i>
+                        </button>
+                    </td>
+                    <!-- Botón MODIFICAR -->
+                    <td rowspan="2">
+                        <button type="button" title="Modificar datos de partido" class="btn-edit" onclick="habilitarEdicionCompleta('{{ partido.id }}')">
+                            <i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i>
+                        </button>
+                    </td>
+                    <!-- Botón GUARDAR -->
+                    <td rowspan="2">
+                        <button type="button" title="Guardar partido" class="btn-edit">
+                            <i class="bi bi-floppy" class="btn-edit" style="font-size: 1.1rem;" onclick="guardarPartido('{{ partido.id }}')"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <!-- Jugador/Equipo 2 -->
+                    <td  class="jugador">
+                        <select id="jugador2-{{ partido.id }}" disabled>
+                            {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
+                                {% for equipo in equipos %}
+                                    <option value="{{ equipo.id }}"
+                                        {% if equipo.id == partido.equipo2.id %}selected{% endif %}>
+                                        {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                    </option>
+                                {% endfor %}
+                            {% else %}
+                                {% for jugador in jugadores %}
+                                    <option value="{{ jugador.dni }}"
+                                        {% if jugador.dni == partido.jugador2.dni %}selected{% endif %}>
+                                        {{ jugador.apellido }} {{ jugador.nombre }}
+                                    </option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </td>
+
+                    <!-- Sets jugador/equipo 2 -->
+                    <td class="set"><input type="number" min="0" max="7"
+                        value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set1_equipo2 }}{% else %}{{ partido.resultado.set1_jugador2 }}{% endif %}"
+                        id="set1-jugador2-{{ partido.id }}" class="set-input" disabled></td>
+                    <td class="set"><input type="number" min="0" max="7"
+                        value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set2_equipo2 }}{% else %}{{ partido.resultado.set2_jugador2 }}{% endif %}"
+                        id="set2-jugador2-{{ partido.id }}" class="set-input" disabled></td>
+                    <td class="set"><input type="number" min="0" max="20"
+                        value="{% if torneo.tipo_juego == 'Doble' or torneo.tipo_juego == 'Mixto' %}{{ partido.resultado.set3_equipo2 }}{% else %}{{ partido.resultado.set3_jugador2 }}{% endif %}"
+                        id="set3-jugador2-{{ partido.id }}" class="set-input" disabled></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Eliminar partido con confirmación previa de usuario
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.btn-deleteP').forEach(button => {
+        button.addEventListener('click', function () {
+            const partidoId = this.dataset.id;
+            const confirmar = confirm("⚠️ ¿Estás seguro que querés eliminar este partido? Esta acción no se puede deshacer.");
+
+            if (!confirmar) return;
+
+            fetch(`/eliminar_partido/${partidoId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'partido_id': partidoId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("✅ Partido eliminado correctamente.");
+                    location.reload();
+                } else {
+                    alert("❌ Error al eliminar el partido: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error eliminando partido:", error);
+                alert("❌ Ocurrió un error inesperado.");
+            });
+        });
+    });
+});
+
+// Habilitar edición en todos los campos o restaurar valores iniciales 
+function habilitarEdicionCompleta(partidoId) {
+    const campos = [
+        `fecha-${partidoId}`,
+        `hora-${partidoId}`,
+        `cancha-${partidoId}`,
+        `jugador1-${partidoId}`,
+        `jugador2-${partidoId}`,
+        `set1-jugador1-${partidoId}`,
+        `set2-jugador1-${partidoId}`,
+        `set3-jugador1-${partidoId}`,
+        `set1-jugador2-${partidoId}`,
+        `set2-jugador2-${partidoId}`,
+        `set3-jugador2-${partidoId}`,
+        `ganador-${partidoId}`
+    ];
+
+    let estaEnEdicion = false;
+
+    campos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (!campo) return;
+
+        // Si ya está editable, restaurar
+        if (!campo.disabled) {
+            const original = campo.dataset.originalValue;
+            if (original !== undefined) campo.value = original;
+
+            campo.disabled = true;
+            campo.classList.remove('editable');
+        } else {
+            // Guardar valor original solo una vez
+            if (!campo.dataset.originalValue) {
+                campo.dataset.originalValue = campo.value;
+            }
+
+            campo.disabled = false;
+            campo.classList.add('editable');
+            estaEnEdicion = true;
+        }
+    });
+
+    // Cambiar ícono del botón
+    const boton = document.querySelector(`button[onclick="habilitarEdicionCompleta('${partidoId}')"]`);
+    if (boton) {
+        const icono = boton.querySelector('i');
+        if (icono) {
+            icono.className = estaEnEdicion ? 'bi bi-x-circle' : 'bi bi-pencil-square';
+            icono.title = estaEnEdicion ? 'Cancelar edición' : 'Modificar datos de partido';
+        }
+    }
+}
+
+// Actualiza el select del ganador según los equipos/jugadores seleccionados
+document.addEventListener("DOMContentLoaded", function () {
+    const partidos = document.querySelectorAll('[id^="jugador1-"]');
+
+    partidos.forEach((jugador1Select) => {
+        const partidoId = jugador1Select.id.split('-')[1];
+        const jugador2Select = document.getElementById(`jugador2-${partidoId}`);
+        const ganadorSelect = document.getElementById(`ganador-${partidoId}`);
+
+        const torneoTipo = "{{ torneo.tipo_juego }}"; // "Doble", "Mixto" o "Single"
+        const isDoble = torneoTipo === "Doble" || torneoTipo === "Mixto";
+
+        // Guardar todas las opciones disponibles al inicio
+        const opcionesGanador = Array.from(ganadorSelect.options);
+
+        const actualizarOpcionesGanador = () => {
+            const val1 = jugador1Select.value;
+            const val2 = jugador2Select.value;
+
+            ganadorSelect.innerHTML = "";
+
+            // Agregamos opción vacía
+            ganadorSelect.appendChild(new Option("No definido", ""));
+
+            opcionesGanador.forEach(op => {
+                if (op.value === val1 || op.value === val2) {
+                    ganadorSelect.appendChild(op.cloneNode(true));
+                }
+            });
+
+            // Si el valor actual del select ya no está entre las opciones válidas, lo limpiamos
+            const valoresValidos = [val1, val2];
+            if (!valoresValidos.includes(ganadorSelect.value)) {
+                ganadorSelect.value = "";
+            }
+        };
+
+        // Inicializar al cargar
+        actualizarOpcionesGanador();
+
+        // Re-actualizar si cambian jugadores
+        jugador1Select.addEventListener("change", actualizarOpcionesGanador);
+        jugador2Select.addEventListener("change", actualizarOpcionesGanador);
+    });
+});
+
+// Actualizar ganador en base al resultado
+function actualizarGanador(partidoId) {
+    const tipoJuego = "{{ torneo.tipo_juego }}";  // Individual, Doble o Mixto
+
+    const s1j1 = parseInt(document.getElementById(`set1-jugador1-${partidoId}`).value || 0, 10);
+    const s2j1 = parseInt(document.getElementById(`set2-jugador1-${partidoId}`).value || 0, 10);
+    const s3j1 = parseInt(document.getElementById(`set3-jugador1-${partidoId}`).value || 0, 10);
+
+    const s1j2 = parseInt(document.getElementById(`set1-jugador2-${partidoId}`).value || 0, 10);
+    const s2j2 = parseInt(document.getElementById(`set2-jugador2-${partidoId}`).value || 0, 10);
+    const s3j2 = parseInt(document.getElementById(`set3-jugador2-${partidoId}`).value || 0, 10);
+
+    let setsGanadosJ1 = 0;
+    let setsGanadosJ2 = 0;
+
+    if (s1j1 > s1j2) setsGanadosJ1++;
+    else if (s1j2 > s1j1) setsGanadosJ2++;
+
+    if (s2j1 > s2j2) setsGanadosJ1++;
+    else if (s2j2 > s2j1) setsGanadosJ2++;
+
+    if (s3j1 > s3j2) setsGanadosJ1++;
+    else if (s3j2 > s3j1) setsGanadosJ2++;
+
+    const ganadorSelect = document.getElementById(`ganador-${partidoId}`);
+    const jugador1 = document.getElementById(`jugador1-${partidoId}`);
+    const jugador2 = document.getElementById(`jugador2-${partidoId}`);
+
+    if (setsGanadosJ1 >= 2) {
+        ganadorSelect.value = jugador1.value;
+    } else if (setsGanadosJ2 >= 2) {
+        ganadorSelect.value = jugador2.value;
+    } else {
+        ganadorSelect.value = "";
+    }
+}
+
+// Se guarda la edicion en el partido programado (resultado, hora, fecha, cancha, jugadores, ganador)
+async function guardarPartido(partidoId) {
+    const fecha = document.getElementById(`fecha-${partidoId}`).value.trim();
+    const hora = document.getElementById(`hora-${partidoId}`).value.trim();
+    const cancha = document.getElementById(`cancha-${partidoId}`).value.trim();
+
+    const torneoTipo = "{{ torneo.tipo_juego|lower }}";
+    const esDobleOMixto = torneoTipo === "doble" || torneoTipo === "mixto";
+
+    const jugador1Input = document.getElementById(`jugador1-${partidoId}`);
+    const jugador2Input = document.getElementById(`jugador2-${partidoId}`);
+    const ganadorSelect = document.getElementById(`ganador-${partidoId}`);
+
+    const set1Jugador1 = parseInt(document.getElementById(`set1-jugador1-${partidoId}`).value || "0");
+    const set2Jugador1 = parseInt(document.getElementById(`set2-jugador1-${partidoId}`).value || "0");
+    const set3Jugador1 = parseInt(document.getElementById(`set3-jugador1-${partidoId}`).value || "0");
+
+    const set1Jugador2 = parseInt(document.getElementById(`set1-jugador2-${partidoId}`).value || "0");
+    const set2Jugador2 = parseInt(document.getElementById(`set2-jugador2-${partidoId}`).value || "0");
+    const set3Jugador2 = parseInt(document.getElementById(`set3-jugador2-${partidoId}`).value || "0");
+
+    let payload = {
+        partido_id: partidoId,
+        fecha: fecha,
+        hora: hora,
+        cancha: cancha,
+        set1_jugador1: set1Jugador1,
+        set2_jugador1: set2Jugador1,
+        set3_jugador1: set3Jugador1,
+        set1_jugador2: set1Jugador2,
+        set2_jugador2: set2Jugador2,
+        set3_jugador2: set3Jugador2
+    };
+
+    if (esDobleOMixto) {
+        payload.ganador_equipo_id = ganadorSelect.value || null;
+        payload.equipo1_id = jugador1Input.value;
+        payload.equipo2_id = jugador2Input.value;
+    } else {
+        const jugador1DNI = jugador1Input.value;
+        const jugador2DNI = jugador2Input.value;
+
+        if (ganadorSelect.value === jugador1DNI) {
+            payload.ganador_dni = jugador1DNI;
+        } else if (ganadorSelect.value === jugador2DNI) {
+            payload.ganador_dni = jugador2DNI;
+        } else {
+            payload.ganador_dni = null;
+        }
+
+        payload.jugador1_dni = jugador1DNI;
+        payload.jugador2_dni = jugador2DNI;
+    }
+
+    try {
+        const response = await fetch('/guardar_resultados2/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            alert(data.message || "✅ Datos guardados correctamente.");
+            location.reload();
+        } else {
+            alert("❌ Error al guardar: " + data.message);
+        }
+    } catch (error) {
+        console.error("❌ Error en solicitud:", error);
+        alert("❌ Error de red o del servidor.");
+    }
+}
+// Detectar cambios en los sets y actualizar automáticamente el ganador
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("[id^='set']").forEach(input => {
+        input.addEventListener("input", () => {
+            const partes = input.id.split("-");
+            const partidoId = partes[partes.length - 1];
+
+            actualizarGanador(partidoId);
+        });
+    });
+});
+
+</script>

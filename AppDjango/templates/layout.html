@@ -65,11 +65,11 @@
                 <a class="nav-link card" href="{% url 'listado_jugadores' %}">&nbsp;JUGADORES&nbsp;</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link card" href="{% url 'historial_publico' %}">&nbsp;HISTORIAL TORNEOS&nbsp;</a>
+                <a class="nav-link card" href="{% url 'historial_publico' %}">&nbsp;HISTORIAL PARTIDOS&nbsp;</a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link card" href="{% url 'ranking_general' %}">&nbsp;RANKING&nbsp;</a>
-            </li>
+            </li> -->
             {% if user.is_authenticated %}
             <li class="nav-item">
                 <a class="nav-link card" href="{% url 'crear_torneo' %}">&nbsp;GESTIÓN DE TORNEOS&nbsp;</a>
@@ -128,9 +128,9 @@
             <hr class="separator-negro">
             <li ><a href="{% url 'listado_jugadores' %}">JUGADORES</a></li>
             <hr class="separator-negro">
-            <li><a href="{% url 'historial_publico' %}">HISTORIAL TORNEOS</a></li>
-            <hr class="separator-negro">
-            <li><a href="{% url 'ranking_general' %}">RANKING</a></li>
+            <li><a href="{% url 'historial_publico' %}">HISTORIAL PARTIDOS</a></li>
+            <!-- <hr class="separator-negro"> -->
+            <!-- <li><a href="{% url 'ranking_general' %}">RANKING</a></li> -->
             <hr class="separator-negro">
             {% if user.is_authenticated %}
             <li><a href="{% url 'crear_torneo' %}">GESTIÓN DE TORNEOS</a></li>
@@ -149,6 +149,26 @@
         </ul>
         <p class="copy">&copy; 2025 HERAAS. Todos los derechos reservados.</p>
     </div>
+
+    {% if messages %}
+    <div id="toast-container">
+    {% for message in messages %}
+        <div class="custom-toast {{ message.tags }}">
+        {{ message }}
+        </div>
+    {% endfor %}
+    </div>
+
+    <script>
+    setTimeout(() => {
+        const toasts = document.querySelectorAll('.custom-toast');
+        toasts.forEach(toast => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 500);
+        });
+    }, 3000);
+    </script>
+    {% endif %}
 
     <div id="content"> 
         {% block content %}{% endblock %}
