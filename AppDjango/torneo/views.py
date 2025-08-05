@@ -2070,19 +2070,19 @@ def generar_pdf_partidos_por_fecha(request):
     from reportlab.platypus import Table
 
     try:
-        logo_apur = Image(ruta_imagen, width=4 * cm, height=2 * cm)
+        logo_apur = Image(ruta_imagen, width=3 * cm, height=1.5 * cm)
     except:
         logo_apur = Paragraph("[APUR NO ENCONTRADO]", styles["Normal"])
 
     try:
         ruta_french = os.path.join(settings.BASE_DIR, 'static', 'imagenes', 'logo_french_clay.png')
-        logo_french = Image(ruta_french, width=3 * cm, height=2 * cm)
+        logo_french = Image(ruta_french, width=2.5 * cm, height=1.5 * cm)
     except:
         logo_french = Paragraph("[FRENCH CLAY NO ENCONTRADO]", styles["Normal"])
 
     tabla_logos = Table(
         [[logo_apur, logo_french]],
-        colWidths=[6*cm, 6*cm]  # ancho de columnas ajustable
+        colWidths=[5*cm, 5*cm]  # ancho de columnas ajustable
     )
     tabla_logos.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -2107,12 +2107,12 @@ def generar_pdf_partidos_por_fecha(request):
     dia_semana_es = dias_es.get(dia_semana, dia_semana)
 
     story.append(Paragraph(
-        f'<para align="center"><font size=20>Fecha: {dia_semana_es} {fecha.strftime("%d/%m/%Y")}</font></para>',
+        f'<para align="center"><font size=18>Fecha: {dia_semana_es} {fecha.strftime("%d/%m/%Y")}</font></para>',
         styles["Normal"]
     ))
 
     story.append(Spacer(1, 0.5 * cm))
-    story.append(Paragraph(f'<para align="center"><font size=20><b>Sede: {sede.nombre}</b></font></para>', styles["Normal"]))
+    story.append(Paragraph(f'<para align="center"><font size=18><b>Sede: {sede.nombre}</b></font></para>', styles["Normal"]))
     story.append(Spacer(1, 0.5 * cm))
 
     row_heights = [2.5 * cm] + [4 * cm for _ in horarios]
@@ -2134,7 +2134,7 @@ def generar_pdf_partidos_por_fecha(request):
     # Leyenda
     story.append(Spacer(1, 0.5 * cm))
     story.append(Paragraph(
-        "<font size=12 color='green'><b>* Jugadores en verde: juegan más de un partido el mismo día o en días consecutivos (en cualquier sede o tipo de juego)</b></font>",
+        "<font size=11 color='green'><b>* Jugadores en verde: juegan más de un partido el mismo día o en días consecutivos (en cualquier sede o tipo de juego)</b></font>",
         styles["Normal"]
     ))
 
