@@ -1892,7 +1892,10 @@ def generar_pdf_partidos_por_fecha(request):
     ).order_by('fecha', 'hora')
 
     # ✅ Filtrar solo los partidos de la sede actual para mostrar
-    partidos_sede = partidos_global.filter(cancha__sede__id=sede_id)
+    partidos_sede = partidos_global.filter(
+        cancha__sede__id=sede_id,
+        fecha=fecha   # <-- FIX: asegura que solo se incluya la fecha seleccionada
+    )
 
     if not partidos_sede.exists():
         return HttpResponse("No hay partidos para la fecha y sede seleccionadas", status=404)
