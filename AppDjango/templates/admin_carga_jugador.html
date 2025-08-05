@@ -1,34 +1,8 @@
-<!-- 05/04/2025 - Se agregar carga masivos de jugadores- ID Carga Masivos Jugadores 102-->
-
 {% extends "layout.html" %}    
 {% block body_class %}fondo-secundario{% endblock %}
+{% load custom_filters %}
 
 {% block content %} 
-<!-- Modal de Confirmación de Alta de Jugador -->
-<div class="modal fade" id="modalConfirmacionAlta" tabindex="-1" aria-labelledby="modalConfirmacionAltaLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" >
-           
-            <div class="modal-header">
-                <h3 class="modal-title" id="modalConfirmacionAltaLabel">¡Jugador Guardado con Éxito!</h3>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="bi bi-x" style="font-size: 1.5rem; color: white;"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <button type="button" class="login-button" onclick="window.location.href='{% url 'admin_carga_jugador' %}'">
-                    Cargar Otro Jugador
-                </button>
-                <hr class="separator">
-                <button type="button" class="login-button" onclick="window.location.href='{% url 'admin_menu' %}'">
-                    Ir al Menú Principal
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
 
 <div class="container-admin">
     {% if user.is_authenticated %}
@@ -41,91 +15,64 @@
         <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">ALTA DE JUGADOR</h5>
     </div>
 
-    <!-- FILTROS -->
+     <!-- FILTROS -->
     <div class="recuadro-tabla">
-        
-        <!-- id="form-crear"  agregar en div de form container sumado a clase hidden para cerrar y abrir panel -->
+        <div style="cursor: pointer;" class="green-box-title-btn">
+            <h4 style="margin: 0; color: #cddf80;">FILTROS</h4>
+        </div>
         <div class="form-container-torneos">
             <div class="container-form-filter">
-                <form method="GET" action="{% url 'listado_jugadores' %}#resultados" class="row g-2 mb-3">
-
-                    <!-- BOTONES -->
-                    <div style="display: flex; flex-direction: row; gap: 1rem">
-                        
-                        <div class="btn-opciones">
-                            <a href="{% url 'listado_jugadores' %}">LISTADO COMPLETO</a>
-                        </div>
+                <div id="resultados">
+                    <div class="filtro-busqueda1" style="margin-left: .8rem;">
+                        <a class="a-options" href="{% url 'admin_menu' %}">
+                            <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
+                            MENÚ ADMINISTRADOR
+                        </a>
+                        <!-- {% if user.is_authenticated and user.is_staff %} -->
+                        <!-- Inicio Carga Masiva de Jugadores 102-->     
+                        <!-- <form id="form-carga-masiva-jugadores" enctype="multipart/form-data" style="display: none;">
+                            {% csrf_token %}
+                            <input type="file" id="input-jugadores" name="archivo_excel" accept=".xlsx">
+                        </form>
+                        <a
+                            class="a-options"
+                            onclick="document.getElementById('input-jugadores').click();">
+                            <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
+                            CARGA MASIVA DE JUGADORES
+                        </a> -->
+                        <!-- {% endif %} -->
                     </div>
-                </form>
-            </div>
-            <!-- LINKS -->
-            <div id="resultados">
-                <a class="a-options" href="{% url 'admin_menu' %}">
-                <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
-                MENÚ ADMINISTRADOR
-                </a>
-                {% if user.is_authenticated and user.is_staff %}
-                <!-- Inicio Carga Masiva de Jugadores 102-->     
-                <form id="form-carga-masiva-jugadores" enctype="multipart/form-data" style="display: none;">
-                    {% csrf_token %}
-                    <input type="file" id="input-jugadores" name="archivo_excel" accept=".xlsx">
-                </form>
-                <a href="{% url 'exportar_jugadores_pdf' %}?{{ query_string }}"
-                    target="_blank"
-                    class="a-options"
-                    onclick="document.getElementById('input-jugadores').click();">
-                    <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
-                    CARGA MASIVA DE JUGADORES
-                </a>
-                {% endif %}
-
-                
-            </div>
-        </div>
-    </div>
-    
-
-
-        <!-- Login box a la derecha del rectángulo angosto -->
-    <div class="tabla-wrapper">
-        <table class="tabla-usuarios">
-            <div>
-                <div class="recuadro-tabla">
-
                     <form method="POST" id="formNuevoJugador" enctype="multipart/form-data">
-                    {% csrf_token %}
-
-                    <!-- Apellido -->
-                    <div class="filtro-busqueda1">
-                        <span class="span-filter" for="apellido" class="span-filter">APELLIDO</span>
-                        <input type="text" name="apellido" id="apellido"
-                            placeholder="Ingresar apellido"
-                            class="form-control" required>
-                    </div>
-
-                    <!-- Nombre -->
-                    <div class="filtro-busqueda1">
-                        <span class="span-filter" for="nombre" class="span-filter">NOMBRE</span>
-                        <input type="text" name="nombre" id="nombre"
-                            placeholder="Ingresar nombre"
-                            class="form-control" required>
-                    </div>
-
-                    <!-- Sexo -->
-                    <div class="filtro-busqueda1">
-                        <span for="sexo" class="span-filter">SEXO</span>
-                        <select name="sexo" id="sexo" class="form-select" required>
-                            <option value="">-- Seleccionar --</option>
-                            <option value="M">Masculino</option>
-                            <option value="F">Femenino</option>
-                        </select>
-                    </div>
-
-
                         {% csrf_token %}
+                        <!-- Apellido -->
                         <div class="filtro-busqueda1">
-                            <span class="span-filter">CATEGORÍAS</span>
-                            <div class="form-control categorias-box">
+                            <span class="span-filter" for="apellido" class="span-filter">APELLIDO</span>
+                            <input type="text" name="apellido" id="apellido"
+                                placeholder="Ingresar apellido"
+                                class="form-control" required>
+                        </div>
+
+                        <!-- Nombre -->
+                        <div class="filtro-busqueda1">
+                            <span class="span-filter" for="nombre" class="span-filter">NOMBRE</span>
+                            <input type="text" name="nombre" id="nombre"
+                                placeholder="Ingresar nombre"
+                                class="form-control" required>
+                        </div>
+
+                        <!-- Sexo -->
+                        <div class="filtro-busqueda1">
+                            <span for="sexo" class="span-filter">SEXO</span>
+                            <select name="sexo" id="sexo" class="form-select" required>
+                                <option value="">-- Seleccionar --</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+                        {% csrf_token %}
+                        <div class="container-cat">
+                            <span class="span-filter" style="margin-bottom: .5rem;">CATEGORÍAS</span>
+                            <div class="categorias-box">
                                 <ul>
                                     {% for checkbox in form.categorias|dictsort:"choice_label" %}
                                         <li>
@@ -136,127 +83,49 @@
                                 </ul>
                             </div>
                         </div>
-
-                        <!-- BOTONES -->
                         <div style="display: flex; flex-direction: row; gap: 1rem">
                             <button class="btn-opciones" type="submit">GUARDAR JUGADOR</button>
                         </div>
                     </form>
-
                 </div>
             </div>
-        </table>
-        
+        </div>
     </div>
 </div>
 
-<style>
-.categorias-box ul {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(250px, 1fr)); /* 2 columnas fijas */
-    gap: 8px 20px;   /* espacio entre filas y entre columnas */
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    justify-items: start;  /* 👈 alinea todo el contenido de cada celda a la izquierda */
-}
-
-.categorias-box li {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start; /* 👈 checkbox + texto alineados a la izquierda */
-    white-space: nowrap;         /* evita saltos de línea raros */
-}
-
-.categorias-box input[type="checkbox"] {
-    margin: 0 10px 0 0;   /* 👈 elimina margen izquierdo, solo deja espacio a la derecha */
-    transform: scale(1.3);
-    cursor: pointer;
-}
-
-.categorias-box label {
-    text-align: left;
-    font-size: 1rem;
-    font-weight: 500;
-    color: #ffffff; /* texto claro */
-    cursor: pointer;
-}
-
-
-</style>
 <script>
-    document.getElementById("formNuevoJugador").addEventListener("submit", function (event) {
-        event.preventDefault(); // Evita el envío normal del formulario
-    
-        let formData = new FormData(this); // Captura los datos del formulario
-    
-        fetch("{% url 'admin_carga_jugador' %}", { // Asegúrate de que la URL sea correcta
-            method: "POST",
-            body: formData
-        })
-        .then(response => response.json()) // Convertimos la respuesta a JSON
-        .then(data => {
-            if (data.success) {
-                let modal = new bootstrap.Modal(document.getElementById('modalConfirmacionAlta'));
-                modal.show();
-            } else {
-                mostrarError(data.errors); // Muestra mensaje de error
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("Hubo un problema con el servidor.");
-        });
-    });
-    
-    // Función para mostrar un mensaje de error
-    function mostrarError(mensaje) {
-        const errorDiv = document.createElement("div");
-        errorDiv.className = "alert alert-danger text-center";
-        errorDiv.style.position = "fixed";
-        errorDiv.style.top = "20px";
-        errorDiv.style.left = "50%";
-        errorDiv.style.transform = "translateX(-50%)";
-        errorDiv.style.zIndex = "1050";
-        errorDiv.style.padding = "15px";
-        errorDiv.style.borderRadius = "5px";
-        errorDiv.style.fontWeight = "bold";
-        errorDiv.style.backgroundColor = "#d9534f";  // Rojo Bootstrap
-        errorDiv.style.color = "white";
-        errorDiv.innerHTML = mensaje;
-    
-        document.body.appendChild(errorDiv);
-    
-        setTimeout(() => {
-            errorDiv.remove();
-        }, 4000); // El mensaje desaparece después de 4 segundos
+document.getElementById("formNuevoJugador").addEventListener("submit", function (event) {
+    const checkboxes = document.querySelectorAll("input[name='categorias']:checked");
+    if (checkboxes.length === 0) {
+        event.preventDefault();
+        alert("⚠️ Debe seleccionar al menos una categoría.");
     }
-// Inicio Carga Masiva de Jugadores 102
-    document.getElementById('input-jugadores').addEventListener('change', function () {
-        const archivo = this.files[0];
-        const formData = new FormData();
-        formData.append('archivo_excel', archivo);
-    
-        fetch("{% url 'carga_masiva_jugadores' %}", {
-            method: "POST",
-            body: formData,
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.exito) {
-                document.getElementById('mensaje-carga-jugadores').style.display = 'block';
-            } else {
-                alert('❌ Error al cargar jugadores:\n' + (data.error || ''));
-            }
-        })
-        .catch(error => {
-            alert('❌ Error al procesar el archivo de jugadores.');
-            console.error(error);
-        });
+});
+
+document.getElementById('input-jugadores').addEventListener('change', function () {
+    const archivo = this.files[0];
+    const formData = new FormData();
+    formData.append('archivo_excel', archivo);
+
+    fetch("{% url 'carga_masiva_jugadores' %}", {
+        method: "POST",
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.exito) {
+            document.getElementById('mensaje-carga-jugadores').style.display = 'block';
+        } else {
+            alert('❌ Error al cargar jugadores:\n' + (data.error || ''));
+        }
+    })
+    .catch(error => {
+        alert('❌ Error al procesar el archivo de jugadores.');
+        console.error(error);
     });
-// Fin Carga Masiva de Jugadores 102
+});
 </script>
 {% endblock %}

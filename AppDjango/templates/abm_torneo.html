@@ -64,39 +64,43 @@
             <form method="POST" action="{% url 'crear_torneo' %}">
                 {% csrf_token %}
                 <div class="form-row">  
-                <div class="form-group">
-                    <label for="id_nombre">Nombre del Torneo:</label>
-                    {{ form.nombre }}
-                </div>
-                <div class="form-group">
-                    <label for="id_fecha_inicio">Fecha de Inicio:</label>
-                    {{ form.fecha_inicio }}
-                </div>
-                <div class="form-group">
-                    <label for="id_fecha_fin">Fecha de Fin:</label>
-                    {{ form.fecha_fin }}
-                </div>
+                    <div class="form-group">
+                        <label for="id_fecha_inicio">Fecha de Inicio:</label>
+                        {{ form.fecha_inicio }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_tipo_juego">Tipo de Juego:</label>
+                        {{ form.tipo_juego }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_tipo">Género:</label>
+                        {{ form.tipo }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_nombre">Nombre del Torneo:</label>
+                        {{ form.nombre }}
+                    </div>
+                    
                 </div>
 
-                <div class="form-row">
-                <div class="form-group">
-                    <label for="id_categoria">Categorías:</label>
-                    {{ form.categorias }}
+                <div class="container-cat">
+                    <span class="span-filter" style="margin-bottom: .5rem;">Categorías del torneo</span>
+                    <div class="categorias-box">
+                        <ul>
+                            {% for checkbox in form.categorias|dictsort:"choice_label" %}
+                                <li>
+                                    {{ checkbox.tag }}
+                                    <label for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="id_tipo_juego">Tipo de Juego:</label>
-                    {{ form.tipo_juego }}
-                </div>
-                <div class="form-group">
-                    <label for="id_tipo">Género:</label>
-                    {{ form.tipo }}
-                </div>
-                </div>           
                  <button id="btnCrearTorneo" class="btn-crear" type="submit">CREAR</button>
             </form>
 
             <!-- Carga Masiva de Torneo 103-->
-            <form id="form-carga-masiva-torneos" enctype="multipart/form-data" style="display: none;">
+            <!-- <form id="form-carga-masiva-torneos" enctype="multipart/form-data" style="display: none;">
                 {% csrf_token %}
                 <input type="file" id="input-torneos" name="archivo_excel" accept=".xlsx">
             </form>
@@ -107,7 +111,7 @@
             
             <div id="mensaje-carga-torneos" style="margin-top: 10px; display: none; color: green; font-weight: bold;">
                 ¡Torneos cargados con éxito!
-            </div>       
+            </div>        -->
         </div>
     </div>
 
@@ -187,12 +191,12 @@
             <table class="tabla-usuarios">
                 <thead>
                     <tr>
+                        <th>F.INICIO</th>
                         <th>TORNEO</th>
                         <th>CATEGORÍA</th>
-                        <th>F.INICIO</th>
                         <th>DETALLE</th>
                         <th>JUGADORES</th>
-                        <th>HISTORIAL</th>
+                        <!-- <th>HISTORIAL</th> -->
                         <th>RANKING</th>
                         <th>MASTER</th>
                         <!-- <th>F.FIN</th> -->
@@ -204,6 +208,8 @@
                     {% if page_obj %}
                         {% for torneo in page_obj %}              
                             <tr>
+                                <!-- FECHA -->
+                                <td >{{ torneo.fecha_inicio|date:"d/m/y" }}</td>
                                 <!-- TORNEO -->
                                 <td>{{ torneo.nombre }}</td>
                                 <!-- CATEGORÍA -->
@@ -216,9 +222,6 @@
                                         <span>Sin categorías</span>
                                     {% endif %}
                                 </td>
-                                <!-- FECHA -->
-                                <td >{{ torneo.fecha_inicio|date:"d/m/y" }}</td>
-
                                 <!-- DETALLE Y CARGA DE PARTIDOS -->
                                 <td>
                                     <a href="{% url 'datos_torneo' torneo.id %}" 
@@ -236,13 +239,13 @@
                                     </a>
                                 </td>
                                 <!-- HISTORIAL -->
-                                <td>
+                                <!-- <td>
                                     <a href="{% url 'listar_partidos' %}?torneo={{ torneo.id }}&jugador={{ jugador.dni }}" 
                                         title="Ver historial"
                                         class="btn-edit">
                                         <i class="bi bi-clipboard-data" style="font-size: 1.1rem;"></i>
                                     </a>
-                                </td>
+                                </td> -->
                                 <!-- RANKING -->
                                 <td>
                                     <!-- href="{% url 'ver_ranking' torneo.id %}"  -->

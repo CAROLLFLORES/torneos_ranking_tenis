@@ -106,7 +106,7 @@
                     
                     <!-- Jugador/Equipo 1 -->
                     <td  class="jugador">
-                        <select id="jugador1-{{ partido.id }}" disabled>
+                        <select class="select-disabled" id="jugador1-{{ partido.id }}" disabled>
                             {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
                                 {% for equipo in equipos %}
                                     <option value="{{ equipo.id }}"

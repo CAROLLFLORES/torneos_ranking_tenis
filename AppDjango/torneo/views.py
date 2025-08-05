@@ -82,7 +82,7 @@ def abm_torneo(request):
 
     form = TorneoForms()
 
-    torneos = Torneo.objects.all().order_by('nombre')
+    torneos = Torneo.objects.all().order_by('-fecha_inicio')
 
     if categoria_id:
         torneos = torneos.filter(torneo_categorias__categoria__id_categoria=categoria_id)
