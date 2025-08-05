@@ -1987,13 +1987,18 @@ def generar_pdf_partidos_por_fecha(request):
         if tipo == 'Single':
             jugador1 = formatear_nombre(p.jugador1)
             jugador2 = formatear_nombre(p.jugador2)
-            nombres = f"{jugador1} vs {jugador2}"
+            nombres = f"{jugador1}<br/><b><font size=9 >VS</font></b><br/>{jugador2}"
         else:
             equipo1_j1 = formatear_nombre(p.equipo1.jugador1 if p.equipo1 else None)
             equipo1_j2 = formatear_nombre(p.equipo1.jugador2 if p.equipo1 else None)
             equipo2_j1 = formatear_nombre(p.equipo2.jugador1 if p.equipo2 else None)
             equipo2_j2 = formatear_nombre(p.equipo2.jugador2 if p.equipo2 else None)
-            nombres = f"{equipo1_j1} / {equipo1_j2} vs {equipo2_j1} / {equipo2_j2}"
+
+            equipo1 = f"{equipo1_j1} / <br/>{equipo1_j2}"
+            equipo2 = f"{equipo2_j1} / <br/>{equipo2_j2}"
+
+            nombres = f"{equipo1}<br/><b><font size=9 >VS</font></b><br/>{equipo2}"
+
 
         # Buscar resultado si existe
         resultado = ResultadoPartido.objects.filter(partido=p).first()
@@ -2110,8 +2115,8 @@ def generar_pdf_partidos_por_fecha(request):
     story.append(Paragraph(f'<para align="center"><font size=20><b>Sede: {sede.nombre}</b></font></para>', styles["Normal"]))
     story.append(Spacer(1, 0.5 * cm))
 
-    row_heights = [3 * cm] + [2.8 * cm for _ in horarios]
-    table = Table(data, colWidths=[3.5 * cm] + [6 * cm for _ in canchas], rowHeights=row_heights)
+    row_heights = [2.5 * cm] + [4 * cm for _ in horarios]
+    table = Table(data, colWidths=[6 * cm] + [6 * cm for _ in canchas], rowHeights=row_heights)
 
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
@@ -2120,6 +2125,8 @@ def generar_pdf_partidos_por_fecha(request):
         ('FONTSIZE', (0, 0), (-1, -1), 10),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),   # más aire arriba
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6) # más aire abajo
     ]))
 
     story.append(table)
