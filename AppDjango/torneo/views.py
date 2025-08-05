@@ -1608,6 +1608,7 @@ def historial_jornada(request):
 def historial_publico(request, torneo_id=None):
     # 1) Obtengo todos los torneos para el sidebar
     torneos = Torneo.objects.all().order_by('nombre')
+    # print("Total de torneos:", torneos.count())
 
     # 2) Base de datos: resultados con sus partidos relacionados
     resultados = ResultadoPartido.objects.select_related(
@@ -1632,9 +1633,12 @@ def historial_publico(request, torneo_id=None):
     if fecha:
         resultados = resultados.filter(partido__fecha=fecha)
 
+    # MOSTRAR TOTAL DE RESULTADOS
+    print("Total de resultados:", resultados.count())
+
     # 5) Ordeno y pagino (12 por página)
     resultados = resultados.order_by('-partido__fecha', '-partido__hora')
-    paginator = Paginator(resultados, 12)
+    paginator = Paginator(resultados, 20)
     page_obj = paginator.get_page(request.GET.get('page'))
 
     # 6) Renderizo plantilla pública
