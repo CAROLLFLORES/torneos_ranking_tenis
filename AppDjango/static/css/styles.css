@@ -3055,7 +3055,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .tabla-partidos tr {
-    background-color: rgb(41, 45, 24) !important;
+    background-color: rgb(26, 28, 19) !important;
 }
 
 .tabla-partidos th,
@@ -3200,8 +3200,50 @@ td.set {
 
 td.set input {
     width: 100%;
-    min-width: 40px;
+    min-width: 45px;
     text-align: center;
+}
+
+
+.container-cat {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}   
+
+.categorias-box {
+    max-height: 300px;
+    overflow-y: auto; 
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #2b2b2b; /* fondo oscuro similar al tema actual */
+}
+
+.categorias-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(200px, 1fr));
+    gap: 8px 15px;
+}
+
+.categorias-box li {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+.categorias-box input[type="checkbox"] {
+    margin-right: 8px;
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.categorias-box label {
+    cursor: pointer;
+    font-size: .9rem;
+    font-weight: 400;
 }
 
 /*////////////////////////////////////////////////////////// NUEVOS ESTILOS RESPOSIVE //////////////////////////////////////////////////////////*/
@@ -3232,9 +3274,14 @@ td.set input {
     .hamburguesa:hover {
         color: darkgreen;
     }
-
     .nav-list {
         display: none;
+    }
+    .categorias-box ul {
+        display: block;
+    }
+    .categorias-box li {
+      padding-top: .5rem;
     }
 
 }

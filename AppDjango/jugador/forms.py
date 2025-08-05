@@ -15,7 +15,7 @@ class JugadorForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Cambiar cómo se muestra cada categoría
-        self.fields['categorias'].label_from_instance = lambda obj: f"{obj.nivel} {obj.edad}"
+        self.fields['categorias'].label_from_instance = lambda obj: f"{obj.tipo_juego} - {obj.genero} - {obj.nivel} - {obj.edad}"
 
     class Meta:
         model = Jugador

@@ -38,18 +38,20 @@ def CrearJugador(request):
         nombre = request.POST.get("nombre")
         apellido = request.POST.get("apellido")
 
-        # 🔍 Verificar si ya existe un jugador con el mismo nombre y apellido
         if Jugador.objects.filter(nombre__iexact=nombre, apellido__iexact=apellido).exists():
-            return JsonResponse({"success": False, "errors": "El jugador ya existe en la base de datos."})
+            messages.warning(request, "⚠️ El jugador ya existe en la base de datos.")
+            return redirect("admin_carga_jugador")
 
         form = JugadorForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return JsonResponse({"success": True})  # ✅ Respuesta exitosa
+            messages.success(request, "✅ Jugador creado correctamente.")
+            return redirect("admin_carga_jugador")
         else:
-            return JsonResponse({"success": False, "errors": form.errors})  # ❌ Errores de validación
+            messages.error(request, "❌ Error al crear el jugador. Revisá los campos.")
+    else:
+        form = JugadorForm()
 
-    form = JugadorForm()
     return render(request, "admin_carga_jugador.html", {"form": form})
 
 @login_required

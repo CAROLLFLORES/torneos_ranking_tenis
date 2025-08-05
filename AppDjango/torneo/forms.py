@@ -4,11 +4,16 @@ from django import forms
 from .models import Torneo
 from jugador.models import Categoria  # Asegúrate de importar correctamente desde la app jugador
 from .models import Partido
+from datetime import date
 
 class TorneoForms(forms.ModelForm):
+    fecha_inicio = forms.DateField(
+        initial=date.today,
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
+    )
     categorias = forms.ModelMultipleChoiceField(
         queryset=Categoria.objects.all(),
-        widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
+        widget=forms.CheckboxSelectMultiple(),
         label="Categorías"
     )
     tipo = forms.ChoiceField(
