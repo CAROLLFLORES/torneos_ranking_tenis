@@ -294,7 +294,7 @@ def handle_get_datos_torneo(request, torneo, es_doble, numero_jornada, canchas):
         if cancha_id:
             partidos_qs = partidos_qs.filter(cancha__id=cancha_id)
 
-        partidos_qs = partidos_qs.order_by('fecha', 'hora', 'cancha')
+        partidos_qs = partidos_qs.order_by('-fecha', '-hora', 'cancha')
         paginator = Paginator(partidos_qs, 30)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
