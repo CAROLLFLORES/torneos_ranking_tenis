@@ -26,13 +26,15 @@
                 <span class="span-filter">BUSCAR JUGADORES DISPONIBLES</span>
                 <form method="GET" action="" class="d-flex align-items-center mb-3" style="gap: 10px;">
                     <input type="hidden" name="busqueda_equipo" value="1"> <!-- ESTA ES LA CLAVE -->
-                    <div class="filtro-busqueda1">
-                        <label for="search1">Buscar Jugador 1</label>
-                        <input class="input-field form-control" type="text" name="search1" placeholder="Ej: Pérez" value="{{ request.GET.search1 }}">
+                    <!-- Jugador 1 -->
+                    <div class="filtro-busqueda1" style="display: flex; flex-direction: column; width: 220px;">
+                        <label for="search1" style="color: white; text-align: left; white-space: nowrap;">Jugador 1</label>
+                        <input class="input-field form-control" type="text" name="search1" placeholder="Ej: Apellido o nombre" value="{{ request.GET.search1 }}">
                     </div>
-                    <div class="filtro-busqueda1">
-                        <label for="search2">Buscar Jugador 2</label>
-                        <input class="input-field form-control" type="text" name="search2" placeholder="Ej: Gómez" value="{{ request.GET.search2 }}">
+                     <!-- Jugador 2 -->
+                    <div class="filtro-busqueda1" style="display: flex; flex-direction: column; width: 220px;">
+                        <label for="search2" style="color: white; text-align: left; white-space: nowrap;">Jugador 2</label>
+                        <input class="input-field form-control" type="text" name="search2" placeholder="Ej: Apellido o nombre" value="{{ request.GET.search2 }}">
                     </div>
                     <button type="submit" class="btn-carga-masiva mt-2" style="width: 100%;">Buscar</button>
                 </form>
