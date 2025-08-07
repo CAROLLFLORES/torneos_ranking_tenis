@@ -6,138 +6,121 @@
 {% block body_class %}fondo-secundario{% endblock %}
 
 {% block content %}
-<div class="container-admin" style="max-width: 1200px; margin: auto;">
+<div class="container-admin">
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
         <hr class="separator-line">
-        <h2 class="text-primary text-center">Asociar Equipos al Torneo: {{ torneo.nombre }}</h2>
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: .5rem;">ASOCIAR EQUIPOS AL TORNEO</h5>
+        <h4 style="margin-top: 0; margin-bottom: 2rem;">{{ torneo.nombre }}</h4>
     </div>
-    <form method="GET" action="">
-        <input type="text" name="search" placeholder="Ingresar nombre o apellido" value="{{ search }}">
-        <button type="submit">Buscar</button>
-    </form>
 
 
-    <div class="form-container d-flex justify-content-center align-items-start flex-column" style="margin-top: 40px; max-height: 85vh; padding-bottom: 100px;">
 
-        <div class="narrow-box">
-            <div class="title-orange-gris">
-                <h1 class="text-center">INFORMACIÓN DEL TORNEO</h1>
-            </div>
-            <a href="{% url 'admin_menu' %}" class="d-flex justify-content-center">
-                <button class="login-button peque">MENU</button>
-            </a>
-            <a href="{% url 'crear_torneo' %}">
-                        <button class='login-button-gris chico'>VOLVER A TORNEO</button>
-                </a>
-
-<!-- Fin Informacion de torneo  105-->
+    <div class="recuadro-tabla" style="margin-bottom: 2rem;">
+        <div id="toggle-crear" class="green-box-title-btn" style="cursor: pointer;">
+            <h4 style="margin: 0;">FILTROS</h4>
         </div>
+        <div id="form-crear" class="form-container-torneos hidden">
+            
+            <div style="display: inline-block; text-align: start; align-items: center; justify-content: center; margin: auto auto;"> 
+                <span class="span-filter">BUSCAR JUGADORES DISPONIBLES</span>
+                <form method="GET" action="" class="d-flex align-items-center mb-3" style="gap: 10px;">
+                    <input type="hidden" name="busqueda_equipo" value="1"> <!-- ESTA ES LA CLAVE -->
+                    <div class="filtro-busqueda1">
+                        <label for="search1">Buscar Jugador 1</label>
+                        <input class="input-field form-control" type="text" name="search1" placeholder="Ej: Pérez" value="{{ request.GET.search1 }}">
+                    </div>
+                    <div class="filtro-busqueda1">
+                        <label for="search2">Buscar Jugador 2</label>
+                        <input class="input-field form-control" type="text" name="search2" placeholder="Ej: Gómez" value="{{ request.GET.search2 }}">
+                    </div>
+                    <button type="submit" class="btn-carga-masiva mt-2" style="width: 100%;">Buscar</button>
+                </form>
+                <div>
+                    <a class="a-options" href="{% url 'crear_torneo' %}" style="margin-bottom: 1rem;">
+                        <i class="bi bi-arrow-left"></i> VOLVER A GESTIÓN DE TORNEOS
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <form id="createTeamForm" method="POST" action="" style="width: 100%; max-width: 900px;">
-            {% csrf_token %}
-            <div class="recuadros-container d-flex align-items-center gap-5">
-                <!-- Recuadro Izquierdo: Lista de Jugadores -->
-                <div class="jugadores-box" style="flex: 1; text-align: center;">
-                    <h4>Lista de Jugadores</h4>
-                    <div id="jugadoresLista" style="max-height: 300px; overflow-y: auto; border: 1px solid rgba(0, 0, 0, 0.2); background-color: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 10px;">
-                        {% for jugador in jugadores_disponibles %}
+
+
+    <!-- Formulario Equipos -->
+    <form id="createTeamForm" method="POST" action="">
+        {% csrf_token %}
+        <!-- BOTONES GUARDAR / ELIMINAR -->
+            <!-- CONTROLES -->
+            <div class="botones-jugadores ">
+                <button type="button" id="crearEquipoButton" class="btn-carga-masiva">
+                    Crear Equipo &gt;&gt;
+                </button>
+                
+            </div>
+        <div class="botones-jugadores">
+            <button type="submit" name="action" value="asociar" class="btn-crear">
+                Guardar Asociaciones
+            </button>
+            <button type="submit" name="action" value="desasociar" class="btn-delete1">
+                Eliminar Equipos Seleccionados
+            </button>
+        </div>
+        <div class="contenedor-jugadores">
+            <!-- JUGADORES DISPONIBLES -->
+            <div class="bloque-jugadores">
+                <div class="titulo-jugadores">
+                    <h4 style="margin: 0;">JUGADORES DISPONIBLES</h4>
+                </div>
+                <div class="lista-jugadores" id="jugadoresLista">
+                    {% for jugador in jugadores_disponibles %}
                         <div class="form-check" style="text-align:left;">
                             <input 
                                 class="form-check-input jugador-checkbox" 
                                 type="checkbox" 
                                 name="jugadores" 
                                 value="{{ jugador.dni }}" 
-                                id="jugador{{ jugador.dni }}"
-                            >
+                                id="jugador{{ jugador.dni }}">
                             <label class="form-check-label jugador-label" for="jugador{{ jugador.dni }}">
                                 {{ jugador.apellido | upper}} {{ jugador.nombre }}
                             </label>
                         </div>
-                        {% endfor %}
-                    </div>
+                    {% endfor %}
                 </div>
+            </div>
 
-                <!-- Botón Crear Equipos y Contador de Equipos Creados -->
-                <div class="d-flex flex-column align-items-center" style="text-align: center; margin-top: 50px;">
-                    <button 
-                        type="button"
-                        id="crearEquipoButton"
-                        class="login-button chico mt-3"
-                        style="margin: 0 0 20px 0;"
-                    >
-                        Crear Equipo
-                    </button>
-                    <h5 class="text-center">
-                        Equipos Creados: 
-                        <span id="equiposCount{{ torneo.id }}">
-                            {{ equipos_asociados.count }}
-                        </span>
-                    </h5>
+         
+
+            <!-- EQUIPOS SELECCIONADOS -->
+            <div class="bloque-jugadores">
+                <div class="titulo-jugadores">
+                    <h4 style="margin: 0;">EQUIPOS SELECCIONADOS</h4>
                 </div>
-
-                <!-- Recuadro Derecho: Equipos Seleccionados -->
-                <div class="jugadores-box" style="flex: 1; text-align: center;">
-                    <h4>Equipos Seleccionados</h4>
-                    <div 
-                        class="card-body"
-                        id="selectedTeamsBox{{ torneo.id }}"
-                        style="border: 1px solid rgba(0, 0, 0, 0.2); background-color: rgba(255, 255, 255, 0.9);
-                               border-radius: 10px; padding: 15px; height: 300px; overflow-y: auto;"
-                    >
-                        {% if equipos_asociados %}
-                            {% for equipo in equipos_asociados %}
-                                <div class="form-check" style="text-align:left;">
-                                    <input 
+                <div class="lista-jugadores" id="selectedTeamsBox{{ torneo.id }}">
+                    {% if equipos_asociados %}
+                        {% for equipo in equipos_asociados %}
+                            <div class="form-check" style="text-align:left;">
+                                <input 
                                     class="form-check-input equipo-checkbox"
                                     type="checkbox"
                                     name="equipos"
                                     value="{{ equipo.id }}"
-                                    id="equipo{{ equipo.id }}"
-
-                                    >
-                                    <label 
-                                        class="form-check-label"
-                                        for="equipo{{ equipo.id }}"
-                                        style="color: black;"
-                                    >
-                                        Equipo {{ forloop.counter }}: 
-                                        {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }}
-                                        y
-                                        {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
-                                    </label>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <p id="noTeamsText" style="color: gray;">
-                                No hay equipos seleccionados.
-                            </p>
-                        {% endif %}
-                    </div>
+                                    id="equipo{{ equipo.id }}">
+                                <label class="form-check-label" for="equipo{{ equipo.id }}">
+                                    Equipo {{ forloop.counter }}: 
+                                    {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} y {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: gray;">No hay equipos seleccionados.</p>
+                    {% endif %}
                 </div>
             </div>
-
-            <div class="text-center mt-4" style="display: flex; justify-content: center; align-items: center; gap: 20px;">
-                <button type="submit" name="action" value="asociar" class="login-button chico mb-2" style="margin: 0; padding: 10px 30px;">
-                    Guardar Asociaciones
-                </button>
-                <button type="submit" name="action" value="desasociar" class="login-button chico fondo-boton-eliminar" style="margin: 0; padding: 10px 30px;">
-                    Eliminar Equipos Seleccionados
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Modal para mensajes -->
-<div id="messageModal" class="modal">
-    <div class="modal-content">
-        <h4 id="modal-title">Mensaje</h4>
-        <p id="modal-message"></p>
-        <div class="modal-buttons">
-            <button id="closeModalButton" class="button-close">Aceptar</button>
         </div>
-    </div>
+
+        
+    </form>
 </div>
 
 <!-- Estilo del modal -->
@@ -168,25 +151,7 @@
     margin-top: 20px;
 }
 
-.button-close {
-    background-color: #007BFF;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-.button-close:hover {
-    background-color: #0056b3;
-}
 
-.jugador-label {
-    color: black;
-}
-
-.form-check-label {
-    color: black;
-}
 </style>
 
 <!-- JavaScript para funcionalidad del botón y el modal -->
