@@ -536,7 +536,11 @@ def asociar_jugadores(request, id):
 @csrf_exempt
 def asociar_equipos(request, id):
     torneo = get_object_or_404(Torneo, id=id)
-    search = request.GET.get('search', '')  # Captura la búsqueda
+    search = request.GET.get('search', '').strip()
+    search1 = request.GET.get('search1', '').strip()
+    search2 = request.GET.get('search2', '').strip()
+    modo_equipo = request.GET.get('busqueda_equipo') == '1'
+
 
     jugadores_disponibles = Jugador.objects.none()
     if torneo.tipo == 'F':
@@ -552,10 +556,21 @@ def asociar_equipos(request, id):
     jugadores_disponibles = jugadores_disponibles.exclude(dni__in=dnis_en_equipo)
 
     # ✅ Aplicar búsqueda si hay texto ingresado
-    if search:
+    # ✅ Buscar solo si no es modo_equipo (esto mantiene el comportamiento anterior)
+    if not modo_equipo and search:
         jugadores_disponibles = jugadores_disponibles.filter(
             Q(nombre__icontains=search) | Q(apellido__icontains=search)
         )
+
+# ✅ Lógica de búsqueda doble exclusiva de esta vista
+    if modo_equipo and (search1 or search2):
+        filtros = Q()
+        if search1:
+            filtros |= Q(nombre__icontains=search1) | Q(apellido__icontains=search1)
+        if search2:
+            filtros |= Q(nombre__icontains=search2) | Q(apellido__icontains=search2)
+        jugadores_disponibles = jugadores_disponibles.filter(filtros).distinct()
+
 
     # Ordenar por apellido y nombre
     jugadores_disponibles = jugadores_disponibles.order_by('apellido', 'nombre')
@@ -626,12 +641,16 @@ def asociar_equipos(request, id):
 
     all_messages = [m.message for m in messages.get_messages(request)]
     return render(request, 'asociar_equipos.html', {
-        'torneo': torneo,
-        'jugadores_disponibles': jugadores_disponibles,
-        'equipos_asociados': equipos_asociados,
-        'all_messages': all_messages,
-        'search': search  # ✅ Asegurate de devolverlo al template
-    })
+    'torneo': torneo,
+    'jugadores_disponibles': jugadores_disponibles,
+    'equipos_asociados': equipos_asociados,
+    'all_messages': all_messages,
+    'search': search,
+    'search1': search1,
+    'search2': search2,
+    'modo_equipo': modo_equipo,
+})
+
 
 #-------------------------------------------------------------------------------------------------------------- 
 
