@@ -190,7 +190,7 @@
                                                              </div>
                                                              <div class="mb-3">
                                                                  <label for="categorias">Categorías:</label>
-                                                                 <select id="categorias-{{ jugador.dni }}" name="categorias[]" class="form-select" multiple>
+                                                                 <select id="categorias-{{ jugador.dni }}" name="categorias[]" class="form-select" multiple style="color:black">
                                                                      {% for categoria in todas_categorias %}
                                                                          <option value="{{ categoria.id_categoria }}" {% if categoria in jugador.categorias.all %} selected {% endif %}>
                                                                              {{ categoria }}
@@ -234,6 +234,28 @@
          </div>
      </div>
 </div>
+
+<style>
+    .select2-container--default .select2-selection--multiple {
+        background-color: white !important;
+        color: black !important;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #e9ecef !important;
+        color: black !important;
+    }
+
+    .select2-results__option {
+        color: black !important;
+        background-color: white !important;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #d2f0d2 !important;
+        color: black !important;
+    }
+</style>
 
 <script>
     $(document).ready(function() {
