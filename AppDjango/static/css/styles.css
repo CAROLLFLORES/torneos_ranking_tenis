@@ -3032,6 +3032,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     width: 40vw;
 }
 
+.container-form-modal {
+    display: inline-block;
+    text-align: start;
+    align-items: center;
+    justify-content: center;
+    margin: auto auto;
+    width: 40vw;
+}
+
 .torneo-listado {
   text-align: left;
   color: white;
@@ -3281,7 +3290,7 @@ td.set input {
 
 .modal-title {
     color: #cddf80 !important;
-    font-size: 1.1rem !important;
+    font-size: .9rem !important;
     margin: 0 !important;
 }
 
@@ -3334,6 +3343,12 @@ td.set input {
     }
     .categorias-box li {
       padding-top: .5rem;
+    }
+    .modal-content1 {
+        width: 80vw;
+    }
+    .container-form-modal {
+        width: 100%;
     }
 
 }
