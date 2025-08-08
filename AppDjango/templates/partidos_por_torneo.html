@@ -409,48 +409,79 @@ async function guardarPartido(partidoId) {
     const jugador2Input = document.getElementById(`jugador2-${partidoId}`);
     const ganadorSelect = document.getElementById(`ganador-${partidoId}`);
 
-    const set1Jugador1 = parseInt(document.getElementById(`set1-jugador1-${partidoId}`).value || "0");
-    const set2Jugador1 = parseInt(document.getElementById(`set2-jugador1-${partidoId}`).value || "0");
-    const set3Jugador1 = parseInt(document.getElementById(`set3-jugador1-${partidoId}`).value || "0");
+    // Leemos los valores tal como están (no forzamos 0)
+    const set1Jugador1Raw = document.getElementById(`set1-jugador1-${partidoId}`).value.trim();
+    const set2Jugador1Raw = document.getElementById(`set2-jugador1-${partidoId}`).value.trim();
+    const set3Jugador1Raw = document.getElementById(`set3-jugador1-${partidoId}`).value.trim();
 
-    const set1Jugador2 = parseInt(document.getElementById(`set1-jugador2-${partidoId}`).value || "0");
-    const set2Jugador2 = parseInt(document.getElementById(`set2-jugador2-${partidoId}`).value || "0");
-    const set3Jugador2 = parseInt(document.getElementById(`set3-jugador2-${partidoId}`).value || "0");
+    const set1Jugador2Raw = document.getElementById(`set1-jugador2-${partidoId}`).value.trim();
+    const set2Jugador2Raw = document.getElementById(`set2-jugador2-${partidoId}`).value.trim();
+    const set3Jugador2Raw = document.getElementById(`set3-jugador2-${partidoId}`).value.trim();
 
+    // Helper: convierte a entero o devuelve null si cadena vacía / inválida
+    const toIntOrNull = (s) => {
+        if (s === null || s === undefined || s === "") return null;
+        const n = parseInt(s, 10);
+        return Number.isNaN(n) ? null : n;
+    };
+
+    // Detectamos si hay ALGÚN dato de resultado cargado por el usuario (cualquier set o ganador seleccionado)
+    const hayAlgunSet = (
+        set1Jugador1Raw !== "" || set2Jugador1Raw !== "" || set3Jugador1Raw !== "" ||
+        set1Jugador2Raw !== "" || set2Jugador2Raw !== "" || set3Jugador2Raw !== ""
+    );
+    const hayGanadorSeleccionado = ganadorSelect && ganadorSelect.value && ganadorSelect.value.trim() !== "";
+
+    const hayResultados = hayAlgunSet || hayGanadorSeleccionado;
+
+    // payload base: siempre incluye datos administrativos
     let payload = {
         partido_id: partidoId,
         fecha: fecha,
         hora: hora,
-        cancha: cancha,
-        set1_jugador1: set1Jugador1,
-        set2_jugador1: set2Jugador1,
-        set3_jugador1: set3Jugador1,
-        set1_jugador2: set1Jugador2,
-        set2_jugador2: set2Jugador2,
-        set3_jugador2: set3Jugador2
+        cancha: cancha
     };
 
+    // Siempre incluir jugadores/equipos (regla 2)
     if (esDobleOMixto) {
-        payload.ganador_equipo_id = ganadorSelect.value || null;
         payload.equipo1_id = jugador1Input.value;
         payload.equipo2_id = jugador2Input.value;
     } else {
-        const jugador1DNI = jugador1Input.value;
-        const jugador2DNI = jugador2Input.value;
+        payload.jugador1_dni = jugador1Input.value;
+        payload.jugador2_dni = jugador2Input.value;
+    }
 
-        if (ganadorSelect.value === jugador1DNI) {
-            payload.ganador_dni = jugador1DNI;
-        } else if (ganadorSelect.value === jugador2DNI) {
-            payload.ganador_dni = jugador2DNI;
-        } else {
-            payload.ganador_dni = null;
+    // Solo incluir resultados y ganador si realmente hay (regla 3)
+    if (hayResultados) {
+        // sets: convertimos a int o null (null = no jugado/no informado)
+        payload.set1_jugador1 = toIntOrNull(set1Jugador1Raw);
+        payload.set2_jugador1 = toIntOrNull(set2Jugador1Raw);
+        payload.set3_jugador1 = toIntOrNull(set3Jugador1Raw);
+
+        payload.set1_jugador2 = toIntOrNull(set1Jugador2Raw);
+        payload.set2_jugador2 = toIntOrNull(set2Jugador2Raw);
+        payload.set3_jugador2 = toIntOrNull(set3Jugador2Raw);
+
+        // ganador: solo si el usuario seleccionó uno (si no, lo dejamos ausente para que el back decida)
+        if (hayGanadorSeleccionado) {
+            if (esDobleOMixto) {
+                payload.ganador_equipo_id = ganadorSelect.value;
+            } else {
+                const jugador1DNI = jugador1Input.value;
+                const jugador2DNI = jugador2Input.value;
+                if (ganadorSelect.value === jugador1DNI) {
+                    payload.ganador_dni = jugador1DNI;
+                } else if (ganadorSelect.value === jugador2DNI) {
+                    payload.ganador_dni = jugador2DNI;
+                } else {
+                    // Si el valor del select es otra cosa (por ejemplo 'null' o ''), no lo incluimos.
+                }
+            }
         }
-
-        payload.jugador1_dni = jugador1DNI;
-        payload.jugador2_dni = jugador2DNI;
     }
 
     try {
+        // console.log("📦 Payload:", payload);
         const response = await fetch('/guardar_resultados2/', {
             method: 'POST',
             headers: {

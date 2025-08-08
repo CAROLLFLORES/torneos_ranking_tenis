@@ -807,103 +807,161 @@ def guardar_fecha(request, torneo_id):
 
 @csrf_exempt
 def guardar_resultados2(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            # print("📩 Payload recibido:", data)
-            partido_id = data.get('partido_id')
-            partido = get_object_or_404(Partido, id=partido_id)
-            torneo = partido.torneo
-            es_doble = torneo.tipo_juego in ['Doble', 'Mixto']
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
 
-            # 🔄 Actualizar campos del partido
+    try:
+        data = json.loads(request.body)
+        partido_id = data.get('partido_id')
+        partido = get_object_or_404(Partido, id=partido_id)
+        torneo = partido.torneo
+        es_doble = torneo.tipo_juego in ['Doble', 'Mixto']
+
+        # ----------------------
+        # 1) Guardar datos administrativos SIEMPRE
+        # ----------------------
+        # Fecha / Hora
+        if 'fecha' in data:
             partido.fecha = data.get('fecha')
+        if 'hora' in data:
             partido.hora = data.get('hora')
 
-            cancha_id = data.get('cancha')
-            if cancha_id:
-                partido.cancha = get_object_or_404(Cancha, id=int(cancha_id))
+        # Cancha (si viene)
+        cancha_id = data.get('cancha')
+        if cancha_id:
+            partido.cancha = get_object_or_404(Cancha, id=int(cancha_id))
 
+        # Jugadores / Equipos (si vienen, se actualizan siempre)
+        if es_doble:
+            equipo1_id = data.get('equipo1_id')
+            equipo2_id = data.get('equipo2_id')
+            partido.equipo1 = Equipo.objects.get(id=int(equipo1_id)) if equipo1_id else None
+            partido.equipo2 = Equipo.objects.get(id=int(equipo2_id)) if equipo2_id else None
+            partido.jugador1 = None
+            partido.jugador2 = None
+        else:
+            dni_jugador1 = data.get('jugador1_dni')
+            dni_jugador2 = data.get('jugador2_dni')
+            partido.jugador1 = Jugador.objects.get(dni=int(dni_jugador1)) if dni_jugador1 else None
+            partido.jugador2 = Jugador.objects.get(dni=int(dni_jugador2)) if dni_jugador2 else None
+            partido.equipo1 = None
+            partido.equipo2 = None
+
+        partido.save()
+
+        # ----------------------
+        # 2) Determinar si el payload TRAE datos de resultado
+        # ----------------------
+        result_keys = [
+            'set1_jugador1','set2_jugador1','set3_jugador1',
+            'set1_jugador2','set2_jugador2','set3_jugador2',
+            # ganador keys:
+            'ganador_dni','ganador_equipo_id'
+        ]
+
+        def key_has_value(d, k):
+            return (k in d) and (d[k] is not None) and (str(d[k]).strip() != "")
+
+        has_result_payload = any(key_has_value(data, k) for k in result_keys)
+
+        # Obtener resultado anterior (si existe)
+        resultado_original = ResultadoPartido.objects.filter(partido=partido).first()
+
+        # Si NO existe resultado anterior y NO hay payload de resultado: no creamos ni tocamos ResultadoPartido
+        if not resultado_original and not has_result_payload:
+            return JsonResponse({'success': True, 'message': '✅ Partido actualizado (sin resultados).'})
+
+
+        # ----------------------
+        # 3) Crear o tomar el objeto ResultadoPartido
+        # ----------------------
+        if resultado_original:
+            resultado = resultado_original
+            es_edicion = True
+        else:
+            resultado = ResultadoPartido(partido=partido)
+            es_edicion = False
+
+        # Guardar copia de datos anteriores para comparar (puede ser None si no existía)
+        if resultado_original:
             if es_doble:
-                equipo1_id = data.get('equipo1_id')
-                equipo2_id = data.get('equipo2_id')
-                # print("🎾 Modo DOBLE/MIXTO - equipo1_id:", equipo1_id, "equipo2_id:", equipo2_id)
-                partido.equipo1 = Equipo.objects.get(id=int(equipo1_id)) if equipo1_id else None
-                partido.equipo2 = Equipo.objects.get(id=int(equipo2_id)) if equipo2_id else None
-                partido.jugador1 = None
-                partido.jugador2 = None
+                datos_anteriores = (
+                    resultado_original.set1_equipo1,
+                    resultado_original.set2_equipo1,
+                    resultado_original.set3_equipo1,
+                    resultado_original.set1_equipo2,
+                    resultado_original.set2_equipo2,
+                    resultado_original.set3_equipo2,
+                    resultado_original.ganador_equipo_id
+                )
             else:
-                dni_jugador1 = data.get('jugador1_dni')
-                dni_jugador2 = data.get('jugador2_dni')
-                # print("👤 Modo SINGLE - jugador1_dni:", dni_jugador1, "jugador2_dni:", dni_jugador2)
-                partido.jugador1 = Jugador.objects.get(dni=int(dni_jugador1)) if dni_jugador1 else None
-                partido.jugador2 = Jugador.objects.get(dni=int(dni_jugador2)) if dni_jugador2 else None
-                partido.equipo1 = None
-                partido.equipo2 = None
+                datos_anteriores = (
+                    resultado_original.set1_jugador1,
+                    resultado_original.set2_jugador1,
+                    resultado_original.set3_jugador1,
+                    resultado_original.set1_jugador2,
+                    resultado_original.set2_jugador2,
+                    resultado_original.set3_jugador2,
+                    resultado_original.ganador_jugador_id
+                )
+        else:
+            datos_anteriores = None
 
-            partido.save()
+        # ----------------------
+        # 4) Asignar campos de resultado SOLO si vienen en el payload
+        #     (si no vienen, no tocamos el campo)
+        # ----------------------
+        def asignar_int_si_presente(attr_name, key_name):
+            if key_name in data:
+                raw = data.get(key_name)
+                if raw is None or str(raw).strip() == "":
+                    setattr(resultado, attr_name, None)
+                else:
+                    try:
+                        setattr(resultado, attr_name, int(raw))
+                    except (ValueError, TypeError):
+                        setattr(resultado, attr_name, None)
 
-            # Buscar resultado existente
-            resultado = ResultadoPartido.objects.filter(partido=partido).first()
-            es_edicion = resultado is not None
+        if es_doble:
+            # sets mapeados a campos de equipo
+            asignar_int_si_presente('set1_equipo1', 'set1_jugador1')
+            asignar_int_si_presente('set2_equipo1', 'set2_jugador1')
+            asignar_int_si_presente('set3_equipo1', 'set3_jugador1')
+            asignar_int_si_presente('set1_equipo2', 'set1_jugador2')
+            asignar_int_si_presente('set2_equipo2', 'set2_jugador2')
+            asignar_int_si_presente('set3_equipo2', 'set3_jugador2')
 
-            if not resultado:
-                resultado = ResultadoPartido(partido=partido)
-
-            # Guardar resultado anterior para comparar
-            resultado_original = ResultadoPartido.objects.filter(partido=partido).first()
-            datos_anteriores = (
-                resultado_original.set1_jugador1,
-                resultado_original.set2_jugador1,
-                resultado_original.set3_jugador1,
-                resultado_original.set1_jugador2,
-                resultado_original.set2_jugador2,
-                resultado_original.set3_jugador2,
-                resultado_original.ganador_jugador_id
-            ) if resultado_original and not es_doble else (
-                resultado_original.set1_equipo1,
-                resultado_original.set2_equipo1,
-                resultado_original.set3_equipo1,
-                resultado_original.set1_equipo2,
-                resultado_original.set2_equipo2,
-                resultado_original.set3_equipo2,
-                resultado_original.ganador_equipo_id
-            ) if resultado_original else None
-
-            # Guardar nuevo resultado
-            if es_doble:
-                resultado.set1_equipo1 = int(data.get('set1_jugador1') or 0)
-                resultado.set2_equipo1 = int(data.get('set2_jugador1') or 0)
-                resultado.set3_equipo1 = int(data.get('set3_jugador1') or 0)
-                resultado.set1_equipo2 = int(data.get('set1_jugador2') or 0)
-                resultado.set2_equipo2 = int(data.get('set2_jugador2') or 0)
-                resultado.set3_equipo2 = int(data.get('set3_jugador2') or 0)
-
+            # ganador: solo si la clave viene en payload
+            if 'ganador_equipo_id' in data:
                 ganador_equipo_id = data.get('ganador_equipo_id')
-                resultado.ganador_equipo = Equipo.objects.get(id=int(ganador_equipo_id)) if ganador_equipo_id else None
+                if ganador_equipo_id is None or str(ganador_equipo_id).strip() == "":
+                    resultado.ganador_equipo = None
+                else:
+                    resultado.ganador_equipo = Equipo.objects.get(id=int(ganador_equipo_id))
                 resultado.ganador_jugador = None
-            else:
-                resultado.set1_jugador1 = int(data.get('set1_jugador1') or 0)
-                resultado.set2_jugador1 = int(data.get('set2_jugador1') or 0)
-                resultado.set3_jugador1 = int(data.get('set3_jugador1') or 0)
-                resultado.set1_jugador2 = int(data.get('set1_jugador2') or 0)
-                resultado.set2_jugador2 = int(data.get('set2_jugador2') or 0)
-                resultado.set3_jugador2 = int(data.get('set3_jugador2') or 0)
+        else:
+            # singles: sets ya tienen nombres correctos
+            asignar_int_si_presente('set1_jugador1', 'set1_jugador1')
+            asignar_int_si_presente('set2_jugador1', 'set2_jugador1')
+            asignar_int_si_presente('set3_jugador1', 'set3_jugador1')
+            asignar_int_si_presente('set1_jugador2', 'set1_jugador2')
+            asignar_int_si_presente('set2_jugador2', 'set2_jugador2')
+            asignar_int_si_presente('set3_jugador2', 'set3_jugador2')
 
+            # ganador: solo si la clave viene
+            if 'ganador_dni' in data:
                 ganador_dni = data.get('ganador_dni')
-                resultado.ganador_jugador = Jugador.objects.get(dni=int(ganador_dni)) if ganador_dni else None
+                if ganador_dni is None or str(ganador_dni).strip() == "":
+                    resultado.ganador_jugador = None
+                else:
+                    resultado.ganador_jugador = Jugador.objects.get(dni=int(ganador_dni))
                 resultado.ganador_equipo = None
 
-            # Comparar con los datos anteriores
+        # ----------------------
+        # 5) Comparar y guardar si cambió algo
+        # ----------------------
+        if es_doble:
             datos_nuevos = (
-                resultado.set1_jugador1,
-                resultado.set2_jugador1,
-                resultado.set3_jugador1,
-                resultado.set1_jugador2,
-                resultado.set2_jugador2,
-                resultado.set3_jugador2,
-                resultado.ganador_jugador_id
-            ) if not es_doble else (
                 resultado.set1_equipo1,
                 resultado.set2_equipo1,
                 resultado.set3_equipo1,
@@ -912,36 +970,49 @@ def guardar_resultados2(request):
                 resultado.set3_equipo2,
                 resultado.ganador_equipo_id
             )
+        else:
+            datos_nuevos = (
+                resultado.set1_jugador1,
+                resultado.set2_jugador1,
+                resultado.set3_jugador1,
+                resultado.set1_jugador2,
+                resultado.set2_jugador2,
+                resultado.set3_jugador2,
+                resultado.ganador_jugador_id
+            )
 
-            if datos_anteriores != datos_nuevos:
-                from django.db.models.signals import post_save
-                post_save.disconnect(actualizar_ranking, sender=ResultadoPartido)
+        # Si no existía resultado anterior y no hubo cambios en resultado -> dejamos sin crear
+        if resultado_original is None and datos_nuevos == (None, None, None, None, None, None, None):
+            # No hay nada de resultado para guardar
+            return JsonResponse({'success': True, 'message': '✅ Partido actualizado (sin resultados).'})
 
-                resultado.save()
 
-                post_save.connect(actualizar_ranking, sender=ResultadoPartido)
+        # Si hay diferencias, guardamos y ejecutamos la lógica asociada
+        if datos_anteriores != datos_nuevos:
+            # desconectar señal temporalmente
+            from django.db.models.signals import post_save
+            post_save.disconnect(actualizar_ranking, sender=ResultadoPartido)
 
-                # Revertir ranking anterior si es edición
-                # if es_edicion:
-                #     if es_doble:
-                #         revertir_ranking_doble(resultado_original)
-                #     else:
-                #         revertir_ranking_single(resultado_original)
+            resultado.save()
 
-                # Aplicar nuevo ranking
-                # if es_doble:
-                #     actualizar_ranking_manual_equipos(resultado)
-                # else:
-                #     actualizar_ranking_manual(resultado)
+            # reconectar señal
+            post_save.connect(actualizar_ranking, sender=ResultadoPartido)
 
-                return JsonResponse({'success': True, 'message': '✅ Resultado actualizado correctamente.'})
-            else:
-                return JsonResponse({'success': True, 'message': '⚠️ Se modificaron los datos del partido.'})
+            # Aquí podés reactivar la lógica de ranking manual si la necesitás:
+            # if es_edicion:
+            #     ... revertir ranking ...
+            # actualizar_ranking_manual(resultado)  # o la función que uses
 
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            return JsonResponse({'success': False, 'message': str(e)})
+            return JsonResponse({'success': True, 'message': '✅ Resultado actualizado correctamente.'})
+        else:
+            # No cambió el resultado (pero sí pueden haber cambiado los datos del partido)
+            return JsonResponse({'success': True, 'message': '⚠️ Se modificaron los datos del partido.'})
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'success': False, 'message': str(e)})
+
 
 @csrf_exempt
 def guardar_resultados(request):
