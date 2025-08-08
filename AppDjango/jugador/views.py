@@ -247,11 +247,11 @@ def borrar_jugador(request, dni):
         jugador = get_object_or_404(Jugador, dni=dni)
         jugador.delete()
         messages.success(request, f"Se ha eliminado '{jugador.nombre}' exitosamente.")
-        return redirect('borrado_exitoso', jugador_dni=dni)
+        return redirect('listado_jugadores')  # 👈 Redirige al listado
 
     except Jugador.DoesNotExist:
         messages.error(request, "Error al eliminar el jugador, no existe.")
-        return redirect(reverse('listado_jugadores'))
+        return redirect('listado_jugadores')
     
 @login_required
 @user_passes_test(es_admin)
