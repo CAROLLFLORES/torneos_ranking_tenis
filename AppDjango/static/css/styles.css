@@ -2072,6 +2072,8 @@ html, body {
     padding: 20px;
 }
 
+/* MODAL */
+
 .modal {
     display: none;
     position: fixed;
@@ -2081,6 +2083,15 @@ html, body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5); 
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 40%;
+    text-align: center;
 }
 
 .box-section{
@@ -3130,14 +3141,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   background-color: #2196F3;
 }
 
-.modal-content {
-    background-color: white;
-    margin: 15% auto;
-    padding: 20px;
-    border-radius: 10px;
-    width: 40%;
-    text-align: center;
-}
 
 .modal-buttons {
     display: flex;
@@ -3216,7 +3219,16 @@ td.set input {
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
-    background-color: #2b2b2b; /* fondo oscuro similar al tema actual */
+    background-color: #2d2f23;
+}
+
+.categorias-box1 {
+    max-height: 100px;
+    overflow-y: auto; 
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #2d2f23;
 }
 
 .categorias-box ul {
@@ -3245,6 +3257,46 @@ td.set input {
     font-size: .9rem;
     font-weight: 400;
 }
+
+.modal-content1 {
+    background-color: rgba(23, 22, 21, 0.95);
+    border-radius: 15px;
+    border: 2px solid #cddf80;
+    box-shadow: 2px 8px 16px rgb(40, 39, 39);
+    color: white;
+    font-family: 'Open Sans', sans-serif;
+    margin: 10% auto 1rem auto !important;
+    padding: 20px;
+    width: 40%;
+    text-align: start !important;
+}
+
+.modal-header1 {
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem !important;
+    display: flex;
+    font-weight: bold;
+}
+
+.modal-title {
+    color: #cddf80 !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+}
+
+.btn-close-custom {
+    background: transparent;
+    border: none;
+    color: #918f8f;
+    font-size: 1.8rem;
+    margin: 0 !important;
+    cursor: pointer;
+}
+
+.btn-close-custom:hover {
+    color: #cddf80
+} 
 
 /*////////////////////////////////////////////////////////// NUEVOS ESTILOS RESPOSIVE //////////////////////////////////////////////////////////*/
 @media (max-width: 1220px) {
