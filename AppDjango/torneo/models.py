@@ -138,6 +138,7 @@ class Partido(models.Model):
     hora = models.TimeField()
     cancha = models.ForeignKey('Cancha', on_delete=models.CASCADE)
     jornada = models.IntegerField()
+    # torneo = models.ForeignKey('Torneo', on_delete=models.CASCADE, related_name='partidos')
 
    
     

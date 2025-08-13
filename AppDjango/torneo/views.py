@@ -990,13 +990,13 @@ def guardar_resultados2(request):
         # Si hay diferencias, guardamos y ejecutamos la lógica asociada
         if datos_anteriores != datos_nuevos:
             # desconectar señal temporalmente
-            from django.db.models.signals import post_save
-            post_save.disconnect(actualizar_ranking, sender=ResultadoPartido)
+            # from django.db.models.signals import post_save
+            # post_save.disconnect(actualizar_ranking, sender=ResultadoPartido)
 
             resultado.save()
 
             # reconectar señal
-            post_save.connect(actualizar_ranking, sender=ResultadoPartido)
+            # post_save.connect(actualizar_ranking, sender=ResultadoPartido)
 
             # Aquí podés reactivar la lógica de ranking manual si la necesitás:
             # if es_edicion:
@@ -1096,24 +1096,24 @@ def guardar_resultados(request):
             if datos_anteriores != datos_nuevos:
                 # Desconectar signal para evitar doble ejecución
                 from django.db.models.signals import post_save
-                post_save.disconnect(actualizar_ranking, sender=ResultadoPartido)
+                # post_save.disconnect(actualizar_ranking, sender=ResultadoPartido)
 
                 resultado.save()
 
-                post_save.connect(actualizar_ranking, sender=ResultadoPartido)
+                # post_save.connect(actualizar_ranking, sender=ResultadoPartido)
 
                 # ✅ Revertir si es edición
-                if es_edicion:
-                    if es_doble:
-                        revertir_ranking_doble(resultado_original)
-                    else:
-                        revertir_ranking_single(resultado_original)
+                # if es_edicion:
+                #     if es_doble:
+                #         revertir_ranking_doble(resultado_original)
+                #     else:
+                #         revertir_ranking_single(resultado_original)
 
                 # ✅ Aplicar resultado nuevo
-                if es_doble:
-                    actualizar_ranking_manual_equipos(resultado)
-                else:
-                    actualizar_ranking_manual(resultado)
+                # if es_doble:
+                #     actualizar_ranking_manual_equipos(resultado)
+                # else:
+                #     actualizar_ranking_manual(resultado)
 
                 return JsonResponse({'success': True, 'message': '✅ Resultado actualizado correctamente.'})
             else:
@@ -1507,8 +1507,8 @@ def modificar_partido(request):
         resultado = ResultadoPartido.objects.filter(partido=partido).first()
 
         # Revertir ranking anterior
-        if resultado and resultado.ganador_jugador:
-            revertir_ranking_single(resultado)
+        # if resultado and resultado.ganador_jugador:
+        #     revertir_ranking_single(resultado)
 
         if not resultado:
             resultado = ResultadoPartido(partido=partido)
@@ -1540,8 +1540,8 @@ def modificar_partido(request):
         else:
             resultado.ganador_jugador = None  # Empate o error
 
-        resultado.save()
-        actualizar_ranking_manual(resultado)
+        # resultado.save()
+        # actualizar_ranking_manual(resultado)
 
         return JsonResponse({'status': 'ok'})
 
@@ -1938,8 +1938,8 @@ def modificar_partido_doble(request):
         resultado = ResultadoPartido.objects.filter(partido=partido).first()
 
         # Revertir ranking anterior
-        if resultado and resultado.ganador_equipo:
-            revertir_ranking_doble(resultado)
+        # if resultado and resultado.ganador_equipo:
+        #     revertir_ranking_doble(resultado)
 
         if not resultado:
             resultado = ResultadoPartido(partido=partido)
@@ -1971,8 +1971,8 @@ def modificar_partido_doble(request):
         else:
             resultado.ganador_equipo = None  # Empate o error
 
-        resultado.save()
-        actualizar_ranking_manual_equipos(resultado)
+        # resultado.save()
+        # actualizar_ranking_manual_equipos(resultado)
 
         return JsonResponse({'status': 'ok'})
 

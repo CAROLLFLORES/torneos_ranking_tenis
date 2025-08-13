@@ -40,59 +40,260 @@ def ranking_torneo(request, torneo_id):
 
     return render(request, 'ranking.html', {'torneo': torneo, 'ranking': ranking})
 
-
 def ver_ranking(request, torneo_id):
     torneo_actual = get_object_or_404(Torneo, id=torneo_id)
+    ranking = calcular_ranking(torneo_actual.id)
 
-    torneos_en_curso = Torneo.objects.filter(
-        tipo_juego=torneo_actual.tipo_juego,
-        categorias__in=torneo_actual.categorias.all()
-    ).exclude(id=torneo_actual.id).distinct()
+    return render(request, "ranking.html", {
+        "torneo_actual": torneo_actual,
+        "ranking": ranking
+    })    
 
-    if torneo_actual.tipo_juego == "Doble" or torneo_actual.tipo_juego == "Mixto":
-        
-        # 👇 Este bloque asegura que todos los equipos tengan un ranking aunque no hayan jugado
-        for equipo in torneo_actual.equipos.all():
-            RankingEquipo.objects.get_or_create(
-                equipo=equipo,
-                torneo=torneo_actual,
-                categoria=torneo_actual.categorias.first(),
-                anio=torneo_actual.fecha_inicio.year,
-                bimestre=1,
-                defaults={
-                    'pj': 0, 'pg': 0, 'pp': 0, 'sets': 0, 'games': 0,
-                    'puntaje_total_categoria': 0, 'puntaje_acumulador': 0, 'activo': True
-                }
-            )
+def calcular_ranking(torneo_id):
+    torneo = get_object_or_404(Torneo, id=torneo_id)
 
-        ranking = RankingEquipo.objects.filter(
-            torneo=torneo_actual,
-            activo=True
-        ).select_related('equipo__jugador1', 'equipo__jugador2').order_by(
-            '-puntaje_total_categoria'
-        )
-
+    # Participantes según tipo de torneo
+    if torneo.tipo_juego in ["Doble", "Mixto"]:
+        participantes = torneo.equipos.all()
     else:
-        ranking = Ranking.objects.filter(
-            torneo=torneo_actual,
-            activo=True
-        ).select_related('jugador').order_by(
-            '-puntaje_total_categoria', '-games'
-        )
+        participantes = torneo.jugador_set.all()
 
-    master_creado = MasterJugador.objects.filter(torneo=torneo_actual).exists()
-    master_cantidad = MasterJugador.objects.filter(torneo=torneo_actual).count()
+    # Inicializar estructura
+    ranking_data = {}
+    for p in participantes:
+        ranking_data[p.id] = {
+            "equipo": p if torneo.tipo_juego in ["Doble", "Mixto"] else None,
+            "jugador": p if torneo.tipo_juego not in ["Doble", "Mixto"] else None,
+            "pj": 0,
+            "pg": 0,
+            "pp": 0,
+            "sets": 0,
+            "games": 0,
+            "puntaje_total_categoria": 0,
+        }
 
-    return render(request, 'ranking.html', {
-        'torneo_actual': torneo_actual,
-        'torneos_en_curso': torneos_en_curso,
-        'ranking': ranking,
-        'master_creado': master_creado,
-        'master_cantidad': master_cantidad
-    })
+    def calcular_sets_ganados(resultado, es_doble):
+        sets_ganados_equipo1 = 0
+        sets_ganados_equipo2 = 0
+        if not resultado:
+            return 0, 0
+
+        if es_doble:
+            sets = [
+                (resultado.set1_equipo1, resultado.set1_equipo2),
+                (resultado.set2_equipo1, resultado.set2_equipo2),
+                (resultado.set3_equipo1, resultado.set3_equipo2),
+            ]
+        else:
+            sets = [
+                (resultado.set1_jugador1, resultado.set1_jugador2),
+                (resultado.set2_jugador1, resultado.set2_jugador2),
+                (resultado.set3_jugador1, resultado.set3_jugador2),
+            ]
+
+        for s1, s2 in sets:
+            if s1 is None or s2 is None:
+                continue
+            if s1 > s2:
+                sets_ganados_equipo1 += 1
+            elif s2 > s1:
+                sets_ganados_equipo2 += 1
+
+        return sets_ganados_equipo1, sets_ganados_equipo2
+
+    def calcular_games_ganados(resultado, es_doble):
+        """
+        Devuelve (games_sum_first2_for_side1, games_sum_first2_for_side2)
+        NOTA: NO incluye el tercer set en la suma; el ajuste +1/-1 se aplicará
+        después en el bucle principal según la regla definida.
+        """
+        if not resultado:
+            return 0, 0
+
+        if es_doble:
+            games1 = sum(v or 0 for v in [
+                resultado.set1_equipo1,
+                resultado.set2_equipo1,
+            ])
+            games2 = sum(v or 0 for v in [
+                resultado.set1_equipo2,
+                resultado.set2_equipo2,
+            ])
+        else:
+            games1 = sum(v or 0 for v in [
+                resultado.set1_jugador1,
+                resultado.set2_jugador1,
+            ])
+            games2 = sum(v or 0 for v in [
+                resultado.set1_jugador2,
+                resultado.set2_jugador2,
+            ])
+        return games1, games2
+
+    partidos = torneo.partido_set.all()
+    es_doble = torneo.tipo_juego in ["Doble", "Mixto"]
+
+    for partido in partidos:
+        resultado = getattr(partido, 'resultado', None)
+        if not resultado:
+            continue
+
+        if es_doble:
+            p1 = partido.equipo1
+            p2 = partido.equipo2
+        else:
+            p1 = partido.jugador1
+            p2 = partido.jugador2
+
+        if p1 is None or p2 is None:
+            continue
+
+        # Partidos jugados
+        ranking_data[p1.id]["pj"] += 1
+        ranking_data[p2.id]["pj"] += 1
+
+        # Sets ganados (esta función ya cuenta correctamente los 3 sets)
+        sets1, sets2 = calcular_sets_ganados(resultado, es_doble)
+        ranking_data[p1.id]["sets"] += (sets1 - sets2)
+        ranking_data[p2.id]["sets"] += (sets2 - sets1)
+
+        # ----- GAMES: base (solo primeros 2 sets) -----
+        games_base1, games_base2 = calcular_games_ganados(resultado, es_doble)
+        base_diff = games_base1 - games_base2
+
+        # Detectar si hubo tercer set
+        if es_doble:
+            set3_1 = resultado.set3_equipo1
+            set3_2 = resultado.set3_equipo2
+        else:
+            set3_1 = resultado.set3_jugador1
+            set3_2 = resultado.set3_jugador2
+
+        third_played = (set3_1 is not None and set3_2 is not None)
+
+        # Bonus según regla: si hubo tercer set, +1 al ganador del partido, -1 al perdedor.
+        bonus = 0
+        if third_played:
+            if sets1 > sets2:
+                bonus = 1
+            elif sets2 > sets1:
+                bonus = -1
+            # si empate improbable, bonus=0
+
+        final_diff = base_diff + bonus
+
+        # Aplicar diferencia final a ambos participantes (simétrico)
+        ranking_data[p1.id]["games"] += final_diff
+        ranking_data[p2.id]["games"] += -final_diff
+
+        # Ganados, perdidos y puntaje (por sets)
+        if sets1 > sets2:
+            ranking_data[p1.id]["pg"] += 1
+            ranking_data[p2.id]["pp"] += 1
+            ranking_data[p1.id]["puntaje_total_categoria"] += 100
+            ranking_data[p2.id]["puntaje_total_categoria"] -= 50
+        else:
+            ranking_data[p2.id]["pg"] += 1
+            ranking_data[p1.id]["pp"] += 1
+            ranking_data[p2.id]["puntaje_total_categoria"] += 100
+            ranking_data[p1.id]["puntaje_total_categoria"] -= 50
+
+    # Ordenar ranking por puntaje (los que no jugaron van al final)
+    ranking_list = sorted(
+        ranking_data.values(),
+        key=lambda x: (x["pj"] == 0, -x["puntaje_total_categoria"])
+    )
+    # Guarda en base de datos
+    guardar_ranking_en_modelos(torneo, ranking_list)
+
+    return ranking_list
+
+def guardar_ranking_en_modelos(torneo, ranking_list):
+    with transaction.atomic():
+        for pos, data in enumerate(ranking_list, start=1):
+            if torneo.tipo_juego in ["Doble", "Mixto"]:
+                RankingEquipo.objects.update_or_create(
+                    torneo=torneo,
+                    equipo=data["equipo"],
+                    defaults={
+                        "posicion": pos,
+                        "pj": data["pj"],
+                        "pg": data["pg"],
+                        "pp": data["pp"],
+                        "sets": data["sets"],
+                        "games": data["games"],
+                        "puntaje_total_categoria": data["puntaje_total_categoria"],
+                        "categoria": getattr(torneo, "categoria", None),
+                        "bimestre": 0,
+                        "anio": 0,
+                        "activo": True,
+                    }
+                )
+            else:
+                Ranking.objects.update_or_create(
+                    torneo=torneo,
+                    jugador=data["jugador"],
+                    defaults={
+                        "posicion": pos,
+                        "pj": data["pj"],
+                        "pg": data["pg"],
+                        "pp": data["pp"],
+                        "sets": data["sets"],
+                        "games": data["games"],
+                        "puntaje_total_categoria": data["puntaje_total_categoria"],
+                        "categoria": getattr(torneo, "categoria", None),
+                        "bimestre": 0,
+                        "anio": 0,
+                        "activo": True,
+                    }
+                )
 
 
+# def ver_ranking(request, torneo_id):
+#     torneo_actual = get_object_or_404(Torneo, id=torneo_id)
 
+#     if torneo_actual.tipo_juego == "Doble" or torneo_actual.tipo_juego == "Mixto":
+        
+#         # 👇 Este bloque asegura que todos los equipos tengan un ranking aunque no hayan jugado
+#         for equipo in torneo_actual.equipos.all():
+#             RankingEquipo.objects.get_or_create(
+#                 equipo=equipo,
+#                 torneo=torneo_actual,
+#                 categoria=torneo_actual.categorias.first(),
+#                 anio=torneo_actual.fecha_inicio.year,
+#                 bimestre=1,
+#                 defaults={
+#                     'pj': 0, 'pg': 0, 'pp': 0, 'sets': 0, 'games': 0,
+#                     'puntaje_total_categoria': 0, 'puntaje_acumulador': 0, 'activo': True
+#                 }
+#             )
+
+#         ranking = RankingEquipo.objects.filter(
+#             torneo=torneo_actual,
+#             activo=True
+#         ).select_related('equipo__jugador1', 'equipo__jugador2').order_by(
+#             '-puntaje_total_categoria'
+#         )
+
+#     else:
+#         ranking = Ranking.objects.filter(
+#             torneo=torneo_actual,
+#             activo=True
+#         ).select_related('jugador').order_by(
+#             '-puntaje_total_categoria', '-games'
+#         )
+
+#     master_creado = MasterJugador.objects.filter(torneo=torneo_actual).exists()
+#     master_cantidad = MasterJugador.objects.filter(torneo=torneo_actual).count()
+
+#     return render(request, 'ranking.html', {
+#         'torneo_actual': torneo_actual,
+#         'ranking': ranking,
+#         'master_creado': master_creado,
+#         'master_cantidad': master_cantidad
+#     })
+
+# no se usa más 12/8
 def actualizar_ranking(sender, instance, **kwargs):
     from ranking.models import Ranking
     partido = instance.partido
@@ -188,7 +389,7 @@ def actualizar_ranking(sender, instance, **kwargs):
     print(f"♻️ Ranking modificado - {ganador.nombre} ganó. Cambios aplicados correctamente.")
 
 
-
+# MODIFICAR!
 def ranking_general(request, torneo_id=None):
     torneos = Torneo.objects.all()
     contexto = {'torneos': torneos}
@@ -312,7 +513,6 @@ def confirmar_ascenso_final(request):
 
     return redirect('abm_torneo')
 
-
 from django.views.decorators.http import require_POST
 
 @require_POST
@@ -384,7 +584,6 @@ def listado_masters(request):
     })
 
 
-
 def ascender_equipos(equipos_ids, torneo_origen_id, torneo_destino_id):
     torneo_origen = Torneo.objects.get(id=torneo_origen_id)
     torneo_destino = Torneo.objects.get(id=torneo_destino_id)
@@ -415,8 +614,7 @@ def ascender_equipos(equipos_ids, torneo_origen_id, torneo_destino_id):
                 ranking_destino.activo = True
                 ranking_destino.save()
 
-
-
+# no se usa más 12/8
 def actualizar_ranking_manual(resultado):
     partido = resultado.partido
     torneo = partido.torneo
@@ -541,7 +739,7 @@ def actualizar_ranking_manual(resultado):
     ranking_j1.save()
     ranking_j2.save()
 
-
+# no se usa más 12/8
 def actualizar_ranking_manual_equipos(resultado):
     partido = resultado.partido
     torneo = partido.torneo
@@ -660,7 +858,7 @@ def actualizar_ranking_manual_equipos(resultado):
     ranking_eq1.save()
     ranking_eq2.save()
 
-
+# no se usa más 12/8
 def revertir_ranking_single(resultado):
     partido = resultado.partido
     torneo = partido.torneo
@@ -707,7 +905,7 @@ def revertir_ranking_single(resultado):
     ranking_perdedor.puntaje_total_categoria += 50
     ranking_perdedor.save()
 
-
+# no se usa más 12/8
 def revertir_ranking_doble(resultado):
     partido = resultado.partido
     torneo = partido.torneo
