@@ -14,6 +14,11 @@
         Te damos una experiencia completa para que disfrutes del tenis en todas sus formas.
       </p>
       <a href="{% url 'liga_publico' %}" class="hero-button">LIGA</a>
+      
+      <!-- app -->
+      <button id="btnInstall" class="hero-button" style="display:none;margin-left:.5rem">
+        INSTALAR APP
+      </button>
     </div>
 </section>
 
@@ -159,8 +164,8 @@
             </svg>
           </div>
 
-          <h4 class="feature-title">Campeon Copa General</h4>
-          <p>Copa general de todo el torneo</p>
+          <h4 class="feature-title">Campeon Copa Challenger</h4>
+          <p>Copa general de todo el torneo rosarino</p>
         </div>
       </div>
 
@@ -317,6 +322,23 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.scrollTop = 0;
     });
 })
+
+
+// boton para app 
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById("btnInstall");
+  if (btn) btn.style.display = "inline-block";
+});
+document.getElementById("btnInstall")?.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById("btnInstall").style.display = "none";
+});
 
 </script>
 
