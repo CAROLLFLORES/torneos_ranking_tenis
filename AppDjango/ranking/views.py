@@ -205,7 +205,7 @@ def calcular_ranking(torneo_id):
         key=lambda x: (x["pj"] == 0, -x["puntaje_total_categoria"])
     )
     # Guarda en base de datos
-    guardar_ranking_en_modelos(torneo, ranking_list)
+    # guardar_ranking_en_modelos(torneo, ranking_list)
 
     return ranking_list
 

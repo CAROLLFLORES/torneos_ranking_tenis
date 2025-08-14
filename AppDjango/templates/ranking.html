@@ -10,19 +10,32 @@
 
 {% block content %}
 <div class="container-admin">
+    {% if user.is_authenticated %}
+    <h4>ADMINISTRADOR</h4>
+    {% else %}
+    <h4>LIGA 2025</h4>
+    {% endif %}
     <div class="text-section">
         <hr class="separator-line">
-        <h2 class="text-primary text-center">RANKING - {{ torneo_actual.nombre|upper }}</h2>
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">RANKING</h5>
+    </div>
+
+    <div id="resultados" style="cursor: pointer;">
+        <a  onclick="generarPDF()"
+            class="a-options">
+            <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
+            DESCARGAR EN PDF
+        </a>
     </div>
 
     <!-- MODAL ASCENSO -->
     <div class="modal fade" id="modalAscenso" tabindex="-1" aria-labelledby="modalAscensoLabel" aria-hidden="true">
         <div class="modal-dialog">
-          <div class="modal-content">
+            <div class="modal-content">
             <div class="modal-header">
                 <i class="bi-arrow-up-circle-fill" style="font-size: 3.5rem; color: orange;  display: inline-flex; align-items: center; justify-content: center;"></i>
-              <h4 class="modal-title" id="modalAscensoLabel">Seleccionar Torneo Destino</h4>
-              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <h4 class="modal-title" id="modalAscensoLabel">Seleccionar Torneo Destino</h4>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                 <i class="bi bi-x" style="font-size: 1.5rem;"></i>
             </button>
             </div>
@@ -35,22 +48,22 @@
                         {% endif %}
                     {% endfor %}
                 </select>
-              <H4>ASCENDER los jugadores seleccionados a este torneo.</H4>
+                <H4>ASCENDER los jugadores seleccionados a este torneo.</H4>
             </div>
             <div class="modal-footer">
-              <button type="submit" form="formAscenso" class="login-button btn btn-success">CONFIRMAR ASCENSO</button>
+                <button type="submit" form="formAscenso" class="login-button btn btn-success">CONFIRMAR ASCENSO</button>
             </div>
-          </div>
+            </div>
         </div>
-      </div>
- <!-- MODAL DESCENSO -->
-      <div class="modal fade" id="modalDescenso" tabindex="-1" aria-labelledby="modalDescensoLabel" aria-hidden="true">
+    </div>
+    <!-- MODAL DESCENSO -->
+    <div class="modal fade" id="modalDescenso" tabindex="-1" aria-labelledby="modalDescensoLabel" aria-hidden="true">
         <div class="modal-dialog">
-          <div class="modal-content">
+            <div class="modal-content">
             <div class="modal-header">
                 <i class="bi-arrow-down-circle-fill" style="font-size: 3.5rem; color: red;  display: inline-flex; align-items: center; justify-content: center;"></i>
-              <h4 class="modal-title" id="modalDescensoLabel">TORNEOS</h4>
-              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <h4 class="modal-title" id="modalDescensoLabel">TORNEOS</h4>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                 <i class="bi bi-x" style="font-size: 1.5rem;"></i>
             </button>
             </div>
@@ -63,70 +76,43 @@
                         {% endif %}
                     {% endfor %}
                 </select>
-              <H4>DESCENDER los jugadores seleccionados a este torneo.</H4>
+                <H4>DESCENDER los jugadores seleccionados a este torneo.</H4>
             </div>
             <div class="modal-footer">
                 <button type="button" class="login-button btn btn-success" id="btnConfirmarDescenso">CONFIRMAR DESCENSO</button>
             </div>
-          </div>
+            </div>
         </div>
-      </div>
-  <!-- MODAL DE ADVERTENCIA PERSONALIZADO -->
-<div class="modal fade" id="modalAdvertencia" tabindex="-1" aria-labelledby="modalAdvertenciaLabel" aria-hidden="true">
+    </div>
+    <!-- MODAL DE ADVERTENCIA PERSONALIZADO -->
+    <div class="modal fade" id="modalAdvertencia" tabindex="-1" aria-labelledby="modalAdvertenciaLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header">
-          <h4 class="modal-title " id="modalAdvertenciaLabel">
+            <div class="modal-header">
+            <h4 class="modal-title " id="modalAdvertenciaLabel">
             <i class="bi bi-exclamation-triangle-fill me-2" style="font-size: 1.8rem;"></i>
             ADVERTENCIA
-          </h4>
+            </h4>
         </div>
         <div class="modal-body text-center">
-          <p id="modalAdvertenciaMensaje" class="fw-semibold mb-4" style="font-size: 1.2rem;"></p>
-          <button type="button" class="login-button" data-bs-dismiss="modal">ACEPTAR</button>
+            <p id="modalAdvertenciaMensaje" class="fw-semibold mb-4" style="font-size: 1.2rem;"></p>
+            <button type="button" class="login-button" data-bs-dismiss="modal">ACEPTAR</button>
         </div>
-      </div>
+        </div>
     </div>
-  </div>
+    </div>
 
     <!-- Contenedor Principal -->
-    <div class="form-container d-flex gap-4 justify-content-between">     
-
-        <!-- Se ha quitado el onchange para que NO recargue automáticamente -->
-        <div class="narrow-box flex-grow-1">
-            <div class="title-orange-gris text-center"> <!-- ✅ Centrar título -->
-                <h1>RANKING DE TORNEOS</h1>
-            </div>
-            <div class="text-center">
-                <a href="{% url 'admin_menu' %}">
-                    <button class="login-button peque">MENU</button>
-                </a>
-                <a href="{% url 'crear_torneo' %}">
-                    <button class='login-button-gris chico'>VOLVER A TORNEO</button>
-                </a>
-                <hr class="separator">
-                <button type="button" class="btn pdf-button login-button chico" onclick="generarPDF()">
-                    <i class="bi bi-file-earmark-pdf"></i> PDF
-                </button>
-            </div>           
-
-        
-            <!-- ✅ Botón alineado correctamente -->
-            
-        </div>
-        
-        
-        
-        <!-- RECUADRO DERECHO: Formulario principal (UN SOLO FORM) -->
-        
-            <div class="table-responsive ranking-table-container">
-                <form method="POST" action="{% if torneo_actual.tipo in 'DobleMixto' %}{% url 'confirmar_ascenso_final' %}{% else %}{% url 'confirmar_ascenso_final' %}{% endif %}" id="formAscenso">
-                    {% csrf_token %}
-                    <input type="hidden" name="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}equipos_json{% else %}jugadores_json{% endif %}" id="seleccionados_json">
-                    <input type="hidden" name="torneo_origen" value="{{ torneo_actual.id }}">
-                    <input type="hidden" name="torneo_destino" id="torneo_destino_hidden">
-                    <table class="table table-dark table-bordered ranking-table">
-                        <thead class="table-success text-center">
+    <div class="">
+        <div class="recuadro-tabla ranking-table-container">
+            <form method="POST" action="{% if torneo_actual.tipo in 'DobleMixto' %}{% url 'confirmar_ascenso_final' %}{% else %}{% url 'confirmar_ascenso_final' %}{% endif %}" id="formAscenso">
+                {% csrf_token %}
+                <input type="hidden" name="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}equipos_json{% else %}jugadores_json{% endif %}" id="seleccionados_json">
+                <input type="hidden" name="torneo_origen" value="{{ torneo_actual.id }}">
+                <input type="hidden" name="torneo_destino" id="torneo_destino_hidden">
+                <div class="tabla-wrapper">
+                    <table class="table-bordered ranking-table">
+                        <thead class="table-success">
                             <tr>
                                 <th>#</th>
                                 <th>JUGADOR</th>
@@ -136,7 +122,7 @@
                                 <th>SETS</th>
                                 <th>GAMES</th>
                                 <th>PUNTOS</th>
-                                {% if user.is_authenticated and user.is_staff %}
+                                <!-- {% if user.is_authenticated and user.is_staff %}
                                 <th>ASCENSO <div class="text-end mb-2">
                                     <button type="button" id="btnAbrirModalAscenso" class="btn" title="Ascender jugadores"
                                         title="Ascenso"
@@ -145,18 +131,13 @@
                                     </button>
                                 </div></th>
                                 <th>DESCENSO <div class="text-end mb-2">
-                                    <!-- BOTÓN DESCENSO -->
                                     <button type="button" id="btnAbrirModalDescenso" class="btn-modal-descenso" title="Descenso"
                                         style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
                                         <i class="bi-arrow-down-circle-fill" style="font-size: 1.5rem;color: red;"></i>
                                     </button>
                                 </div>
                                 </th>
-                                {% endif %}
-
-                                
-                                
-                                
+                                {% endif %} -->    
                             </tr>
                         </thead>
                         <tbody>
@@ -189,7 +170,7 @@
                                 </td>
                                 <td class="ranking-points">{{ jugador.puntaje_total_categoria }}</td>
                                 
-                                {% if user.is_authenticated and user.is_staff %}
+                                <!-- {% if user.is_authenticated and user.is_staff %}
                                 <td class="text-center">
                                     <input type="checkbox" name="jugadores_seleccionados"
                                         value="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}
@@ -206,8 +187,8 @@
                                                 {{ jugador.jugador.dni }}
                                             {% endif %}">
                                 </td>
-                                {% endif %}
-
+                                {% endif %} -->
+    
                             </tr>
                             {% empty %}
                             <tr>
@@ -216,8 +197,9 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                </form>
-            </div>
+                </div>
+            </form>
+        </div>
 
     </div>
 </div>

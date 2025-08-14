@@ -616,8 +616,8 @@ background-color: transparent; /* 'none' no es válido */
     align-items: flex-start; /* Alinea los elementos al inicio del contenedor (parte superior) */
     gap: 20px; /* Espacio entre los elementos */
     width: 100%; /* Asegura que el contenedor ocupe el 100% del ancho disponible */
-    max-width: 1200px; /* Ajusta el ancho máximo según tus necesidades */
-    margin: 0 auto; /* Centra el contenedor */
+    /* max-width: 1200px; */
+    margin: 0 auto;
 }
 
 .narrow-box {
@@ -863,6 +863,14 @@ background-color: transparent; /* 'none' no es válido */
     font-weight: bold;
 }
 
+.table-success th:first-child {
+    border-top-left-radius: 10px; /* Esquina superior izquierda */
+}
+
+.table-success th:last-child {
+    border-top-right-radius: 10px; /* Esquina superior derecha */
+}
+
 .close:hover,
 .close:focus {
     color: black;
@@ -872,10 +880,10 @@ background-color: transparent; /* 'none' no es válido */
 
 /* Estilo para la barra de color en el encabezado */
 .table-success {
-    background-color: #cfcfcf; /* Color de fondo de la barra del encabezado */
-    color: #0f0f0f; /* Color del texto */
-    text-align: center; /* Centrar los textos */
-    font-weight: bold; /* Poner los títulos en negrita */
+    background-color: #cddf80;
+    color: #313131;
+    text-align: center;
+    font-size: .9rem;
 }
 
 /* Estilo para las filas de los jugadores */
@@ -1023,15 +1031,12 @@ table {
         
 }
 
-
-/* Estilo de la tabla */
 .ranking-table {
     width: 100%;
     text-align: center;
-    border-collapse: separate; /* Importante: separa los bordes */
-    border-spacing: 0 10px; /* Espaciado entre filas */
-    background-color: transparent; /* Hace el fondo completamente transparente */
-    
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    background-color: transparent;
 }
 
 /* Aumenta el espacio entre filas */
@@ -1061,11 +1066,10 @@ table {
 /* Posición del ranking */
 .ranking-position {
     font-weight: bold;
-    background: linear-gradient(45deg, #ffcc00, #ff8800);
-    color: black;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    background-color: #cddf80;
+    color: rgb(49, 48, 48);
     padding: 5px;
-    border-radius: 5px;
+    /* border-radius: 5px; */
 }
 
 /* Estilo del nombre del jugador */
@@ -1076,7 +1080,7 @@ table {
 
 /* Estilo de datos */
 .ranking-data {
-    font-size: 1rem;
+    /* font-size: 1rem; */
     color: #ffffff;
 }
 
@@ -1612,163 +1616,6 @@ padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
 .actions li {
   margin: 0;
 }
-/* =================== ESTILOS RESPONSIVOS =================== */
-/* @media (max-width: 410px) {
-
-    .box-section {
-    flex-direction: column;
-    text-align: center;
-}
-
-    .box-text {
-    max-width: 100%;
-}
-
-    .box-img {
-    max-width: 80%;
-}
-
-  .listados, 
-  .ranking-table-container, 
-  .table-container {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-
-  .listados table,
-  .ranking-table,
-  .table {
-    min-width: 900px !important;
-    width: max-content !important;
-  }
-
-  table.table {
-    display: block;
-    overflow-x: auto !important;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch !important;
-    
-  }
-
-
-  table.table thead, table.table tbody {
-    display: table;
-    width: 100%;
-    table-layout: auto;
-  }
-
-
-  .login-box, .narrow-box, .largo, .form-container, .recuadro {
-    width: 90% !important;
-    max-width: 90% !important;
-    padding: 5px !important;
-  }
-
-  body  {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 5px !important;
-    box-sizing: border-box !important;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-
-  .listados{
-    width: 80% !important;
-    max-width: 80% !important;
-    padding: 5px !important;
-    box-sizing: border-box !important;
-    
-  }
-
-  .listados table {
-    min-width: 900px;
-  }
-
-  .listados thead {
-    font-size: 0.7rem;
-  }
-
-  .listados td, .listados th {
-    white-space: nowrap;
-    padding: 2px 3px;
-  }
-
-  .box-container, .form-container, .recuadros-container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .menu-principal {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
-    height: auto;
-    text-align: center;
-    padding: 2px 7px;
-  }
-
-  .nav-list {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    width: 100%;
-  }
-
-  .nav-item {
-    margin: 0;
-    padding: 3px 5px;
-    font-size: 12px;
-  }
-
-  .nav-item::after {
-    content: none;
-  }
-
-
-  .titulos {
-    font-size: 3rem;
-  }
-
-  .ranking-table, .barra-titulos {
-    font-size: 10px;
-    overflow-x: auto;
-    display: block;
-  }
-
-  .player-item, .barra-titulos {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .table-container {
-    overflow-x: auto;
-    width: 100%;
-  }
-
-  .ranking-button {
-    width: 100%;
-  }
-
-  .modal-content {
-    width: 95%;
-  }
-
-  .ranking-table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .ranking-table {
-    min-width: 900px;
-  }
-
-} */
 
 /*////////////////////////////////////////////////////////// NUEVOS ESTILOS //////////////////////////////////////////////////////////*/
 html, body {
