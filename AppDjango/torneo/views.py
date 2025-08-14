@@ -299,7 +299,11 @@ def handle_get_datos_torneo(request, torneo, es_doble, numero_jornada, canchas):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
-        jugadores = Jugador.objects.filter(ranking__torneo=torneo, ranking__activo=True).distinct().order_by('apellido', 'nombre')
+        # Traer jugadores del torneo sin usar ranking
+        jugadores = Jugador.objects.filter(
+            jugador_torneos__torneo=torneo  # relación que indica que el jugador participa en este torneo
+        ).distinct().order_by('apellido', 'nombre')
+
 
         return render(request, 'datos_torneo.html', {
             'torneo': torneo,
@@ -1238,8 +1242,8 @@ def partido_single(request, torneo_id):
     jornadas = Partido.objects.filter(torneo=torneo).values('jornada').distinct().order_by('jornada')
     numero_jornada = jornadas.count() + 1
     jugadores = Jugador.objects.filter(
-        ranking__torneo=torneo,
-        ranking__activo=True
+        # ranking__torneo=torneo,
+        # ranking__activo=True
     ).distinct().order_by('apellido', 'nombre')
 
 
@@ -1279,7 +1283,8 @@ def jornada_detalle(request, torneo_id, jornada):
         partidos = Partido.objects.filter(torneo=torneo, jornada=jornada).select_related(
             'jugador1', 'jugador2', 'cancha', 'resultado'
         )
-        jugadores = Jugador.objects.filter(ranking__torneo=torneo, ranking__activo=True).distinct().order_by('apellido', 'nombre')
+        jugadores = Jugador.objects.all().order_by('apellido', 'nombre')
+        # jugadores = Jugador.objects.filter(ranking__torneo=torneo, ranking__activo=True).distinct().order_by('apellido', 'nombre')
         canchas = Cancha.objects.all()
 
         return render(request, 'jornada_detalle.html', {
