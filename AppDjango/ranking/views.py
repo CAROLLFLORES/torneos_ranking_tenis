@@ -56,12 +56,12 @@ def calcular_ranking(torneo_id):
     if torneo.tipo_juego in ["Doble", "Mixto"]:
         participantes = torneo.equipos.all()
     else:
-        participantes = torneo.jugador_set.all()
+        participantes = Jugador.objects.filter(jugador_torneos__torneo=torneo)
 
     # Inicializar estructura
     ranking_data = {}
     for p in participantes:
-        ranking_data[p.id] = {
+        ranking_data[p.pk] = {  # <-- usar pk en vez de id
             "equipo": p if torneo.tipo_juego in ["Doble", "Mixto"] else None,
             "jugador": p if torneo.tipo_juego not in ["Doble", "Mixto"] else None,
             "pj": 0,
@@ -149,13 +149,13 @@ def calcular_ranking(torneo_id):
             continue
 
         # Partidos jugados
-        ranking_data[p1.id]["pj"] += 1
-        ranking_data[p2.id]["pj"] += 1
+        ranking_data[p1.pk]["pj"] += 1
+        ranking_data[p2.pk]["pj"] += 1
 
         # Sets ganados (esta función ya cuenta correctamente los 3 sets)
         sets1, sets2 = calcular_sets_ganados(resultado, es_doble)
-        ranking_data[p1.id]["sets"] += (sets1 - sets2)
-        ranking_data[p2.id]["sets"] += (sets2 - sets1)
+        ranking_data[p1.pk]["sets"] += (sets1 - sets2)
+        ranking_data[p2.pk]["sets"] += (sets2 - sets1)
 
         # ----- GAMES: base (solo primeros 2 sets) -----
         games_base1, games_base2 = calcular_games_ganados(resultado, es_doble)
@@ -183,20 +183,21 @@ def calcular_ranking(torneo_id):
         final_diff = base_diff + bonus
 
         # Aplicar diferencia final a ambos participantes (simétrico)
-        ranking_data[p1.id]["games"] += final_diff
-        ranking_data[p2.id]["games"] += -final_diff
+        ranking_data[p1.pk]["games"] += final_diff
+        ranking_data[p2.pk]["games"] += -final_diff
 
         # Ganados, perdidos y puntaje (por sets)
         if sets1 > sets2:
-            ranking_data[p1.id]["pg"] += 1
-            ranking_data[p2.id]["pp"] += 1
-            ranking_data[p1.id]["puntaje_total_categoria"] += 100
-            ranking_data[p2.id]["puntaje_total_categoria"] -= 50
+            ranking_data[p1.pk]["pg"] += 1
+            ranking_data[p2.pk]["pp"] += 1
+            ranking_data[p1.pk]["puntaje_total_categoria"] += 100
+            ranking_data[p2.pk]["puntaje_total_categoria"] -= 50
         else:
-            ranking_data[p2.id]["pg"] += 1
-            ranking_data[p1.id]["pp"] += 1
-            ranking_data[p2.id]["puntaje_total_categoria"] += 100
-            ranking_data[p1.id]["puntaje_total_categoria"] -= 50
+            ranking_data[p2.pk]["pg"] += 1
+            ranking_data[p1.pk]["pp"] += 1
+            ranking_data[p2.pk]["puntaje_total_categoria"] += 100
+            ranking_data[p1.pk]["puntaje_total_categoria"] -= 50
+
 
     # Ordenar ranking por puntaje (los que no jugaron van al final)
     ranking_list = sorted(
@@ -209,6 +210,7 @@ def calcular_ranking(torneo_id):
     return ranking_list
 
 def guardar_ranking_en_modelos(torneo, ranking_list):
+    categoria_default = torneo.torneo_categorias.first().categoria
     with transaction.atomic():
         for pos, data in enumerate(ranking_list, start=1):
             if torneo.tipo_juego in ["Doble", "Mixto"]:
@@ -223,7 +225,7 @@ def guardar_ranking_en_modelos(torneo, ranking_list):
                         "sets": data["sets"],
                         "games": data["games"],
                         "puntaje_total_categoria": data["puntaje_total_categoria"],
-                        "categoria": getattr(torneo, "categoria", None),
+                        "categoria": categoria_default,
                         "bimestre": 0,
                         "anio": 0,
                         "activo": True,
@@ -241,7 +243,7 @@ def guardar_ranking_en_modelos(torneo, ranking_list):
                         "sets": data["sets"],
                         "games": data["games"],
                         "puntaje_total_categoria": data["puntaje_total_categoria"],
-                        "categoria": getattr(torneo, "categoria", None),
+                        "categoria": categoria_default,
                         "bimestre": 0,
                         "anio": 0,
                         "activo": True,

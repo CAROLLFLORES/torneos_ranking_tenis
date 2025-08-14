@@ -8,7 +8,7 @@ class Ranking(models.Model):
     id_ranking = models.AutoField(primary_key=True)
     torneo = models.ForeignKey(Torneo, on_delete=models.CASCADE, related_name="rankings")
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, null=True, blank=True)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, default=19)
     posicion = models.IntegerField(default=0)
     pj = models.IntegerField(default=0)  # Partidos Jugados
     pg = models.IntegerField(default=0)  # Partidos Ganados
@@ -33,7 +33,7 @@ class RankingEquipo(models.Model):
     id_ranking_equipo = models.AutoField(primary_key=True)
     torneo = models.ForeignKey(Torneo, on_delete=models.CASCADE, related_name="rankings_equipos")
     equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE)
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, null=True, blank=True)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, default=19)
     posicion = models.IntegerField(default=0)
     pj = models.IntegerField(default=0)
     pg = models.IntegerField(default=0)
