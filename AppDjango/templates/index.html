@@ -15,10 +15,7 @@
       </p>
       <a href="{% url 'liga_publico' %}" class="hero-button">LIGA</a>
       
-      <!-- app -->
-      <button id="btnInstall" class="hero-button" style="display:none;margin-left:.5rem">
-        INSTALAR APP
-      </button>
+      
     </div>
 </section>
 
@@ -323,22 +320,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 })
 
-
-// boton para app 
-let deferredPrompt;
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  const btn = document.getElementById("btnInstall");
-  if (btn) btn.style.display = "inline-block";
-});
-document.getElementById("btnInstall")?.addEventListener("click", async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  document.getElementById("btnInstall").style.display = "none";
-});
 
 </script>
 
