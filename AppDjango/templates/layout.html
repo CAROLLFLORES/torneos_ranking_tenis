@@ -41,6 +41,9 @@
     <!-- Script personalizado -->
     <script src="{% static 'js/script.js' %}" defer></script>
 
+    <!--  App -->
+    <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
@@ -147,7 +150,7 @@
             {% endif %}
             <hr class="separator-negro">
         </ul>
-        <p class="copy">&copy; 2025 HERAAS. Todos los derechos reservados.</p>
+        <p class="copy">&copy; 2025. Todos los derechos reservados.</p>
     </div>
 
     {% if messages %}

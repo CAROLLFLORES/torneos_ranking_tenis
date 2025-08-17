@@ -2332,3 +2332,7 @@ def editar_sede(request, sede_id):
         else:
             messages.error(request, 'El nombre no puede estar vacío.')
         return redirect('listado_sedes')
+
+
+
+   

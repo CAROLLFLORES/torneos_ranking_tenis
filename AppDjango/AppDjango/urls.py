@@ -14,6 +14,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
+
 from django.contrib import admin
 from django.urls import path, include
 from loginAdmin import views as loginadmin_views
@@ -26,6 +28,8 @@ from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada,
 from ranking.views import ranking_torneo, ver_ranking, ranking_general
 from ranking.views import confirmar_ascenso_final, ascender_jugadores
 from django.contrib.auth import views as auth_views
+from torneo.views_pwa import manifest, service_worker
+
 
 
 urlpatterns = [
@@ -128,5 +132,10 @@ urlpatterns = [
 
 
     path('editar_sede/<int:sede_id>/', torneo_views.editar_sede, name='editar_sede'),
+
+
+    path("manifest.json", manifest, name="manifest"),
+    path("service-worker.js", service_worker, name="service_worker"),
+
 
 ]
