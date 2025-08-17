@@ -39,13 +39,13 @@
             </a>
             <ul class="nav-list">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'liga_publico' %}">&nbsp;LIGA&nbsp;</a>
+                    <a class="nav-link card" href="{% url 'liga_publico' %}">&nbsp;LIGA&nbsp;</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link " href="#alquiler-canchas">&nbsp;ALQUILER&nbsp;</a>
+                    <a class="nav-link card" href="#alquiler-canchas">&nbsp;ALQUILER&nbsp;</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link " href="#reparacion-canchas">REPARACIÓN CANCHAS</a>
+                    <a class="nav-link card" href="#reparacion-canchas">REPARACIÓN CANCHAS</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link card" href="https://www.instagram.com/aptenisshop/" target="_blank">&nbsp;TIENDA&nbsp;</a>
@@ -53,8 +53,15 @@
                 <li class="nav-item">
                     <a class="nav-link card" href="https://wa.me/5493413006495" target="_blank">&nbsp;CONTACTO&nbsp;</a>
                 </li>
-
-               
+                <li class="nav-item">
+                <a id="pwa-install-btn-top"
+                    class="nav-link card"
+                    href="#"
+                    onclick="installPWA(); return false;"
+                    style="visibility:hidden;" >
+                    &nbsp;INSTALAR APP&nbsp;
+                </a>
+                </li>
             </ul>
             <div class="nav-user">
                 <!-- Si estas logueado permite desloguearse -->
@@ -105,9 +112,18 @@
                 <hr class="separator-negro">
                 <li><a class="contact-link" href="https://wa.me/5493413006495" target="_blank">CONTACTO</a></li>
              <!-- Botón para instalar la PWA (se muestra solo cuando el navegador lo permite) -->
-                <li><button id="pwa-install-btn" onclick="installPWA()" style="display:none;" class="hero-button1">
-                    Instalar APP
-                </button></li>
+                <hr class="separator-negro">
+            <!-- Instalar APP con el mismo estilo que el resto -->
+                <!-- TOP NAV -->
+                <li>
+                <a id="pwa-install-btn-side" 
+                    href="#" onclick="installPWA(); return false;" style="display:none;">
+                    INSTALAR APP
+                </a>
+                </li>
+
+                </li>
+
             </ul>
             <p class="copy">&copy; 2025 - Todos los derechos reservados.</p>
         </div>
@@ -144,10 +160,7 @@
 
         
         <script>
-        
-        
-        // boton para app 
-          // Registrar Service Worker (una sola vez)
+        // Registrar Service Worker (necesario para que exista instalación)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
             navigator.serviceWorker.register('/service-worker.js')
@@ -156,22 +169,24 @@
             });
         }
 
-        // Botón "Instalar app"
+        // Mostrar/ocultar los dos botones
         let deferredPrompt;
+
+        function showInstallButtons(show) {
+        document.querySelectorAll('#pwa-install-btn-top, #pwa-install-btn-side')
+            .forEach(el => { 
+                if (el) el.style.visibility = show ? 'visible' : 'hidden';
+            });
+        }
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            const btn = document.getElementById('pwa-install-btn');
-            if (btn) btn.style.display = 'inline-flex';
+            showInstallButtons(true);
         });
 
-        function hideInstall() {
-            const btn = document.getElementById('pwa-install-btn');
-            if (btn) btn.style.display = 'none';
-        }
+        function hideInstall() { showInstallButtons(false); }
 
-        // Si ya está instalada, ocultar
         if (window.matchMedia('(display-mode: standalone)').matches) hideInstall();
         window.addEventListener('appinstalled', hideInstall);
 
@@ -182,10 +197,10 @@
             deferredPrompt = null;
             hideInstall();
         }
-
-        // Para que el onclick del botón funcione siempre
         window.installPWA = installPWA;
         </script>
+
+
 
     </body>
 </html>
