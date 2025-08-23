@@ -29,8 +29,7 @@ def contar_sets_ganados(set1_a, set1_b, set2_a, set2_b, set3_a, set3_b):
             sets_ganados += 1
     return sets_ganados
 
-
-
+# no se usa más 12/8
 def ranking_torneo(request, torneo_id):
     torneo = get_object_or_404(Torneo, id=torneo_id)
 
@@ -41,15 +40,22 @@ def ranking_torneo(request, torneo_id):
     return render(request, 'ranking.html', {'torneo': torneo, 'ranking': ranking})
 
 def ver_ranking(request, torneo_id):
-    torneo_actual = get_object_or_404(Torneo, id=torneo_id)
-    ranking = calcular_ranking(torneo_actual.id)
+    if torneo_id == 0:
+        torneo_actual = Torneo.objects.first()
+    else:
+        torneo_actual = get_object_or_404(Torneo, id=torneo_id)
+
+    ranking = calcular_ranking(torneo_actual.id, request.user) if torneo_actual else []
+
+    torneos = Torneo.objects.all().order_by("nombre")
 
     return render(request, "ranking.html", {
         "torneo_actual": torneo_actual,
-        "ranking": ranking
-    })    
+        "ranking": ranking,
+        "torneos": torneos 
+    })
 
-def calcular_ranking(torneo_id):
+def calcular_ranking(torneo_id, user=None):
     torneo = get_object_or_404(Torneo, id=torneo_id)
 
     # Participantes según tipo de torneo
@@ -169,7 +175,10 @@ def calcular_ranking(torneo_id):
             set3_1 = resultado.set3_jugador1
             set3_2 = resultado.set3_jugador2
 
-        third_played = (set3_1 is not None and set3_2 is not None)
+        third_played = (
+            set3_1 is not None and set3_2 is not None
+            and (set3_1 > 0 or set3_2 > 0)
+        )
 
         # Bonus según regla: si hubo tercer set, +1 al ganador del partido, -1 al perdedor.
         bonus = 0
@@ -205,7 +214,8 @@ def calcular_ranking(torneo_id):
         key=lambda x: (x["pj"] == 0, -x["puntaje_total_categoria"])
     )
     # Guarda en base de datos
-    # guardar_ranking_en_modelos(torneo, ranking_list)
+    if user and user.is_authenticated and user.is_staff:
+        guardar_ranking_en_modelos(torneo, ranking_list)
 
     return ranking_list
 
@@ -391,7 +401,7 @@ def actualizar_ranking(sender, instance, **kwargs):
     print(f"♻️ Ranking modificado - {ganador.nombre} ganó. Cambios aplicados correctamente.")
 
 
-# MODIFICAR!
+# no se usa mas!
 def ranking_general(request, torneo_id=None):
     torneos = Torneo.objects.all()
     contexto = {'torneos': torneos}

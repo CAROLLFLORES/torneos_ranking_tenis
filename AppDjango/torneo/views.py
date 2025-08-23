@@ -1728,9 +1728,6 @@ def historial_publico(request, torneo_id=None):
     if fecha:
         resultados = resultados.filter(partido__fecha=fecha)
 
-    # MOSTRAR TOTAL DE RESULTADOS
-    print("Total de resultados:", resultados.count())
-
     # 5) Ordeno y pagino (12 por página)
     resultados = resultados.order_by('-partido__fecha', '-partido__hora')
     paginator = Paginator(resultados, 20)

@@ -6,7 +6,7 @@
   <ul class="tournament-list">
     {% for torneo in torneos %}
       <li class="tournament-item">
-        <a href="{% url 'ranking_general' torneo.id %}">
+        <a href="{% url 'ver_ranking' 0 %}">
           <button class="login-button chico">
             {{ torneo.nombre|upper }}
           </button>

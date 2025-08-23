@@ -1027,8 +1027,7 @@ table {
   .ranking-table-container {
     padding: 10px;
     border-radius: 10px;
-    width: 100%;
-        
+    width: 70vw;      
 }
 
 .ranking-table {
@@ -1076,6 +1075,8 @@ table {
 .ranking-name {
     font-weight: bold;
     color: #ffd700;
+    line-height: 1.2em;
+    padding: 2px 5px;
 }
 
 /* Estilo de datos */
@@ -1223,8 +1224,9 @@ table {
 
 /* Alinear el texto del nombre del jugador a la izquierda */
 .ranking-table td:nth-child(2) { /* Segunda columna (nombre del jugador) */
-text-align: left;
-padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
+    text-align: left;
+    padding-left: 1rem;
+
 }
 
 
@@ -1951,13 +1953,14 @@ html, body {
 
 .boton-grande {
     width: 220px;
-    height: 55px;
-    font-size: 1.2rem;
+    height: 50px;
+    font-size: 1rem;
+    font-family: 'Open Sans', sans-serif;
     font-weight: bold;
     border-radius: 10px;
     padding: 5px 10px;
     text-align: center;
-    background-color: orange;
+    background-color: rgb(165, 83, 15);
     color: white;
     border: none;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
@@ -1965,7 +1968,7 @@ html, body {
 }
 
 .boton-grande:hover {
-    background-color: rgb(165, 83, 15);
+    background-color: orange;
     transform: scale(1.03);
 }
 
@@ -2155,9 +2158,9 @@ html, body {
 
 /* Estilo general de la tabla */
 .tabla-usuarios {
-  width: 100%;
+  width: auto;
   border-collapse: collapse;
-  min-width: 600px; /* evita que se aplaste */
+  min-width: 100%; /* evita que se aplaste */
   margin-bottom: .5rem;
 }
 
@@ -3285,6 +3288,9 @@ td.set input {
     }
     .btn-opciones-gris {
         width: auto;
+    }
+    .ranking-table-container {
+        width: 85vw;      
     }
 
 }

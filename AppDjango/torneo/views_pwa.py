@@ -29,7 +29,9 @@ const OFFLINE_URLS = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(OFFLINE_URLS)));
+  event.waitUntil(
+    caches.open(CACHE).then((cache) => cache.addAll(OFFLINE_URLS))
+  );
   self.skipWaiting();
 });
 
@@ -42,10 +44,25 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
   event.respondWith(
-    fetch(event.request)
-      .then(res => { caches.open(CACHE).then(c => c.put(event.request, res.clone())); return res; })
-      .catch(() => caches.match(event.request).then(m => m || caches.match("/")))
+    (async () => {
+      try {
+        const response = await fetch(event.request);
+
+        // ⚡ Solo cachear HTTP/HTTPS
+        if (event.request.url.startsWith("http")) {
+          const cache = await caches.open(CACHE);
+          cache.put(event.request, response.clone());
+        }
+
+        return response;
+      } catch (err) {
+        // fallback offline
+        const cached = await caches.match(event.request);
+        return cached || caches.match("/");
+      }
+    })()
   );
 });
 """

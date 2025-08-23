@@ -2,10 +2,6 @@
 {% load static %}
 
 {% block body_class %}fondo-secundario{% endblock %}
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
 {% block content %}
@@ -20,12 +16,48 @@
         <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">RANKING</h5>
     </div>
 
-    <div id="resultados" style="cursor: pointer;">
-        <a  onclick="generarPDF()"
-            class="a-options">
-            <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
-            DESCARGAR EN PDF
-        </a>
+    <!-- FILTROS -->
+    <div class="recuadro-tabla">
+        <!-- NOTA: id="toggle-crear" agregar en div de opciones para cerrar y abrir panel -->
+        <div style="cursor: pointer;" class="green-box-title-btn">
+            <h4 style="margin: 0;">FILTROS</h4>
+        </div>
+        <!-- id="form-crear"  agregar en div de form container sumado a clase hidden para cerrar y abrir panel -->
+        <div class="form-container-torneos">
+
+            <div class="container-form-filter">
+                <div class="filtro-busqueda1">
+                    <span for="torneo_id" class="span-filter">TORNEOS</span>
+                    <select id="torneo_id" class="form-select"
+                            onchange="location = this.value;">
+                        <option value="{% url 'ver_ranking' 0 %}"
+                            {% if not torneo_actual %}selected{% endif %}>
+                            -- Primer Torneo --
+                        </option>
+                        {% for torneo in torneos %}
+                            <option value="{% url 'ver_ranking' torneo.id %}" 
+                                    {% if torneo_actual and torneo.id == torneo_actual.id %}selected{% endif %}>
+                                {{ torneo.nombre|upper }}
+                            </option>
+                        {% empty %}
+                            <option disabled>No hay torneos disponibles</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div id="resultados">
+                <a onclick="generarPDF()" class="a-options" style="cursor: pointer;">
+                    <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
+                    DESCARGAR EN PDF
+                </a>
+                {% if user.is_authenticated and user.is_staff %}
+                <a class="a-options" href="{% url 'admin_menu' %}">
+                    <i class="bi bi-box-arrow-right" style="margin-right: 5px;"></i>
+                    MENÚ ADMINISTRADOR
+                </a>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
     <!-- MODAL ASCENSO -->
@@ -105,6 +137,11 @@
     <!-- Contenedor Principal -->
     <div class="">
         <div class="recuadro-tabla ranking-table-container">
+            {% if torneo_actual %}
+            <h4 style="color: white; letter-spacing: 2px; margin: 0rem 0rem !important;">Ranking - {{ torneo_actual.nombre }}</h4>
+            {% else %}
+            <h2 class="titulo-ranking">Ranking - Primer Torneo</h2>
+            {% endif %}
             <form method="POST" action="{% if torneo_actual.tipo in 'DobleMixto' %}{% url 'confirmar_ascenso_final' %}{% else %}{% url 'confirmar_ascenso_final' %}{% endif %}" id="formAscenso">
                 {% csrf_token %}
                 <input type="hidden" name="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}equipos_json{% else %}jugadores_json{% endif %}" id="seleccionados_json">
@@ -204,23 +241,33 @@
     </div>
 </div>
 
+<style>
+    /* Fuerza a que la tabla clonada se vea siempre como escritorio */
+.force-desktop {
+  width: 1000px !important;   /* ancho fijo grande */
+  font-size: 12px !important; /* tamaño uniforme */
+  white-space: nowrap !important; /* evita cortes de línea */
+  overflow: visible !important;   /* asegura que no haya scroll escondido */
+}
+</style>
+
 <script>
-    document.getElementById("btnAbrirModalAscenso").addEventListener("click", function () {
-        const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
-            .map(input => input.value);
+    // document.getElementById("btnAbrirModalAscenso").addEventListener("click", function () {
+    //     const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
+    //         .map(input => input.value);
     
-        if (seleccionados.length === 0) {
-            const mensaje = document.getElementById("modalAdvertenciaMensaje");
-            mensaje.textContent = "Debes seleccionar al menos un jugador para poder realizar el ascenso.";
-            new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
-            return;
-        }
+    //     if (seleccionados.length === 0) {
+    //         const mensaje = document.getElementById("modalAdvertenciaMensaje");
+    //         mensaje.textContent = "Debes seleccionar al menos un jugador para poder realizar el ascenso.";
+    //         new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
+    //         return;
+    //     }
     
-        document.getElementById("seleccionados_json").value = JSON.stringify(seleccionados);
+    //     document.getElementById("seleccionados_json").value = JSON.stringify(seleccionados);
 
     
-        new bootstrap.Modal(document.getElementById("modalAscenso")).show();
-    });
+    //     new bootstrap.Modal(document.getElementById("modalAscenso")).show();
+    // });
     
     // ✅ Al hacer submit, ahora sí toma el torneo elegido
     document.getElementById("formAscenso").addEventListener("submit", function () {
@@ -229,42 +276,42 @@
     });
 
 // ✅ DESCENSO
-document.getElementById("btnAbrirModalDescenso").addEventListener("click", function () {
-    const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
-        .map(input => input.value);
+// document.getElementById("btnAbrirModalDescenso").addEventListener("click", function () {
+//     const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
+//         .map(input => input.value);
 
-    if (seleccionados.length === 0) {
-        const mensaje = document.getElementById("modalAdvertenciaMensaje");
-        mensaje.textContent = "Debes seleccionar al menos un jugador para continuar.";
-        new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
-        return;
-    }
+//     if (seleccionados.length === 0) {
+//         const mensaje = document.getElementById("modalAdvertenciaMensaje");
+//         mensaje.textContent = "Debes seleccionar al menos un jugador para continuar.";
+//         new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
+//         return;
+//     }
 
-    // Setear seleccionados
-    document.getElementById("seleccionados_json").value = JSON.stringify(seleccionados);
+//     // Setear seleccionados
+//     document.getElementById("seleccionados_json").value = JSON.stringify(seleccionados);
 
-    // Obtener torneo destino
-    const selectTorneo = document.querySelector("#modalDescenso select[name='torneo_destino']");
-    if (selectTorneo) {
-        document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
-    }
+//     // Obtener torneo destino
+//     const selectTorneo = document.querySelector("#modalDescenso select[name='torneo_destino']");
+//     if (selectTorneo) {
+//         document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
+//     }
 
-    // Abrir modal
-    new bootstrap.Modal(document.getElementById("modalDescenso")).show();
-});
+//     // Abrir modal
+//     new bootstrap.Modal(document.getElementById("modalDescenso")).show();
+// });
 
 // ✅ Confirmar DESCENSO (envía el form)
-document.getElementById("btnConfirmarDescenso").addEventListener("click", function () {
-    const selectTorneo = document.querySelector("#modalDescenso select[name='torneo_destino']");
-    if (selectTorneo && selectTorneo.value) {
-        document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
-        document.getElementById("formAscenso").submit();
-    } else {
-        const mensaje = document.getElementById("modalAdvertenciaMensaje");
-        mensaje.textContent = "Seleccioná un torneo destino antes de continuar.";
-        new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
-    }
-});
+// document.getElementById("btnConfirmarDescenso").addEventListener("click", function () {
+//     const selectTorneo = document.querySelector("#modalDescenso select[name='torneo_destino']");
+//     if (selectTorneo && selectTorneo.value) {
+//         document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
+//         document.getElementById("formAscenso").submit();
+//     } else {
+//         const mensaje = document.getElementById("modalAdvertenciaMensaje");
+//         mensaje.textContent = "Seleccioná un torneo destino antes de continuar.";
+//         new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
+//     }
+// });
 </script>
 
 
@@ -279,8 +326,9 @@ async function generarPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         const torneoNombre = "{{ torneo_actual.nombre|escapejs }}";
-        const logoUrl = "{% static 'imagenes/apur.png' %}";  // ✅ RUTA CORRECTA
+        const logoUrl = "{% static 'imagenes/apur.png' %}";
 
+        // Cargar logo
         const logoImg = await new Promise((resolve, reject) => {
             const img = new Image();
             img.src = logoUrl;
@@ -288,41 +336,62 @@ async function generarPDF() {
             img.onerror = () => reject("❌ No se pudo cargar el logo.");
         });
 
+        // Clonar tabla y ocultar columnas que no queremos
         const tablaOriginal = document.querySelector('.ranking-table-container');
         const tablaClon = tablaOriginal.cloneNode(true);
+
+        // Forzar clase de escritorio
+        tablaClon.classList.add("force-desktop");
 
         const columnasOcultas = tablaClon.querySelectorAll(
             'th:nth-child(9), th:nth-child(10), td:nth-child(9), td:nth-child(10)'
         );
         columnasOcultas.forEach(col => col.style.display = 'none');
 
+        // Reducir tamaño de fuente para que no se corte
+        tablaClon.style.fontSize = '12px';
+
+        // Crear contenedor oculto para renderizar
         const contenedorOculto = document.createElement('div');
         contenedorOculto.style.position = 'absolute';
         contenedorOculto.style.left = '-9999px';
         contenedorOculto.appendChild(tablaClon);
         document.body.appendChild(contenedorOculto);
 
-        const canvas = await html2canvas(tablaClon, { scale: 2 });
-        const imgData = canvas.toDataURL('image/png');
-        const imgProps = doc.getImageProperties(imgData);
+        const tablaWidth = 150;
         const pdfWidth = doc.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        const x = (pdfWidth - tablaWidth) / 2;
 
-        doc.addImage(logoImg, 'PNG', 90, 10, 30, 15);
-        doc.setFontSize(16);
+        // Agregar logo y título en la primera página
+        const logoWidth = 30;
+        const ratio = logoImg.height / logoImg.width;
+        const logoHeight = logoWidth * ratio;
+        doc.addImage(logoImg, 'PNG', 90, 10, logoWidth, logoHeight);
+        doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
-        doc.text(`RANKING - ${torneoNombre}`, 105, 30, { align: 'center' });
+        doc.setTextColor(70);     // gris
+        doc.text(`RANKING - ${torneoNombre}`, 105, 34, { align: 'center' });
 
-        doc.addImage(imgData, 'PNG', 0, 40, pdfWidth, pdfHeight);
+        // Renderizar tabla HTML al PDF con paginación automática
+        await doc.html(tablaClon, {
+            x: x,
+            y: 40,
+            width: tablaWidth,
+            windowWidth: 1200,
+            // windowWidth: tablaClon.scrollWidth,
+            autoPaging: 'text'
+        });
+
+        // Guardar PDF
         doc.save(`Ranking_${torneoNombre.replace(/\s+/g, '_')}.pdf`);
 
+        // Limpiar contenedor oculto
         document.body.removeChild(contenedorOculto);
     } catch (error) {
         console.error("❌ Error al generar PDF:", error);
-        alert("No se pudo generar el PDF. Verificá que el logo esté disponible.");
+        alert("No se pudo generar el PDF. Por favor, intentá nuevamente.");
     }
 }
-
 
 </script>
 

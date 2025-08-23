@@ -12,7 +12,7 @@
   {% endif %}
   <div class="text-section">
       <hr class="separator-line">
-      <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">HISTORIAL DE PARTIDOS</h5>
+      <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">RESULTADOS PARTIDOS</h5>
   </div>
 
   <!-- FILTROS -->
@@ -55,8 +55,11 @@
                       onchange="this.form.submit()">
               </form>
             </div>
-            
 
+            <a onclick="generarPDFResultados()" class="a-options" style="cursor: pointer;">
+                <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
+                DESCARGAR EN PDF
+            </a>
 
             {% if user.is_authenticated and user.is_staff %}
             <div id="resultados">
@@ -65,7 +68,6 @@
                     MENÚ ADMINISTRADOR
                 </a>
             </div>
-            
             {% endif %}
           </div>
       </div>
@@ -181,6 +183,7 @@
 }
 
 .grid-container {
+  justify-content: center;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 15px;
@@ -290,6 +293,8 @@
     
 
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 
 <script>
@@ -298,5 +303,105 @@ document.getElementById('torneo_id').addEventListener('change', function() {
         window.location.href = this.value;
     }
 });
+async function generarPDFResultados() {
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        const torneoNombre = "{{ torneo_actual.nombre|escapejs }}";
+        const logoUrl = "{% static 'imagenes/apur.png' %}";
+
+        // Cargar logo
+        const logoImg = await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = logoUrl;
+            img.onload = () => resolve(img);
+            img.onerror = () => reject("❌ No se pudo cargar el logo.");
+        });
+
+        const tablaOriginal = document.querySelector('.grid-container');
+        if (!tablaOriginal) {
+            alert("No hay resultados para generar PDF");
+            return;
+        }
+
+        const contenedorOculto = document.createElement('div');
+        contenedorOculto.style.position = 'absolute';
+        contenedorOculto.style.left = '-9999px';
+        contenedorOculto.style.width = "800px"; // controlar ancho de render
+        document.body.appendChild(contenedorOculto);
+
+        const tablaClon = tablaOriginal.cloneNode(true);
+
+        // 🔹 Grilla adaptada para PDF
+        tablaClon.style.display = "grid";
+        tablaClon.style.gridTemplateColumns = "repeat(3, 1fr)"; // 3 columnas
+        tablaClon.style.gap = "6px"; // menos espacio entre tarjetas
+        tablaClon.style.margin = "0";
+
+        // 🔹 Estilos de tarjetas compactas
+        tablaClon.querySelectorAll(".partido-card").forEach(card => {
+          card.style.fontSize = "9px";   // base más chica
+          card.style.padding = "2px 3px";  // menos altura
+          card.style.margin = "0";
+          card.style.border = "1px solid #aaa";
+          card.style.borderRadius = "4px";
+          card.style.minHeight = "auto";
+          card.style.height = "auto";
+          card.style.lineHeight = "1.2";
+        });
+        // 🔹 Ajustar nombres de jugadores
+        tablaClon.querySelectorAll(".partido-card .jugador-nombre").forEach(el => {
+            el.style.fontSize = "9px";
+            el.style.fontWeight = "600";
+        });
+
+        // 🔹 Ajustar info secundaria (ganador, cancha, hora)
+        tablaClon.querySelectorAll(".partido-card .ganador, .partido-card .cancha, .partido-card .hora").forEach(el => {
+            el.style.fontSize = "9px";
+            el.style.fontWeight = "normal";
+        });
+                // 🔹 Quitar los íconos
+        tablaClon.querySelectorAll("p.torneo-nombre").forEach(p => {
+            p.innerHTML = `<strong>${p.textContent.replace("🏆", "").trim()}</strong>`;
+        });
+        tablaClon.querySelectorAll("p.ganador").forEach(p => {
+            p.innerHTML = `<strong>Ganador:</strong> ${p.textContent.replace("🏅", "").trim()}`;
+        });
+
+        contenedorOculto.appendChild(tablaClon);
+
+        // Configuración PDF
+        const pdfWidth = doc.internal.pageSize.getWidth();
+        const tablaWidth = 190; // ocupar casi todo el ancho
+        const x = (pdfWidth - tablaWidth) / 2;
+
+        // Logo y título
+        const logoWidth = 20;
+        const ratio = logoImg.height / logoImg.width;
+        const logoHeight = logoWidth * ratio;
+
+        doc.addImage(logoImg, 'PNG', 95, 8, logoWidth, logoHeight);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(70);
+        doc.text(`RESULTADOS - ${torneoNombre}`, 105, 28, { align: 'center' });
+
+        // Renderizar HTML
+        await doc.html(tablaClon, {
+            x: x,
+            y: 35,
+            width: tablaWidth,
+            windowWidth: 800, // el mismo ancho que el clon
+            autoPaging: 'text'
+        });
+
+        doc.save(`Resultados_${torneoNombre.replace(/\s+/g, '_')}.pdf`);
+        document.body.removeChild(contenedorOculto);
+    } catch (error) {
+        console.error("❌ Error al generar PDF:", error);
+        alert("No se pudo generar el PDF. Por favor, intentá nuevamente.");
+    }
+}
+
 </script>
 {% endblock %}

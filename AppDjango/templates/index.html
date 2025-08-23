@@ -266,7 +266,7 @@
 
   let indexCanchas = 0;
   const imgCanchas = document.getElementById("img-cambio-canchas");
-  const flashCanchas = imgCanchas.nextElementSibling;
+  const flashCanchas = imgCanchas?.nextElementSibling;
 
   function cambiarImagenCanchas() {
     // Flash y zoom in
@@ -285,10 +285,12 @@
   }
 
   // Inicializar imagen
-  imgCanchas.style.backgroundImage = `url('${imagenesCanchas[0]}')`;
+  if (imgCanchas) {
+    imgCanchas.style.backgroundImage = `url('${imagenesCanchas[0]}')`;
+  }
 
   // Cambiar cada 3 segundos
-  setInterval(cambiarImagenCanchas, 3000);
+  // setInterval(cambiarImagenCanchas, 3000);
 
 
   // Este script debe correr para que aparezca el texto
