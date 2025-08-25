@@ -154,6 +154,21 @@ def calcular_ranking(torneo_id, user=None):
         if p1 is None or p2 is None:
             continue
 
+        # NUEVO: agregar participantes faltantes automáticamente
+        for p in [p1, p2]:
+            if p.pk not in ranking_data:
+                ranking_data[p.pk] = {
+                    "equipo": p if es_doble else None,
+                    "jugador": p if not es_doble else None,
+                    "pj": 0,
+                    "pg": 0,
+                    "pp": 0,
+                    "sets": 0,
+                    "games": 0,
+                    "puntaje_total_categoria": 0,
+                }
+                print(f"[INFO] Nuevo participante detectado y agregado: {p} (pk={p.pk})")
+
         # Partidos jugados
         ranking_data[p1.pk]["pj"] += 1
         ranking_data[p2.pk]["pj"] += 1
