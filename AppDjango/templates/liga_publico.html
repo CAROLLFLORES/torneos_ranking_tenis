@@ -3,44 +3,46 @@
 
 {% block content %}
 <div class="containerLayout">
-    <h4>GESTOR DE TORNEOS</h4>
-    <div class="text-section"></a>
-        <hr class="separator-line">
-        <p></p>
-    </div>
 
     <!-- Logo principal -->
     <div class="logoLayout fade-in">
         <img src="{% static 'imagenes/logo apur.png' %}" alt="Logo">
     </div>
 
+    <p class="hero-subtitle" style="font-size: 1.3rem !important; margin-bottom: .5rem;">Bienvenido a la Liga 2025!</p>
+    <p class="hero-subtitle" style="font-size: 1.3rem !important; margin:0rem">Elegí qué queres ver:</p>
+    <!-- <div class="text-section"></a>
+        <hr class="separator-line">
+        <p></p>
+    </div> -->
+
     <br>
     <!-- Botón personalizado grande -->
-    <div class="box-section fade-in slide-up">
+    <div class="box-section fade-in slide-up" style="margin:.3rem">
         <a href="{% url 'listado_jugadores' %}">
             <button class="boton-grande">JUGADORES</button>
         </a>
     </div>
     <!-- Botón personalizado grande -->
-    <div class="box-section fade-in slide-up">
+    <div class="box-section fade-in slide-up" style="margin:.3rem">
         <a href="{% url 'historial_publico' %}">
-            <button class="boton-grande">HISTORIAL</button>
+            <button class="boton-grande">RESULTADOS</button>
         </a>
     </div>
 
     <!-- Botón personalizado grande -->
-    <div class="box-section fade-in slide-up">
+    <div class="box-section fade-in slide-up" style="margin:.3rem">
+        <a href="{% url 'ver_ranking' 0 %}">
+            <button class="boton-grande">RANKING</button>
+        </a>
+    </div>
+
+    <!-- Botón personalizado grande -->
+    <div class="box-section fade-in slide-up" style="margin:.3rem">
         <a href="{% url 'listado_sedes' %}">
             <button class="boton-grande">SEDES</button>
         </a>
     </div>
-
-        <!-- Botón personalizado grande -->
-    <!-- <div class="box-section fade-in slide-up">
-        <a href="{% url 'ranking_general' %}">
-            <button class="boton-grande">RANKING</button>
-        </a>
-    </div> -->
 
 </div>
 {% endblock %}

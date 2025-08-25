@@ -616,8 +616,8 @@ background-color: transparent; /* 'none' no es válido */
     align-items: flex-start; /* Alinea los elementos al inicio del contenedor (parte superior) */
     gap: 20px; /* Espacio entre los elementos */
     width: 100%; /* Asegura que el contenedor ocupe el 100% del ancho disponible */
-    max-width: 1200px; /* Ajusta el ancho máximo según tus necesidades */
-    margin: 0 auto; /* Centra el contenedor */
+    /* max-width: 1200px; */
+    margin: 0 auto;
 }
 
 .narrow-box {
@@ -863,6 +863,14 @@ background-color: transparent; /* 'none' no es válido */
     font-weight: bold;
 }
 
+.table-success th:first-child {
+    border-top-left-radius: 10px; /* Esquina superior izquierda */
+}
+
+.table-success th:last-child {
+    border-top-right-radius: 10px; /* Esquina superior derecha */
+}
+
 .close:hover,
 .close:focus {
     color: black;
@@ -872,10 +880,10 @@ background-color: transparent; /* 'none' no es válido */
 
 /* Estilo para la barra de color en el encabezado */
 .table-success {
-    background-color: #cfcfcf; /* Color de fondo de la barra del encabezado */
-    color: #0f0f0f; /* Color del texto */
-    text-align: center; /* Centrar los textos */
-    font-weight: bold; /* Poner los títulos en negrita */
+    background-color: #cddf80;
+    color: #313131;
+    text-align: center;
+    font-size: .9rem;
 }
 
 /* Estilo para las filas de los jugadores */
@@ -1019,19 +1027,15 @@ table {
   .ranking-table-container {
     padding: 10px;
     border-radius: 10px;
-    width: 100%;
-        
+    width: 70vw;      
 }
 
-
-/* Estilo de la tabla */
 .ranking-table {
     width: 100%;
     text-align: center;
-    border-collapse: separate; /* Importante: separa los bordes */
-    border-spacing: 0 10px; /* Espaciado entre filas */
-    background-color: transparent; /* Hace el fondo completamente transparente */
-    
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    background-color: transparent;
 }
 
 /* Aumenta el espacio entre filas */
@@ -1061,22 +1065,23 @@ table {
 /* Posición del ranking */
 .ranking-position {
     font-weight: bold;
-    background: linear-gradient(45deg, #ffcc00, #ff8800);
-    color: black;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    background-color: #cddf80;
+    color: rgb(49, 48, 48);
     padding: 5px;
-    border-radius: 5px;
+    /* border-radius: 5px; */
 }
 
 /* Estilo del nombre del jugador */
 .ranking-name {
     font-weight: bold;
     color: #ffd700;
+    line-height: 1.2em;
+    padding: 2px 5px;
 }
 
 /* Estilo de datos */
 .ranking-data {
-    font-size: 1rem;
+    /* font-size: 1rem; */
     color: #ffffff;
 }
 
@@ -1219,8 +1224,9 @@ table {
 
 /* Alinear el texto del nombre del jugador a la izquierda */
 .ranking-table td:nth-child(2) { /* Segunda columna (nombre del jugador) */
-text-align: left;
-padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
+    text-align: left;
+    padding-left: 1rem;
+
 }
 
 
@@ -1612,163 +1618,6 @@ padding-left: 15px; /* Espacio a la izquierda para mejor visualización */
 .actions li {
   margin: 0;
 }
-/* =================== ESTILOS RESPONSIVOS =================== */
-/* @media (max-width: 410px) {
-
-    .box-section {
-    flex-direction: column;
-    text-align: center;
-}
-
-    .box-text {
-    max-width: 100%;
-}
-
-    .box-img {
-    max-width: 80%;
-}
-
-  .listados, 
-  .ranking-table-container, 
-  .table-container {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-
-  .listados table,
-  .ranking-table,
-  .table {
-    min-width: 900px !important;
-    width: max-content !important;
-  }
-
-  table.table {
-    display: block;
-    overflow-x: auto !important;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch !important;
-    
-  }
-
-
-  table.table thead, table.table tbody {
-    display: table;
-    width: 100%;
-    table-layout: auto;
-  }
-
-
-  .login-box, .narrow-box, .largo, .form-container, .recuadro {
-    width: 90% !important;
-    max-width: 90% !important;
-    padding: 5px !important;
-  }
-
-  body  {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 5px !important;
-    box-sizing: border-box !important;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-
-  .listados{
-    width: 80% !important;
-    max-width: 80% !important;
-    padding: 5px !important;
-    box-sizing: border-box !important;
-    
-  }
-
-  .listados table {
-    min-width: 900px;
-  }
-
-  .listados thead {
-    font-size: 0.7rem;
-  }
-
-  .listados td, .listados th {
-    white-space: nowrap;
-    padding: 2px 3px;
-  }
-
-  .box-container, .form-container, .recuadros-container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .menu-principal {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
-    height: auto;
-    text-align: center;
-    padding: 2px 7px;
-  }
-
-  .nav-list {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    width: 100%;
-  }
-
-  .nav-item {
-    margin: 0;
-    padding: 3px 5px;
-    font-size: 12px;
-  }
-
-  .nav-item::after {
-    content: none;
-  }
-
-
-  .titulos {
-    font-size: 3rem;
-  }
-
-  .ranking-table, .barra-titulos {
-    font-size: 10px;
-    overflow-x: auto;
-    display: block;
-  }
-
-  .player-item, .barra-titulos {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .table-container {
-    overflow-x: auto;
-    width: 100%;
-  }
-
-  .ranking-button {
-    width: 100%;
-  }
-
-  .modal-content {
-    width: 95%;
-  }
-
-  .ranking-table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .ranking-table {
-    min-width: 900px;
-  }
-
-} */
 
 /*////////////////////////////////////////////////////////// NUEVOS ESTILOS //////////////////////////////////////////////////////////*/
 html, body {
@@ -2072,6 +1921,8 @@ html, body {
     padding: 20px;
 }
 
+/* MODAL */
+
 .modal {
     display: none;
     position: fixed;
@@ -2081,6 +1932,15 @@ html, body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5); 
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 40%;
+    text-align: center;
 }
 
 .box-section{
@@ -2093,13 +1953,14 @@ html, body {
 
 .boton-grande {
     width: 220px;
-    height: 55px;
-    font-size: 1.2rem;
+    height: 50px;
+    font-size: 1rem;
+    font-family: 'Open Sans', sans-serif;
     font-weight: bold;
     border-radius: 10px;
     padding: 5px 10px;
     text-align: center;
-    background-color: orange;
+    background-color: rgb(165, 83, 15);
     color: white;
     border: none;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
@@ -2107,7 +1968,7 @@ html, body {
 }
 
 .boton-grande:hover {
-    background-color: rgb(165, 83, 15);
+    background-color: orange;
     transform: scale(1.03);
 }
 
@@ -2297,9 +2158,9 @@ html, body {
 
 /* Estilo general de la tabla */
 .tabla-usuarios {
-  width: 100%;
+  width: auto;
   border-collapse: collapse;
-  min-width: 600px; /* evita que se aplaste */
+  min-width: 100%; /* evita que se aplaste */
   margin-bottom: .5rem;
 }
 
@@ -3021,6 +2882,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     width: 40vw;
 }
 
+.container-form-modal {
+    display: inline-block;
+    text-align: start;
+    align-items: center;
+    justify-content: center;
+    margin: auto auto;
+    width: 40vw;
+}
+
 .torneo-listado {
   text-align: left;
   color: white;
@@ -3130,14 +3000,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   background-color: #2196F3;
 }
 
-.modal-content {
-    background-color: white;
-    margin: 15% auto;
-    padding: 20px;
-    border-radius: 10px;
-    width: 40%;
-    text-align: center;
-}
 
 .modal-buttons {
     display: flex;
@@ -3216,7 +3078,16 @@ td.set input {
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
-    background-color: #2b2b2b; /* fondo oscuro similar al tema actual */
+    background-color: #2d2f23;
+}
+
+.categorias-box1 {
+    max-height: 100px;
+    overflow-y: auto; 
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #2d2f23;
 }
 
 .categorias-box ul {
@@ -3245,6 +3116,46 @@ td.set input {
     font-size: .9rem;
     font-weight: 400;
 }
+
+.modal-content1 {
+    background-color: rgba(23, 22, 21, 0.95);
+    border-radius: 15px;
+    border: 2px solid #cddf80;
+    box-shadow: 2px 8px 16px rgb(40, 39, 39);
+    color: white;
+    font-family: 'Open Sans', sans-serif;
+    margin: 10% auto 1rem auto !important;
+    padding: 20px;
+    width: 40%;
+    text-align: start !important;
+}
+
+.modal-header1 {
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem !important;
+    display: flex;
+    font-weight: bold;
+}
+
+.modal-title {
+    color: #cddf80 !important;
+    font-size: .9rem !important;
+    margin: 0 !important;
+}
+
+.btn-close-custom {
+    background: transparent;
+    border: none;
+    color: #918f8f;
+    font-size: 1.8rem;
+    margin: 0 !important;
+    cursor: pointer;
+}
+
+.btn-close-custom:hover {
+    color: #cddf80
+} 
 
 /*////////////////////////////////////////////////////////// NUEVOS ESTILOS RESPOSIVE //////////////////////////////////////////////////////////*/
 @media (max-width: 1220px) {
@@ -3282,6 +3193,12 @@ td.set input {
     }
     .categorias-box li {
       padding-top: .5rem;
+    }
+    .modal-content1 {
+        width: 80vw;
+    }
+    .container-form-modal {
+        width: 100%;
     }
 
 }
@@ -3371,6 +3288,9 @@ td.set input {
     }
     .btn-opciones-gris {
         width: auto;
+    }
+    .ranking-table-container {
+        width: 85vw;      
     }
 
 }

@@ -4,14 +4,13 @@
 
 {% block content %}
 <div class="container-admin">
-    {% if user.is_authenticated %}
-        <h4>DATOS DE JUGADOR</h4>
-    {% else %}
-        <h4>LIGA 2025</h4>
-    {% endif %}
-
+    <h4>LIGA 2025</h4>
     <div class="text-section">
         <hr class="separator-line">
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">DATOS DE JUGADOR</h5>
+    </div>
+
+    <div class="text-section">
         <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">
             {% if torneo.es_master %}MASTER - {% endif %}{{ torneo.nombre|upper }}
         </h5>
@@ -20,17 +19,16 @@
     <!-- Info jugador -->
     <div class="recuadro-tabla">
         <div class="green-box-title-btn">
-            <div class="green-box-title-btn" style="margin-bottom: 1rem;">
-                <h1 style="margin: 0;">
+            <div class="green-box-title-btn" >
+                <h4 style="margin: 0; font-size: 1rem;">
                     {{ jugador.apellido|upper }} {{ jugador.nombre }}
-                </h1>
+                </h4>
             </div>
         </div>
-
-        <div class="player-details">
-            <p style="color:rgba(210, 223, 101, 0.85);"><strong>Datos</strong></p>
-            <div class="details-box">
-                <h3 style="color:white;"><strong>Sexo:</strong> 
+        <div class="form-container-torneos grid-container">
+            <div class="history-item">
+                <div class="player-data" style="text-align: left; color:white;">
+                    <p>Sexo:
                     {% if jugador.sexo == "M" %}
                         Masculino
                     {% elif jugador.sexo == "F" %}
@@ -38,7 +36,8 @@
                     {% else %}
                         No especificado
                     {% endif %}
-                </h3>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
@@ -46,13 +45,13 @@
     <!-- Torneos actuales -->
     <div class="recuadro-tabla">
         <div class="green-box-title-btn">
-            <h4>TORNEOS ACTUALES</h4>
+            <h4 style="margin: 0; font-size: 1rem;">TORNEOS ACTUALES</h4>
         </div>
         <div class="form-container-torneos grid-container">
             {% for data in torneos_data %}
                 <div class="history-item">
                     <div class="player-data" style="text-align: left; color:white;">
-                        <p><strong>TORNEO:</strong> {{ data.nombre }}</p>
+                        <p>{{ data.nombre }}</p>
                     </div>
                     {# ranking ocultado temporalmente #}
                      <!--<div class="player-data">
@@ -64,8 +63,6 @@
                         {% else %}
                             <p class="texto-negro">No tiene ranking aún</p>
                         {% endif %}
-
-
                     </div>-->
                 </div>
             {% endfor %}
@@ -75,7 +72,7 @@
     <!-- Torneos inscriptos 
     <div class="recuadro-tabla">
         <div class="green-box-title-btn">
-            <h4>HISTORIAL INSCRIPTO TORNEOS</h4>
+            <h4>RESULTADOS INSCRIPTO TORNEOS</h4>
         </div>
         <div class="torneos-container">
             {% for torneo in torneos %}
@@ -95,7 +92,7 @@
     <!-- Historial de partidos -->
     <div class="recuadro-tabla">
         <div class="green-box-title-btn">
-            <h4>HISTORIAL DE PARTIDOS</h4>
+            <h4 style="margin: 0; font-size: 1rem;">RESULTADO PARTIDOS</h4>
         </div>
         <div class="form-container-torneos">
             {% if partidos_agrupados %}
@@ -114,9 +111,9 @@
                                         <div class="fila">
                                             <div class="nombre">
                                                 {% if partido.jugador1 %}
-                                                    {{ partido.jugador1.apellido|capfirst }}
+                                                    {{ partido.jugador1.apellido|upper }}
                                                 {% elif partido.equipo1 %}
-                                                    {{ partido.equipo1.jugador1.apellido|capfirst }} / {{ partido.equipo1.jugador2.apellido|capfirst }}
+                                                    {{ partido.equipo1.jugador1.apellido|upper }} / {{ partido.equipo1.jugador2.apellido|upper }}
                                                 {% else %}-{% endif %}
                                             </div>
                                             {% if partido.resultado %}
@@ -142,9 +139,9 @@
                                         <div class="fila">
                                             <div class="nombre">
                                                 {% if partido.jugador2 %}
-                                                    {{ partido.jugador2.apellido|capfirst }}
+                                                    {{ partido.jugador2.apellido|upper }}
                                                 {% elif partido.equipo2 %}
-                                                    {{ partido.equipo2.jugador1.apellido|capfirst }} / {{ partido.equipo2.jugador2.apellido|capfirst }}
+                                                    {{ partido.equipo2.jugador1.apellido|upper }} / {{ partido.equipo2.jugador2.apellido|upper }}
                                                 {% else %}-{% endif %}
                                             </div>
                                             {% if partido.resultado %}
@@ -220,6 +217,7 @@
     font-size: 12px;
 }
 .partido-body {
+    background-color: #838383;
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -231,11 +229,12 @@
     align-items: center;
 }
 .nombre {
+    text-align: start;
     font-weight: bold;
     max-width: 120px;
     text-overflow: ellipsis;
     overflow: hidden;
-    white-space: nowrap;
+    /* white-space: nowrap; */
 }
 .sets {
     display: flex;

@@ -123,7 +123,6 @@
         </div>
         <div class="form-container-torneos">
             <div class="container-form-filter">
-                <!-- FALTA EL METODO Y LA ACCION -->
                 <form method="GET" action="{% url 'abm_torneo' %}#resultados">
                     {% csrf_token %}
                     <!-- BUSCAR POR NOMBRE -->
@@ -196,7 +195,6 @@
                         <th>CATEGORÍA</th>
                         <th>DETALLE</th>
                         <th>JUGADORES</th>
-                        <!-- <th>HISTORIAL</th> -->
                         <th>RANKING</th>
                         <th>MASTER</th>
                         <!-- <th>F.FIN</th> -->
@@ -238,18 +236,9 @@
                                             <i class="bi bi-people" style="font-size: 1.1rem;"></i>
                                     </a>
                                 </td>
-                                <!-- HISTORIAL -->
-                                <!-- <td>
-                                    <a href="{% url 'listar_partidos' %}?torneo={{ torneo.id }}&jugador={{ jugador.dni }}" 
-                                        title="Ver historial"
-                                        class="btn-edit">
-                                        <i class="bi bi-clipboard-data" style="font-size: 1.1rem;"></i>
-                                    </a>
-                                </td> -->
                                 <!-- RANKING -->
                                 <td>
-                                    <!-- href="{% url 'ver_ranking' torneo.id %}"  -->
-                                    <a
+                                    <a href="{% url 'ver_ranking' torneo.id %}"
                                         title="Ver ranking"
                                         class="btn-ranking">
                                         <i class="bi bi-trophy-fill" style="font-size: 1.2rem; color: #b3c564;"></i>
@@ -259,7 +248,7 @@
                                 <td>
                                     <!-- href="{% url 'listado_jugadores_master' torneo.id %}" -->
                                     <a
-                                        title="Ver ranking"
+                                        title="Ver Master"
                                         class="btn-edit">
                                         <i class="bi bi-award" title="Master" style="font-size: 1.3rem; color: #d2df97;"></i>
                                     </a>
