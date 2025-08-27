@@ -54,16 +54,16 @@
                         <p>{{ data.nombre }}</p>
                     </div>
                     {# ranking ocultado temporalmente #}
-                     <!--<div class="player-data">
+                    <div class="player-data">
                         {% if data.ranking %}
                             <p class="ranking-points">Ranking: 
                                 {% if data.puesto %}{{ data.puesto }}{% else %}{{ data.ranking.posicion }}{% endif %}
                             </p>
-                            <p class="texto-negro">Puntaje: {{ data.ranking.puntaje_total_categoria }}</p>
+                            <p class="ranking-points">Puntaje: {{ data.ranking.puntaje_total_categoria }}</p>
                         {% else %}
-                            <p class="texto-negro">No tiene ranking aún</p>
+                            <p class="ranking-points">No tiene ranking aún</p>
                         {% endif %}
-                    </div>-->
+                    </div>
                 </div>
             {% endfor %}
         </div>
@@ -121,13 +121,25 @@
                                                     <div class="sets">
                                                         <span>{{ partido.resultado.set1_jugador1 }}</span>
                                                         <span>{{ partido.resultado.set2_jugador1 }}</span>
-                                                        <span>{{ partido.resultado.set3_jugador1 }}</span>
+                                                        <span>
+                                                            {% if partido.resultado.set3_jugador1 %}
+                                                                {{ partido.resultado.set3_jugador1 }}
+                                                            {% else %}
+                                                               -
+                                                            {% endif %}
+                                                        </span>
                                                     </div>
                                                 {% else %}
                                                     <div class="sets">
                                                         <span>{{ partido.resultado.set1_equipo1 }}</span>
                                                         <span>{{ partido.resultado.set2_equipo1 }}</span>
-                                                        <span>{{ partido.resultado.set3_equipo1 }}</span>
+                                                        <span>
+                                                            {% if partido.resultado.set3_equipo1 %}
+                                                                {{ partido.resultado.set3_equipo1 }}
+                                                            {% else %}
+                                                               -
+                                                            {% endif %}
+                                                        </span>
                                                     </div>
                                                 {% endif %}
                                             {% else %}
@@ -149,13 +161,25 @@
                                                     <div class="sets">
                                                         <span>{{ partido.resultado.set1_jugador2 }}</span>
                                                         <span>{{ partido.resultado.set2_jugador2 }}</span>
-                                                        <span>{{ partido.resultado.set3_jugador2 }}</span>
+                                                        <span>
+                                                        {% if partido.resultado.set3_jugador2 %}
+                                                            {{ partido.resultado.set3_jugador2 }}
+                                                        {% else %}
+                                                            -
+                                                        {% endif %}
+                                                        </span>
                                                     </div>
                                                 {% else %}
                                                     <div class="sets">
                                                         <span>{{ partido.resultado.set1_equipo2 }}</span>
                                                         <span>{{ partido.resultado.set2_equipo2 }}</span>
-                                                        <span>{{ partido.resultado.set3_equipo2 }}</span>
+                                                        <span>
+                                                        {% if partido.resultado.set3_equipo2 %}
+                                                            {{ partido.resultado.set3_equipo2 }}
+                                                        {% else %}
+                                                            -
+                                                        {% endif %}
+                                                        </span>
                                                     </div>
                                                 {% endif %}
                                             {% else %}
