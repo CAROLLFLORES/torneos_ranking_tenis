@@ -16,7 +16,9 @@ def manifest(request):
             {"src": "/static/pwa/icons/icon-512.png", "sizes": "512x512", "type": "image/png"}
         ]
     }
-    return HttpResponse(json.dumps(data), content_type="application/manifest+json")
+    resp = HttpResponse(json.dumps(data), content_type="application/manifest+json; charset=utf-8")
+    resp["Cache-Control"] = "no-cache"
+    return resp
 
 
 def service_worker(request):
@@ -29,9 +31,7 @@ const OFFLINE_URLS = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(OFFLINE_URLS))
-  );
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(OFFLINE_URLS)));
   self.skipWaiting();
 });
 
@@ -45,25 +45,32 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
-  event.respondWith(
-    (async () => {
-      try {
-        const response = await fetch(event.request);
+  event.respondWith((async () => {
+    try {
+      const netRes = await fetch(event.request);
 
-        // ⚡ Solo cachear HTTP/HTTPS
-        if (event.request.url.startsWith("http")) {
-          const cache = await caches.open(CACHE);
-          cache.put(event.request, response.clone());
-        }
-
-        return response;
-      } catch (err) {
-        // fallback offline
-        const cached = await caches.match(event.request);
-        return cached || caches.match("/");
+      // Cachear SOLO same-origin (evita llenar con recursos de terceros/opaque)
+      const sameOrigin = new URL(event.request.url).origin === self.location.origin;
+      if (sameOrigin) {
+        const cache = await caches.open(CACHE);
+        cache.put(event.request, netRes.clone());
       }
-    })()
-  );
+
+      return netRes;
+    } catch (err) {
+      // Navegación: devolvé la shell offline
+      if (event.request.mode === "navigate") {
+        const cachedHome = await caches.match("/", { ignoreSearch: true });
+        if (cachedHome) return cachedHome;
+      }
+      // Otros recursos
+      const cached = await caches.match(event.request, { ignoreSearch: true });
+      return cached || caches.match("/", { ignoreSearch: true });
+    }
+  })());
 });
 """
-    return HttpResponse(js, content_type="application/javascript")
+    resp = HttpResponse(js, content_type="application/javascript; charset=utf-8")
+    resp["Service-Worker-Allowed"] = "/"
+    resp["Cache-Control"] = "no-cache"
+    return resp
