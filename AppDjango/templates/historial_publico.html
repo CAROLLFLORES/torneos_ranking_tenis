@@ -138,7 +138,7 @@
                         <td class="jugador-nombre">{{ resultado.partido.jugador1 }}</td>
                         <td><span class="set-cuadro">{{ resultado.set1_jugador1 }}</span></td>
                         <td><span class="set-cuadro">{{ resultado.set2_jugador1 }}</span></td>
-                        <td><span class="set-cuadro">{{ resultado.set3_jugador2|default:"-" }}</span></td>
+                        <td><span class="set-cuadro">{{ resultado.set3_jugador1|default:"-" }}</span></td>
                       </tr>
                       <tr class="{% if resultado.ganador_jugador == resultado.partido.jugador2 %}resaltado{% endif %}">
                         <td class="jugador-nombre">{{ resultado.partido.jugador2 }}</td>
