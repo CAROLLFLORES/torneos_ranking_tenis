@@ -1088,7 +1088,8 @@ table {
 /* Estilo especial para puntos */
 .ranking-points {
     font-weight: bold;
-    color: #00ff00;
+    color: #cddf80;
+    text-align: right;
 }
 
 /* Asegurar que la tabla sea responsive */
