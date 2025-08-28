@@ -105,7 +105,7 @@ def listado_jugadores(request):
     # Evita duplicados si un jugador está en varias categorías
     jugadores_qs = jugadores_qs.distinct()
 
-    paginator = Paginator(jugadores_qs, 50)
+    paginator = Paginator(jugadores_qs, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

@@ -200,6 +200,68 @@ def editar_torneo(request, id):
 
     return render(request, 'editar_torneo.html', {'form': form, 'torneo': torneo})
 
+def programacion(request):
+    torneos = Torneo.objects.order_by('nombre')
+
+    if not torneos.exists():
+        empty_qs = Partido.objects.none()
+        paginator = Paginator(empty_qs, 30)
+        page_obj = paginator.get_page(1)
+        return render(request, 'programacion.html', {
+            'torneo': None,
+            'torneos': [],
+            'es_doble': False,
+            'jornada': 'Todas',
+            'numero_jornada': 0,
+            'partidos': page_obj,
+            'canchas': Cancha.objects.all(),
+            'filtros': {'torneo': '', 'fecha': '', 'search': ''},
+            'mensaje': 'No hay torneos disponibles.'
+        })
+
+    torneo_id = request.GET.get('torneo', '')
+    fecha = request.GET.get('fecha', '')
+    search = request.GET.get('search', '').strip()
+
+    partidos_qs = Partido.objects.select_related(
+        'torneo', 'cancha', 'resultado',
+        'equipo1__jugador1', 'equipo1__jugador2',
+        'equipo2__jugador1', 'equipo2__jugador2',
+        'jugador1', 'jugador2'
+    )
+
+    if torneo_id:
+        partidos_qs = partidos_qs.filter(torneo__id=torneo_id)
+    if fecha:
+        partidos_qs = partidos_qs.filter(fecha=fecha)
+    if search:
+        partidos_qs = partidos_qs.filter(
+            Q(equipo1__jugador1__nombre__icontains=search) |
+            Q(equipo1__jugador1__apellido__icontains=search) |
+            Q(equipo1__jugador2__nombre__icontains=search) |
+            Q(equipo1__jugador2__apellido__icontains=search) |
+            Q(equipo2__jugador1__nombre__icontains=search) |
+            Q(equipo2__jugador1__apellido__icontains=search) |
+            Q(equipo2__jugador2__nombre__icontains=search) |
+            Q(equipo2__jugador2__apellido__icontains=search) |
+            Q(jugador1__nombre__icontains=search) |
+            Q(jugador1__apellido__icontains=search) |
+            Q(jugador2__nombre__icontains=search) |
+            Q(jugador2__apellido__icontains=search)
+        )
+
+    partidos_qs = partidos_qs.order_by('-fecha', '-hora', 'cancha')
+    paginator = Paginator(partidos_qs, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'programacion.html', {
+        'torneos': torneos,
+        'partidos': page_obj,
+        'canchas': Cancha.objects.all(),
+        'filtros': {'torneo': torneo_id, 'fecha': fecha, 'search': search},
+    })
+  
 def datos_torneo(request, id):
     torneo = get_object_or_404(Torneo, id=id)
     es_doble = torneo.categorias.filter(

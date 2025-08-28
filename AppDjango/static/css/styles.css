@@ -1088,6 +1088,12 @@ table {
 /* Estilo especial para puntos */
 .ranking-points {
     font-weight: bold;
+    color: #ffd700;
+    text-align: right;
+}
+
+.ranking-points1 {
+    font-weight: bold;
     color: #cddf80;
     text-align: right;
 }
@@ -1698,7 +1704,7 @@ html, body {
 .logoLayout img {
     width: 100%;
     height: auto;
-    margin-top: 1rem;
+    /* margin-top: 1rem; */
 }
 
 #content {
@@ -1919,7 +1925,7 @@ html, body {
     height: 100%;
     /* max-width: 1200px; */
     margin: 5rem auto;
-    padding: 20px;
+    /* padding: 20px; */
 }
 
 /* MODAL */
@@ -1947,21 +1953,21 @@ html, body {
 .box-section{
     background-color: rgba(0, 0, 0, 0.3);
     margin-bottom: 5px;
-    padding: 15px;
+    padding: 10px;
     border-radius: 15px;
-    margin: .5rem 0;
+    margin: .3rem 0;
 }
 
 .boton-grande {
-    width: 220px;
-    height: 50px;
-    font-size: 1rem;
+    width: 190px;
+    height: 45px;
+    font-size: .9rem;
     font-family: 'Open Sans', sans-serif;
     font-weight: bold;
     border-radius: 10px;
     padding: 5px 10px;
     text-align: center;
-    background-color: rgb(165, 83, 15);
+    background-color: rgb(176, 92, 23);
     color: white;
     border: none;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
@@ -2213,6 +2219,11 @@ html, body {
   width: 70px;
   text-align: center;
 }
+
+.table-group-divider {
+    font-family: 'Open Sans', sans-serif;
+}
+
 
 .btn-info {
     color: white;
@@ -3225,7 +3236,7 @@ td.set input {
     .logoLayout img {
         width: 80%;
         height: auto;
-        margin-top: 2rem;
+        /* margin-top: 2rem; */
     }
     .footer-section {
         width: 70vw;

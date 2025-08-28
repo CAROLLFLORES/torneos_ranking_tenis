@@ -24,7 +24,7 @@ from jugador import views as jugador_views
 from ranking import views as ranking_views
 
 
-from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada, listado_jugadores_master, generar_pdf_partidos_por_fecha, historial_publico, listar_partidos
+from torneo.views import actualizar_ranking, guardar_jornada, historial_jornada, listado_jugadores_master, generar_pdf_partidos_por_fecha, historial_publico, listar_partidos, programacion
 from ranking.views import ranking_torneo, ver_ranking, ranking_general
 from ranking.views import confirmar_ascenso_final, ascender_jugadores
 from django.contrib.auth import views as auth_views
@@ -104,6 +104,8 @@ urlpatterns = [
     # Historial público
     path('historial/', historial_publico, name='historial_publico'),
     path('historial/<int:torneo_id>/', historial_publico, name='historial_publico'),
+
+    path('programacion/', programacion, name='programacion'),
 
     path('<int:torneo_id>/', ranking_torneo, name='ranking_torneo'),
     path('torneo/<int:torneo_id>/ranking/', ver_ranking, name='ver_ranking'),

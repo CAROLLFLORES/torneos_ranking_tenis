@@ -56,12 +56,12 @@
                     {# ranking ocultado temporalmente #}
                     <div class="player-data">
                         {% if data.ranking %}
-                            <p class="ranking-points">Ranking: 
+                            <p class="ranking-points1">Ranking: 
                                 {% if data.puesto %}{{ data.puesto }}{% else %}{{ data.ranking.posicion }}{% endif %}
                             </p>
-                            <p class="ranking-points">Puntaje: {{ data.ranking.puntaje_total_categoria }}</p>
+                            <p class="ranking-points1">Puntaje: {{ data.ranking.puntaje_total_categoria }}</p>
                         {% else %}
-                            <p class="ranking-points">No tiene ranking aún</p>
+                            <p class="ranking-points1">No tiene ranking aún</p>
                         {% endif %}
                     </div>
                 </div>

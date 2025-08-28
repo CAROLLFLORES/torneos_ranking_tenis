@@ -68,10 +68,13 @@
                 <a class="nav-link card" href="{% url 'listado_jugadores' %}">&nbsp;JUGADORES&nbsp;</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link card" href="{% url 'historial_publico' %}">&nbsp;RESULTADOS&nbsp;</a>
+                <a class="nav-link card"href="{% url 'programacion' %}">&nbsp;PROGRAMACIÓN&nbsp;</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link card" href="{% url 'ver_ranking' 0 %}">&nbsp;RANKING&nbsp;</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link card" href="{% url 'historial_publico' %}">&nbsp;RESULTADOS&nbsp;</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link card" href="{% url 'listado_sedes' %}">&nbsp;SEDES&nbsp;</a>
@@ -131,9 +134,11 @@
             <hr class="separator-negro">
             <li ><a href="{% url 'listado_jugadores' %}">JUGADORES</a></li>
             <hr class="separator-negro">
-            <li><a href="{% url 'historial_publico' %}">RESULTADOS</a></li>
+            <li ><a href="{% url 'programacion' %}">PROGRAMACIÓN</a></li>
             <hr class="separator-negro">
             <li><a href="{% url 'ver_ranking' 0 %}">RANKING</a></li>
+            <hr class="separator-negro">
+            <li><a href="{% url 'historial_publico' %}">RESULTADOS</a></li>
             <hr class="separator-negro">
             <li><a href="{% url 'listado_sedes' %}">SEDES</a></li>
             <hr class="separator-negro">

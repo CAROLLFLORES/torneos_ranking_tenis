@@ -1,0 +1,252 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block body_class %}fondo-secundario{% endblock %}
+{% block content %}
+<div class="container-admin">
+
+    <h4>ADMINISTRADOR</h4>
+    <div class="text-section">
+        <hr class="separator-line">
+        <h5 style="font-size: 1rem; margin-top: 1rem;">PROGRAMACIÓN</h5>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="recuadro-tabla" style="font-weight: 400; letter-spacing: 2px;">
+        <div class="green-box-title-btn" style="cursor: pointer;">
+            <h4 style="margin: 0; cursor: pointer;">FILTROS</h4>
+        </div>
+        <div class="form-container-torneos">
+            <div class="container-form-filter">
+                <form method="GET" action="" class="row g-2 mb-3">
+
+                    <!-- Torneo -->
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter">TORNEO</span>
+                        <select name="torneo" class="form-control">
+                            <option value="">Todos</option>
+                            {% for t in torneos %}
+                                <option value="{{ t.id }}" {% if filtros.torneo == t.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ t.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Fecha -->
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter">FECHA</span>
+                        <input type="date" name="fecha" class="form-control" value="{{ filtros.fecha }}">
+                    </div>
+
+                    <!-- Jugador -->
+                    <div class="filtro-busqueda1">
+                        <span class="span-filter">JUGADOR</span>
+                        <input type="text" name="search" class="form-control" placeholder="Nombre o apellido" value="{{ filtros.search }}">
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="btn-filtros">
+                        <button class="btn-opciones" type="submit">FILTRAR</button>
+                        <div class="btn-opciones">
+                            <a href="?">LIMPIAR FILTROS</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="recuadro-tabla" >
+
+        <!-- PAGINADO -->
+        <div class="green-box-table">
+            <span>PARTIDOS PROGRAMADOS</span>
+            <div class="pagination-container">
+                Página {{ partidos.number }} de {{ partidos.paginator.num_pages }}
+
+                {% if partidos.has_previous %}
+                    <a href="?page={{ partidos.previous_page_number }}{% if filtros.search %}&search={{ filtros.search }}{% endif %}{% if filtros.fecha %}&fecha={{ filtros.fecha }}{% endif %}{% if filtros.hora %}&hora={{ filtros.hora }}{% endif %}{% if filtros.cancha %}&cancha={{ filtros.cancha }}{% endif %}" class="arrow">&lt;</a>
+                {% endif %}
+
+                {% if partidos.has_next %}
+                    <a href="?page={{ partidos.next_page_number }}{% if filtros.search %}&search={{ filtros.search }}{% endif %}{% if filtros.fecha %}&fecha={{ filtros.fecha }}{% endif %}{% if filtros.hora %}&hora={{ filtros.hora }}{% endif %}{% if filtros.cancha %}&cancha={{ filtros.cancha }}{% endif %}" class="arrow">&gt;</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <p style="margin-top: .5rem; color: rgb(150, 149, 149); font-size: .8rem;">
+            {{ partidos.paginator.count }} resultados encontrados.
+        </p>
+
+        <!-- LISTADO -->
+        <div class="form-container-partidos" style="margin-bottom: 1rem;">
+            <!-- style="font-family: ; -->
+            <table class="tabla-partidos">
+                <thead>
+                    <tr>
+                        <th>Día-Hora</th>
+                        <th>Lugar</th>
+                        <th>Torneo</th>
+                        <th>Jugadores</th>
+                        <th>Set 1</th>
+                        <th>Set 2</th>
+                        <th>Set 3</th> 
+                        <th>Ganador</th>                                  
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    {% for partido in partidos %}
+                    <tr style="border-top: .15rem solid #717070 !important;">
+                        <td rowspan="2" style="color: #bcbdbc; text-align: start;">
+                            {{ partido.fecha|date:"d/m/Y" }}<br>
+                            {{ partido.hora|time:"H:i" }}
+                        </td>
+                        <td rowspan="2" style="min-width: 130px !important; color: #bcbdbc; text-align: start;">
+                            {{ partido.cancha.sede.nombre }} - cancha {{ partido.cancha.cancha }}
+                        </td>
+                        <td rowspan="2" style="min-width: 120px !important; color: #bcbdbc; text-align: start;">
+                            {{ partido.torneo.nombre }}
+                        </td>
+                        
+                        <!-- Jugador/Equipo 1 -->
+                        <td class="jugador" style="color: #bcbdbc; text-align: start;">
+                            {% if partido.equipo1 %}
+                                {% if partido.equipo1.jugador1 and partido.equipo1.jugador2 %}
+                                    {{ partido.equipo1.jugador1.apellido | upper }} {{ partido.equipo1.jugador1.nombre }} /
+                                    {{ partido.equipo1.jugador2.apellido | upper }} {{ partido.equipo1.jugador2.nombre }}
+                                {% elif partido.equipo1.jugador1 %}
+                                    {{ partido.equipo1.jugador1.apellido | upper }} {{ partido.equipo1.jugador1.nombre }}
+                                {% endif %}
+                            {% elif partido.jugador1 %}
+                                {{ partido.jugador1.apellido | upper }} {{ partido.jugador1.nombre }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <!-- Set 1 -->
+                        <td class="set" style="color: #bcbdbc; text-align: start;">
+                            {% if partido.resultado.set1_jugador1 is not None %}
+                                {{ partido.resultado.set1_jugador1 }}
+                            {% elif partido.resultado.set1_equipo1 is not None %}
+                                {{ partido.resultado.set1_equipo1 }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <!-- Set 2 -->
+                        <td class="set" style="color: #bcbdbc; text-align: start;">
+                            {% if partido.resultado.set2_jugador1 is not None %}
+                                {{ partido.resultado.set2_jugador1 }}
+                            {% elif partido.resultado.set2_equipo1 is not None %}
+                                {{ partido.resultado.set2_equipo1 }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <!-- Set 3 -->
+                        <td class="set" style="color: #bcbdbc; text-align: start;">
+                            {% if partido.resultado.set3_jugador1 is not None %}
+                                {{ partido.resultado.set3_jugador1 }}
+                            {% elif partido.resultado.set3_equipo1 is not None %}
+                                {{ partido.resultado.set3_equipo1 }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <!-- GANADOR -->
+                        <td rowspan="2" class="ganador" style="color: #cddf80; text-align: start;">
+                            {% if partido.resultado %}
+                                {% if partido.resultado.ganador_equipo %}
+                                    {% if partido.resultado.ganador_equipo.jugador1 and partido.resultado.ganador_equipo.jugador2 %}
+                                        {{ partido.resultado.ganador_equipo.jugador1.apellido | upper }} /
+                                        {{ partido.resultado.ganador_equipo.jugador2.apellido | upper }}
+                                    {% elif partido.resultado.ganador_equipo.jugador1 %}
+                                        {{ partido.resultado.ganador_equipo.jugador1.apellido | upper }}
+                                    {% else %}
+                                        No definido
+                                    {% endif %}
+                                {% elif partido.resultado.ganador_jugador %}
+                                    {{ partido.resultado.ganador_jugador.apellido | upper }} {{ partido.resultado.ganador_jugador.nombre }}
+                                {% else %}
+                                    No definido
+                                {% endif %}
+                            {% else %}
+                                No definido
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                    <!-- Jugador/Equipo 2 -->
+                    <td class="jugador" style="color: #bcbdbc; text-align: start;">
+                        {% if partido.equipo2 %}
+                            {% if partido.equipo2.jugador1 and partido.equipo2.jugador2 %}
+                                {{ partido.equipo2.jugador1.apellido | upper }} {{ partido.equipo2.jugador1.nombre }} /
+                                {{ partido.equipo2.jugador2.apellido | upper }} {{ partido.equipo2.jugador2.nombre }}
+                            {% elif partido.equipo2.jugador1 %}
+                                {{ partido.equipo2.jugador1.apellido | upper }} {{ partido.equipo2.jugador1.nombre }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        {% elif partido.jugador2 %}
+                            {{ partido.jugador2.apellido | upper }} {{ partido.jugador2.nombre }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <!-- Sets jugador/equipo 2 -->
+                    <td class="set" style="color: #bcbdbc; text-align: start;">
+                        {% if partido.resultado.set1_jugador2 is not None %}
+                            {{ partido.resultado.set1_jugador2 }}
+                        {% elif partido.resultado.set1_equipo2 is not None %}
+                            {{ partido.resultado.set1_equipo2 }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="set" style="color: #bcbdbc; text-align: start;">
+                        {% if partido.resultado.set2_jugador2 is not None %}
+                            {{ partido.resultado.set2_jugador2 }}
+                        {% elif partido.resultado.set2_equipo2 is not None %}
+                            {{ partido.resultado.set2_equipo2 }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="set" style="color: #bcbdbc; text-align: start;">
+                        {% if partido.resultado.set3_jugador2 is not None %}
+                            {{ partido.resultado.set3_jugador2 }}
+                        {% elif partido.resultado.set3_equipo2 is not None %}
+                            {{ partido.resultado.set3_equipo2 }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+  
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const form = document.querySelector(".container-form-filter form");
+
+    // Solo selects y inputs de tipo date
+    const autoSubmitInputs = form.querySelectorAll("select, input[type='date']");
+
+    autoSubmitInputs.forEach(input => {
+        input.addEventListener("change", function() {
+            form.submit();
+        });
+    });
+});
+</script>
+{% endblock %}

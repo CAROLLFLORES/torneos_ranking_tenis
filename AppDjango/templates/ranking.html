@@ -153,12 +153,12 @@
                             <tr>
                                 <th>#</th>
                                 <th>JUGADOR</th>
+                                <th>PUNTOS</th>
                                 <th>PJ</th>
                                 <th>PG</th>
                                 <th>PP</th>
                                 <th>SETS</th>
                                 <th>GAMES</th>
-                                <th>PUNTOS</th>
                                 <!-- {% if user.is_authenticated and user.is_staff %}
                                 <th>ASCENSO <div class="text-end mb-2">
                                     <button type="button" id="btnAbrirModalAscenso" class="btn" title="Ascender jugadores"
@@ -188,6 +188,7 @@
                                         {{ jugador.jugador.nombre }} {{ jugador.jugador.apellido }}
                                     {% endif %}
                                 </td>
+                                <td class="ranking-points" style="text-align: center;">{{ jugador.puntaje_total_categoria }}</td>
                                 <td class="ranking-data">{{ jugador.pj }}</td>
                                 <td class="ranking-data">{{ jugador.pg }}</td>
                                 <td class="ranking-data">{{ jugador.pp }}</td>
@@ -205,7 +206,6 @@
                                         {{ jugador.games }}
                                     {% endif %}
                                 </td>
-                                <td class="ranking-points">{{ jugador.puntaje_total_categoria }}</td>
                                 
                                 <!-- {% if user.is_authenticated and user.is_staff %}
                                 <td class="text-center">
