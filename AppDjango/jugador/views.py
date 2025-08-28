@@ -105,7 +105,7 @@ def listado_jugadores(request):
     # Evita duplicados si un jugador está en varias categorías
     jugadores_qs = jugadores_qs.distinct()
 
-    paginator = Paginator(jugadores_qs, 20)
+    paginator = Paginator(jugadores_qs, 15)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -125,7 +125,6 @@ def listado_jugadores(request):
 def datos_jugador(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
 
-    # 🔹 Torneos en los que participa
     torneos = Torneo.objects.filter(
         Q(torneo_jugadores__jugador=jugador) |
         Q(equipos__jugador1=jugador) |
@@ -134,69 +133,68 @@ def datos_jugador(request, dni):
 
     torneos_data = []
     for torneo in torneos:
+        ranking = None
+        puesto = None
+        categoria = torneo.categorias.first()
+
         if torneo.tipo_juego in ["Doble", "Mixto"]:
-            equipo = Equipo.objects.filter(
+            equipos = Equipo.objects.filter(
                 torneo=torneo
             ).filter(
                 Q(jugador1=jugador) | Q(jugador2=jugador)
-            ).first()
+            )
 
-            ranking = None
-            puesto = None
-            if equipo:
+            for equipo in equipos:
                 ranking = RankingEquipo.objects.filter(
                     torneo=torneo,
                     equipo=equipo
-                ).order_by('-anio', '-bimestre', '-id_ranking_equipo').first()
+                ).order_by('-anio', '-bimestre', '-id_ranking_equipo').last()
 
                 if ranking:
-                    if ranking.posicion and ranking.posicion > 0:
-                        puesto = ranking.posicion
-                    else:
-                        puesto = RankingEquipo.objects.filter(
-                            torneo=torneo,
-                            categoria=ranking.categoria
-                        ).filter(
-                            puntaje_total_categoria__gt=ranking.puntaje_total_categoria
-                        ).count() + 1
-
-            torneos_data.append({
-                'torneo': torneo,
-                'nombre': torneo.nombre,
-                'categoria': ranking.categoria if ranking else torneo.categorias.first(),
-                'fecha': torneo.fecha_inicio,
-                'ranking': ranking,
-                'puesto': puesto,
-            })
-
-        else:  # Torneo individual
-            ranking = Ranking.objects.filter(
-                torneo=torneo,
-                jugador=jugador
-            ).order_by('-anio', '-bimestre', '-id_ranking').first()
-
-            puesto = None
-            if ranking:
-                if ranking.posicion and ranking.posicion > 0:
-                    puesto = ranking.posicion
-                else:
-                    puesto = Ranking.objects.filter(
+                    categoria = ranking.categoria or categoria
+                    puesto = ranking.posicion if ranking.posicion and ranking.posicion > 0 else RankingEquipo.objects.filter(
                         torneo=torneo,
-                        categoria=ranking.categoria
+                        categoria=categoria
                     ).filter(
                         puntaje_total_categoria__gt=ranking.puntaje_total_categoria
                     ).count() + 1
+                    break  
 
             torneos_data.append({
+                'id': torneo.id,
                 'torneo': torneo,
                 'nombre': torneo.nombre,
-                'categoria': ranking.categoria if ranking else torneo.categorias.first(),
+                'categoria': categoria,
                 'fecha': torneo.fecha_inicio,
                 'ranking': ranking,
                 'puesto': puesto,
             })
 
-    # 🔹 Partidos jugados
+        else:
+            ranking = Ranking.objects.filter(
+                torneo=torneo,
+                jugador=jugador
+            ).order_by('-anio', '-bimestre', '-id_ranking').last()
+
+            if ranking:
+                categoria = ranking.categoria or categoria
+                puesto = ranking.posicion if ranking.posicion and ranking.posicion > 0 else Ranking.objects.filter(
+                    torneo=torneo,
+                    categoria=categoria
+                ).filter(
+                    puntaje_total_categoria__gt=ranking.puntaje_total_categoria
+                ).count() + 1
+
+            torneos_data.append({
+                'id': torneo.id,
+                'torneo': torneo,
+                'nombre': torneo.nombre,
+                'categoria': categoria,
+                'fecha': torneo.fecha_inicio,
+                'ranking': ranking,
+                'puesto': puesto,
+            })
+
     partidos = Partido.objects.filter(
         Q(jugador1=jugador) | Q(jugador2=jugador) |
         Q(equipo1__jugador1=jugador) | Q(equipo1__jugador2=jugador) |

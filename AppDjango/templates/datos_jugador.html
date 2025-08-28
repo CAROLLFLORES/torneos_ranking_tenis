@@ -7,7 +7,7 @@
     <h4>LIGA 2025</h4>
     <div class="text-section">
         <hr class="separator-line">
-        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: 1rem;">DATOS DE JUGADOR</h5>
+        <h5 style="font-size: 1rem; margin-top: 1rem;">DATOS DE JUGADOR</h5>
     </div>
 
     <div class="text-section">
@@ -19,7 +19,7 @@
     <!-- Info jugador -->
     <div class="recuadro-tabla">
         <div class="green-box-title-btn">
-            <div class="green-box-title-btn" >
+            <div class="green-box-title-btn" style="padding-top: .3rem; padding-bottom: 0;">
                 <h4 style="margin: 0; font-size: 1rem;">
                     {{ jugador.apellido|upper }} {{ jugador.nombre }}
                 </h4>
@@ -28,7 +28,7 @@
         <div class="form-container-torneos grid-container">
             <div class="history-item">
                 <div class="player-data" style="text-align: left; color:white;">
-                    <p>Sexo:
+                    <p>Género:
                     {% if jugador.sexo == "M" %}
                         Masculino
                     {% elif jugador.sexo == "F" %}
@@ -50,18 +50,25 @@
         <div class="form-container-torneos grid-container">
             {% for data in torneos_data %}
                 <div class="history-item">
+                    
                     <div class="player-data" style="text-align: left; color:white;">
+                            {% if data.id %}
+                        <a href="{% url 'ver_ranking' data.id %}" class="a-options" >
+                            {{ data.nombre }}
+                        </a>
+                        {% else %}
                         <p>{{ data.nombre }}</p>
+                        {% endif %}
                     </div>
                     {# ranking ocultado temporalmente #}
                     <div class="player-data">
                         {% if data.ranking %}
-                            <p class="ranking-points1">Ranking: 
+                            <p class="ranking-points">Ranking: 
                                 {% if data.puesto %}{{ data.puesto }}{% else %}{{ data.ranking.posicion }}{% endif %}
                             </p>
-                            <p class="ranking-points1">Puntaje: {{ data.ranking.puntaje_total_categoria }}</p>
+                            <p class="ranking-points">Puntaje: {{ data.ranking.puntaje_total_categoria }}</p>
                         {% else %}
-                            <p class="ranking-points1">No tiene ranking aún</p>
+                            <p class="ranking-points">No tiene ranking aún</p>
                         {% endif %}
                     </div>
                 </div>
@@ -234,14 +241,15 @@
     flex-direction: column;
 }
 .partido-header {
-    background: #111;
+    text-align: start;
+    background: black;
     color: #fff;
     padding: 6px 10px;
     font-weight: bold;
     font-size: 12px;
 }
 .partido-body {
-    background-color: #838383;
+    background-color: #beca8956;
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -253,6 +261,8 @@
     align-items: center;
 }
 .nombre {
+    font-size: .8rem;
+    color: white;
     text-align: start;
     font-weight: bold;
     max-width: 120px;

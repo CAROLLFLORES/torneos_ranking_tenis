@@ -119,7 +119,7 @@
                          <tr>
                              <th>APELLIDO</th>
                              <th>NOMBRE</th>
-                             <th>SEXO</th>
+                             <th>GÉNERO</th>
                              <th>CATEGORIA</th>
                              <th>INFO</th>
                              {% if user.is_authenticated and user.is_staff %}
@@ -301,6 +301,26 @@
             allowClear: true,
             width: '100%'
         });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        // Seleccionamos el formulario
+        const form = document.querySelector("form");
+
+        // Cuando cambie el select de género, enviar el form
+        const filtroSexo = document.getElementById("filtro-sexo");
+        if (filtroSexo) {
+            filtroSexo.addEventListener("change", function () {
+                form.submit();
+            });
+        }
+
+        // Cuando cambie el select de categoría, enviar el form
+        const filtroCategoria = document.getElementById("filtro-categoria");
+        if (filtroCategoria) {
+            filtroCategoria.addEventListener("change", function () {
+                form.submit();
+            });
+        }
     });
 </script>
 {% endblock %}

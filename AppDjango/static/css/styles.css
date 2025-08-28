@@ -699,10 +699,6 @@ background-color: transparent; /* 'none' no es válido */
     margin: 0; /* Elimina márgenes adicionales */
 }
 
-.player-data{
-    width: 500px;
-}
-
 .player-card {
     display: flex; /* Alinea los elementos en fila */
     justify-content: space-between; /* Espacio entre los dos contenedores */
@@ -1074,7 +1070,7 @@ table {
 /* Estilo del nombre del jugador */
 .ranking-name {
     font-weight: bold;
-    color: #ffd700;
+    /* color: #ffd700; */
     line-height: 1.2em;
     padding: 2px 5px;
 }
@@ -1087,12 +1083,6 @@ table {
 
 /* Estilo especial para puntos */
 .ranking-points {
-    font-weight: bold;
-    color: #ffd700;
-    text-align: right;
-}
-
-.ranking-points1 {
     font-weight: bold;
     color: #cddf80;
     text-align: right;
@@ -1924,7 +1914,7 @@ html, body {
     align-items: center;
     height: 100%;
     /* max-width: 1200px; */
-    margin: 5rem auto;
+    margin: 9rem auto;
     /* padding: 20px; */
 }
 
@@ -1975,7 +1965,9 @@ html, body {
 }
 
 .boton-grande:hover {
-    background-color: orange;
+    /* background-color: orange; */
+    background-color: white;
+    color: rgb(176, 92, 23);
     transform: scale(1.03);
 }
 
@@ -3168,6 +3160,9 @@ td.set input {
 .btn-close-custom:hover {
     color: #cddf80
 } 
+.player-data{
+    width: auto;
+}
 
 /*////////////////////////////////////////////////////////// NUEVOS ESTILOS RESPOSIVE //////////////////////////////////////////////////////////*/
 @media (max-width: 1220px) {
@@ -3303,6 +3298,12 @@ td.set input {
     }
     .ranking-table-container {
         width: 85vw;      
+    }
+    .containerLayout {
+        margin: 7rem auto;
+    }
+    .player-data{
+        width: 500px;
     }
 
 }
