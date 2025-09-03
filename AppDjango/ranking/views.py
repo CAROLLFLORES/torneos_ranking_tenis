@@ -229,8 +229,8 @@ def calcular_ranking(torneo_id, user=None):
         key=lambda x: (x["pj"] == 0, -x["puntaje_total_categoria"])
     )
     # Guarda en base de datos
-    if user and user.is_authenticated and user.is_staff:
-        guardar_ranking_en_modelos(torneo, ranking_list)
+    # if user and user.is_authenticated and user.is_staff:
+    #     guardar_ranking_en_modelos(torneo, ranking_list)
 
     return ranking_list
 
