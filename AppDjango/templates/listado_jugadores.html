@@ -24,7 +24,7 @@
         <!-- id="form-crear"  agregar en div de form container sumado a clase hidden para cerrar y abrir panel -->
         <div class="form-container-torneos">
             <div class="container-form-filter">
-                <form method="GET" action="{% url 'listado_jugadores' %}#resultados" class="row g-2 mb-3">
+            <form id="form-filtros" method="GET" action="{% url 'listado_jugadores' %}#resultados" class="row g-2 mb-3">
 
                     <!-- BUSCAR POR JUGADOR -->
                     <div class="filtro-busqueda1" >
@@ -55,7 +55,20 @@
                             {% endfor %}
                         </select>
                     </div>
+                                   <!-- ESTADO -->
+                    <div class="filtro-busqueda1">
+                        {% if user.is_authenticated and user.is_staff %}
+                        <span class="span-filter">ESTADO</span>
+                        <select name="estado" id="filtro-estado" class="form-select">
+                        <option value="">Todos (activos/inactivos)</option>
+                        <option value="ACT" {% if filtros.estado == "ACT" %}selected{% endif %}>Activo</option>
+                        <option value="INA" {% if filtros.estado == "INA" %}selected{% endif %}>Inactivo</option>
+                        <option value="DEL" {% if filtros.estado == "DEL" %}selected{% endif %}>Eliminado</option>
+                        </select>
+                        {% endif %}
+                    </div>
 
+                    
                     <!-- BOTONES -->
                     <div class="btn-filtros">
                         <button class="btn-opciones" type="submit">FILTRAR</button>
@@ -63,6 +76,10 @@
                             <a href="{% url 'listado_jugadores' %}#resultados">LIMPIAR FILTROS</a>
                         </div>
                     </div>
+
+                    
+                    
+
                 </form>
             </div>
             <!-- LINKS -->
@@ -86,6 +103,7 @@
                     <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
                     DESCARGAR EN PDF
                 </a>
+                     
                 {% endwith %}
                 {% endif %}
             </div>
@@ -124,6 +142,7 @@
                              <th>INFO</th>
                              {% if user.is_authenticated and user.is_staff %}
                                  <th>EDITAR</th>
+                                 <th>ESTADO</th>
                                  <th>ELIMINAR</th>
                              {% endif %}
                          </tr>
@@ -190,6 +209,14 @@
                                                             <input type="hidden" name="dni" value="{{ jugador.dni }}">
 
                                                             <div class="filtro-busqueda1">
+                                                            <span class="span-filter" for="estado-{{ jugador.dni }}">Estado:</span>
+                                                            <select class="form-select" name="estado" id="estado-{{ jugador.dni }}">
+                                                                <option value="ACT" {% if jugador.estado == "ACT" %}selected{% endif %}>Activo</option>
+                                                                <option value="INA" {% if jugador.estado == "INA" %}selected{% endif %}>Inactivo</option>
+                                                            </select>
+                                                            </div>
+
+                                                            <div class="filtro-busqueda1">
                                                                 <span class="span-filter" for="sexo">Sexo:</span>
                                                                 <select class="form-select" name="sexo" id="sexo" required>
                                                                     <option value="M" {% if jugador.sexo == "M" %} selected {% endif %}>Masculino</option>
@@ -245,7 +272,18 @@
                                             </div>
                                         </div>
                                      </td>
+                                     
                                      {% if user.is_authenticated and user.is_staff %}
+                                     <td>
+                                    {% if jugador.estado == "ACT" %}
+                                        Activo
+                                    {% elif jugador.estado == "INA" %}
+                                        Inactivo
+                                    {% else %}
+                                        Eliminado
+                                    {% endif %}
+                                    </td>
+
                                      <td>
                                          <button type="button"
                                                  data-bs-toggle="modal"
@@ -295,32 +333,31 @@
 </style>
 
 <script>
-    $(document).ready(function() {
-        $('select[id^="categorias-"]').select2({
-            placeholder: 'Selecciona una o más categorías',
-            allowClear: true,
-            width: '100%'
-        });
-    });
-    document.addEventListener("DOMContentLoaded", function () {
-        // Seleccionamos el formulario
-        const form = document.querySelector("form");
+document.addEventListener("DOMContentLoaded", function () {
+  const filtrosForm = document.getElementById("form-filtros");
+  if (!filtrosForm) return;
 
-        // Cuando cambie el select de género, enviar el form
-        const filtroSexo = document.getElementById("filtro-sexo");
-        if (filtroSexo) {
-            filtroSexo.addEventListener("change", function () {
-                form.submit();
-            });
-        }
-
-        // Cuando cambie el select de categoría, enviar el form
-        const filtroCategoria = document.getElementById("filtro-categoria");
-        if (filtroCategoria) {
-            filtroCategoria.addEventListener("change", function () {
-                form.submit();
-            });
-        }
+  const filtroSexo = document.getElementById("filtro-sexo");
+  if (filtroSexo) {
+    filtroSexo.addEventListener("change", function () {
+      filtrosForm.submit();
     });
+  }
+
+  const filtroCategoria = document.getElementById("filtro-categoria");
+  if (filtroCategoria) {
+    filtroCategoria.addEventListener("change", function () {
+      filtrosForm.submit();
+    });
+  }
+
+  const filtroEstado = document.getElementById("filtro-estado");
+  if (filtroEstado) {
+    filtroEstado.addEventListener("change", function () {
+      filtrosForm.submit();
+    });
+  }
+});
 </script>
+
 {% endblock %}
