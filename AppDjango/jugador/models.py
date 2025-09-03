@@ -1,5 +1,19 @@
 from django.db import models
 
+
+class EstadoJugador(models.TextChoices):  # 👈 NO es tabla, es un enum
+    ACTIVO   = 'ACT', 'Activo'
+    INACTIVO = 'INA', 'Inactivo'
+    BORRADO  = 'DEL', 'Borrado'
+
+class JugadorQuerySet(models.QuerySet):
+    def visibles(self):
+        return self.exclude(estado=EstadoJugador.BORRADO)
+    def activos(self):
+        return self.filter(estado=EstadoJugador.ACTIVO)
+    def inactivos(self):
+        return self.filter(estado=EstadoJugador.INACTIVO)
+
 class Categoria(models.Model):
     id_categoria = models.AutoField(primary_key=True)
     nivel = models.CharField(max_length=20, default='Sin nivel')  # Cambiado a CharField
@@ -16,7 +30,17 @@ class Jugador(models.Model):
     apellido = models.CharField(max_length=100)
     sexo = models.CharField(max_length=1, choices=[('F', 'Femenino'), ('M', 'Masculino')])  # Actualizado en el siguiente paso
     categorias = models.ManyToManyField(Categoria, through='JugadorCategoria')
+    estado = models.CharField(
+            max_length=3,
+            choices=EstadoJugador.choices,
+            default=EstadoJugador.ACTIVO,
+            db_index=True
+        )
+    fecha_baja = models.DateField(null=True, blank=True)  # opcional, para auditar bajas
 
+    # 👈 enganchar el manager
+    objects = JugadorQuerySet.as_manager()
+    
     def __str__(self):
         return f"{self.nombre} {self.apellido}"
 
@@ -26,3 +50,5 @@ class JugadorCategoria(models.Model):
 
     class Meta:
         unique_together = ('jugador', 'categoria')
+
+

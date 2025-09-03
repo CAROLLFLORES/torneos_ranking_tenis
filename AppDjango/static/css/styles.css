@@ -3307,3 +3307,8 @@ td.set input {
     }
 
 }
+
+ .estado-inactivo {
+    color: #c62828;         /* rojo fuerte */
+    font-weight: 600;       /* un poco más marcado */
+}
