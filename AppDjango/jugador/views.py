@@ -1,25 +1,28 @@
 #  5/04/2025 se realizo el agregar el id Carga masiva categoria 101 y Carga Masiva de Jugadores 102
 
+
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Jugador,Categoria,JugadorCategoria
-from torneo.models import TorneoJugador, Partido, Torneo
 from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Q
+from django.http import JsonResponse, HttpResponse
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils import timezone
+
+from .models import Jugador, Categoria, JugadorCategoria, EstadoJugador
+from torneo.models import TorneoJugador, Partido, Torneo, Equipo
+
 from .forms import JugadorForm
-from django.http import JsonResponse
-from django.http import HttpResponse
+from loginAdmin.views import es_admin
+
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.platypus import Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
-from jugador.models import Jugador, Categoria
-from django.http import JsonResponse
+
 import pandas as pd
-from django.contrib.auth.decorators import login_required, user_passes_test
-from loginAdmin.views import es_admin
 from io import BytesIO
 from collections import defaultdict
 from ranking.models import Ranking, RankingEquipo
@@ -70,42 +73,60 @@ def modificar_jugador(request, dni):
         nombre = request.POST.get('nombre')
         apellido = request.POST.get('apellido')
         sexo = request.POST.get('sexo')
-        categorias_ids = request.POST.getlist('categorias[]')  # Captura las categorías seleccionadas
+        categorias_ids = request.POST.getlist('categorias[]')  # checkboxes del modal
+        estado = request.POST.get('estado', jugador.estado)    # ACT/INA/DEL
 
+        # Datos base
         jugador.nombre = nombre
         jugador.apellido = apellido
         jugador.sexo = sexo
+        jugador.estado = estado
+
+        # Si no está borrado, limpiamos fecha_baja (por si reactivaron)
+        if estado != EstadoJugador.BORRADO:
+            jugador.fecha_baja = None
+
         jugador.save()
 
-        # Actualizar las categorías
-        jugador.categorias.clear()  # Elimina las categorías anteriores
+        # Actualizar categorías
+        jugador.categorias.clear()
         for categoria_id in categorias_ids:
             categoria = get_object_or_404(Categoria, id_categoria=categoria_id)
             JugadorCategoria.objects.get_or_create(jugador=jugador, categoria=categoria)
 
         messages.success(request, "Jugador actualizado exitosamente.")
         return redirect('listado_jugadores')
+
     return render(request, 'modificar_jugador.html', {'jugador': jugador})
+
 
 def listado_jugadores(request):
     search = request.GET.get('search', '').strip()
     sexo_filter = request.GET.get('sexo', '').strip()
     categoria_filter = request.GET.get('categoria', '').strip()
+    estado_filter = request.GET.get('estado', '').strip()  # ACT/INA/DEL (opcional)
 
-    jugadores_qs = Jugador.objects.all().order_by('apellido', 'nombre')
+    
+    # Solo el admin puede listar BORRADOS
+    if estado_filter == EstadoJugador.BORRADO and not (request.user.is_authenticated and request.user.is_staff):
+        estado_filter = ''  # ignora intento de ver DEL si no es admin
 
+    # Base del queryset:
+    if estado_filter == EstadoJugador.BORRADO and (request.user.is_authenticated and request.user.is_staff):
+        jugadores_qs = Jugador.objects.all().order_by('apellido', 'nombre')   # incluir DEL
+    else:
+        jugadores_qs = Jugador.objects.visibles().order_by('apellido', 'nombre')  # oculta DEL
+
+    # Filtros
     if search:
-        jugadores_qs = jugadores_qs.filter(
-            Q(nombre__icontains=search) | Q(apellido__icontains=search)
-        )
-
+        jugadores_qs = jugadores_qs.filter(Q(nombre__icontains=search) | Q(apellido__icontains=search))
     if sexo_filter:
         jugadores_qs = jugadores_qs.filter(sexo=sexo_filter)
-
     if categoria_filter:
         jugadores_qs = jugadores_qs.filter(categorias__id_categoria=categoria_filter)
+    if estado_filter:
+        jugadores_qs = jugadores_qs.filter(estado=estado_filter)
 
-    # Evita duplicados si un jugador está en varias categorías
     jugadores_qs = jugadores_qs.distinct()
 
     paginator = Paginator(jugadores_qs, 15)
@@ -121,8 +142,10 @@ def listado_jugadores(request):
             'search': search,
             'sexo': sexo_filter,
             'categoria': categoria_filter,
+            'estado': estado_filter,
         }
     })
+
 
 
 def datos_jugador(request, dni):
@@ -244,15 +267,13 @@ def busqueda_jugador(request):
 @login_required
 @user_passes_test(es_admin)
 def borrar_jugador(request, dni):
-    try:
-        jugador = get_object_or_404(Jugador, dni=dni)
-        jugador.delete()
-        messages.success(request, f"Se ha eliminado '{jugador.nombre}' exitosamente.")
-        return redirect('listado_jugadores')  # 👈 Redirige al listado
+    jugador = get_object_or_404(Jugador, dni=dni)
+    jugador.estado = EstadoJugador.BORRADO
+    jugador.fecha_baja = timezone.now().date()
+    jugador.save(update_fields=['estado', 'fecha_baja'])
+    messages.success(request, f"🗑️ Se marcó '{jugador.apellido}, {jugador.nombre}' como BORRADO.")
+    return redirect('listado_jugadores')
 
-    except Jugador.DoesNotExist:
-        messages.error(request, "Error al eliminar el jugador, no existe.")
-        return redirect('listado_jugadores')
     
 @login_required
 @user_passes_test(es_admin)
@@ -377,18 +398,22 @@ def editar_categoria(request, id_categoria):
 @user_passes_test(es_admin)
 def exportar_jugadores_pdf(request):
     # Filtros desde la URL
-    search = request.GET.get("search", "")
-    sexo = request.GET.get("sexo", "")
-    categoria = request.GET.get("categoria", "")
+    search = request.GET.get("search", "").strip()
+    sexo = request.GET.get("sexo", "").strip()
+    categoria = request.GET.get("categoria", "").strip()
+    estado = request.GET.get("estado", "").strip()  # opcional
 
-    # Filtrado
-    jugadores = Jugador.objects.all()
+    # Base: visibles (oculta borrados)
+    jugadores = Jugador.objects.visibles()
+
     if search:
-        jugadores = jugadores.filter(nombre__icontains=search) | jugadores.filter(apellido__icontains=search)
+        jugadores = jugadores.filter(Q(nombre__icontains=search) | Q(apellido__icontains=search))
     if sexo:
         jugadores = jugadores.filter(sexo=sexo)
     if categoria:
         jugadores = jugadores.filter(categorias__id_categoria=categoria)
+    if estado:
+        jugadores = jugadores.filter(estado=estado)
 
     # PDF
     buffer = BytesIO()
@@ -454,9 +479,10 @@ def carga_masiva_categoria(request):
 
             for _, row in df.iterrows():
                 Categoria.objects.create(
-                    nivel=row['nivel'],
-                    edad=int(row['edad']),
-                    tipo_juego=row['tipo_juego']
+                    nivel=str(row.get('nivel', 'Sin nivel')),
+                    edad=str(row.get('edad', '0')),           # <- string
+                    tipo_juego=str(row.get('tipo_juego', 'Sin tipo')),
+                    genero=str(row.get('genero', 'Sin tipo')) # por si está la columna
                 )
 
             return JsonResponse({'exito': True})
@@ -478,26 +504,50 @@ def carga_masiva_jugadores(request):
             df = pd.read_excel(excel_file, engine='openpyxl')
 
             for _, row in df.iterrows():
-                nombre = row['nombre']
-                apellido = row['apellido']
-                sexo = row['sexo']
+                nombre = str(row.get('nombre', '')).strip()
+                apellido = str(row.get('apellido', '')).strip()
+                sexo = str(row.get('sexo', '')).strip()
 
-                # Verificar si ya existe
+                if not nombre or not apellido or not sexo:
+                    continue  # fila incompleta
+
+                # Verificar si ya existe (esto puede crear duplicados si hay homónimos)
                 jugador, creado = Jugador.objects.get_or_create(
                     nombre=nombre,
                     apellido=apellido,
                     sexo=sexo
                 )
 
-                # Procesar categorías (separadas por ;)
-                categorias_str = str(row['categorias'])  # Asegurar string
-                for cat_str in categorias_str.split(';'):
-                    try:
-                        nivel, edad, tipo_juego = cat_str.strip().split('-')
-                        categoria = Categoria.objects.get(nivel=nivel, edad=int(edad), tipo_juego=tipo_juego)
-                        JugadorCategoria.objects.get_or_create(jugador=jugador, categoria=categoria)
-                    except Exception as e:
-                        print(f"❌ Categoría inválida para jugador {nombre} {apellido}: {cat_str} ({e})")
+                # Procesar categorías (separadas por ';')
+                categorias_str = str(row.get('categorias', '')).strip()
+                if categorias_str and categorias_str.lower() != 'nan':
+                    for cat_str in categorias_str.split(';'):
+                        cat_str = cat_str.strip()
+                        if not cat_str:
+                            continue
+
+                        # Formatos soportados:
+                        # 1) nivel-edad-tipo_juego-genero
+                        # 2) nivel-edad-tipo_juego  (genero por defecto 'Sin tipo')
+                        partes = [p.strip() for p in cat_str.split('-')]
+                        try:
+                            if len(partes) == 4:
+                                nivel, edad, tipo_juego, genero = partes
+                            elif len(partes) == 3:
+                                nivel, edad, tipo_juego = partes
+                                genero = 'Sin tipo'
+                            else:
+                                print(f"❌ Formato de categoría desconocido: '{cat_str}'")
+                                continue
+
+                            categoria = Categoria.objects.get(
+                                nivel=nivel, edad=str(edad), tipo_juego=tipo_juego, genero=genero
+                            )
+                            JugadorCategoria.objects.get_or_create(jugador=jugador, categoria=categoria)
+                        except Categoria.DoesNotExist:
+                            print(f"❌ No existe la categoría: {cat_str}")
+                        except Exception as e:
+                            print(f"❌ Error con categoría '{cat_str}': {e}")
 
             return JsonResponse({'exito': True})
         except Exception as e:
