@@ -50,6 +50,14 @@
                         <div class="btn-opciones">
                             <a href="?">LIMPIAR FILTROS</a>
                         </div>
+                        <div class="btn-opciones" style="background-color: #cedf80;">
+                            {% with query_string=request.GET.urlencode %}
+                            <a href="{% url 'exportar_partidos_pdf' %}?{{ query_string }}" target="_blank" style="color: rgb(40, 40, 40) !important; font-weight: 600;letter-spacing: 2px;">
+                                <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
+                                DESCARGAR PROGRAMACIÓN
+                            </a>
+                            {% endwith %}
+                        </div>
                     </div>
                 </form>
             </div>

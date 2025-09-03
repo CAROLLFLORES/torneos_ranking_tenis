@@ -25,6 +25,9 @@ from collections import defaultdict
 from ranking.models import Ranking, RankingEquipo
 from .models import Jugador  # solo Jugador está en jugador.models
 from torneo.models import Torneo, Partido, Equipo  # estos están en torneo
+from datetime import datetime
+from django.conf import settings
+import os
 
 def jugador_detalle(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
@@ -503,3 +506,236 @@ def carga_masiva_jugadores(request):
 
     return JsonResponse({'exito': False, 'error': 'Método no permitido'})
 #--------------------------------------------------------------------------------------------------------------
+def detectar_jugadores_repetidos(partidos):
+    from collections import defaultdict
+
+    jugadores_partidos = defaultdict(list)
+
+    for p in partidos:
+        if not p.fecha:
+            continue  # si hubiera partidos sin fecha, los ignoramos
+
+        # Normalizo por si el valor viene como "Single", "Singles", etc.
+        tipo = (p.torneo.tipo_juego or "").strip().lower()
+
+        jugadores = []
+        if tipo == "single":
+            if p.jugador1: jugadores.append(p.jugador1)
+            if p.jugador2: jugadores.append(p.jugador2)
+        else:
+            if p.equipo1:
+                if p.equipo1.jugador1: jugadores.append(p.equipo1.jugador1)
+                if p.equipo1.jugador2: jugadores.append(p.equipo1.jugador2)
+            if p.equipo2:
+                if p.equipo2.jugador1: jugadores.append(p.equipo2.jugador1)
+                if p.equipo2.jugador2: jugadores.append(p.equipo2.jugador2)
+
+        for j in jugadores:
+            jugadores_partidos[j.dni].append(p.fecha)
+
+    jugadores_marcados = set()
+
+    for dni, fechas in jugadores_partidos.items():
+        fechas_ordenadas = sorted(fechas)
+
+        # 1) Más de un partido el mismo día
+        conteo_por_fecha = {}
+        for f in fechas_ordenadas:
+            conteo_por_fecha[f] = conteo_por_fecha.get(f, 0) + 1
+            if conteo_por_fecha[f] > 1:
+                jugadores_marcados.add(dni)
+
+        # 2) Partidos en días consecutivos
+        for i in range(len(fechas_ordenadas) - 1):
+            if (fechas_ordenadas[i + 1] - fechas_ordenadas[i]).days == 1:
+                jugadores_marcados.add(dni)
+
+    return jugadores_marcados
+
+def exportar_partidos_pdf(request):
+    # Filtros
+    torneo_id = request.GET.get("torneo", "")
+    fecha_str = request.GET.get("fecha", "")
+    search = request.GET.get("search", "")
+
+    # Queryset inicial
+    partidos = Partido.objects.select_related(
+        'torneo', 'cancha__sede',
+        'jugador1', 'jugador2',
+        'equipo1__jugador1', 'equipo1__jugador2',
+        'equipo2__jugador1', 'equipo2__jugador2'
+    )
+
+    if torneo_id:
+        partidos = partidos.filter(torneo__id=torneo_id)
+
+    if fecha_str:
+        fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+        partidos = partidos.filter(fecha=fecha)
+
+    if search:
+        partidos = partidos.filter(
+            Q(jugador1__nombre__icontains=search) | Q(jugador1__apellido__icontains=search) |
+            Q(jugador2__nombre__icontains=search) | Q(jugador2__apellido__icontains=search) |
+            Q(equipo1__jugador1__nombre__icontains=search) | Q(equipo1__jugador1__apellido__icontains=search) |
+            Q(equipo1__jugador2__nombre__icontains=search) | Q(equipo1__jugador2__apellido__icontains=search) |
+            Q(equipo2__jugador1__nombre__icontains=search) | Q(equipo2__jugador1__apellido__icontains=search) |
+            Q(equipo2__jugador2__nombre__icontains=search) | Q(equipo2__jugador2__apellido__icontains=search)
+        )
+
+    partidos = partidos.order_by('fecha', 'hora', 'cancha__sede__nombre')
+
+    partidos_global = Partido.objects.select_related(
+        'torneo', 'cancha__sede',
+        'jugador1', 'jugador2',
+        'equipo1__jugador1', 'equipo1__jugador2',
+        'equipo2__jugador1', 'equipo2__jugador2'
+    ).order_by('fecha', 'hora', 'cancha__sede__nombre')
+
+
+    jugadores_repetidos = detectar_jugadores_repetidos(partidos_global)
+
+    # PDF
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    y = height - 40
+
+    # --- Logos ---
+    logo1_path = os.path.join(settings.BASE_DIR, "static/imagenes/logo_french_clay.png")
+    logo2_path = os.path.join(settings.BASE_DIR, "static/imagenes/apur.png")
+
+    # Ajustamos tamaño (ejemplo: ancho 80px, alto proporcional)
+    c.drawImage(logo1_path, 40, height - 80, width=80, height=60, preserveAspectRatio=True, mask='auto')
+    c.drawImage(logo2_path, width - 120, height - 80, width=80, height=60, preserveAspectRatio=True, mask='auto')
+
+    y -= 70  # espacio después de los logos
+
+    # Encabezado principal
+    c.setFillColorRGB(0, 0.5, 0)
+    c.setFont("Helvetica-Bold", 16)
+    c.drawCentredString(width/2, y, "Programación de Partidos")
+    y -= 30
+
+    # Filtros visibles
+    c.setFillColorRGB(0, 0, 0)
+    c.setFont("Helvetica-Bold", 12)
+    filtros_text = f"Torneo: {torneo_id or 'Todos'} - Fecha: {fecha_str or 'Todas'} - Jugador: {search or 'Todos'}"
+    text_width = c.stringWidth(filtros_text, "Helvetica-Bold", 12)
+    c.drawString((A4[0] - text_width) / 2, y, filtros_text)
+    y -= 20
+
+    # Leyenda jugadores en verde
+    leyenda = "Jugadores en verde: juegan más de un partido el mismo día o en días consecutivos (en cualquier sede o tipo de juego)"
+    c.setFont("Helvetica", 9)
+    c.setFillColorRGB(0, 0.5, 0)
+    leyenda_width = c.stringWidth(leyenda, "Helvetica", 9)
+    c.drawString((A4[0] - leyenda_width) / 2, y, leyenda)
+    y -= 40  # espacio después de la leyenda
+
+    # Encabezados de columnas en negro
+    c.setFillColorRGB(0, 0, 0) 
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(45, y, "DÍA / HORA".upper())
+    c.drawString(120, y, "LUGAR".upper())
+    c.drawString(220, y, "TORNEO".upper())
+    c.drawString(370, y, "JUGADORES".upper())
+    y -= 15
+
+    # Contenido en negro
+    c.setFont("Helvetica", 10)
+
+    for partido in partidos:
+        if y < 60:  # nueva página
+            c.showPage()
+            y = height - 40
+            c.setFont("Helvetica-Bold", 10)
+            c.setFillColorRGB(0, 0, 0)
+            c.drawString(45, y, "Día / Hora")
+            c.drawString(120, y, "Lugar")
+            c.drawString(220, y, "Torneo")
+            c.drawString(370, y, "Jugadores")
+            y -= 15
+            c.setFont("Helvetica", 10)
+
+        # Día / Hora
+        c.setFillColorRGB(0, 0, 0)
+        c.drawString(45, y, partido.fecha.strftime('%d/%m/%Y'))
+        c.drawString(45, y - 12, partido.hora.strftime('%H:%M'))
+
+        # Lugar
+        c.setFillColorRGB(0, 0, 0)
+        c.drawString(120, y, partido.cancha.sede.nombre)
+        c.drawString(120, y - 12, f"Cancha {partido.cancha.cancha}")
+
+        # Torneo
+        c.setFillColorRGB(0, 0, 0)
+        c.drawString(220, y, partido.torneo.nombre)
+
+        # Dibujar jugadores / equipos
+        jugadores_equipo1 = []
+        jugadores_equipo2 = []
+
+        # Equipo / Jugador 1
+        if partido.equipo1:
+            if partido.equipo1.jugador1:
+                jugadores_equipo1.append(partido.equipo1.jugador1)
+            if partido.equipo1.jugador2:
+                jugadores_equipo1.append(partido.equipo1.jugador2)
+        elif partido.jugador1:
+            jugadores_equipo1.append(partido.jugador1)
+
+        # Equipo / Jugador 2
+        if partido.equipo2:
+            if partido.equipo2.jugador1:
+                jugadores_equipo2.append(partido.equipo2.jugador1)
+            if partido.equipo2.jugador2:
+                jugadores_equipo2.append(partido.equipo2.jugador2)
+        elif partido.jugador2:
+            jugadores_equipo2.append(partido.jugador2)
+
+        # Dibujar primer equipo / jugador
+        for jugador in jugadores_equipo1:
+            jugador_texto = f"{jugador.apellido.upper()} {jugador.nombre}"
+            if jugador.dni in jugadores_repetidos:
+                c.setFillColorRGB(0, 0.5, 0)  # verde
+            else:
+                c.setFillColorRGB(0, 0, 0)    # negro
+            c.drawString(370, y, jugador_texto)
+            y -= 15
+
+        # Espacio extra antes del separador
+        y += 7
+
+        # Separador sutil entre equipos (centrado)
+        c.setFillColorRGB(0.4, 0.4, 0.4)  # gris suave
+        c.setFont("Helvetica", 8)
+        c.drawString(370, y, "..............................")
+
+        # Espacio extra después del separador
+        y -= 13
+        c.setFont("Helvetica", 10)
+
+        # Dibujar segundo equipo / jugador
+        for jugador in jugadores_equipo2:
+            jugador_texto = f"{jugador.apellido.upper()} {jugador.nombre}"
+            if jugador.dni in jugadores_repetidos:
+                c.setFillColorRGB(0, 0.5, 0)  # verde
+            else:
+                c.setFillColorRGB(0, 0, 0)    # negro
+            c.drawString(370, y, jugador_texto)
+            y -= 15
+
+        # Línea punteada debajo de cada partido
+        c.setStrokeColorRGB(0, 0, 0)
+        c.setLineWidth(0.3)
+        c.setDash(1, 2)
+        c.line(40, y + 7, width - 40, y + 7)  
+        c.setDash()    
+
+        y -= 10  # espacio extra entre partidos
+
+    c.showPage()
+    c.save()
+    buffer.seek(0)
+    return HttpResponse(buffer, content_type="application/pdf")

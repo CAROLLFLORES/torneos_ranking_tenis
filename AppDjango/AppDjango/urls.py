@@ -63,6 +63,7 @@ urlpatterns = [
     path('guardar_jugador/', jugador_views.guardar_jugador, name='guardar_jugador'),
     path('listado_jugadores/', jugador_views.listado_jugadores, name='listado_jugadores'),
     path('exportar_jugadores_pdf/', jugador_views.exportar_jugadores_pdf, name='exportar_jugadores_pdf'),
+    path('exportar_partidos_pdf/', jugador_views.exportar_partidos_pdf, name='exportar_partidos_pdf'),
     path('datos_jugador/<str:dni>/', jugador_views.datos_jugador, name='datos_jugador'),  # Este está correcto
 
 
