@@ -180,8 +180,9 @@ __pycache__/
 */__pycache__/
 
 # Ignorar archivos de migraciones de Django
-*/migrations/*.py
-*/migrations/*.pyc
+# */migrations/*.py
+# */migrations/*.pyc
+*/migrations/__pycache__/
 
 # Ignorar la base de datos SQLite
 db.sqlite3

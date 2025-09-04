@@ -21,9 +21,9 @@
 
                     <!-- Torneo -->
                     <div class="filtro-busqueda1">
-                        <span class="span-filter">TORNEO</span>
+                        <span class="span-filter">CATEGORÍA</span>
                         <select name="torneo" class="form-control">
-                            <option value="">Todos</option>
+                            <option value="">Todas</option>
                             {% for t in torneos %}
                                 <option value="{{ t.id }}" {% if filtros.torneo == t.id|stringformat:"s" %}selected{% endif %}>
                                     {{ t.nombre }}
@@ -95,7 +95,7 @@
                     <tr>
                         <th>Día-Hora</th>
                         <th>Lugar</th>
-                        <th>Torneo</th>
+                        <th>Categoría</th>
                         <th>Jugadores</th>
                         <th>Set 1</th>
                         <th>Set 2</th>

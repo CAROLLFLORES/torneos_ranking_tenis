@@ -6,7 +6,7 @@ register = template.Library()
 def formatear_categoria(categoria):
     return f"{categoria.tipo_juego}-{categoria.genero}-{categoria.nivel}-{categoria.edad}"
 
-
+# nuevo
 @register.filter
 def estado_class(estado):
     # Usalo con jugador.estado
