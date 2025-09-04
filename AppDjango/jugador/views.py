@@ -670,7 +670,7 @@ def exportar_partidos_pdf(request):
     # Filtros visibles
     c.setFillColorRGB(0, 0, 0)
     c.setFont("Helvetica-Bold", 12)
-    filtros_text = f"Torneo: {torneo_id or 'Todos'} - Fecha: {fecha_str or 'Todas'} - Jugador: {search or 'Todos'}"
+    filtros_text = f"Categoría: {torneo_id or 'Todas'} - Fecha: {fecha_str or 'Todas'} - Jugador: {search or 'Todos'}"
     text_width = c.stringWidth(filtros_text, "Helvetica-Bold", 12)
     c.drawString((A4[0] - text_width) / 2, y, filtros_text)
     y -= 20
@@ -688,7 +688,7 @@ def exportar_partidos_pdf(request):
     c.setFont("Helvetica-Bold", 10)
     c.drawString(45, y, "DÍA / HORA".upper())
     c.drawString(120, y, "LUGAR".upper())
-    c.drawString(220, y, "TORNEO".upper())
+    c.drawString(220, y, "CATEGORÍA".upper())
     c.drawString(370, y, "JUGADORES".upper())
     y -= 15
 
