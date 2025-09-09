@@ -48,6 +48,7 @@ import os
 from django.conf import settings
 from datetime import datetime, timedelta
 
+
 ruta_imagen = os.path.join(settings.BASE_DIR, 'static', 'imagenes', 'apur.png')
 
 def es_admin(user):

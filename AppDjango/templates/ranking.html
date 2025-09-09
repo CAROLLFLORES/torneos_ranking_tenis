@@ -24,7 +24,6 @@
         </div>
         <!-- id="form-crear"  agregar en div de form container sumado a clase hidden para cerrar y abrir panel -->
         <div class="form-container-torneos">
-
             <div class="container-form-filter">
                 <div class="filtro-busqueda1">
                     <span for="torneo_id" class="span-filter">TORNEOS</span>
@@ -46,6 +45,22 @@
                 </div>
             </div>
             <div id="resultados">
+                        {% if torneo_actual %}
+                        <div class="span-filter">
+                            <i class="bi bi-arrow-up-circle" style="margin-right:5px; color: currentColor;"></i>
+                            ASCIENDEN {{ ascensos_val }} {% if ascensos_val == 1 %}jugador{% else %}jugadores{% endif %}
+                        </div>
+                        {% if descensos_val|default:0 > 0 %}
+                        <div class="span-filter">
+                            <i class="bi bi-arrow-down-circle" style="margin-right:5px; color: currentColor;"></i>
+                            DESCIENDEN {{ descensos_val }} {% if descensos_val == 1 %}jugador{% else %}jugadores{% endif %}
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        RANKING
+                    {% endif %}
+            </div> 
+            <div id="resultados">
                 <a onclick="generarPDF()" class="a-options" style="cursor: pointer;">
                     <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
                     DESCARGAR EN PDF
@@ -56,9 +71,63 @@
                     MENÚ ADMINISTRADOR
                 </a>
                 {% endif %}
-            </div>
+            
+            </div> 
         </div>
     </div>
+    
+     <!-- Ascensos administrador-->
+     <!-- ASCENSOS Y DESCENSOS -->
+    {% if user.is_authenticated and user.is_staff and torneo_actual %}
+    <div class="recuadro-tabla">
+    <div class="green-box-title-btn" style="cursor: pointer;">
+        <h4 style="margin: 0;">ASCENSOS Y DESCENSOS</h4>
+    </div>
+
+    <div class="form-container-torneos">
+        <div class="container-form-filter">
+        <form id="formAscDesc" onsubmit="return guardarAscDesc(event);">
+            {% csrf_token %}
+
+            <!-- ASCIENDEN (una línea) -->
+            <div class="form-row">
+            <div class="form-group">
+                <div class="linea-group">
+                <label class="span-filter" for="ascensos_input" style="display:flex; align-items:center;">
+                    <i class="bi bi-arrow-up-circle" style="margin-right:.35rem; color: currentColor;"></i>
+                    ASCIENDEN:
+                <input id="ascensos_input" type="number" min="0" name="ascensos"
+                        value="{{ ascensos_val|default:'' }}" class="form-control" style="width:120px;">
+                </div>
+                </label>
+            </div>
+            </div>
+
+            <!-- DESCIENDEN (una línea, debajo) -->
+            <div class="form-row">
+            <div class="form-group">
+                <div class="linea-group">
+                <label class="span-filter" for="descensos_input" style="display:flex; align-items:center;">
+                    <i class="bi bi-arrow-down-circle" style="margin-right:.35rem; color: currentColor;"></i>
+                    DESCIENDEN:
+                <input id="descensos_input" type="number" min="0" name="descensos"
+                        value="{{ descensos_val|default:'' }}" class="form-control" style="width:120px;">
+                </label>
+                </div>
+            </div>
+            </div>
+
+            <!-- Botón único abajo -->
+            <div class="btn-filtros">
+            <button type="submit" class="btn-opciones full-width">GUARDAR</button>
+            </div>
+        </form>
+        </div>
+    </div>
+    </div>
+    {% endif %}
+
+
 
     <!-- MODAL ASCENSO -->
     <div class="modal fade" id="modalAscenso" tabindex="-1" aria-labelledby="modalAscensoLabel" aria-hidden="true">
@@ -73,17 +142,22 @@
             </div>
             <div class="modal-body">
                 <select name="torneo_destino" class="form-select mb-3 form-control-lg" required>
-                    <option value="" disabled selected>TORNEOS</option>
-                    {% for torneo in torneos_en_curso %}
-                        {% if torneo.id != torneo_actual.id %}
-                            <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
-                        {% endif %}
+                <option value="" disabled selected>TORNEOS</option>
+                {% if torneos_destino %}
+                    {% for torneo in torneos_destino %}
+                    <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
                     {% endfor %}
+                {% else %}
+                    <option disabled>No hay torneos compatibles (mismo estilo)</option>
+                {% endif %}
                 </select>
                 <H4>ASCENDER los jugadores seleccionados a este torneo.</H4>
             </div>
             <div class="modal-footer">
-                <button type="submit" form="formAscenso" class="login-button btn btn-success">CONFIRMAR ASCENSO</button>
+                <button type="submit" id="btnConfirmarAscenso" form="formAscenso" class="login-button btn btn-success">
+                CONFIRMAR ASCENSO
+                </button>
+
             </div>
             </div>
         </div>
@@ -101,12 +175,14 @@
             </div>
             <div class="modal-body">
                 <select name="torneo_destino" class="form-select mb-3 form-control-lg" required>
-                    <option value="" disabled selected>TORNEOS</option>
-                    {% for torneo in torneos_en_curso %}
-                        {% if torneo.id != torneo_actual.id %}
-                            <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
-                        {% endif %}
+                <option value="" disabled selected>TORNEOS</option>
+                {% if torneos_destino %}
+                    {% for torneo in torneos_destino %}
+                    <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
                     {% endfor %}
+                {% else %}
+                    <option disabled>No hay torneos compatibles (mismo estilo)</option>
+                {% endif %}
                 </select>
                 <H4>DESCENDER los jugadores seleccionados a este torneo.</H4>
             </div>
@@ -159,7 +235,7 @@
                                 <th>PP</th>
                                 <th>SETS</th>
                                 <th>GAMES</th>
-                                <!-- {% if user.is_authenticated and user.is_staff %}
+                                <!--{% if user.is_authenticated and user.is_staff %}
                                 <th>ASCENSO <div class="text-end mb-2">
                                     <button type="button" id="btnAbrirModalAscenso" class="btn" title="Ascender jugadores"
                                         title="Ascenso"
@@ -174,7 +250,7 @@
                                     </button>
                                 </div>
                                 </th>
-                                {% endif %} -->    
+                                {% endif %}   -->
                             </tr>
                         </thead>
                         <tbody>
@@ -207,7 +283,7 @@
                                     {% endif %}
                                 </td>
                                 
-                                <!-- {% if user.is_authenticated and user.is_staff %}
+                                <!--{% if user.is_authenticated and user.is_staff %}
                                 <td class="text-center">
                                     <input type="checkbox" name="jugadores_seleccionados"
                                         value="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}
@@ -224,7 +300,7 @@
                                                 {{ jugador.jugador.dni }}
                                             {% endif %}">
                                 </td>
-                                {% endif %} -->
+                                {% endif %}-->
     
                             </tr>
                             {% empty %}
@@ -252,67 +328,79 @@
 </style>
 
 <script>
-    // document.getElementById("btnAbrirModalAscenso").addEventListener("click", function () {
-    //     const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
-    //         .map(input => input.value);
-    
-    //     if (seleccionados.length === 0) {
-    //         const mensaje = document.getElementById("modalAdvertenciaMensaje");
-    //         mensaje.textContent = "Debes seleccionar al menos un jugador para poder realizar el ascenso.";
-    //         new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
-    //         return;
-    //     }
-    
-    //     document.getElementById("seleccionados_json").value = JSON.stringify(seleccionados);
+// ------- Helpers -------
+function getSeleccionados() {
+  return Array.from(document.querySelectorAll('input[name="jugadores_seleccionados"]:checked'))
+              .map(i => i.value);
+}
 
-    
-    //     new bootstrap.Modal(document.getElementById("modalAscenso")).show();
-    // });
-    
-    // ✅ Al hacer submit, ahora sí toma el torneo elegido
-    document.getElementById("formAscenso").addEventListener("submit", function () {
-        const selectTorneo = document.querySelector("select[name='torneo_destino']");
-        document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
-    });
+function mostrarAdvertencia(msg) {
+  const mensaje = document.getElementById("modalAdvertenciaMensaje");
+  mensaje.textContent = msg;
+  new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
+}
 
-// ✅ DESCENSO
-// document.getElementById("btnAbrirModalDescenso").addEventListener("click", function () {
-//     const seleccionados = [...document.querySelectorAll("input[name='jugadores_seleccionados']:checked")]
-//         .map(input => input.value);
+// ------- Elementos -------
+const formAscenso         = document.getElementById('formAscenso');
+const inputSeleccionados  = document.getElementById('seleccionados_json');
+const hiddenDestino       = document.getElementById('torneo_destino_hidden');
 
-//     if (seleccionados.length === 0) {
-//         const mensaje = document.getElementById("modalAdvertenciaMensaje");
-//         mensaje.textContent = "Debes seleccionar al menos un jugador para continuar.";
-//         new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
-//         return;
-//     }
+const modalAscensoEl      = document.getElementById('modalAscenso');
+const modalDescensoEl     = document.getElementById('modalDescenso');
 
-//     // Setear seleccionados
-//     document.getElementById("seleccionados_json").value = JSON.stringify(seleccionados);
+const btnAbrirAsc         = document.getElementById('btnAbrirModalAscenso');
+const btnAbrirDesc        = document.getElementById('btnAbrirModalDescenso');
+const btnConfirmAsc       = document.getElementById('btnConfirmarAscenso');
+const btnConfirmDesc      = document.getElementById('btnConfirmarDescenso');
 
-//     // Obtener torneo destino
-//     const selectTorneo = document.querySelector("#modalDescenso select[name='torneo_destino']");
-//     if (selectTorneo) {
-//         document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
-//     }
+// ------- Abrir modal ASCENSO -------
+if (btnAbrirAsc) {
+  btnAbrirAsc.addEventListener('click', () => {
+    const seleccionados = getSeleccionados();
+    if (!seleccionados.length) {
+      mostrarAdvertencia("Debes seleccionar al menos un jugador para poder realizar el ascenso.");
+      return;
+    }
+    inputSeleccionados.value = JSON.stringify(seleccionados);
+    new bootstrap.Modal(modalAscensoEl).show();
+  });
+}
 
-//     // Abrir modal
-//     new bootstrap.Modal(document.getElementById("modalDescenso")).show();
-// });
+// ------- Abrir modal DESCENSO -------
+if (btnAbrirDesc) {
+  btnAbrirDesc.addEventListener('click', () => {
+    const seleccionados = getSeleccionados();
+    if (!seleccionados.length) {
+      mostrarAdvertencia("Debes seleccionar al menos un jugador para continuar.");
+      return;
+    }
+    inputSeleccionados.value = JSON.stringify(seleccionados);
+    new bootstrap.Modal(modalDescensoEl).show();
+  });
+}
 
-// ✅ Confirmar DESCENSO (envía el form)
-// document.getElementById("btnConfirmarDescenso").addEventListener("click", function () {
-//     const selectTorneo = document.querySelector("#modalDescenso select[name='torneo_destino']");
-//     if (selectTorneo && selectTorneo.value) {
-//         document.getElementById("torneo_destino_hidden").value = selectTorneo.value;
-//         document.getElementById("formAscenso").submit();
-//     } else {
-//         const mensaje = document.getElementById("modalAdvertenciaMensaje");
-//         mensaje.textContent = "Seleccioná un torneo destino antes de continuar.";
-//         new bootstrap.Modal(document.getElementById("modalAdvertencia")).show();
-//     }
-// });
+// ------- Confirmar ASCENSO (envía el form por atributo form="formAscenso") -------
+if (btnConfirmAsc) {
+  btnConfirmAsc.addEventListener('click', () => {
+    const selectTorneo = modalAscensoEl.querySelector('select[name="torneo_destino"]');
+    hiddenDestino.value = (selectTorneo && selectTorneo.value) ? selectTorneo.value : '';
+  });
+}
+
+// ------- Confirmar DESCENSO (envía manualmente el form) -------
+if (btnConfirmDesc) {
+  btnConfirmDesc.addEventListener('click', () => {
+    const selectTorneo = modalDescensoEl.querySelector('select[name="torneo_destino"]');
+    if (!selectTorneo || !selectTorneo.value) {
+      mostrarAdvertencia("Seleccioná un torneo destino antes de continuar.");
+      return;
+    }
+    hiddenDestino.value = selectTorneo.value;
+    formAscenso.submit();
+  });
+}
 </script>
+
 
 
 
@@ -391,6 +479,43 @@ async function generarPDF() {
         console.error("❌ Error al generar PDF:", error);
         alert("No se pudo generar el PDF. Por favor, intentá nuevamente.");
     }
+}
+
+
+
+function postForm(url, body, csrfToken) {
+  return fetch(url, {
+    method: 'POST',
+    credentials: 'same-origin',         // 🔒 manda cookies/sesión
+    redirect: 'manual',                 // 🔑 NO seguir el redirect (deja vivos los messages)
+    headers: {
+      'X-CSRFToken': csrfToken,
+      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: new URLSearchParams(body).toString()
+  });
+}
+
+function guardarAscDesc(e) {
+  e.preventDefault();
+  const asc = document.getElementById('ascensos_input').value.trim();
+  const des = document.getElementById('descensos_input').value.trim();
+  const csrf = document.querySelector('#formAscDesc [name=csrfmiddlewaretoken]').value;
+
+  const promises = [];
+  if (asc !== '') promises.push(postForm("{% url 'actualizar_ascensos' torneo_actual.id %}", { ascensos: asc }, csrf));
+  if (des !== '') promises.push(postForm("{% url 'actualizar_descensos' torneo_actual.id %}", { descensos: des }, csrf));
+
+  if (promises.length === 0) {
+    alert("Completá al menos un valor para guardar.");
+    return false;
+  }
+
+  Promise.all(promises)
+    .then(() => location.reload())
+    .catch(() => alert("❌ Error al guardar. Intentá nuevamente."));
+  return false;
 }
 
 </script>

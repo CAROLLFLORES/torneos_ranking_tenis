@@ -14,6 +14,46 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.contrib import messages
 from django.http import HttpResponseBadRequest
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
+from .models import Torneo
+
+# ---- Helpers simples para ascensos/descensos por torneo (archivo JSON) ----
+import os, json
+from django.conf import settings
+
+FILE_PATH = os.path.join(settings.BASE_DIR, 'ascensos_descensos.json')
+
+def _read_movs():
+    if not os.path.exists(FILE_PATH):
+        return {"ascensos": {}, "descensos": {}}
+    with open(FILE_PATH, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def _write_movs(data):
+    with open(FILE_PATH, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+def get_ascensos(torneo_id, default=0):
+    data = _read_movs()
+    return int(data.get("ascensos", {}).get(str(torneo_id), default))
+
+def set_ascensos(torneo_id, value):
+    data = _read_movs()
+    data.setdefault("ascensos", {})[str(torneo_id)] = int(value)
+    _write_movs(data)
+
+def get_descensos(torneo_id, default=0):
+    data = _read_movs()
+    return int(data.get("descensos", {}).get(str(torneo_id), default))
+
+def set_descensos(torneo_id, value):
+    data = _read_movs()
+    data.setdefault("descensos", {})[str(torneo_id)] = int(value)
+    _write_movs(data)
+# ---------------------------------------------------------------------------
+
 
 
 def contar_sets_ganados(set1_a, set1_b, set2_a, set2_b, set3_a, set3_b):
@@ -45,15 +85,36 @@ def ver_ranking(request, torneo_id):
     else:
         torneo_actual = get_object_or_404(Torneo, id=torneo_id)
 
-    ranking = calcular_ranking(torneo_actual.id, request.user) if torneo_actual else []
+    # Valores (sin tocar BD)
+    ascensos_val  = get_ascensos(torneo_actual.id, default=0) if torneo_actual else 0
+    descensos_val = get_descensos(torneo_actual.id, default=0) if torneo_actual else 0
 
+    ranking = calcular_ranking(torneo_actual.id, request.user) if torneo_actual else []
     torneos = Torneo.objects.all().order_by("nombre")
+    
+    # 🔽 NUEVO: torneos destino con el mismo estilo (tipo_juego + tipo)
+    torneos_destino = Torneo.objects.none()
+    if torneo_actual:
+        torneos_destino = (
+            Torneo.objects
+            .filter(
+                tipo_juego=torneo_actual.tipo_juego,  # Single/Doble/Mixto
+                tipo=torneo_actual.tipo               # M / F / Mixto
+            )
+            .exclude(id=torneo_actual.id)
+            .order_by('nombre')
+        )
 
     return render(request, "ranking.html", {
         "torneo_actual": torneo_actual,
         "ranking": ranking,
-        "torneos": torneos 
+        "torneos": torneos,
+        "ascensos_val": ascensos_val,
+        "descensos_val": descensos_val,
+        "torneos_destino": torneos_destino,   # 🔥 pásalo al template
+        
     })
+
 
 def calcular_ranking(torneo_id, user=None):
     torneo = get_object_or_404(Torneo, id=torneo_id)
@@ -980,3 +1041,31 @@ def revertir_ranking_doble(resultado):
     ranking_perdedor.games -= (games_eq2 - games_eq1)
     ranking_perdedor.puntaje_total_categoria += 50
     ranking_perdedor.save()
+
+
+
+@staff_member_required
+def actualizar_ascensos(request, torneo_id):
+    torneo = get_object_or_404(Torneo, pk=torneo_id)
+    if request.method == 'POST':
+        try:
+            nuevo = int(request.POST.get('ascensos', '0'))
+            if nuevo < 0: raise ValueError
+            set_ascensos(torneo.id, nuevo)
+            messages.success(request, f"Ascienden actualizado a {nuevo} para {torneo.nombre}.")
+        except ValueError:
+            messages.error(request, "Ingresá un número válido (0 o mayor).")
+    return redirect('ver_ranking', torneo_id=torneo.id)
+
+@staff_member_required
+def actualizar_descensos(request, torneo_id):
+    torneo = get_object_or_404(Torneo, pk=torneo_id)
+    if request.method == 'POST':
+        try:
+            nuevo = int(request.POST.get('descensos', '0'))
+            if nuevo < 0: raise ValueError
+            set_descensos(torneo.id, nuevo)
+            messages.success(request, f"Descienden actualizado a {nuevo} para {torneo.nombre}.")
+        except ValueError:
+            messages.error(request, "Ingresá un número válido (0 o mayor).")
+    return redirect('ver_ranking', torneo_id=torneo.id)
