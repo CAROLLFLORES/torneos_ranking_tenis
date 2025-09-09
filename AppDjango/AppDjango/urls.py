@@ -140,5 +140,7 @@ urlpatterns = [
     path("manifest.json", manifest, name="manifest"),
     path("service-worker.js", service_worker, name="service_worker"),
 
+    path('ranking/<int:torneo_id>/ascensos/',  ranking_views.actualizar_ascensos,  name='actualizar_ascensos'),
+    path('ranking/<int:torneo_id>/descensos/', ranking_views.actualizar_descensos, name='actualizar_descensos'),
 
 ]
