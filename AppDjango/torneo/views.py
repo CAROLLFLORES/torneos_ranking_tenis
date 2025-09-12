@@ -163,43 +163,39 @@ def eliminar_torneo(request, id):
     return redirect('abm_torneo')
 
 
-
 def editar_torneo(request, id):
     torneo = get_object_or_404(Torneo, id=id)
+    
+    if request.method == "POST":
+        cat_ids = request.POST.getlist('categorias')  # <- CLAVE
+
 
     if request.method == 'POST':
-        form = TorneoForms(request.POST, instance=torneo)
+        try:
+            with transaction.atomic():
+                torneo.nombre = (request.POST.get('nombre') or torneo.nombre).strip()
 
-        if form.is_valid():
-            categorias = form.cleaned_data['categorias']
+              
+                torneo.tipo = request.POST.get('tipo', torneo.tipo)
+                torneo.tipo_juego = request.POST.get('tipo_juego', torneo.tipo_juego)
+                torneo.description = (request.POST.get('description') or '').strip()
 
-            try:
-                with transaction.atomic():
-                    # Solo actualizás los campos del torneo, NO categorías
-                    torneo.nombre = form.cleaned_data['nombre']
-                    torneo.fecha_inicio = form.cleaned_data['fecha_inicio']
-                    torneo.fecha_fin = form.cleaned_data['fecha_fin']
-                    torneo.tipo = form.cleaned_data['tipo']
-                    torneo.save()
+                torneo.save()
 
-                    # Limpiar y actualizar las categorías
-                    TorneoCategoria.objects.filter(torneo=torneo).delete()
-                    for categoria in categorias:
-                        TorneoCategoria.objects.create(torneo=torneo, categoria=categoria)
+                # Checkboxes del modal: name="categorias[]"
+                cats_ids = request.POST.getlist('categorias[]')
+                if cats_ids:
+                    torneo.categorias.set(Categoria.objects.filter(id_categoria__in=cats_ids))
+                else:
+                    torneo.categorias.clear()
+                torneo.categorias.set(cat_ids)  # <- actualiza M2M
+            messages.success(request, 'Torneo actualizado exitosamente.')
+        except Exception as e:
+            messages.error(request, f'Error al actualizar el torneo: {e}')
 
-                messages.success(request, 'Torneo actualizado exitosamente.')
-                return redirect('abm_torneo')
-
-            except IntegrityError:
-                messages.error(request, 'Error: Ya existe una relación entre este torneo y una de las categorías seleccionadas.')
-            except Exception as e:
-                messages.error(request, f'Error al actualizar el torneo: {e}')
-        else:
-            messages.error(request, 'Por favor, corrige los errores en el formulario.')
-    else:
-        form = TorneoForms(instance=torneo)
-
-    return render(request, 'editar_torneo.html', {'form': form, 'torneo': torneo})
+        return redirect('abm_torneo')
+       # Si alguien entra por GET, lo mandamos de vuelta
+    return redirect('abm_torneo')
 
 def programacion(request):
     torneos = Torneo.objects.order_by('nombre')
