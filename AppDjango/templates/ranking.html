@@ -44,22 +44,7 @@
                     </select>
                 </div>
             </div>
-            <div id="resultados">
-                        {% if torneo_actual %}
-                        <div class="span-filter">
-                            <i class="bi bi-arrow-up-circle" style="margin-right:5px; color: currentColor;"></i>
-                            ASCIENDEN {{ ascensos_val }} {% if ascensos_val == 1 %}jugador{% else %}jugadores{% endif %}
-                        </div>
-                        {% if descensos_val|default:0 > 0 %}
-                        <div class="span-filter">
-                            <i class="bi bi-arrow-down-circle" style="margin-right:5px; color: currentColor;"></i>
-                            DESCIENDEN {{ descensos_val }} {% if descensos_val == 1 %}jugador{% else %}jugadores{% endif %}
-                        </div>
-                        {% endif %}
-                    {% else %}
-                        RANKING
-                    {% endif %}
-            </div> 
+            
             <div id="resultados">
                 <a onclick="generarPDF()" class="a-options" style="cursor: pointer;">
                     <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
@@ -76,56 +61,25 @@
         </div>
     </div>
     
-     <!-- Ascensos administrador-->
-     <!-- ASCENSOS Y DESCENSOS -->
-    {% if user.is_authenticated and user.is_staff and torneo_actual %}
+    <!-- DESCRIPCION -->
     <div class="recuadro-tabla">
-    <div class="green-box-title-btn" style="cursor: pointer;">
-        <h4 style="margin: 0;">ASCENSOS Y DESCENSOS</h4>
-    </div>
-
-    <div class="form-container-torneos">
-        <div class="container-form-filter">
-        <form id="formAscDesc" onsubmit="return guardarAscDesc(event);">
-            {% csrf_token %}
-
-            <!-- ASCIENDEN (una línea) -->
-            <div class="form-row">
-            <div class="form-group">
-                <div class="linea-group">
-                <label class="span-filter" for="ascensos_input" style="display:flex; align-items:center;">
-                    <i class="bi bi-arrow-up-circle" style="margin-right:.35rem; color: currentColor;"></i>
-                    ASCIENDEN:
-                <input id="ascensos_input" type="number" min="0" name="ascensos"
-                        value="{{ ascensos_val|default:'' }}" class="form-control" style="width:120px;">
-                </div>
-                </label>
+        <div class="form-container-torneos">
+            <div class="container-form-filter">
+            <div class="filtro-busqueda1"
+                style="flex:1 1 100%; max-width:100%; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+                <span class="span-filter" style="margin:0;">DESCRIPCIÓN</span>
+                <span class="span-filter" style="margin:0;">
+                {% if torneo_actual %}
+                    {{ torneo_actual.description|default:"Sin descripción" }}
+                {% else %}
+                    —
+                {% endif %}
+                </span>
             </div>
             </div>
-
-            <!-- DESCIENDEN (una línea, debajo) -->
-            <div class="form-row">
-            <div class="form-group">
-                <div class="linea-group">
-                <label class="span-filter" for="descensos_input" style="display:flex; align-items:center;">
-                    <i class="bi bi-arrow-down-circle" style="margin-right:.35rem; color: currentColor;"></i>
-                    DESCIENDEN:
-                <input id="descensos_input" type="number" min="0" name="descensos"
-                        value="{{ descensos_val|default:'' }}" class="form-control" style="width:120px;">
-                </label>
-                </div>
-            </div>
-            </div>
-
-            <!-- Botón único abajo -->
-            <div class="btn-filtros">
-            <button type="submit" class="btn-opciones full-width">GUARDAR</button>
-            </div>
-        </form>
         </div>
     </div>
-    </div>
-    {% endif %}
+
 
 
 
