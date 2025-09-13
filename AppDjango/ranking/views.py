@@ -90,8 +90,28 @@ def ver_ranking(request, torneo_id):
     descensos_val = get_descensos(torneo_actual.id, default=0) if torneo_actual else 0
 
     ranking = calcular_ranking(torneo_actual.id, request.user) if torneo_actual else []
-    torneos = Torneo.objects.all().order_by("nombre")
     
+    # 🔒 Ocultar “no visibles” según BD (sin tocar flujo de persistencia)
+    if torneo_actual:
+        if torneo_actual.tipo_juego in ("Doble", "Mixto"):
+            invisibles = set(
+                RankingEquipo.objects
+                .filter(torneo=torneo_actual, activo=False)
+                .values_list("equipo_id", flat=True)     # <- PK de Equipo
+            )
+            ranking = [r for r in ranking if (r.get("equipo") and r["equipo"].pk not in invisibles)]
+        else:
+            invisibles = set(
+                Ranking.objects
+                .filter(torneo=torneo_actual, activo=False)
+                .values_list("jugador_id", flat=True)    # <- PK de Jugador (tu DNI)
+                # Alternativa equivalente: .values_list("jugador__dni", flat=True)
+            )
+            ranking = [r for r in ranking if (r.get("jugador") and r["jugador"].pk not in invisibles)]
+
+
+    torneos = Torneo.objects.all().order_by("nombre")
+
     # 🔽 NUEVO: torneos destino con el mismo estilo (tipo_juego + tipo)
     torneos_destino = Torneo.objects.none()
     if torneo_actual:
@@ -99,7 +119,7 @@ def ver_ranking(request, torneo_id):
             Torneo.objects
             .filter(
                 tipo_juego=torneo_actual.tipo_juego,  # Single/Doble/Mixto
-                tipo=torneo_actual.tipo               # M / F / Mixto
+                tipo=torneo_actual.tipo,               # Caballeros/Damas/Mixto
             )
             .exclude(id=torneo_actual.id)
             .order_by('nombre')
@@ -314,7 +334,7 @@ def guardar_ranking_en_modelos(torneo, ranking_list):
                         "categoria": categoria_default,
                         "bimestre": 0,
                         "anio": 0,
-                        "activo": True,
+                        #"activo": True,
                     }
                 )
             else:
@@ -332,7 +352,7 @@ def guardar_ranking_en_modelos(torneo, ranking_list):
                         "categoria": categoria_default,
                         "bimestre": 0,
                         "anio": 0,
-                        "activo": True,
+                        #"activo": True,
                     }
                 )
 
@@ -597,9 +617,9 @@ def confirmar_ascenso_final(request):
                 ascender_equipos(jugadores_ids, torneo_origen_id, torneo_destino_id)
             else:
                 ascender_jugadores(jugadores_ids, torneo_origen_id, torneo_destino_id)
-            return redirect('abm_torneo')
+            return redirect('ver_ranking', torneo_id=torneo_origen.id)
 
-    return redirect('abm_torneo')
+    return redirect('ver_ranking', torneo_id=torneo_origen.id)
 
 from django.views.decorators.http import require_POST
 
@@ -701,6 +721,11 @@ def ascender_equipos(equipos_ids, torneo_origen_id, torneo_destino_id):
             if not creado:
                 ranking_destino.activo = True
                 ranking_destino.save()
+
+                # ✅ inscribir en el torneo destino para que se vea en el ranking
+            if hasattr(torneo_destino, "equipos"):
+                if not torneo_destino.equipos.filter(pk=equipo.pk).exists():
+                    torneo_destino.equipos.add(equipo)
 
 # no se usa más 12/8
 def actualizar_ranking_manual(resultado):
