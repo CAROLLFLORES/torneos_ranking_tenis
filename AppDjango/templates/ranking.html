@@ -67,7 +67,7 @@
             <div class="container-form-filter">
             <div class="filtro-busqueda1"
                 style="flex:1 1 100%; max-width:100%; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
-                <span class="span-filter" style="margin:0;">DESCRIPCIÓN</span>
+                <span class="span-filter" style="margin:0;">DESCRIPCIÓN:</span>
                 <span class="span-filter" style="margin:0;">
                 {% if torneo_actual %}
                     {{ torneo_actual.description|default:"Sin descripción" }}
@@ -190,19 +190,22 @@
                                 <th>SETS</th>
                                 <th>GAMES</th>
                                 {% if user.is_authenticated and user.is_staff %}
-                                <th>ASCENSO <div class="text-end mb-2">
-                                    <button type="button" id="btnAbrirModalAscenso" class="btn" title="Ascender jugadores"
-                                        title="Ascenso"
-                                        style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi-arrow-up-circle-fill" style="font-size: 1.5rem;color: orange;"></i>
-                                    </button>
-                                </div></th>
-                                <th>DESCENSO <div class="text-end mb-2">
-                                    <button type="button" id="btnAbrirModalDescenso" class="btn-modal-descenso" title="Descenso"
-                                        style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi-arrow-down-circle-fill" style="font-size: 1.5rem;color: red;"></i>
-                                    </button>
-                                </div>
+                                <th>
+                                    <div class="text-end mb-2">
+                                        <button type="button" id="btnAbrirModalAscenso" class="btn" title="Ascender jugadores"
+                                            title="Ascenso"
+                                            style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                            ASCENSO<i class="bi-arrow-up-circle-fill" style="margin-left: .5rem; font-size: 1.2rem;color: green;"></i>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="text-end mb-2">
+                                        <button type="button" id="btnAbrirModalDescenso" class="btn-modal-descenso" title="Descenso"
+                                            style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                            DESCENSO<i class="bi-arrow-down-circle-fill" style="margin-left: .5rem; font-size: 1.2rem;color: red;"></i>
+                                        </button>
+                                    </div>
                                 </th>
                                 {% endif %}
                             </tr>

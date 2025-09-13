@@ -123,7 +123,7 @@ def ver_ranking(request, torneo_id):
                 .filter(torneo=torneo_actual, activo=False)
                 .values_list("equipo_id", flat=True)     # <- PK de Equipo
             )
-            ranking = [r for r in ranking if (r.get("equipo") and r["equipo"].pk not in invisibles)]
+            ranking_ordenado = [r for r in ranking_ordenado if (r.get("equipo") and r["equipo"].pk not in invisibles)]
         else:
             invisibles = set(
                 Ranking.objects
@@ -131,7 +131,7 @@ def ver_ranking(request, torneo_id):
                 .values_list("jugador_id", flat=True)    # <- PK de Jugador (tu DNI)
                 # Alternativa equivalente: .values_list("jugador__dni", flat=True)
             )
-            ranking = [r for r in ranking if (r.get("jugador") and r["jugador"].pk not in invisibles)]
+            ranking_ordenado = [r for r in ranking_ordenado if (r.get("jugador") and r["jugador"].pk not in invisibles)]
 
 
     torneos = Torneo.objects.all().order_by("nombre")
