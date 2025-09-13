@@ -189,7 +189,7 @@
                                 <th>PP</th>
                                 <th>SETS</th>
                                 <th>GAMES</th>
-                                <!--{% if user.is_authenticated and user.is_staff %}
+                                {% if user.is_authenticated and user.is_staff %}
                                 <th>ASCENSO <div class="text-end mb-2">
                                     <button type="button" id="btnAbrirModalAscenso" class="btn" title="Ascender jugadores"
                                         title="Ascenso"
@@ -204,7 +204,7 @@
                                     </button>
                                 </div>
                                 </th>
-                                {% endif %}   -->
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -237,7 +237,7 @@
                                     {% endif %}
                                 </td>
                                 
-                                <!--{% if user.is_authenticated and user.is_staff %}
+                                {% if user.is_authenticated and user.is_staff %}
                                 <td class="text-center">
                                     <input type="checkbox" name="jugadores_seleccionados"
                                         value="{% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}
@@ -254,7 +254,7 @@
                                                 {{ jugador.jugador.dni }}
                                             {% endif %}">
                                 </td>
-                                {% endif %}-->
+                                {% endif %}
     
                             </tr>
                             {% empty %}
