@@ -37,6 +37,7 @@ class Jugador(models.Model):
             db_index=True
         )
     fecha_baja = models.DateField(null=True, blank=True)  # opcional, para auditar bajas
+    observaciones = models.CharField(  max_length=200, default="Sin observaciones", blank=True )
 
     # 👈 enganchar el manager
     objects = JugadorQuerySet.as_manager()

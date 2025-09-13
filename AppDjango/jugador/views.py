@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
+from django.db import transaction
 
 from .models import Jugador, Categoria, JugadorCategoria, EstadoJugador
 from torneo.models import TorneoJugador, Partido, Torneo, Equipo
@@ -75,12 +76,14 @@ def modificar_jugador(request, dni):
         sexo = request.POST.get('sexo')
         categorias_ids = request.POST.getlist('categorias[]')  # checkboxes del modal
         estado = request.POST.get('estado', jugador.estado)    # ACT/INA/DEL
+        observaciones = request.POST.get('observaciones', jugador.observaciones)
 
         # Datos base
         jugador.nombre = nombre
         jugador.apellido = apellido
         jugador.sexo = sexo
         jugador.estado = estado
+        jugador.observaciones = observaciones
 
         # Si no está borrado, limpiamos fecha_baja (por si reactivaron)
         if estado != EstadoJugador.BORRADO:
@@ -266,12 +269,62 @@ def busqueda_jugador(request):
 
 @login_required
 @user_passes_test(es_admin)
+# def borrar_jugador(request, dni):
+#     jugador = get_object_or_404(Jugador, dni=dni)
+#     jugador.estado = EstadoJugador.BORRADO
+#     jugador.fecha_baja = timezone.now().date()
+#     jugador.save(update_fields=['estado', 'fecha_baja'])
+#     messages.success(request, f"🗑️ Se eliminó el jugador '{jugador.apellido}, {jugador.nombre}'.")
+#     return redirect('listado_jugadores')
+
 def borrar_jugador(request, dni):
     jugador = get_object_or_404(Jugador, dni=dni)
-    jugador.estado = EstadoJugador.BORRADO
-    jugador.fecha_baja = timezone.now().date()
-    jugador.save(update_fields=['estado', 'fecha_baja'])
-    messages.success(request, f"🗑️ Se marcó '{jugador.apellido}, {jugador.nombre}' como BORRADO.")
+
+    try:
+        with transaction.atomic():
+            # 1️⃣ Torneos singles
+            torneos_singles = Torneo.objects.filter(
+                tipo_juego='Single',
+                torneo_jugadores__jugador=jugador
+            ).distinct()
+
+            for torneo in torneos_singles:
+                # Eliminar inscripción del jugador en singles
+                TorneoJugador.objects.filter(torneo=torneo, jugador=jugador).delete()
+
+            # 2️⃣ Torneos dobles
+            torneos_dobles = Torneo.objects.filter(
+                tipo_juego='Doble',
+                equipos__jugador1=jugador
+            ).distinct() | Torneo.objects.filter(
+                tipo_juego='Doble',
+                equipos__jugador2=jugador
+            ).distinct()
+
+            for torneo in torneos_dobles:
+                equipos = Equipo.objects.filter(
+                    torneo=torneo
+                ).filter(Q(jugador1=jugador) | Q(jugador2=jugador))
+
+                for equipo in equipos:
+                    print(f"[INFO] Desasociando equipo {equipo.id} del torneo {torneo.nombre}")
+                    equipo.torneo = None
+                    equipo.save()
+
+            # 3️⃣ Marcar al jugador como BORRADO
+            jugador.estado = EstadoJugador.BORRADO
+            jugador.fecha_baja = timezone.now().date()
+            jugador.save(update_fields=['estado', 'fecha_baja'])
+
+            messages.success(
+                request,
+                f"🗑️ Se eliminó el jugador '{jugador.apellido}, {jugador.nombre}' y se desasoció de torneos y equipos."
+            )
+
+    except Exception as e:
+        print(f"[ERROR] Ocurrió un error: {e}")
+        messages.error(request, f"Error al eliminar el jugador: {e}")
+
     return redirect('listado_jugadores')
 
     

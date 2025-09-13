@@ -70,6 +70,9 @@
     <p style="margin-top: .5rem; color: rgb(150, 149, 149); font-size: .8rem;">
         {{ partidos.paginator.count }} resultados encontrados.
     </p>
+    <p style="color: rgb(186, 184, 184); font-size: .9rem; margin: 0 0 1rem 0;">
+        (E) ⮕ Jugador Eliminado - (I) ⮕ Jugador Inactivo
+    </p>
 
     <!-- LISTADO -->
     <div class="form-container-partidos" style="margin-bottom: 1rem;">
@@ -105,22 +108,61 @@
                     </td>
                     
                     <!-- Jugador/Equipo 1 -->
-                    <td  class="jugador">
+                    <td class="jugador">
                         <select class="select-disabled" id="jugador1-{{ partido.id }}" disabled>
                             {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
+                                {# Opciones editables: equipos inscriptos #}
                                 {% for equipo in equipos %}
                                     <option value="{{ equipo.id }}"
                                         {% if equipo.id == partido.equipo1.id %}selected{% endif %}>
-                                        {{ equipo.jugador1.apellido | upper }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido | upper }} {{ equipo.jugador2.nombre }}
+                                        {{ equipo.jugador1.apellido|upper }}
+                                        {% if equipo.jugador1.estado != 'ACT' %}
+                                            ({% if equipo.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                        {% endif %}
+                                        /
+                                        {{ equipo.jugador2.apellido|upper }}
+                                        {% if equipo.jugador2.estado != 'ACT' %}
+                                            ({% if equipo.jugador2.estado == "INA" %}I{% else %}E{% endif %})
+                                        {% endif %}
                                     </option>
                                 {% endfor %}
+
+                                {# Mostrar equipo histórico si ya no está inscripto #}
+                                {% if partido.equipo1 and partido.equipo1 not in equipos %}
+                                    <option value="{{ partido.equipo1.id }}" selected>
+                                        {{ partido.equipo1.jugador1.apellido|upper }}
+                                        {% if partido.equipo1.jugador1.estado != 'ACT' %}
+                                            ({% if partido.equipo1.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                        {% endif %}
+                                        /
+                                        {{ partido.equipo1.jugador2.apellido|upper }}
+                                        {% if partido.equipo1.jugador2.estado != 'ACT' %}
+                                            ({% if partido.equipo1.jugador2.estado == "INA" %}I{% else %}E{% endif %})
+                                        {% endif %}
+                                    </option>
+                                {% endif %}
+
                             {% else %}
+                                {# Opciones editables: jugadores inscriptos #}
                                 {% for jugador in jugadores %}
                                     <option value="{{ jugador.dni }}"
                                         {% if jugador.dni == partido.jugador1.dni %}selected{% endif %}>
-                                        {{ jugador.apellido | upper }} {{ jugador.nombre }}
+                                        {{ jugador.apellido|upper }} {{ jugador.nombre }}
+                                        {% if jugador.estado != 'ACT' %}
+                                            ({% if jugador.estado == "INA" %}I{% else %}E{% endif %})
+                                        {% endif %}
                                     </option>
                                 {% endfor %}
+
+                                {# Mostrar jugador histórico si ya no está inscripto #}
+                                {% if partido.jugador1 and partido.jugador1 not in jugadores %}
+                                    <option value="{{ partido.jugador1.dni }}" selected>
+                                        {{ partido.jugador1.apellido|upper }} {{ partido.jugador1.nombre }}
+                                        {% if partido.jugador1.estado != 'ACT' %}
+                                            ({% if partido.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                        {% endif %}
+                                    </option>
+                                {% endif %}
                             {% endif %}
                         </select>
                     </td>
@@ -145,26 +187,57 @@
                         <select id="ganador-{{ partido.id }}" disabled>
                             <option value="">No definido</option>
                             {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
-                                {% for equipo in equipos %}
-                                    <option value="{{ equipo.id }}"
-                                        {% if partido.resultado and partido.resultado.ganador_equipo and equipo.id == partido.resultado.ganador_equipo.id %}
-                                            selected
-                                        {% endif %}>
-                                        {{ equipo.jugador1.apellido | upper }} / {{ equipo.jugador2.apellido | upper }}
-                                    </option>
-                                {% endfor %}
+                                <option value="{{ partido.equipo1.id }}"
+                                    {% if partido.resultado and partido.resultado.ganador_equipo and partido.equipo1.id == partido.resultado.ganador_equipo.id %}
+                                        selected
+                                    {% endif %}>
+                                    {{ partido.equipo1.jugador1.apellido|upper }}
+                                    {% if partido.equipo1.jugador1.estado != 'ACT' %}
+                                        ({% if partido.equipo1.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                    {% endif %}
+                                    /
+                                    {{ partido.equipo1.jugador2.apellido|upper }}
+                                    {% if partido.equipo1.jugador2.estado != 'ACT' %}
+                                        ({% if partido.equipo1.jugador2.estado == "INA" %}I{% else %}E{% endif %})
+                                    {% endif %}
+                                </option>
+                                <option value="{{ partido.equipo2.id }}"
+                                    {% if partido.resultado and partido.resultado.ganador_equipo and partido.equipo2.id == partido.resultado.ganador_equipo.id %}
+                                        selected
+                                    {% endif %}>
+                                    {{ partido.equipo2.jugador1.apellido|upper }}
+                                    {% if partido.equipo2.jugador1.estado != 'ACT' %}
+                                        ({% if partido.equipo2.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                    {% endif %}
+                                    /
+                                    {{ partido.equipo2.jugador2.apellido|upper }}
+                                    {% if partido.equipo2.jugador2.estado != 'ACT' %}
+                                        ({% if partido.equipo2.jugador2.estado == "INA" %}I{% else %}E{% endif %})
+                                    {% endif %}
+                                </option>
                             {% else %}
-                                {% for jugador in jugadores %}
-                                    <option value="{{ jugador.dni }}"
-                                        {% if partido.resultado and partido.resultado.ganador_jugador and jugador.dni == partido.resultado.ganador_jugador.dni %}
-                                            selected
-                                        {% endif %}>
-                                        {{ jugador.apellido | upper }} {{ jugador.nombre }}
-                                    </option>
-                                {% endfor %}
+                                <option value="{{ partido.jugador1.dni }}"
+                                    {% if partido.resultado and partido.resultado.ganador_jugador and partido.jugador1.dni == partido.resultado.ganador_jugador.dni %}
+                                        selected
+                                    {% endif %}>
+                                    {{ partido.jugador1.apellido|upper }} {{ partido.jugador1.nombre }}
+                                    {% if partido.jugador1.estado != 'ACT' %}
+                                        ({% if partido.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                    {% endif %}
+                                </option>
+                                <option value="{{ partido.jugador2.dni }}"
+                                    {% if partido.resultado and partido.resultado.ganador_jugador and partido.jugador2.dni == partido.resultado.ganador_jugador.dni %}
+                                        selected
+                                    {% endif %}>
+                                    {{ partido.jugador2.apellido|upper }} {{ partido.jugador2.nombre }}
+                                    {% if partido.jugador2.estado != 'ACT' %}
+                                        ({% if partido.jugador2.estado == "INA" %}I{% else %}E{% endif %})
+                                    {% endif %}
+                                </option>
                             {% endif %}
                         </select>
                     </td>
+
                     <td rowspan="2">
                         <div style="display: flex; flex-direction: column; gap: 5px; align-items: center;">
                             <!-- MODIFICAR -->
@@ -189,19 +262,58 @@
                     <td  class="jugador">
                         <select id="jugador2-{{ partido.id }}" disabled>
                             {% if torneo.tipo_juego == "Doble" or torneo.tipo_juego == "Mixto" %}
+                                {# Opciones editables: equipos inscriptos #}
                                 {% for equipo in equipos %}
                                     <option value="{{ equipo.id }}"
                                         {% if equipo.id == partido.equipo2.id %}selected{% endif %}>
-                                        {{ equipo.jugador1.apellido | upper }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido | upper }} {{ equipo.jugador2.nombre }}
+                                        {{ equipo.jugador1.apellido|upper }}
+                                        {% if equipo.jugador1.estado != 'ACT' %}
+                                            ({% if equipo.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                        {% endif %}
+                                        /
+                                        {{ equipo.jugador2.apellido|upper }}
+                                        {% if equipo.jugador2.estado != 'ACT' %}
+                                            ({% if equipo.jugador2.estado == "INA" %}I{% else %}E{% endif %})
+                                        {% endif %}
                                     </option>
                                 {% endfor %}
+
+                                {# Mostrar equipo histórico si ya no está inscripto #}
+                                {% if partido.equipo2 and partido.equipo2 not in equipos %}
+                                    <option value="{{ partido.equipo2.id }}" selected>
+                                        {{ partido.equipo2.jugador1.apellido|upper }}
+                                        {% if partido.equipo2.jugador1.estado != 'ACT' %}
+                                            ({% if partido.equipo2.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                        {% endif %}
+                                        /
+                                        {{ partido.equipo2.jugador2.apellido|upper }}
+                                        {% if partido.equipo2.jugador2.estado != 'ACT' %}
+                                            ({% if partido.equipo2.jugador2.estado == "INA" %}I{% else %}E{% endif %})
+                                        {% endif %}
+                                    </option>
+                                {% endif %}
+
                             {% else %}
+                                {# Opciones editables: jugadores inscriptos #}
                                 {% for jugador in jugadores %}
                                     <option value="{{ jugador.dni }}"
                                         {% if jugador.dni == partido.jugador2.dni %}selected{% endif %}>
-                                        {{ jugador.apellido | upper }} {{ jugador.nombre }}
+                                        {{ jugador.apellido|upper }} {{ jugador.nombre }}
+                                        {% if jugador.estado != 'ACT' %}
+                                            ({% if jugador.estado == "INA" %}I{% else %}E{% endif %})
+                                        {% endif %}
                                     </option>
                                 {% endfor %}
+
+                                {# Mostrar jugador histórico si ya no está inscripto #}
+                                {% if partido.jugador2 and partido.jugador2 not in jugadores %}
+                                    <option value="{{ partido.jugador2.dni }}" selected>
+                                        {{ partido.jugador2.apellido|upper }} {{ partido.jugador2.nombre }}
+                                        {% if partido.jugador2.estado != 'ACT' %}
+                                            ({% if partido.jugador2.estado == "INA" %}I{% else %}E{% endif %})
+                                        {% endif %}
+                                    </option>
+                                {% endif %}
                             {% endif %}
                         </select>
                     </td>
@@ -434,6 +546,25 @@ async function guardarPartido(partidoId) {
 
     const hayResultados = hayAlgunSet || hayGanadorSeleccionado;
 
+    // 🆕 Calcular ganador según los sets cargados
+    let setsGanadosJ1 = 0, setsGanadosJ2 = 0;
+    if (parseInt(set1Jugador1Raw || 0, 10) > parseInt(set1Jugador2Raw || 0, 10)) setsGanadosJ1++;
+    else if (parseInt(set1Jugador2Raw || 0, 10) > parseInt(set1Jugador1Raw || 0, 10)) setsGanadosJ2++;
+    if (parseInt(set2Jugador1Raw || 0, 10) > parseInt(set2Jugador2Raw || 0, 10)) setsGanadosJ1++;
+    else if (parseInt(set2Jugador2Raw || 0, 10) > parseInt(set2Jugador1Raw || 0, 10)) setsGanadosJ2++;
+    if (parseInt(set3Jugador1Raw || 0, 10) > parseInt(set3Jugador2Raw || 0, 10)) setsGanadosJ1++;
+    else if (parseInt(set3Jugador2Raw || 0, 10) > parseInt(set3Jugador1Raw || 0, 10)) setsGanadosJ2++;
+
+    let ganadorPorSets = "";
+    if (setsGanadosJ1 >= 2) ganadorPorSets = jugador1Input.value;
+    else if (setsGanadosJ2 >= 2) ganadorPorSets = jugador2Input.value;
+
+    // 🆕 Validación: si hay ganador por sets y el admin eligió otro → error
+    if (ganadorPorSets && hayGanadorSeleccionado && ganadorSelect.value !== ganadorPorSets) {
+        alert("❌ NO PUEDE GUARDAR AL GANADOR SELECCIONADO YA QUE EL RESULTADO NO COINCIDE.");
+        return; // corta la función, no guarda nada
+    }
+
     // payload base: siempre incluye datos administrativos
     let payload = {
         partido_id: partidoId,
@@ -462,19 +593,27 @@ async function guardarPartido(partidoId) {
         payload.set2_jugador2 = toIntOrNull(set2Jugador2Raw);
         payload.set3_jugador2 = toIntOrNull(set3Jugador2Raw);
 
-        // ganador: solo si el usuario seleccionó uno (si no, lo dejamos ausente para que el back decida)
-        if (hayGanadorSeleccionado) {
-            if (esDobleOMixto) {
-                payload.ganador_equipo_id = ganadorSelect.value;
-            } else {
-                const jugador1DNI = jugador1Input.value;
-                const jugador2DNI = jugador2Input.value;
-                if (ganadorSelect.value === jugador1DNI) {
-                    payload.ganador_dni = jugador1DNI;
-                } else if (ganadorSelect.value === jugador2DNI) {
-                    payload.ganador_dni = jugador2DNI;
+        // ganador: manejamos siempre el valor del select
+        if (ganadorSelect) {
+            if (ganadorSelect.value.trim() === "") {
+                // ⚠️ Caso "No definido" → mandamos null explícito
+                if (esDobleOMixto) {
+                    payload.ganador_equipo_id = null;
                 } else {
-                    // Si el valor del select es otra cosa (por ejemplo 'null' o ''), no lo incluimos.
+                    payload.ganador_dni = null;
+                }
+            } else {
+                // Caso normal: algún ganador seleccionado
+                if (esDobleOMixto) {
+                    payload.ganador_equipo_id = ganadorSelect.value;
+                } else {
+                    const jugador1DNI = jugador1Input.value;
+                    const jugador2DNI = jugador2Input.value;
+                    if (ganadorSelect.value === jugador1DNI) {
+                        payload.ganador_dni = jugador1DNI;
+                    } else if (ganadorSelect.value === jugador2DNI) {
+                        payload.ganador_dni = jugador2DNI;
+                    }
                 }
             }
         }
@@ -503,6 +642,7 @@ async function guardarPartido(partidoId) {
         alert("❌ Error de red o del servidor.");
     }
 }
+
 // Detectar cambios en los sets y actualizar automáticamente el ganador
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("[id^='set']").forEach(input => {

@@ -37,6 +37,16 @@
                         No especificado
                     {% endif %}
                     </p>
+                    <p style="margin-top: .5rem;">Estado:
+                    {% if jugador.estado == "ACT" %}
+                        Activo
+                    {% elif jugador.estado == "INA" %}
+                        Inactivo
+                    {% else %}
+                        Eliminado
+                    {% endif %}
+                    </p>
+                    <p style="margin-top: .5rem;">Observaciones: {{ jugador.observaciones }}</p>
                 </div>
             </div>
         </div>

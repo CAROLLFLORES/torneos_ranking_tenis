@@ -67,7 +67,7 @@
             <div class="container-form-filter">
             <div class="filtro-busqueda1"
                 style="flex:1 1 100%; max-width:100%; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
-                <span class="span-filter" style="margin:0;">DESCRIPCIÓN</span>
+                <span class="span-filter" style="margin:0;">DESCRIPCIÓN:</span>
                 <span class="span-filter" style="margin:0;">
                 {% if torneo_actual %}
                     {{ torneo_actual.description|default:"Sin descripción" }}
@@ -190,32 +190,74 @@
                                 <th>SETS</th>
                                 <th>GAMES</th>
                                 {% if user.is_authenticated and user.is_staff %}
-                                <th>ASCENSO <div class="text-end mb-2">
-                                    <button type="button" id="btnAbrirModalAscenso" class="btn" title="Ascender jugadores"
-                                        title="Ascenso"
-                                        style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi-arrow-up-circle-fill" style="font-size: 1.5rem;color: orange;"></i>
-                                    </button>
-                                </div></th>
-                                <th>DESCENSO <div class="text-end mb-2">
-                                    <button type="button" id="btnAbrirModalDescenso" class="btn-modal-descenso" title="Descenso"
-                                        style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
-                                        <i class="bi-arrow-down-circle-fill" style="font-size: 1.5rem;color: red;"></i>
-                                    </button>
-                                </div>
+                                <th>
+                                    <div class="text-end mb-2">
+                                        <button type="button" id="btnAbrirModalAscenso" class="btn" title="Ascender jugadores"
+                                            title="Ascenso"
+                                            style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                            ASCENSO<i class="bi-arrow-up-circle-fill" style="margin-left: .5rem; font-size: 1.2rem;color: green;"></i>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="text-end mb-2">
+                                        <button type="button" id="btnAbrirModalDescenso" class="btn-modal-descenso" title="Descenso"
+                                            style="all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                            DESCENSO<i class="bi-arrow-down-circle-fill" style="margin-left: .5rem; font-size: 1.2rem;color: red;"></i>
+                                        </button>
+                                    </div>
                                 </th>
                                 {% endif %}
                             </tr>
                         </thead>
                         <tbody>
                             {% for jugador in ranking %}
-                            <tr class="ranking-row">
-                                <td class="ranking-position">{{ forloop.counter }}</td>
+                            <tr class="ranking-row
+                                {% if torneo_actual.tipo_juego == 'Doble' or torneo_actual.tipo_juego == 'Mixto' %}
+                                    {% if jugador.equipo.jugador1.estado == 'DEL' or jugador.equipo.jugador2.estado == 'DEL' %}estado-del{% elif jugador.equipo.jugador1.estado == 'INA' or jugador.equipo.jugador2.estado == 'INA' %}estado-ina{% endif %}
+                                {% else %}
+                                    {% if jugador.jugador.estado == 'DEL' %}estado-del{% elif jugador.jugador.estado == 'INA' %}estado-ina{% endif %}
+                                {% endif %}
+                            ">
+                                <!-- <td class="ranking-position">{{ forloop.counter }}</td> -->
+                                <td class="ranking-position">
+                                    {% if torneo_actual.tipo_juego == "Doble" or torneo_actual.tipo_juego == "Mixto" %}
+                                        {% if jugador.equipo.jugador1.estado != "DEL" and jugador.equipo.jugador2.estado != "DEL" %}
+                                            {{ forloop.counter }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    {% else %}
+                                        {% if jugador.jugador.estado != "DEL" %}
+                                            {{ forloop.counter }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
                                 <td class="ranking-name">
                                     {% if torneo_actual.tipo_juego == "Doble" or torneo_actual.tipo_juego == "Mixto" %}
-                                        {{ jugador.equipo.jugador1.apellido }} / {{ jugador.equipo.jugador2.apellido }}
+                                        <!-- {{ jugador.equipo.jugador1.apellido }} / {{ jugador.equipo.jugador2.apellido }} -->
+                                          {{ jugador.equipo.jugador1.apellido }}
+                                        {% if jugador.equipo.jugador1.estado != 'ACT' %}
+                                            <small>
+                                                ({% if jugador.equipo.jugador1.estado == "INA" %}Inactivo{% else %}Eliminado{% endif %})
+                                            </small>
+                                        {% endif %}
+                                        /
+                                        {{ jugador.equipo.jugador2.apellido }}
+                                        {% if jugador.equipo.jugador2.estado != 'ACT' %}
+                                            <small>
+                                                ({% if jugador.equipo.jugador2.estado == "INA" %}Inactivo{% else %}Eliminado{% endif %})
+                                            </small>
+                                        {% endif %}
                                     {% else %}
-                                        {{ jugador.jugador.nombre }} {{ jugador.jugador.apellido }}
+                                        {{ jugador.jugador.apellido }} {{ jugador.jugador.nombre }} 
+                                        {% if jugador.jugador.estado != 'ACT' %}
+                                            <small>
+                                                ({% if jugador.jugador.estado == "INA" %}Inactivo{% else %}Eliminado{% endif %})
+                                            </small>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                                 <td class="ranking-points" style="text-align: center;">{{ jugador.puntaje_total_categoria }}</td>

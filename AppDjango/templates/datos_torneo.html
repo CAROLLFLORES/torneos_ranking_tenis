@@ -7,14 +7,14 @@
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
         <hr class="separator-line">
-        <h5 style="font-size: 1rem; margin-top: 1rem;">INFORMACIÓN DE TORNEO</h5>
+        <h5 style="font-size: 1.1rem; margin-top: 1rem; font-weight: 700;">GESTIÓN DE TORNEO: {{ torneo.nombre | upper }}</h5>
     </div>
     <!-- INFO E INSCRIPTOS -->
     <div class="recuadro-tabla">
         <div id="toggle-descarga" style="cursor: pointer;" class="green-box-title-btn">
             <h4 style="margin: 0; cursor: pointer;">
-                <span style="font-size: .7rem; font-weight: 400; letter-spacing: 2px;">VER INFORMACIÓN: </span>
-                {{ torneo.nombre | upper }}
+                <!-- <span style="font-size: .7rem; font-weight: 400; letter-spacing: 2px;">VER INFORMACIÓN: </span> -->
+                INFORMACIÓN DEL TORNEO
             </h4>
         </div>
         <div id="form-descarga" class="form-container-info hidden">
@@ -47,15 +47,19 @@
                 </span>
             </div>
             <span class="span-filter" style="margin-top: 1rem; text-align: start;">
-                INSCRIPTOS
+               INSCRIPTOS ACTUALES:
             </span>
             <div class="torneo-listado">
                 {% if torneo.equipos.exists %}
                     <!-- DOBLES -->
                     <ul>
                         {% for equipo in torneo.equipos.all %}
-                            <li>
-                                {{ equipo.jugador1.apellido | upper }} y {{ equipo.jugador2.apellido | upper }}
+                            <li class="{% if equipo.jugador1.estado == 'DEL' %}estado-deleted{% elif equipo.jugador1.estado == 'INA' %}estado-inactive{% endif %}">
+                                {{ equipo.jugador1.apellido | upper }}
+                                {% if equipo.jugador1.estado == "INA" %}(Inactivo){% elif equipo.jugador1.estado == "DEL" %}(Eliminado){% endif %}
+                                y 
+                                {{ equipo.jugador2.apellido | upper }}
+                                {% if equipo.jugador2.estado == "INA" %}(Inactivo){% elif equipo.jugador2.estado == "DEL" %}(Eliminado){% endif %}
                             </li>
                         {% endfor %}
                     </ul>
@@ -63,8 +67,9 @@
                     <!-- SINGLES -->
                     <ul class="list-group list-group-flush">
                         {% for torneo_jugador in torneo.torneo_jugadores.all %}
-                            <li class="list-group-item fs-5">
+                            <li class="list-group-item fs-5 {% if torneo_jugador.jugador.estado == 'DEL' %}estado-deleted{% elif torneo_jugador.jugador.estado == 'INA' %}estado-inactive{% endif %}">
                                 {{ torneo_jugador.jugador.apellido | upper }} {{ torneo_jugador.jugador.nombre | capfirst }}
+                                {% if torneo_jugador.jugador.estado == "INA" %}(Inactivo){% elif torneo_jugador.jugador.estado == "DEL" %}(Eliminado){% endif %}
                             </li>
                         {% endfor %}
                     </ul>
@@ -74,11 +79,13 @@
             </div>
         </div>    
     </div>  
+    <!-- CARGA DE PARTIDOS -->
     {% if es_doble %}
         {% include 'partidoDoble.html' %}
     {% else %}
         {% include 'partidoSingle.html' %}
     {% endif %}
+    <!-- TABLA DE PARTIDOS PROGRAMADOS -->
     {% include 'partidos_por_torneo.html' %}
 </div>
 {% endblock %}
