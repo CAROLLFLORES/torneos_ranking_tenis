@@ -5,16 +5,7 @@
 {% load custom_filters %}
 
 {% block content %}
-<!-- Modal para Editar Torneo -->
-<div id="editTournamentModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Editar Torneo</h2>
-        <div id="modal-body">
-            <!-- Aquí se cargará el formulario dinámicamente -->
-        </div>
-    </div>
-</div>
+
 
 <div class="container-admin">
     <h4>ADMINISTRADOR</h4>
@@ -193,6 +184,7 @@
                         <th>F.INICIO</th>
                         <th>TORNEO</th>
                         <th>CATEGORÍA</th>
+                        <th>DESCRIPCIÓN</th>
                         <th>DETALLE</th>
                         <th>JUGADORES</th>
                         <th>RANKING</th>
@@ -220,6 +212,25 @@
                                         <span>Sin categorías</span>
                                     {% endif %}
                                 </td>
+
+                                <!-- DESCRIPCION -->
+                                <td class="desc-col">
+                                    <div class="desc-short" title="{{ torneo.description|default:'Sin Descripción' }}">
+                                        {% if torneo.description %}
+                                            {{ torneo.description }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </div>
+                                    <button type="button"
+                                            class="desc-toggle"
+                                            data-target="desc-{{ torneo.id }}"
+                                            aria-expanded="false"
+                                            title="Ver más">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </button>
+                                </td>
+
                                 <!-- DETALLE Y CARGA DE PARTIDOS -->
                                 <td>
                                     <a href="{% url 'datos_torneo' torneo.id %}" 
@@ -255,13 +266,115 @@
                                 </td>
                                 <!-- <td style="font-size: 0.6rem;">{{ torneo.fecha_fin|date:"d/m/y" }}</td> -->
                                 <!-- EDITAR -->
+                                 
                                 <td>
-                                    <a href="{% url 'abm_torneo_editar' torneo.id %}" 
-                                    class="btn-edit openModalBtn" 
-                                    data-url="{% url 'abm_torneo_editar' torneo.id %}">
-                                        <i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i>
-                                    </a>
-                                </td>
+                                <button type="button"
+                                        class="btn-edit"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modificarTorneoModal-{{ torneo.id }}"
+                                        title="Modificar torneo">
+                                    <i class="bi bi-pencil-square" style="font-size:1.1rem;"></i>
+                                </button>
+
+                                <!-- Modal Editar Torneo (mismas clases que jugadores) -->
+                                <div class="modal fade" id="modificarTorneoModal-{{ torneo.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content11"><!-- misma clase -->
+
+                                        <div class="modal-header1"><!-- misma clase -->
+                                            <h3 class="modal-title">Modificar torneo</h3>
+                                            <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">
+                                            <i class="bi bi-x"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="container-form-modal"><!-- misma clase -->
+                                            <form class="form-editar-torneo" method="POST" action="{% url 'abm_torneo_editar' torneo.id %}">
+                                            {% csrf_token %}
+
+                                            <div class="filtro-busqueda1" style="padding: 0;">
+                                                <span class="span-filter" style="width: 40%;">Nombre:</span>
+                                                <input class="form-control" type="text" name="nombre" value="{{ torneo.nombre }}" required>
+                                            </div>
+
+                                            <div class="filtro-busqueda1" style="padding: 0;">
+                                                <span class="span-filter" style="width: 40%;">Fecha de inicio:</span>
+                                                <input class="form-control" type="date" name="fecha_inicio" value="{{ torneo.fecha_inicio|date:'Y-m-d' }}" required>
+                                            </div>
+
+                                            <div class="filtro-busqueda1" style="padding: 0;">
+                                                <span class="span-filter" style="width: 40%;">Fecha fin (opcional):</span>
+                                                <input class="form-control" type="date" name="fecha_fin" value="{{ torneo.fecha_fin|date:'Y-m-d' }}">
+                                            </div>
+
+                                            <div class="filtro-busqueda1" style="padding: 0;">
+                                                <span class="span-filter" style="width: 40%;">Tipo de Juego:</span>
+                                                <select name="tipo_juego" class="form-select">
+                                                <option value="Single" {% if torneo.tipo_juego == "Single" %}selected{% endif %}>Single</option>
+                                                <option value="Doble"  {% if torneo.tipo_juego == "Doble" %}selected{% endif %}>Doble</option>
+                                                <option value="Mixto"  {% if torneo.tipo_juego == "Mixto" %}selected{% endif %}>Mixto</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="filtro-busqueda1" style="padding: 0;">
+                                                <span class="span-filter" style="width: 40%;">Género:</span>
+                                                <select name="tipo" class="form-select">
+                                                <option value="M"     {% if torneo.tipo == "M" %}selected{% endif %}>Masculino</option>
+                                                <option value="F"     {% if torneo.tipo == "F" %}selected{% endif %}>Femenino</option>
+                                                <option value="Mixto" {% if torneo.tipo == "Mixto" %}selected{% endif %}>Mixto</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="container-cat">
+                                                <span class="span-filter" style="margin-bottom:.5rem; width: 40%;">Categorías</span>
+
+                                                <!-- Categorías -->
+                                                <div class="categorias-box1">
+                                                {# primero las seleccionadas #}
+                                                {% for c in torneo.categorias.all %}
+                                                    <div class="categoria-item seleccionada">
+                                                    <input type="checkbox"
+                                                            id="cat-{{ torneo.id }}-{{ c.id_categoria }}"
+                                                            name="categorias"
+                                                            value="{{ c.id_categoria }}"
+                                                            checked>
+                                                    <label for="cat-{{ torneo.id }}-{{ c.id_categoria }}">{{ c|formatear_categoria }}</label>
+                                                    </div>
+                                                {% endfor %}
+
+                                                {# luego las no seleccionadas #}
+                                                {% for c in all_categorias %}
+                                                    {% if c not in torneo.categorias.all %}
+                                                    <div class="categoria-item">
+                                                        <input type="checkbox"
+                                                            id="cat-{{ torneo.id }}-{{ c.id_categoria }}"
+                                                            name="categorias"
+                                                            value="{{ c.id_categoria }}">
+                                                        <label for="cat-{{ torneo.id }}-{{ c.id_categoria }}">{{ c|formatear_categoria }}</label>
+                                                    </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </div>
+                                            </div>
+                                            <div class="container-cat" >
+                                                <span class="span-filter" style="margin-bottom: .5rem;" for="observaciones">Descripción:</span>
+                                                    <textarea class="textArea"
+                                                        name="description"
+                                                        maxlength="200"
+                                                        rows="3"
+                                                        placeholder="Escriba una descripción...">{{ torneo.description }}
+                                                    </textarea>
+                                            </div>
+                                            <div class="btn-filtros">
+                                                <button class="btn-opciones" type="submit">GUARDAR</button>
+                                            </div>
+                                            </form>
+                                        </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <!-- ELIMINAR -->
                                 <td>
                                     <button data-bs-toggle="modal" 
@@ -294,11 +407,30 @@
                                     </div>
                                 </td>
                             </tr>
+                            
+                            {# Fila extra (justo después del <tr> del torneo) #}
+                            <tr id="desc-{{ torneo.id }}" class="desc-row" style="display:none;">
+                                <td colspan="10" class="desc-full-td">
+                                    <div class="desc-full">
+                                    {{ torneo.description|default:"Sin Descripción" }}
+                                    </div>
+                                </td>
+                            </tr>
+
                         {% endfor %}
                         {% else %}
                         <tr>
                             <td colspan="7" class="text-center">No hay torneos guardados.</td>
                         </tr>
+                        {# Fila extra inmediatamente DESPUÉS del <tr> del torneo #}
+                        <tr id="desc-{{ torneo.id }}" class="desc-row" style="display:none;">
+                            <td colspan="10" class="desc-full-td">
+                                <div class="desc-full">
+                                {{ torneo.description|default:"Sin Descripción" }}
+                                </div>
+                            </td>
+                        </tr>
+
                         {% endif %}
                 </tbody>
             </table>
@@ -376,35 +508,58 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     window.open(`/generar_pdf_partidos_por_fecha?fecha=${fecha}&sede_id=${sede}`, "_blank");
-});
-
-
-    // --- CARGA MASIVA ---
-    document.getElementById('input-torneos').addEventListener('change', function () {
-        const archivo = this.files[0];
-        const formData = new FormData();
-        formData.append('archivo_excel', archivo);
-
-        fetch("{% url 'carga_masiva_torneos' %}", {
-            method: "POST",
-            body: formData,
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.exito) {
-                document.getElementById('mensaje-carga-torneos').style.display = 'block';
-            } else {
-                alert('❌ Error al cargar torneos:\n' + (data.error || ''));
-            }
-        })
-        .catch(error => {
-            alert('❌ Error al procesar el archivo de torneos.');
-            console.error(error);
-        });
     });
+
+//DESPLEGABLE DE DESCRIPCION//document.addEventListener("DOMContentLoaded", function () {
+  // Toggle descripción (ver más / ver menos)
+  // Delegación: capta clicks en cualquier .desc-toggle (incluye páginas paginadas)
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".desc-toggle");
+    if (!btn) return;
+
+    const row = document.getElementById(btn.dataset.target);
+    if (!row) return;
+
+    // Alterna apertura/cierre
+    const isOpen = row.classList.toggle("is-open");
+    btn.setAttribute("aria-expanded", isOpen);
+
+    // Cambia el ícono (requiere Bootstrap Icons)
+    const icon = btn.querySelector("i");
+    if (icon){
+      icon.classList.toggle("bi-chevron-down", !isOpen);
+      icon.classList.toggle("bi-chevron-up",   isOpen);
+    }
+  });
 });
+
 </script>
 {% endblock %}
+    // --- CARGA MASIVA ---
+    //document.getElementById('input-torneos').addEventListener('change', function () {
+    //    const archivo = this.files[0];
+    //    const formData = new FormData();
+    //    formData.append('archivo_excel', archivo);
+
+    //    fetch("{% url 'carga_masiva_torneos' %}", {
+    //        method: "POST",
+    //        body: formData,
+    //        headers: {
+    //            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    //        }
+    //    })
+    //    .then(response => response.json())
+    //    .then(data => {
+    //        if (data.exito) {
+    //            document.getElementById('mensaje-carga-torneos').style.display = 'block';
+    //        } else {
+    //            alert('❌ Error al cargar torneos:\n' + (data.error || ''));
+    //        }
+    //    })
+    //    .catch(error => {
+    //        alert('❌ Error al procesar el archivo de torneos.');
+    //        console.error(error);
+    //    });
+   // });
+//});
+

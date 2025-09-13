@@ -36,6 +36,15 @@ class Torneo(models.Model):
         default='Single'
     )
     anio = models.PositiveIntegerField(default=date.today().year, editable=False)
+    
+    # models.py (Torneo)
+    description = models.CharField(
+        "descripción",
+        max_length=150,
+        blank=True,           # permite dejarlo vacío en formularios
+        default=""            # evita que la migración pida un valor para filas existentes
+    )
+
 
     def save(self, *args, **kwargs):
         self.anio = self.fecha_inicio.year

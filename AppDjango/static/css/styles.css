@@ -3374,3 +3374,63 @@ td.set input {
     color: #c62828;         /* rojo fuerte */
     font-weight: 600;       /* un poco más marcado */
 }
+
+/* Descripción truncada en tabla ABM Torneos */
+
+/* ====== Columna DESCRIPCION (4ta) ====== */
+.tabla-usuarios th:nth-child(4),
+.tabla-usuarios td:nth-child(4){
+  width: 150px;                   /* ajustá si querés 200 / 240 */
+  max-width: 150px;
+  overflow: hidden;
+  
+}
+
+/* ====== Celda compacta (vista corta) ====== */
+.desc-col { 
+  position: relative; 
+}
+.desc-short{
+  display: block;
+  width: 100%;
+  white-space: nowrap;            /* una sola línea */
+  overflow: hidden;
+  text-overflow: ellipsis;        /* … */
+  padding-right: 22px;            /* espacio para la flecha */
+  line-height: 1.2;
+  box-sizing: border-box;
+}
+
+/* Botón flecha */
+.desc-toggle{
+  position: absolute;
+  right: 6px; 
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0; 
+  background: transparent;
+  color: inherit; 
+  cursor: pointer; 
+  padding: 0;
+}
+.desc-toggle:focus { outline: none; }
+
+/* ====== Fila expandida ====== */
+.desc-row { 
+  display: none;                  /* oculta por defecto */
+}
+.desc-row.is-open { 
+  display: table-row !important;  /* la mostramos cuando el JS agrega la clase */
+}
+.desc-row .desc-full-td{ 
+  padding: 10px 12px; 
+  background: rgba(0,0,0,.25);
+}
+.desc-full{
+  max-height: 180px;              /* scroll vertical para textos largos */
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
