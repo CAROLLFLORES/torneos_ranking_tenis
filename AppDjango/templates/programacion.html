@@ -54,7 +54,7 @@
                             {% with query_string=request.GET.urlencode %}
                             <a href="{% url 'exportar_partidos_pdf' %}?{{ query_string }}" target="_blank" style="color: rgb(40, 40, 40) !important; font-weight: 600;letter-spacing: 2px;">
                                 <i class="bi bi-file-earmark-pdf" style="margin-right: 5px;"></i>
-                                DESCARGAR PROGRAMACIÓN
+                                DESCARGAR
                             </a>
                             {% endwith %}
                         </div>
@@ -85,6 +85,9 @@
 
         <p style="margin-top: .5rem; color: rgb(150, 149, 149); font-size: .8rem;">
             {{ partidos.paginator.count }} resultados encontrados.
+        </p>
+        <p style="color: rgb(186, 184, 184); font-size: .9rem; margin: 0 0 1rem 0;">
+          (E) ⮕ Jugador Eliminado - (I) ⮕ Jugador Inactivo
         </p>
 
         <!-- LISTADO -->
@@ -121,13 +124,34 @@
                         <td class="jugador" style="color: #bcbdbc; text-align: start;">
                             {% if partido.equipo1 %}
                                 {% if partido.equipo1.jugador1 and partido.equipo1.jugador2 %}
-                                    {{ partido.equipo1.jugador1.apellido | upper }} {{ partido.equipo1.jugador1.nombre }} /
+                                    {{ partido.equipo1.jugador1.apellido | upper }} {{ partido.equipo1.jugador1.nombre }}
+                                    {% if partido.equipo1.jugador1.estado != 'ACT' %}
+                                        <small class="estado-jugador">
+                                            ({% if partido.equipo1.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                        </small>
+                                    {% endif %}
+                                    /
                                     {{ partido.equipo1.jugador2.apellido | upper }} {{ partido.equipo1.jugador2.nombre }}
+                                    {% if partido.equipo1.jugador2.estado != 'ACT' %}
+                                        <small class="estado-jugador">
+                                            ({% if partido.equipo1.jugador2.estado == "INA" %}I{% else %}E{% endif %})
+                                        </small>
+                                    {% endif %}
                                 {% elif partido.equipo1.jugador1 %}
                                     {{ partido.equipo1.jugador1.apellido | upper }} {{ partido.equipo1.jugador1.nombre }}
+                                    {% if partido.equipo1.jugador1.estado != 'ACT' %}
+                                        <small class="estado-jugador">
+                                            ({% if partido.equipo1.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                        </small>
+                                    {% endif %}
                                 {% endif %}
                             {% elif partido.jugador1 %}
                                 {{ partido.jugador1.apellido | upper }} {{ partido.jugador1.nombre }}
+                                {% if partido.jugador1.estado != 'ACT' %}
+                                    <small class="estado-jugador">
+                                        ({% if partido.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                    </small>
+                                {% endif %}
                             {% else %}
                                 -
                             {% endif %}
@@ -171,15 +195,36 @@
                             {% if partido.resultado %}
                                 {% if partido.resultado.ganador_equipo %}
                                     {% if partido.resultado.ganador_equipo.jugador1 and partido.resultado.ganador_equipo.jugador2 %}
-                                        {{ partido.resultado.ganador_equipo.jugador1.apellido | upper }} /
+                                        {{ partido.resultado.ganador_equipo.jugador1.apellido | upper }}
+                                        {% if partido.resultado.ganador_equipo.jugador1.estado != 'ACT' %}
+                                            <small class="estado-jugador">
+                                                ({% if partido.resultado.ganador_equipo.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                            </small>
+                                        {% endif %}
+                                           /
                                         {{ partido.resultado.ganador_equipo.jugador2.apellido | upper }}
+                                        {% if partido.resultado.ganador_equipo.jugador2.estado != 'ACT' %}
+                                            <small class="estado-jugador">
+                                                ({% if partido.resultado.ganador_equipo.jugador2.estado == "INA" %}I{% else %}E{% endif %})
+                                            </small>
+                                        {% endif %}
                                     {% elif partido.resultado.ganador_equipo.jugador1 %}
                                         {{ partido.resultado.ganador_equipo.jugador1.apellido | upper }}
+                                        {% if partido.resultado.ganador_equipo.jugador1.estado != 'ACT' %}
+                                            <small class="estado-jugador">
+                                                ({% if partido.resultado.ganador_equipo.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                            </small>
+                                        {% endif %}
                                     {% else %}
                                         No definido
                                     {% endif %}
                                 {% elif partido.resultado.ganador_jugador %}
                                     {{ partido.resultado.ganador_jugador.apellido | upper }} {{ partido.resultado.ganador_jugador.nombre }}
+                                    {% if partido.resultado.ganador_jugador.estado != 'ACT' %}
+                                        <small class="estado-jugador">
+                                             ({% if partido.resultado.ganador_jugador.estado == "INA" %}I{% else %}E{% endif %})
+                                        </small>
+                                    {% endif %}
                                 {% else %}
                                     No definido
                                 {% endif %}
@@ -193,19 +238,40 @@
                     <td class="jugador" style="color: #bcbdbc; text-align: start;">
                         {% if partido.equipo2 %}
                             {% if partido.equipo2.jugador1 and partido.equipo2.jugador2 %}
-                                {{ partido.equipo2.jugador1.apellido | upper }} {{ partido.equipo2.jugador1.nombre }} /
+                                {{ partido.equipo2.jugador1.apellido | upper }} {{ partido.equipo2.jugador1.nombre }}
+                                {% if partido.equipo2.jugador1.estado != 'ACT' %}
+                                    <small class="estado-jugador">
+                                        ({% if partido.equipo2.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                    </small>
+                                {% endif %}
+                                /
                                 {{ partido.equipo2.jugador2.apellido | upper }} {{ partido.equipo2.jugador2.nombre }}
+                                {% if partido.equipo2.jugador2.estado != 'ACT' %}
+                                    <small class="estado-jugador">
+                                        ({% if partido.equipo2.jugador2.estado == "INA" %}I{% else %}E{% endif %})
+                                    </small>
+                                {% endif %}
                             {% elif partido.equipo2.jugador1 %}
                                 {{ partido.equipo2.jugador1.apellido | upper }} {{ partido.equipo2.jugador1.nombre }}
+                                {% if partido.equipo2.jugador1.estado != 'ACT' %}
+                                    <small class="estado-jugador">
+                                        ({% if partido.equipo2.jugador1.estado == "INA" %}I{% else %}E{% endif %})
+                                    </small>
+                                {% endif %}
                             {% else %}
                                 -
                             {% endif %}
                         {% elif partido.jugador2 %}
                             {{ partido.jugador2.apellido | upper }} {{ partido.jugador2.nombre }}
+                            {% if partido.jugador2.estado != 'ACT' %}
+                                <small class="estado-jugador">
+                                    ({% if partido.jugador2.estado == "INA" %}I{% else %}E{% endif %})
+                                </small>
+                            {% endif %}
                         {% else %}
                             -
                         {% endif %}
-                    </td>
+                    </td> 
 
                     <!-- Sets jugador/equipo 2 -->
                     <td class="set" style="color: #bcbdbc; text-align: start;">

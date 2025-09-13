@@ -10,13 +10,13 @@
     <h4>ADMINISTRADOR</h4>
     <div class="text-section">
         <hr class="separator-line">
-        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: .5rem;">ASOCIAR EQUIPOS AL TORNEO</h5>
+        <h5 style="font-size: 1rem; margin-top: 1rem; margin-bottom: .5rem;">INSCRIBIR EQUIPOS AL TORNEO</h5>
         <h4 style="margin-top: 0; margin-bottom: 2rem;">{{ torneo.nombre }}</h4>
     </div>
 
 
 
-    <div class="recuadro-tabla" style="margin-bottom: 2rem;">
+    <div class="recuadro-tabla" style="margin-bottom: 1rem;">
         <div id="toggle-crear" class="green-box-title-btn" style="cursor: pointer;">
             <h4 style="margin: 0;">FILTROS</h4>
         </div>
@@ -51,23 +51,26 @@
 
     <!-- Formulario Equipos -->
     <form id="createTeamForm" method="POST" action="">
+        <p style="color: rgb(255, 255, 255); font-size: 1rem; margin: 1rem 0 1.5rem 0; text-align: center;">
+          Los jugadores eliminados e inactivos no se pueden seleccionar. Vaya a 'Jugadores' y cambie su estado para inscribirlos en el torneo.
+        </p>
         {% csrf_token %}
         <!-- BOTONES GUARDAR / ELIMINAR -->
             <!-- CONTROLES -->
-            <div class="botones-jugadores ">
-                <button type="button" id="crearEquipoButton" class="btn-carga-masiva">
+            <div class="botones-jugadores">
+                <button type="button" id="crearEquipoButton" class="btn-delete1">
                     Crear Equipo &gt;&gt;
+                </button>
+                <button type="submit" name="action" value="asociar" class="btn-crear">
+                    Guardar Equipo Creado
+                </button>
+                <button type="submit" name="action" value="desasociar" class="btn-delete1">
+                    Desinscribir Equipos Elegidos
                 </button>
                 
             </div>
-        <div class="botones-jugadores">
-            <button type="submit" name="action" value="asociar" class="btn-crear">
-                Guardar Asociaciones
-            </button>
-            <button type="submit" name="action" value="desasociar" class="btn-delete1">
-                Eliminar Equipos Seleccionados
-            </button>
-        </div>
+        <!-- <div class="botones-jugadores">
+        </div> -->
         <div class="contenedor-jugadores">
             <!-- JUGADORES DISPONIBLES -->
             <div class="bloque-jugadores">
@@ -76,17 +79,28 @@
                 </div>
                 <div class="lista-jugadores" id="jugadoresLista">
                     {% for jugador in jugadores_disponibles %}
-                        <div class="form-check" style="text-align:left;">
+                        <div class="form-check" style="text-align:left;"> 
+                            {% if jugador.estado == "ACT" %}
                             <input 
                                 class="form-check-input jugador-checkbox" 
                                 type="checkbox" 
                                 name="jugadores" 
                                 value="{{ jugador.dni }}" 
                                 id="jugador{{ jugador.dni }}">
-                            <label class="form-check-label jugador-label" for="jugador{{ jugador.dni }}">
-                                {{ jugador.apellido | upper}} {{ jugador.nombre }}
+                            {% endif %}
+                            <label class="form-check-label 
+                                {% if jugador.estado == 'DEL' %}estado-deleted{% elif jugador.estado == 'INA' %}estado-inactive{% endif %}"
+                                for="jugador{{ jugador.dni }}">
+                                {{ jugador.apellido|upper }} {{ jugador.nombre|capfirst }}
+                                {% if jugador.estado == "INA" %}
+                                    (Inactivo)
+                                {% elif jugador.estado == "DEL" %}
+                                    (Eliminado)
+                                {% endif %}
                             </label>
                         </div>
+                    {% empty %}
+                        <p>No hay jugadores disponibles para este torneo.</p>
                     {% endfor %}
                 </div>
             </div>
@@ -96,7 +110,7 @@
             <!-- EQUIPOS SELECCIONADOS -->
             <div class="bloque-jugadores">
                 <div class="titulo-jugadores">
-                    <h4 style="margin: 0;">EQUIPOS SELECCIONADOS</h4>
+                    <h4 style="margin: 0;">EQUIPOS INSCRIPTOS</h4>
                 </div>
                 <div class="lista-jugadores" id="selectedTeamsBox{{ torneo.id }}">
                     {% if equipos_asociados %}
@@ -108,11 +122,21 @@
                                     name="equipos"
                                     value="{{ equipo.id }}"
                                     id="equipo{{ equipo.id }}">
-                                <label class="form-check-label" for="equipo{{ equipo.id }}">
-                                    Equipo {{ forloop.counter }}: 
-                                    {{ equipo.jugador1.apellido }} {{ equipo.jugador1.nombre }} y {{ equipo.jugador2.apellido }} {{ equipo.jugador2.nombre }}
+                                <label class="form-check-label" for="equipo{{ equipo.id }}">                                   
+                                    <small style="color: rgb(171, 171, 171)">Equipo {{ forloop.counter }}:</small>
+                                    <span class="{% if equipo.jugador1.estado == 'DEL' %}estado-deleted{% elif equipo.jugador1.estado == 'INA' %}estado-inactive{% endif %}">
+                                        {{ equipo.jugador1.apellido }}
+                                        {% if equipo.jugador1.estado == "INA" %}(Inactivo){% elif equipo.jugador1.estado == "DEL" %}(Eliminado){% endif %}
+                                    </span>
+                                    / 
+                                    <span class="{% if equipo.jugador2.estado == 'DEL' %}estado-deleted{% elif equipo.jugador2.estado == 'INA' %}estado-inactive{% endif %}">
+                                        {{ equipo.jugador2.apellido }} 
+                                        {% if equipo.jugador2.estado == "INA" %}(Inactivo){% elif equipo.jugador2.estado == "DEL" %}(Eliminado){% endif %}
+                                    </span>
                                 </label>
                             </div>
+                        {% empty %}
+                            <p>No hay equipos insciptos.</p>
                         {% endfor %}
                     {% else %}
                         <p style="color: gray;">No hay equipos seleccionados.</p>
