@@ -80,6 +80,7 @@ def ranking_torneo(request, torneo_id):
     return render(request, 'ranking.html', {'torneo': torneo, 'ranking': ranking})
 
 def ver_ranking(request, torneo_id):
+    # Obtener torneo actual
     if torneo_id == 0:
         torneo_actual = Torneo.objects.first()
     else:
@@ -89,7 +90,29 @@ def ver_ranking(request, torneo_id):
     ascensos_val  = get_ascensos(torneo_actual.id, default=0) if torneo_actual else 0
     descensos_val = get_descensos(torneo_actual.id, default=0) if torneo_actual else 0
 
-    ranking = calcular_ranking(torneo_actual.id, request.user) if torneo_actual else []
+    # Calcular ranking (lista de diccionarios)
+    ranking_list = calcular_ranking(torneo_actual.id, request.user) if torneo_actual else []
+
+    # Separar jugadores activos y eliminados
+    ranking_activos = []
+    ranking_eliminados = []
+
+    for j in ranking_list:
+        # Determinar estado según tipo de torneo
+        if torneo_actual.tipo_juego in ["Doble", "Mixto"]:
+            estados = [j["equipo"].jugador1.estado, j["equipo"].jugador2.estado]
+        else:
+            estados = [j["jugador"].estado]
+
+        if "DEL" in estados:
+            ranking_eliminados.append(j)  # Jugador eliminado va al final
+        else:
+            ranking_activos.append(j)  # Jugadores activos/inactivos van arriba
+
+    # Unir nuevamente, activos primero y eliminados al final
+    ranking_ordenado = ranking_activos + ranking_eliminados
+
+    # Obtener lista de torneos para el dropdown
     torneos = Torneo.objects.all().order_by("nombre")
     
     # 🔽 NUEVO: torneos destino con el mismo estilo (tipo_juego + tipo)
@@ -105,14 +128,14 @@ def ver_ranking(request, torneo_id):
             .order_by('nombre')
         )
 
+    # Renderizar template pasando ranking ya ordenado
     return render(request, "ranking.html", {
         "torneo_actual": torneo_actual,
-        "ranking": ranking,
+        "ranking": ranking_ordenado,  # 🔥 ranking con eliminados al final
         "torneos": torneos,
         "ascensos_val": ascensos_val,
         "descensos_val": descensos_val,
-        "torneos_destino": torneos_destino,   # 🔥 pásalo al template
-        
+        "torneos_destino": torneos_destino,
     })
 
 
@@ -199,6 +222,26 @@ def calcular_ranking(torneo_id, user=None):
 
     partidos = torneo.partido_set.all()
     es_doble = torneo.tipo_juego in ["Doble", "Mixto"]
+     # Filtrar solo partidos que tengan ganador definido
+    partidos_con_ganador = []
+    for partido in partidos:
+        resultado = getattr(partido, 'resultado', None)
+        if not resultado:
+            continue
+
+        if es_doble:
+            if getattr(resultado, "ganador_equipo", None) is not None:
+                partidos_con_ganador.append(partido)
+        else:
+            if getattr(resultado, "ganador_jugador", None) is not None:
+                partidos_con_ganador.append(partido)
+
+    # Reemplazar la lista original de partidos por los filtrados
+    partidos = partidos_con_ganador
+
+    # Si no hay partidos con ganador, se retorna lista vacía
+    if not partidos:
+        return []
 
     for partido in partidos:
         resultado = getattr(partido, 'resultado', None)
@@ -290,8 +333,8 @@ def calcular_ranking(torneo_id, user=None):
         key=lambda x: (x["pj"] == 0, -x["puntaje_total_categoria"])
     )
     # Guarda en base de datos
-    # if user and user.is_authenticated and user.is_staff:
-    #     guardar_ranking_en_modelos(torneo, ranking_list)
+    if user and user.is_authenticated and user.is_staff:
+        guardar_ranking_en_modelos(torneo, ranking_list)
 
     return ranking_list
 

@@ -319,6 +319,10 @@ def handle_get_datos_torneo(request, torneo, es_doble, numero_jornada, canchas):
         page_obj = paginator.get_page(page_number)
 
         equipos = Equipo.objects.filter(torneo=torneo).select_related('jugador1', 'jugador2').order_by('jugador1__apellido')
+        equipos_en_partidos = Equipo.objects.filter(
+            Q(partidos_equipo1__torneo=torneo) | Q(partidos_equipo2__torneo=torneo)
+        ).distinct()
+        equipos_extra = equipos_en_partidos.exclude(id__in=equipos.values('id'))
 
         return render(request, 'datos_torneo.html', {
             'torneo': torneo,
@@ -327,6 +331,8 @@ def handle_get_datos_torneo(request, torneo, es_doble, numero_jornada, canchas):
             'numero_jornada': numero_jornada,
             'partidos': page_obj,
             'equipos': equipos,
+            'equipos_en_partidos': equipos_en_partidos,
+            'equipos_extra': equipos_extra,
             'canchas': canchas,
             'filtros': {
                 'fecha': fecha,
@@ -362,11 +368,18 @@ def handle_get_datos_torneo(request, torneo, es_doble, numero_jornada, canchas):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
-        # Traer jugadores del torneo sin usar ranking
+        # jugadores inscriptos actualmente
         jugadores = Jugador.objects.filter(
             jugador_torneos__torneo=torneo  # relación que indica que el jugador participa en este torneo
         ).distinct().order_by('apellido', 'nombre')
 
+        # jugadores que aparecen en partidos (aunque ya no estén inscriptos)
+        jugadores_en_partidos = Jugador.objects.filter(
+            Q(partidos_jugador1__torneo=torneo) | Q(partidos_jugador2__torneo=torneo)
+        ).distinct()
+
+        # jugadores que ya no están inscriptos pero sí tienen historial
+        jugadores_extra = jugadores_en_partidos.exclude(dni__in=jugadores.values('dni'))
 
         return render(request, 'datos_torneo.html', {
             'torneo': torneo,
@@ -375,6 +388,8 @@ def handle_get_datos_torneo(request, torneo, es_doble, numero_jornada, canchas):
             'numero_jornada': numero_jornada,
             'partidos': page_obj,
             'jugadores': jugadores,
+            'jugadores_en_partidos': jugadores_en_partidos,
+            'jugadores_extra': jugadores_extra,
             'canchas': canchas,
             'filtros': {
                 'fecha': fecha,
@@ -520,7 +535,7 @@ def ver_caracteristicas_torneo(request, id):
     torneo = get_object_or_404(Torneo, id=id)
     return render(request, 'datos_torneo.html', {'torneo': torneo})
 
-
+# SINGLES
 def asociar_jugadores(request, id):
     torneo = get_object_or_404(Torneo, id=id)
     search = request.GET.get('search', '')  # ✅ Captura el texto de búsque
@@ -600,6 +615,7 @@ def asociar_jugadores(request, id):
     })
 
 #--------------------------------------------------------------------------------------------------------------
+# DOBLES
 @csrf_exempt
 def asociar_equipos(request, id):
     torneo = get_object_or_404(Torneo, id=id)
@@ -698,7 +714,8 @@ def asociar_equipos(request, id):
                     'dni': equipo.jugador2.dni,
                     'nombre': f"{equipo.jugador2.apellido} {equipo.jugador2.nombre}"
                 })
-                equipo.delete()
+                equipo.torneo = None
+                equipo.save()
 
             return JsonResponse({
                 'success': True,

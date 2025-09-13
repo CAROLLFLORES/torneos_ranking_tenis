@@ -117,23 +117,32 @@ class Equipo(models.Model):
     torneo = models.ForeignKey(
         'Torneo',  # Modelo Torneo está en la misma app
         related_name='equipos',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
 
     # Restricción para evitar duplicidad de equipos en el mismo torneo
     class Meta:
         unique_together = ('jugador1', 'jugador2', 'torneo')
 
+    # def __str__(self):
+    #     return f"Equipo: {self.jugador1} y {self.jugador2} en Torneo {self.torneo.nombre}"
     def __str__(self):
-        return f"Equipo: {self.jugador1} y {self.jugador2} en Torneo {self.torneo.nombre}"
+        j1 = f"{self.jugador1}" if self.jugador1 else "Jugador 1 eliminado"
+        j2 = f"{self.jugador2}" if self.jugador2 else "Jugador 2 eliminado"
+        t  = f"{self.torneo.nombre}" if self.torneo else "Torneo desconocido"
+        return f"Equipo: {j1} y {j2} en {t}"
 
 # Modelo Partido
 class Partido(models.Model):
     torneo = models.ForeignKey('Torneo', on_delete=models.CASCADE)
     jugador1 = models.ForeignKey('jugador.Jugador', on_delete=models.CASCADE, related_name='partidos_jugador1', null=True, blank=True)
     jugador2 = models.ForeignKey('jugador.Jugador', on_delete=models.CASCADE, related_name='partidos_jugador2', null=True, blank=True)
-    equipo1 = models.ForeignKey('Equipo', on_delete=models.CASCADE, related_name='partidos_equipo1', null=True, blank=True)
-    equipo2 = models.ForeignKey('Equipo', on_delete=models.CASCADE, related_name='partidos_equipo2', null=True, blank=True)
+    # equipo1 = models.ForeignKey('Equipo', on_delete=models.CASCADE, related_name='partidos_equipo1', null=True, blank=True)
+    # equipo2 = models.ForeignKey('Equipo', on_delete=models.CASCADE, related_name='partidos_equipo2', null=True, blank=True)
+    equipo1 = models.ForeignKey('Equipo', on_delete=models.SET_NULL, related_name='partidos_equipo1', null=True, blank=True)
+    equipo2 = models.ForeignKey('Equipo', on_delete=models.SET_NULL, related_name='partidos_equipo2', null=True, blank=True)
     fecha = models.DateField()
     hora = models.TimeField()
     cancha = models.ForeignKey('Cancha', on_delete=models.CASCADE)

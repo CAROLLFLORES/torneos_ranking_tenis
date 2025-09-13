@@ -95,6 +95,9 @@
         <p style="margin-top: .5rem; color: rgb(150, 149, 149); font-size: .8rem;">
           {{ page_obj.paginator.count }} resultados encontrados.
         </p>
+        <p style="color: rgb(186, 184, 184); font-size: .9rem; margin: 0;">
+          (E) ⮕ Jugador Eliminado - (I) ⮕ Jugador Inactivo
+        </p>
         
       <!-- TARJETAS -->
         {% if page_obj.object_list %}
@@ -114,11 +117,14 @@
               <div class="card-body">
                 <table class="resultado-tabla">
                   <tbody>
-                    {% if resultado.partido.torneo.tipo_juego in "Doble Mixto" %}
+                    {% if resultado.partido.torneo.tipo_juego == "Doble" or resultado.partido.torneo.tipo_juego == "Mixto" %}
                       <tr class="{% if resultado.ganador_equipo == resultado.partido.equipo1 %}resaltado{% endif %}">
                         <td class="jugador-nombre">
                           {{ resultado.partido.equipo1.jugador1.apellido }}
-                          / {{ resultado.partido.equipo1.jugador2.apellido }}
+                          {% if resultado.partido.equipo1.jugador1.estado == "INA" %}(I){% elif resultado.partido.equipo1.jugador1.estado == "DEL" %}(E){% endif %}
+                          /
+                          {{ resultado.partido.equipo1.jugador2.apellido }}
+                          {% if resultado.partido.equipo1.jugador2.estado == "INA" %}(I){% elif resultado.partido.equipo1.jugador2.estado == "DEL" %}(E){% endif %}
                         </td>
                         <td><span class="set-cuadro">{{ resultado.set1_equipo1 }}</span></td>
                         <td><span class="set-cuadro">{{ resultado.set2_equipo1 }}</span></td>
@@ -127,7 +133,10 @@
                       <tr class="{% if resultado.ganador_equipo == resultado.partido.equipo2 %}resaltado{% endif %}">
                         <td class="jugador-nombre">
                           {{ resultado.partido.equipo2.jugador1.apellido }}
-                          / {{ resultado.partido.equipo2.jugador2.apellido }}
+                          {% if resultado.partido.equipo2.jugador1.estado == "INA" %}(I){% elif resultado.partido.equipo2.jugador1.estado == "DEL" %}(E){% endif %}
+                          /
+                          {{ resultado.partido.equipo2.jugador2.apellido }}
+                          {% if resultado.partido.equipo2.jugador2.estado == "INA" %}(I){% elif resultado.partido.equipo2.jugador2.estado == "DEL" %}(E){% endif %}
                         </td>
                         <td><span class="set-cuadro">{{ resultado.set1_equipo2 }}</span></td>
                         <td><span class="set-cuadro">{{ resultado.set2_equipo2 }}</span></td>
@@ -135,13 +144,17 @@
                       </tr>
                     {% else %}
                       <tr class="{% if resultado.ganador_jugador == resultado.partido.jugador1 %}resaltado{% endif %}">
-                        <td class="jugador-nombre">{{ resultado.partido.jugador1 }}</td>
+                        <td class="jugador-nombre">{{ resultado.partido.jugador1 }}
+                          {% if resultado.partido.jugador1.estado == "INA" %}(I){% elif resultado.partido.jugador1.estado == "DEL" %}(E){% endif %}
+                        </td>
                         <td><span class="set-cuadro">{{ resultado.set1_jugador1 }}</span></td>
                         <td><span class="set-cuadro">{{ resultado.set2_jugador1 }}</span></td>
                         <td><span class="set-cuadro">{{ resultado.set3_jugador1|default:"-" }}</span></td>
                       </tr>
                       <tr class="{% if resultado.ganador_jugador == resultado.partido.jugador2 %}resaltado{% endif %}">
-                        <td class="jugador-nombre">{{ resultado.partido.jugador2 }}</td>
+                        <td class="jugador-nombre">{{ resultado.partido.jugador2 }}
+                          {% if resultado.partido.jugador2.estado == "INA" %}(I){% elif resultado.partido.jugador2.estado == "DEL" %}(E){% endif %}
+                        </td>
                         <td><span class="set-cuadro">{{ resultado.set1_jugador2 }}</span></td>
                         <td><span class="set-cuadro">{{ resultado.set2_jugador2 }}</span></td>
                         <td><span class="set-cuadro">{{ resultado.set3_jugador2|default:"-" }}</span></td>

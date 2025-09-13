@@ -55,7 +55,8 @@
                             {% endfor %}
                         </select>
                     </div>
-                                   <!-- ESTADO -->
+
+                    <!-- ESTADO -->
                     <div class="filtro-busqueda1">
                         {% if user.is_authenticated and user.is_staff %}
                         <span class="span-filter">ESTADO</span>
@@ -135,12 +136,13 @@
                              <th>APELLIDO</th>
                              <th>NOMBRE</th>
                              <th>GÉNERO</th>
-                             <th>CATEGORIA</th>
+                             <!-- <th>CATEGORIA</th> -->
+                             <th>ESTADO</th>
+                             <th>OBSERVACIONES</th>
                              <th>INFO</th>
                              {% if user.is_authenticated and user.is_staff %}
-                                 <th>EDITAR</th>
-                                 <th>ESTADO</th>
-                                 <th>ELIMINAR</th>
+                            <th>EDITAR</th>
+                            <th>ELIMINAR</th>
                              {% endif %}
                          </tr>
                      </thead>
@@ -151,7 +153,7 @@
                                      <td scope="row">{{ jugador.apellido | upper }}</td>
                                      <td>{{ jugador.nombre | capfirst }}</td>
                                      <td>{{ jugador.sexo }}</td>
-                                     <td>
+                                     <!-- <td>
                                          {% if jugador.categorias.all %}
                                              {% for categoria in jugador.categorias.all %}
                                                  {{ categoria|formatear_categoria }}{% if not forloop.last %} / {% endif %}
@@ -159,11 +161,27 @@
                                          {% else %}
                                              <span>Sin categoría</span>
                                          {% endif %}
-                                     </td>
+                                     </td> -->
                                      
                                      <td>
-                                         <a href="{% url 'datos_jugador' jugador.dni %}" class="btn-info">+</a>
-                                     </td>
+                                         {% if jugador.estado == "ACT" %}
+                                         Activo
+                                         {% elif jugador.estado == "INA" %}
+                                         Inactivo
+                                         {% else %}
+                                         Eliminado
+                                         {% endif %}
+                                    </td>
+                                    <td>
+                                    {% if jugador.observaciones == "Sin observaciones" %}
+                                        -
+                                    {% else %}
+                                        {{ jugador.observaciones }}
+                                    {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'datos_jugador' jugador.dni %}" class="btn-info">+</a>
+                                    </td>
                                      {% if user.is_authenticated and user.is_staff %}
                                      <!-- EDITAR -->
                                      <td>
@@ -178,7 +196,7 @@
                                         <!-- Modal para modificar el jugador -->
                                         <div class="modal fade" id="modificarModal-{{ jugador.dni }}" tabindex="-1" aria-labelledby="modificarModalLabel-{{ jugador.dni }}" aria-hidden="true">
                                             <div class="modal-dialog">
-                                                <div class="modal-content1">
+                                                <div class="modal-content11">
 
                                                     <div class="modal-header1">
                                                         <h3 class="modal-title" id="modificarModalLabel-{{ jugador.dni }}">
@@ -206,6 +224,14 @@
                                                             <input type="hidden" name="dni" value="{{ jugador.dni }}">
 
                                                             <div class="filtro-busqueda1">
+                                                                <span class="span-filter" for="sexo">Género:</span>
+                                                                <select class="form-select" name="sexo" id="sexo" required>
+                                                                    <option value="M" {% if jugador.sexo == "M" %} selected {% endif %}>Masculino</option>
+                                                                    <option value="F" {% if jugador.sexo == "F" %} selected {% endif %}>Femenino</option>
+                                                                </select>
+                                                            </div>
+
+                                                            <div class="filtro-busqueda1">
                                                             <span class="span-filter" for="estado-{{ jugador.dni }}">Estado:</span>
                                                             <select class="form-select" name="estado" id="estado-{{ jugador.dni }}">
                                                                 <option value="ACT" {% if jugador.estado == "ACT" %}selected{% endif %}>Activo</option>
@@ -213,15 +239,20 @@
                                                             </select>
                                                             </div>
 
-                                                            <div class="filtro-busqueda1">
-                                                                <span class="span-filter" for="sexo">Sexo:</span>
-                                                                <select class="form-select" name="sexo" id="sexo" required>
-                                                                    <option value="M" {% if jugador.sexo == "M" %} selected {% endif %}>Masculino</option>
-                                                                    <option value="F" {% if jugador.sexo == "F" %} selected {% endif %}>Femenino</option>
-                                                                </select>
+                                                            <div class="container-cat" >
+                                                                <span class="span-filter" style="margin-bottom: .5rem;" for="observaciones">Observaciones:</span>
+                                                                    <textarea class="textArea"
+                                                                        name="observaciones"
+                                                                        id="observaciones"
+                                                                        maxlength="200"
+                                                                        rows="3"
+                                                                        placeholder="Escriba alguna observación...">{{ jugador.observaciones }}
+                                                                    </textarea>
                                                             </div>
+
+                                                            
                                                             <div class="container-cat">
-                                                                <span class="span-filter" style="margin-bottom: .5rem;">CATEGORÍAS</span>
+                                                                <span class="span-filter" style="margin-bottom: .5rem;">Categorías</span>
                                                                 <div class="categorias-box1">
                                                                     
                                                                     {# Primero las seleccionadas #}
@@ -269,18 +300,8 @@
                                             </div>
                                         </div>
                                      </td>
-                                     
-                                     {% if user.is_authenticated and user.is_staff %}
-                                     <td>
-                                    {% if jugador.estado == "ACT" %}
-                                        Activo
-                                    {% elif jugador.estado == "INA" %}
-                                        Inactivo
-                                    {% else %}
-                                        Eliminado
-                                    {% endif %}
-                                    </td>
-
+                                                                             
+                                    {% if user.is_authenticated and user.is_staff %}
                                      <td>
                                          <button type="button"
                                                  data-bs-toggle="modal"
