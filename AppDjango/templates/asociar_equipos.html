@@ -65,7 +65,7 @@
                     Guardar Equipo Creado
                 </button>
                 <button type="submit" name="action" value="desasociar" class="btn-delete1">
-                    Desinscribir Equipos Elegidos
+                    Eliminar equipos inscriptos
                 </button>
                 
             </div>
@@ -125,12 +125,12 @@
                                 <label class="form-check-label" for="equipo{{ equipo.id }}">                                   
                                     <small style="color: rgb(171, 171, 171)">Equipo {{ forloop.counter }}:</small>
                                     <span class="{% if equipo.jugador1.estado == 'DEL' %}estado-deleted{% elif equipo.jugador1.estado == 'INA' %}estado-inactive{% endif %}">
-                                        {{ equipo.jugador1.apellido }}
+                                        {{ equipo.jugador1.apellido|upper }} {{ equipo.jugador1.nombre|slice:":1"|capfirst }}.
                                         {% if equipo.jugador1.estado == "INA" %}(Inactivo){% elif equipo.jugador1.estado == "DEL" %}(Eliminado){% endif %}
                                     </span>
                                     / 
                                     <span class="{% if equipo.jugador2.estado == 'DEL' %}estado-deleted{% elif equipo.jugador2.estado == 'INA' %}estado-inactive{% endif %}">
-                                        {{ equipo.jugador2.apellido }} 
+                                        {{ equipo.jugador2.apellido|upper }} {{ equipo.jugador2.nombre|slice:":1"|capfirst }}.
                                         {% if equipo.jugador2.estado == "INA" %}(Inactivo){% elif equipo.jugador2.estado == "DEL" %}(Eliminado){% endif %}
                                     </span>
                                 </label>

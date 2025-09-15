@@ -630,8 +630,30 @@ def asociar_equipos(request, id):
         jugadores_disponibles = Jugador.objects.filter(sexo__in=['F', 'M'])
 
     # Excluir jugadores ya en equipos del torneo
-    jugadores_en_equipo = Equipo.objects.filter(torneo=torneo).values_list('jugador1__dni', 'jugador2__dni')
-    dnis_en_equipo = [dni for par in jugadores_en_equipo for dni in par]
+    # jugadores_en_equipo = Equipo.objects.filter(torneo=torneo).values_list('jugador1__dni', 'jugador2__dni')
+    # dnis_en_equipo = [dni for par in jugadores_en_equipo for dni in par]
+    # jugadores_disponibles = jugadores_disponibles.exclude(dni__in=dnis_en_equipo)
+
+    # --------------------------------------------
+    # MODIFICACIÓN: Excluir solo jugadores activos
+    # --------------------------------------------
+    equipos = Equipo.objects.filter(torneo=torneo).select_related('jugador1', 'jugador2')
+    dnis_en_equipo = []
+    for eq in equipos:
+        # Caso 1: ambos activos → los dos quedan fuera de disponibles
+        if eq.jugador1.estado == "ACT" and eq.jugador2.estado == "ACT":
+            dnis_en_equipo.extend([eq.jugador1.dni, eq.jugador2.dni])
+
+        # Caso 2: uno está inactivo → solo el inactivo queda fuera, el compañero vuelve a estar disponible
+        elif eq.jugador1.estado == "INA" and eq.jugador2.estado == "ACT":
+            dnis_en_equipo.append(eq.jugador1.dni)  # solo el INA
+        elif eq.jugador2.estado == "INA" and eq.jugador1.estado == "ACT":
+            dnis_en_equipo.append(eq.jugador2.dni)  # solo el INA
+
+        # Caso 3: ambos inactivos → no se excluye ninguno (los dos deben estar disponibles)
+        # No hacemos nada
+
+    # Aplicar exclusión de jugadores activos ya en equipo
     jugadores_disponibles = jugadores_disponibles.exclude(dni__in=dnis_en_equipo)
 
     # ✅ Aplicar búsqueda si hay texto ingresado
@@ -641,7 +663,7 @@ def asociar_equipos(request, id):
             Q(nombre__icontains=search) | Q(apellido__icontains=search)
         )
 
-# ✅ Lógica de búsqueda doble exclusiva de esta vista
+    # ✅ Lógica de búsqueda doble exclusiva de esta vista
     if modo_equipo and (search1 or search2):
         filtros = Q()
         if search1:

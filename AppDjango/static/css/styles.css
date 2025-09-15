@@ -500,6 +500,50 @@ background-color: transparent; /* 'none' no es válido */
     background-color: rgb(165, 83, 15);
 }
 
+.login-button1 {
+    background-color: green;
+    border: none;
+    color: white;
+    padding: 10px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    display: block;
+    width: 80%;
+    margin: 10px auto; /* Cambia 'margin-top' por 'margin' para centrar */
+    text-align: center;
+    text-decoration: none;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); 
+}
+
+
+.login-button1:hover {
+    background-color: rgb(1, 67, 1);
+}
+
+.login-button2 {
+    background-color: red;
+    border: none;
+    color: white;
+    padding: 10px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    display: block;
+    width: 80%;
+    margin: 10px auto; /* Cambia 'margin-top' por 'margin' para centrar */
+    text-align: center;
+    text-decoration: none;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); 
+}
+
+
+.login-button2:hover {
+    background-color: rgb(105, 3, 3);
+}
+
 /*login boton rojo*/
 .rojo{
     background-color:red
@@ -1145,11 +1189,6 @@ table {
 .modal-header {
     color: black;
     font-weight: bold;
-}
-
-.modal-body {
-    font-size: 1.2rem;
-    color: black;
 }
 
 .modal-footer {
@@ -3427,10 +3466,13 @@ td.set input {
   background: rgba(0,0,0,.25);
 }
 .desc-full{
-  max-height: 180px;              /* scroll vertical para textos largos */
+    margin-left: auto;
+    margin-right: auto;
+    width: 70%;
+  /* max-height: 180px;
   overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-word;
-  line-height: 1.4;
+  line-height: 1.4; */
 }
 

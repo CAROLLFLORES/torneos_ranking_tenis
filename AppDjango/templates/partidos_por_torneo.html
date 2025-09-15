@@ -115,12 +115,12 @@
                                 {% for equipo in equipos %}
                                     <option value="{{ equipo.id }}"
                                         {% if equipo.id == partido.equipo1.id %}selected{% endif %}>
-                                        {{ equipo.jugador1.apellido|upper }}
+                                        {{ equipo.jugador1.apellido|upper }} {{ equipo.jugador1.nombre|slice:":1"|capfirst | upper }}.
                                         {% if equipo.jugador1.estado != 'ACT' %}
                                             ({% if equipo.jugador1.estado == "INA" %}I{% else %}E{% endif %})
                                         {% endif %}
                                         /
-                                        {{ equipo.jugador2.apellido|upper }}
+                                        {{ equipo.jugador2.apellido|upper }} {{ equipo.jugador2.nombre|slice:":1"|capfirst | upper }}.
                                         {% if equipo.jugador2.estado != 'ACT' %}
                                             ({% if equipo.jugador2.estado == "INA" %}I{% else %}E{% endif %})
                                         {% endif %}
@@ -130,12 +130,12 @@
                                 {# Mostrar equipo histórico si ya no está inscripto #}
                                 {% if partido.equipo1 and partido.equipo1 not in equipos %}
                                     <option value="{{ partido.equipo1.id }}" selected>
-                                        {{ partido.equipo1.jugador1.apellido|upper }}
+                                        {{ partido.equipo1.jugador1.apellido|upper }} {{ partido.equipo1.jugador1.nombre|slice:":1"|capfirst | upper }}.
                                         {% if partido.equipo1.jugador1.estado != 'ACT' %}
                                             ({% if partido.equipo1.jugador1.estado == "INA" %}I{% else %}E{% endif %})
                                         {% endif %}
                                         /
-                                        {{ partido.equipo1.jugador2.apellido|upper }}
+                                        {{ partido.equipo1.jugador2.apellido|upper }} {{ partido.equipo1.jugador2.nombre|slice:":1"|capfirst | upper }}.
                                         {% if partido.equipo1.jugador2.estado != 'ACT' %}
                                             ({% if partido.equipo1.jugador2.estado == "INA" %}I{% else %}E{% endif %})
                                         {% endif %}
@@ -191,12 +191,12 @@
                                     {% if partido.resultado and partido.resultado.ganador_equipo and partido.equipo1.id == partido.resultado.ganador_equipo.id %}
                                         selected
                                     {% endif %}>
-                                    {{ partido.equipo1.jugador1.apellido|upper }}
+                                    {{ partido.equipo1.jugador1.apellido|upper }} {{ partido.equipo1.jugador1.nombre|slice:":1"|capfirst | upper }}.
                                     {% if partido.equipo1.jugador1.estado != 'ACT' %}
                                         ({% if partido.equipo1.jugador1.estado == "INA" %}I{% else %}E{% endif %})
                                     {% endif %}
                                     /
-                                    {{ partido.equipo1.jugador2.apellido|upper }}
+                                    {{ partido.equipo1.jugador2.apellido|upper }} {{ partido.equipo1.jugador2.nombre|slice:":1"|capfirst | upper }}.
                                     {% if partido.equipo1.jugador2.estado != 'ACT' %}
                                         ({% if partido.equipo1.jugador2.estado == "INA" %}I{% else %}E{% endif %})
                                     {% endif %}
@@ -205,12 +205,12 @@
                                     {% if partido.resultado and partido.resultado.ganador_equipo and partido.equipo2.id == partido.resultado.ganador_equipo.id %}
                                         selected
                                     {% endif %}>
-                                    {{ partido.equipo2.jugador1.apellido|upper }}
+                                    {{ partido.equipo2.jugador1.apellido|upper }} {{ partido.equipo2.jugador1.nombre|slice:":1"|capfirst | upper }}.
                                     {% if partido.equipo2.jugador1.estado != 'ACT' %}
                                         ({% if partido.equipo2.jugador1.estado == "INA" %}I{% else %}E{% endif %})
                                     {% endif %}
                                     /
-                                    {{ partido.equipo2.jugador2.apellido|upper }}
+                                    {{ partido.equipo2.jugador2.apellido|upper }} {{ partido.equipo2.jugador2.nombre|slice:":1"|capfirst | upper }}.
                                     {% if partido.equipo2.jugador2.estado != 'ACT' %}
                                         ({% if partido.equipo2.jugador2.estado == "INA" %}I{% else %}E{% endif %})
                                     {% endif %}
@@ -266,12 +266,12 @@
                                 {% for equipo in equipos %}
                                     <option value="{{ equipo.id }}"
                                         {% if equipo.id == partido.equipo2.id %}selected{% endif %}>
-                                        {{ equipo.jugador1.apellido|upper }}
+                                        {{ equipo.jugador1.apellido|upper }} {{ equipo.jugador1.nombre|slice:":1"|capfirst | upper }}.
                                         {% if equipo.jugador1.estado != 'ACT' %}
                                             ({% if equipo.jugador1.estado == "INA" %}I{% else %}E{% endif %})
                                         {% endif %}
                                         /
-                                        {{ equipo.jugador2.apellido|upper }}
+                                        {{ equipo.jugador2.apellido|upper }} {{ equipo.jugador2.nombre|slice:":1"|capfirst | upper }}.
                                         {% if equipo.jugador2.estado != 'ACT' %}
                                             ({% if equipo.jugador2.estado == "INA" %}I{% else %}E{% endif %})
                                         {% endif %}
@@ -281,12 +281,12 @@
                                 {# Mostrar equipo histórico si ya no está inscripto #}
                                 {% if partido.equipo2 and partido.equipo2 not in equipos %}
                                     <option value="{{ partido.equipo2.id }}" selected>
-                                        {{ partido.equipo2.jugador1.apellido|upper }}
+                                        {{ partido.equipo2.jugador1.apellido|upper }} {{ partido.equipo2.jugador1.nombre|slice:":1"|capfirst | upper }}.
                                         {% if partido.equipo2.jugador1.estado != 'ACT' %}
                                             ({% if partido.equipo2.jugador1.estado == "INA" %}I{% else %}E{% endif %})
                                         {% endif %}
                                         /
-                                        {{ partido.equipo2.jugador2.apellido|upper }}
+                                        {{ partido.equipo2.jugador2.apellido|upper }} {{ partido.equipo2.jugador2.nombre|slice:":1"|capfirst | upper }}.
                                         {% if partido.equipo2.jugador2.estado != 'ACT' %}
                                             ({% if partido.equipo2.jugador2.estado == "INA" %}I{% else %}E{% endif %})
                                         {% endif %}
