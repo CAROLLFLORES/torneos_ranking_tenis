@@ -128,22 +128,20 @@ def ver_ranking(request, torneo_id):
             invisibles = set(
                 Ranking.objects
                 .filter(torneo=torneo_actual, activo=False)
-                .values_list("jugador_id", flat=True)    # <- PK de Jugador (tu DNI)
-                # Alternativa equivalente: .values_list("jugador__dni", flat=True)
+                .values_list("jugador_id", flat=True)
             )
             ranking_ordenado = [r for r in ranking_ordenado if (r.get("jugador") and r["jugador"].pk not in invisibles)]
 
 
     torneos = Torneo.objects.all().order_by("nombre")
 
-    # 🔽 NUEVO: torneos destino con el mismo estilo (tipo_juego + tipo)
     torneos_destino = Torneo.objects.none()
     if torneo_actual:
         torneos_destino = (
             Torneo.objects
             .filter(
-                tipo_juego=torneo_actual.tipo_juego,  # Single/Doble/Mixto
-                tipo=torneo_actual.tipo,               # Caballeros/Damas/Mixto
+                tipo_juego=torneo_actual.tipo_juego, 
+                tipo=torneo_actual.tipo,
             )
             .exclude(id=torneo_actual.id)
             .order_by('nombre')
@@ -152,7 +150,7 @@ def ver_ranking(request, torneo_id):
     # Renderizar template pasando ranking ya ordenado
     return render(request, "ranking.html", {
         "torneo_actual": torneo_actual,
-        "ranking": ranking_ordenado,  # 🔥 ranking con eliminados al final
+        "ranking": ranking_ordenado,
         "torneos": torneos,
         "ascensos_val": ascensos_val,
         "descensos_val": descensos_val,
@@ -349,10 +347,23 @@ def calcular_ranking(torneo_id, user=None):
 
 
     # Ordenar ranking por puntaje (los que no jugaron van al final)
+    # ranking_list = sorted(
+    #     ranking_data.values(),
+    #     key=lambda x: (x["pj"] == 0, -x["puntaje_total_categoria"])
+    # )
     ranking_list = sorted(
         ranking_data.values(),
-        key=lambda x: (x["pj"] == 0, -x["puntaje_total_categoria"])
+        key=lambda x: (
+            x["pj"] == 0,                       # los que no jugaron al final
+            -x["puntaje_total_categoria"],      # 1) puntaje (desc)
+            -x["pj"],                           # 2) partidos jugados (desc)
+            -x["pg"],                           # 3) partidos ganados (desc)
+            x["pp"],                            # 4) partidos perdidos (asc -> menos pérdidas mejor)
+            -x["sets"],                         # 5) sets (desc)
+            -x["games"]                         # 6) games (desc) <-- desempate final
+        )
     )
+    
     # Guarda en base de datos
     if user and user.is_authenticated and user.is_staff:
         guardar_ranking_en_modelos(torneo, ranking_list)

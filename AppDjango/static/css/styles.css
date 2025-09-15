@@ -3427,10 +3427,13 @@ td.set input {
   background: rgba(0,0,0,.25);
 }
 .desc-full{
-  max-height: 180px;              /* scroll vertical para textos largos */
+    margin-left: auto;
+    margin-right: auto;
+    width: 70%;
+  /* max-height: 180px;
   overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-word;
-  line-height: 1.4;
+  line-height: 1.4; */
 }
 
