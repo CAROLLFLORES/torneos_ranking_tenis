@@ -196,6 +196,7 @@
                                 {% if partido.resultado.ganador_equipo %}
                                     {% if partido.resultado.ganador_equipo.jugador1 and partido.resultado.ganador_equipo.jugador2 %}
                                         {{ partido.resultado.ganador_equipo.jugador1.apellido | upper }}
+                                        {{ partido.resultado.ganador_equipo.jugador1.nombre|slice:":1"|capfirst | upper }}.
                                         {% if partido.resultado.ganador_equipo.jugador1.estado != 'ACT' %}
                                             <small class="estado-jugador">
                                                 ({% if partido.resultado.ganador_equipo.jugador1.estado == "INA" %}I{% else %}E{% endif %})
@@ -203,6 +204,7 @@
                                         {% endif %}
                                            /
                                         {{ partido.resultado.ganador_equipo.jugador2.apellido | upper }}
+                                        {{ partido.resultado.ganador_equipo.jugador2.nombre|slice:":1"|capfirst | upper }}.
                                         {% if partido.resultado.ganador_equipo.jugador2.estado != 'ACT' %}
                                             <small class="estado-jugador">
                                                 ({% if partido.resultado.ganador_equipo.jugador2.estado == "INA" %}I{% else %}E{% endif %})
@@ -210,6 +212,7 @@
                                         {% endif %}
                                     {% elif partido.resultado.ganador_equipo.jugador1 %}
                                         {{ partido.resultado.ganador_equipo.jugador1.apellido | upper }}
+                                        {{ partido.resultado.ganador_equipo.jugador1.nombre|slice:":1"|capfirst | upper }}.
                                         {% if partido.resultado.ganador_equipo.jugador1.estado != 'ACT' %}
                                             <small class="estado-jugador">
                                                 ({% if partido.resultado.ganador_equipo.jugador1.estado == "INA" %}I{% else %}E{% endif %})

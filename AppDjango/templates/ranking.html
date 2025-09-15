@@ -86,30 +86,32 @@
     <!-- MODAL ASCENSO -->
     <div class="modal fade" id="modalAscenso" tabindex="-1" aria-labelledby="modalAscensoLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-            <div class="modal-header">
-                <i class="bi-arrow-up-circle-fill" style="font-size: 3.5rem; color: orange;  display: inline-flex; align-items: center; justify-content: center;"></i>
+            <div class="modal-content11">
+            <div class="modal-header1">
+                <i class="bi-arrow-up-circle-fill" style="font-size: 2rem; color: green;  display: inline-flex; align-items: center; justify-content: center;"></i>
                 <h4 class="modal-title" id="modalAscensoLabel">Seleccionar Torneo Destino</h4>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">
                 <i class="bi bi-x" style="font-size: 1.5rem;"></i>
             </button>
             </div>
             <div class="modal-body">
-                <select name="torneo_destino" class="form-select mb-3 form-control-lg" required>
-                <option value="" disabled selected>TORNEOS</option>
-                {% if torneos_destino %}
-                    {% for torneo in torneos_destino %}
-                    <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
-                    {% endfor %}
-                {% else %}
-                    <option disabled>No hay torneos compatibles (mismo estilo)</option>
-                {% endif %}
-                </select>
-                <H4>ASCENDER los jugadores seleccionados a este torneo.</H4>
+                <div class="filtro-busqueda1">
+                    <select name="form-select" class="form-select mb-3 form-control-lg" required>
+                    <option value="" disabled selected>TORNEOS</option>
+                    {% if torneos_destino %}
+                        {% for torneo in torneos_destino %}
+                        <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option disabled>No hay torneos compatibles (mismo estilo)</option>
+                    {% endif %}
+                    </select>
+                </div>
+                <span style="color: white; padding: 1rem 0;">ASCENDER los jugadores seleccionados a este torneo.</span>
             </div>
             <div class="modal-footer">
-                <button type="submit" id="btnConfirmarAscenso" form="formAscenso" class="login-button btn btn-success">
-                CONFIRMAR ASCENSO
+                <button type="submit" id="btnConfirmarAscenso" form="formAscenso" class="login-button1">
+                    CONFIRMAR ASCENSO
                 </button>
 
             </div>
@@ -119,29 +121,31 @@
     <!-- MODAL DESCENSO -->
     <div class="modal fade" id="modalDescenso" tabindex="-1" aria-labelledby="modalDescensoLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-            <div class="modal-header">
-                <i class="bi-arrow-down-circle-fill" style="font-size: 3.5rem; color: red;  display: inline-flex; align-items: center; justify-content: center;"></i>
+            <div class="modal-content11">
+            <div class="modal-header1">
+                <i class="bi-arrow-down-circle-fill" style="font-size: 2rem; color: red;  display: inline-flex; align-items: center; justify-content: center;"></i>
                 <h4 class="modal-title" id="modalDescensoLabel">TORNEOS</h4>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">
                 <i class="bi bi-x" style="font-size: 1.5rem;"></i>
             </button>
             </div>
             <div class="modal-body">
-                <select name="torneo_destino" class="form-select mb-3 form-control-lg" required>
-                <option value="" disabled selected>TORNEOS</option>
-                {% if torneos_destino %}
-                    {% for torneo in torneos_destino %}
-                    <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
-                    {% endfor %}
-                {% else %}
-                    <option disabled>No hay torneos compatibles (mismo estilo)</option>
-                {% endif %}
-                </select>
-                <H4>DESCENDER los jugadores seleccionados a este torneo.</H4>
+                <div class="filtro-busqueda1">
+                    <select name="torneo_destino" class="form-select mb-3 form-control-lg" required>
+                    <option value="" disabled selected>TORNEOS</option>
+                    {% if torneos_destino %}
+                        {% for torneo in torneos_destino %}
+                        <option value="{{ torneo.id }}">{{ torneo.nombre }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option disabled>No hay torneos compatibles (mismo estilo)</option>
+                    {% endif %}
+                    </select>
+                </div>
+                <span style="color: white; padding: 1rem 0;">DESCENDER los jugadores seleccionados a este torneo.</span>
             </div>
             <div class="modal-footer">
-                <button type="button" class="login-button btn btn-success" id="btnConfirmarDescenso">CONFIRMAR DESCENSO</button>
+                <button type="button" class="login-button2" id="btnConfirmarDescenso">CONFIRMAR DESCENSO</button>
             </div>
             </div>
         </div>
@@ -157,7 +161,7 @@
             </h4>
         </div>
         <div class="modal-body text-center">
-            <p id="modalAdvertenciaMensaje" class="fw-semibold mb-4" style="font-size: 1.2rem;"></p>
+            <span id="modalAdvertenciaMensaje" class="fw-semibold mb-4" style="font-size: 1rem; color: black"></span>
             <button type="button" class="login-button" data-bs-dismiss="modal">ACEPTAR</button>
         </div>
         </div>
