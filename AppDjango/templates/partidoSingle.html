@@ -20,20 +20,40 @@
                 <tbody id="partidos-body">
                     <tr>
                         <td>
+                            <!-- JUGADOR 1 (SINGLES) -->
                             <select name="jugador1[]" required>
                                 <option value="" selected>Seleccione Jugador 1</option>
                                 {% for jugador in jugadores %}
-                                <option value="{{ jugador.dni }}">{{ jugador.apellido | upper }}, {{ jugador.nombre }}</option>
+                                    {% if jugador.estado == "INA" %}
+                                    <option value="{{ jugador.dni }}" class="option-inactivo">
+                                        {{ jugador.apellido|upper }}, {{ jugador.nombre }} (Inactivo)
+                                    </option>
+                                    {% else %}
+                                    <option value="{{ jugador.dni }}">
+                                        {{ jugador.apellido|upper }}, {{ jugador.nombre }}
+                                    </option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
+
                         </td>
                         <td>
+                            <!-- JUGADOR 2 (SINGLES) -->
                             <select name="jugador2[]" required>
                                 <option value="" selected>Seleccione Jugador 2</option>
                                 {% for jugador in jugadores %}
-                                <option value="{{ jugador.dni }}">{{ jugador.apellido | upper }}, {{ jugador.nombre }}</option>
+                                    {% if jugador.estado == "INA" %}
+                                    <option value="{{ jugador.dni }}" class="option-inactivo">
+                                        {{ jugador.apellido|upper }}, {{ jugador.nombre }} (Inactivo)
+                                    </option>
+                                    {% else %}
+                                    <option value="{{ jugador.dni }}">
+                                        {{ jugador.apellido|upper }}, {{ jugador.nombre }}
+                                    </option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
+
                         </td>
                         <td><input type="date" name="fecha[]" required></td>
                         <td><input type="time" name="hora[]" required></td>

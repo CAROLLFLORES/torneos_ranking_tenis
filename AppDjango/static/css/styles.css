@@ -3476,3 +3476,9 @@ td.set input {
   line-height: 1.4; */
 }
 
+
+
+.option-inactivo {
+  color: gray !important;
+  font-style: italic;
+}

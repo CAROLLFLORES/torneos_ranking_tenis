@@ -23,21 +23,39 @@
                             <select name="jugador1[]" required>
                                 <option value="" selected>Seleccione Equipo 1</option>
                                 {% for equipo in equipos %}
-                                <option value="{{ equipo.id }}">
-                                    {{ equipo.jugador1.apellido | upper }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido | upper }} {{ equipo.jugador2.nombre }}
-                                </option>
+                                    {% if equipo.jugador1.estado == "INA" or equipo.jugador2.estado == "INA" %}
+                                    <option value="{{ equipo.id }}" class="option-inactivo">
+                                        {{ equipo.jugador1.apellido|upper }} {{ equipo.jugador1.nombre }} /
+                                        {{ equipo.jugador2.apellido|upper }} {{ equipo.jugador2.nombre }} (Inactivo)
+                                    </option>
+                                    {% else %}
+                                    <option value="{{ equipo.id }}">
+                                        {{ equipo.jugador1.apellido|upper }} {{ equipo.jugador1.nombre }} /
+                                        {{ equipo.jugador2.apellido|upper }} {{ equipo.jugador2.nombre }}
+                                    </option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
+
                         </td>
                         <td>
                             <select name="jugador2[]" required>
                                 <option value="" selected>Seleccione Equipo 2</option>
                                 {% for equipo in equipos %}
-                                <option value="{{ equipo.id }}">
-                                    {{ equipo.jugador1.apellido | upper }} {{ equipo.jugador1.nombre }} / {{ equipo.jugador2.apellido | upper }} {{ equipo.jugador2.nombre }}
-                                </option>
+                                    {% if equipo.jugador1.estado == "INA" or equipo.jugador2.estado == "INA" %}
+                                    <option value="{{ equipo.id }}" class="option-inactivo">
+                                        {{ equipo.jugador1.apellido|upper }} {{ equipo.jugador1.nombre }} /
+                                        {{ equipo.jugador2.apellido|upper }} {{ equipo.jugador2.nombre }} (Inactivo)
+                                    </option>
+                                    {% else %}
+                                    <option value="{{ equipo.id }}">
+                                        {{ equipo.jugador1.apellido|upper }} {{ equipo.jugador1.nombre }} /
+                                        {{ equipo.jugador2.apellido|upper }} {{ equipo.jugador2.nombre }}
+                                    </option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
+
                         </td>
                         <td><input type="date" name="fecha[]" required></td>
                         <td><input type="time" name="hora[]" required></td>
