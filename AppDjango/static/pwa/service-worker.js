@@ -1,4 +1,4 @@
-const CACHE = "tenis-v2";
+const CACHE = "tenis-v3";
 const OFFLINE_URLS = [
   "/",
   "/static/css/styles.css",
