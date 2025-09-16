@@ -3507,3 +3507,10 @@ td.set input {
 .logos-fila img:hover {
     transform: scale(1.1);
 }
+
+/* móvil: un poco más chicos si querés */
+@media (max-width: 600px) {
+  .logos-fila img {
+    height: 70px !important;
+  }
+}
