@@ -3482,3 +3482,28 @@ td.set input {
   color: gray !important;
   font-style: italic;
 }
+
+/* Contenedor de logos en fila */
+.logos-fila {
+    display: flex;
+    justify-content: center;   /* centra horizontalmente */
+    align-items: center;       /* alinea verticalmente */
+    flex-wrap: wrap;           /* permite que bajen de línea en pantallas chicas */
+    gap: 2rem;                 /* espacio entre logos */
+    margin: 2rem 0;
+}
+
+/* Logos individuales */
+.logos-fila img {
+    height: 100px;              /* todos con misma altura */
+    width: auto;               /* ancho proporcional */
+    object-fit: contain;       /* mantiene proporción */
+    border-radius: 8px;        /* opcional, esquinas redondeadas */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* opcional, sombra suave */
+    transition: transform 0.3s ease;
+}
+
+/* Efecto hover */
+.logos-fila img:hover {
+    transform: scale(1.1);
+}
