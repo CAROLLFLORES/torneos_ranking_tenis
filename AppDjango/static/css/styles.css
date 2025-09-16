@@ -3495,8 +3495,8 @@ td.set input {
 
 /* Logos individuales */
 .logos-fila img {
-    height: 100px;              /* todos con misma altura */
-    width: auto;               /* ancho proporcional */
+    height: 100px !important;              /* todos con misma altura */
+    width: auto !important;               /* ancho proporcional */
     object-fit: contain;       /* mantiene proporción */
     border-radius: 8px;        /* opcional, esquinas redondeadas */
     box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* opcional, sombra suave */
