@@ -29,7 +29,7 @@ from collections import defaultdict
 from ranking.models import Ranking, RankingEquipo
 from .models import Jugador  # solo Jugador está en jugador.models
 from torneo.models import Torneo, Partido, Equipo  # estos están en torneo
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.conf import settings
 import os
 
@@ -661,7 +661,7 @@ def exportar_partidos_pdf(request):
     fecha_str = request.GET.get("fecha", "")
     search = request.GET.get("search", "")
 
-    # Queryset inicial
+    # Queryset inicial (para imprimir en el PDF)
     partidos = Partido.objects.select_related(
         'torneo', 'cancha__sede',
         'jugador1', 'jugador2',
@@ -688,17 +688,65 @@ def exportar_partidos_pdf(request):
 
     partidos = partidos.order_by('fecha', 'hora', 'cancha__sede__nombre')
 
-    partidos_global = Partido.objects.select_related(
-        'torneo', 'cancha__sede',
-        'jugador1', 'jugador2',
-        'equipo1__jugador1', 'equipo1__jugador2',
-        'equipo2__jugador1', 'equipo2__jugador2'
-    ).order_by('fecha', 'hora', 'cancha__sede__nombre')
+    # ------------------------------
+    # Jugadores repetidos SOLO en el finde correspondiente a fecha_str
+    # ------------------------------
+    def _dni_from_partido(p):
+        dnis = []
+        # Singles
+        if getattr(p, "jugador1", None) and getattr(p.jugador1, "dni", None):
+            dnis.append(p.jugador1.dni)
+        if getattr(p, "jugador2", None) and getattr(p.jugador2, "dni", None):
+            dnis.append(p.jugador2.dni)
+        # Dobles
+        if getattr(p, "equipo1", None):
+            if getattr(p.equipo1, "jugador1", None) and getattr(p.equipo1.jugador1, "dni", None):
+                dnis.append(p.equipo1.jugador1.dni)
+            if getattr(p.equipo1, "jugador2", None) and getattr(p.equipo1.jugador2, "dni", None):
+                dnis.append(p.equipo1.jugador2.dni)
+        if getattr(p, "equipo2", None):
+            if getattr(p.equipo2, "jugador1", None) and getattr(p.equipo2.jugador1, "dni", None):
+                dnis.append(p.equipo2.jugador1.dni)
+            if getattr(p.equipo2, "jugador2", None) and getattr(p.equipo2.jugador2, "dni", None):
+                dnis.append(p.equipo2.jugador2.dni)
+        return dnis
 
+    jugadores_repetidos = set()
+    if fecha_str:
+        fecha_sel = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+        wd = fecha_sel.weekday()  # lunes=0 ... domingo=6
+        # calcular sábado/domingo del finde correspondiente a fecha_sel
+        if wd <= 5:
+            sabado = fecha_sel + timedelta(days=(5 - wd))
+        else:
+            sabado = fecha_sel - timedelta(days=(wd - 5))
+        domingo = sabado + timedelta(days=1)
 
-    jugadores_repetidos = detectar_jugadores_repetidos(partidos_global)
+        qs_finde = Partido.objects.select_related(
+            'torneo', 'cancha__sede',
+            'jugador1', 'jugador2',
+            'equipo1__jugador1', 'equipo1__jugador2',
+            'equipo2__jugador1', 'equipo2__jugador2'
+        ).filter(fecha__gte=sabado, fecha__lte=domingo)
 
+        # IMPORTANTE: no filtramos por sede/categoría/tipo de juego
+        # Si querés que el conteo de repetidos sea SOLO dentro del torneo filtrado, descomentá:
+        # if torneo_id:
+        #     qs_finde = qs_finde.filter(torneo__id=torneo_id)
+
+        counts = {}
+        for p in qs_finde:
+            for dni in _dni_from_partido(p):
+                counts[dni] = counts.get(dni, 0) + 1
+
+        jugadores_repetidos = {dni for dni, c in counts.items() if c > 1}
+    else:
+        # Sin fecha seleccionada no pintamos verde (evita considerar todo el año)
+        jugadores_repetidos = set()
+
+    # ------------------------------
     # PDF
+    # ------------------------------
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
@@ -729,15 +777,15 @@ def exportar_partidos_pdf(request):
     y -= 20
 
     # Leyenda jugadores en verde
-    leyenda = "Jugadores en verde: juegan más de un partido el mismo día o en días consecutivos (en cualquier sede o tipo de juego)"
+    leyenda = "Jugadores en verde: juegan más de un partido el mismo fin de semana (sábado y domingo), sin importar sede, categoría o tipo."
     c.setFont("Helvetica", 9)
     c.setFillColorRGB(0, 0.5, 0)
     leyenda_width = c.stringWidth(leyenda, "Helvetica", 9)
     c.drawString((A4[0] - leyenda_width) / 2, y, leyenda)
     y -= 40  # espacio después de la leyenda
 
-    # Encabezados de columnas en negro
-    c.setFillColorRGB(0, 0, 0) 
+    # Encabezados de columnas
+    c.setFillColorRGB(0, 0, 0)
     c.setFont("Helvetica-Bold", 10)
     c.drawString(45, y, "DÍA / HORA".upper())
     c.drawString(120, y, "LUGAR".upper())
@@ -745,7 +793,7 @@ def exportar_partidos_pdf(request):
     c.drawString(370, y, "JUGADORES".upper())
     y -= 15
 
-    # Contenido en negro
+    # Contenido
     c.setFont("Helvetica", 10)
 
     for partido in partidos:
@@ -800,7 +848,7 @@ def exportar_partidos_pdf(request):
         # Dibujar primer equipo / jugador
         for jugador in jugadores_equipo1:
             jugador_texto = f"{jugador.apellido.upper()} {jugador.nombre}"
-            if jugador.dni in jugadores_repetidos:
+            if getattr(jugador, "dni", None) in jugadores_repetidos:
                 c.setFillColorRGB(0, 0.5, 0)  # verde
             else:
                 c.setFillColorRGB(0, 0, 0)    # negro
@@ -822,7 +870,7 @@ def exportar_partidos_pdf(request):
         # Dibujar segundo equipo / jugador
         for jugador in jugadores_equipo2:
             jugador_texto = f"{jugador.apellido.upper()} {jugador.nombre}"
-            if jugador.dni in jugadores_repetidos:
+            if getattr(jugador, "dni", None) in jugadores_repetidos:
                 c.setFillColorRGB(0, 0.5, 0)  # verde
             else:
                 c.setFillColorRGB(0, 0, 0)    # negro
@@ -833,8 +881,8 @@ def exportar_partidos_pdf(request):
         c.setStrokeColorRGB(0, 0, 0)
         c.setLineWidth(0.3)
         c.setDash(1, 2)
-        c.line(40, y + 7, width - 40, y + 7)  
-        c.setDash()    
+        c.line(40, y + 7, width - 40, y + 7)
+        c.setDash()
 
         y -= 10  # espacio extra entre partidos
 
